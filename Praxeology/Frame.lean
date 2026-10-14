@@ -224,7 +224,23 @@ theorem dstit_exec_mem (i : Agent) (t : Moment) (h : History) (α : Action)
   exact h_pos
 
 -- =========================================================================
--- 6. Doxastic Epistemic Logic (DEL)
+-- 6. Mortal Biological Horizon
+-- =========================================================================
+
+/-- Biological/operational lifespan horizon of agent i on history h. -/
+axiom T_max : Agent → History → Moment
+
+/-- The lifespan boundary moment belongs to history h. -/
+axiom T_max_mem (i : Agent) (h : History) : T_max i h ∈ h
+
+/-- Post-Horizon Singleton Menu:
+    Beyond lifespan T_max(i, h), the feasible action menu collapses to the singleton
+    passive/inertial baseline {α₀}, maintaining non-emptiness without active agency. -/
+axiom post_horizon_singleton (i : Agent) (t : Moment) (h : History) :
+  T_max i h < t → A_feas i t h = {α₀}
+
+-- =========================================================================
+-- 7. Doxastic Epistemic Logic (DEL)
 -- =========================================================================
 
 /-- Minimal plausibility worlds for agent i at moment t. -/

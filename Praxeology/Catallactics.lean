@@ -41,8 +41,76 @@ open scoped Classical
 
 
 -- =========================================================================
--- Section 1: Bilateral Exchange & Double Inequality of Valuations
+-- Section 1: Bilateral Exchange & Megger Coercion vs. Catallactics Separation
 -- =========================================================================
+
+/-- A 2-Agent Interactive Node where each agent's realized end depends on BOTH agents' actions.
+    Following Megger (2024) Sections 4 & 5.2. -/
+structure InteractiveNode (ActI ActJ EndsI EndsJ : Type) where
+  α₀_i : ActI
+  α₀_j : ActJ
+  Outcome_i : ActI → ActJ → EndsI
+  Outcome_j : ActI → ActJ → EndsJ
+  StrictPref_i : EndsI → EndsI → Prop
+  StrictPref_j : EndsJ → EndsJ → Prop
+
+/-- Purposeful Compliance at the Moment of Action:
+    Agent `i` purposefully chooses `α_i` given `j`'s action `α_j` iff `Outcome_i α_i α_j`
+    strictly beats `i`'s conditional passive baseline `Outcome_i α₀_i α_j`. -/
+def PurposefulResponseI {ActI ActJ EndsI EndsJ : Type}
+    (N : InteractiveNode ActI ActJ EndsI EndsJ) (α_i : ActI) (α_j : ActJ) : Prop :=
+  N.StrictPref_i (N.Outcome_i α_i α_j) (N.Outcome_i N.α₀_i α_j)
+
+/-- True Catallactic (Voluntary/Contractual) Exchange:
+    Both agents strictly improve over the JOINTLY UNMOLESTED AUTONOMOUS BASELINE `(α₀_i, α₀_j)`. -/
+def IsCatallacticExchange {ActI ActJ EndsI EndsJ : Type}
+    (N : InteractiveNode ActI ActJ EndsI EndsJ) (α_i : ActI) (α_j : ActJ) : Prop :=
+  PurposefulResponseI N α_i α_j ∧
+  N.StrictPref_j (N.Outcome_j α_i α_j) (N.Outcome_j α_i N.α₀_j) ∧
+  N.StrictPref_i (N.Outcome_i α_i α_j) (N.Outcome_i N.α₀_i N.α₀_j) ∧
+  N.StrictPref_j (N.Outcome_j α_i α_j) (N.Outcome_j N.α₀_i N.α₀_j)
+
+/-- Coercive Extortion (Megger's Highwayman / Mises's Hegemonic Bond):
+    1. Victim `i` acts purposefully (`Outcome_i α_i α_threat ≻_i Outcome_i α₀_i α_threat`,
+       e.g., handing over money beats getting shot).
+    2. Yet `j`'s threat degraded `i`'s baseline so severely that `i` suffers a strict welfare loss
+       relative to the unmolested autonomous baseline (`Outcome_i α₀_i α₀_j ≻_i Outcome_i α_i α_threat`). -/
+def IsCoerciveExtortion {ActI ActJ EndsI EndsJ : Type}
+    (N : InteractiveNode ActI ActJ EndsI EndsJ) (α_i : ActI) (α_threat : ActJ) : Prop :=
+  PurposefulResponseI N α_i α_threat ∧
+  N.StrictPref_i (N.Outcome_i N.α₀_i N.α₀_j) (N.Outcome_i α_i α_threat)
+
+/-- Theorem (The Megger Highwayman Separation Theorem):
+    Handing over money to a robber is a purposeful action that beats the immediate passive
+    baseline `α₀_i` (satisfying naive exchange definitions), yet strictly violates
+    `IsCatallacticExchange` and satisfies `IsCoerciveExtortion`! -/
+theorem highwayman_is_purposeful_but_not_catallactic :
+    ∃ (N : InteractiveNode (Fin 2) (Fin 2) (Fin 3) (Fin 2)),
+      PurposefulResponseI N 1 1 ∧
+      IsCoerciveExtortion N 1 1 ∧
+      ¬ IsCatallacticExchange N 1 1 := by
+  let N : InteractiveNode (Fin 2) (Fin 2) (Fin 3) (Fin 2) := {
+    α₀_i := 0
+    α₀_j := 0
+    Outcome_i := fun a_i a_j =>
+      if a_j = 0 then 2
+      else if a_i = 1 then 1
+      else 0
+    Outcome_j := fun a_i a_j => if a_i = 1 ∧ a_j = 1 then 1 else 0
+    StrictPref_i := fun e₁ e₂ => e₁.val > e₂.val
+    StrictPref_j := fun e₁ e₂ => e₁.val > e₂.val
+  }
+  refine ⟨N, ?_, ?_, ?_⟩
+  · dsimp [PurposefulResponseI, N]; decide
+  · dsimp [IsCoerciveExtortion, PurposefulResponseI, N]; decide
+  · intro ⟨_, _, h_cat_i, _⟩
+    dsimp [N] at h_cat_i
+    omega
+
+/-- Bilateral exchange action predicate:
+    Both distinct agents execute purposeful actions α_i and α_j at ⟨t, h⟩. -/
+def BilateralExchangeAction (i j : Agent) (t : Moment) (h : History) (α_i α_j : Action) : Prop :=
+  i ≠ j ∧ PurposefulAct i t h α_i ∧ PurposefulAct j t h α_j
 
 /-- Action of offering an exchange:
     agent i offers qA units of mA to agent j in exchange for qB units of mB. -/
@@ -52,34 +120,26 @@ axiom Offer (i j : Agent) (qA : ℕ) (mA : Means) (qB : ℕ) (mB : Means) : Acti
     agent j accepts qA units of mA from agent i in exchange for qB units of mB. -/
 axiom Accept (j i : Agent) (qA : ℕ) (mA : Means) (qB : ℕ) (mB : Means) : Action
 
-/-- Axiom 6 (Voluntary Bilateral Consent):
-    Bilateral exchange χ(i, j, q_A m_A, q_B m_B) executes at ⟨t, h⟩ iff
-    both distinct agents deliberatively bring about their respective Offer and Accept actions. -/
+/-- Bilateral exchange χ(i, j, q_A m_A, q_B m_B) executes at ⟨t, h⟩ iff
+    both distinct agents purposefully enact their respective Offer and Accept actions. -/
 def BilateralExchange (i j : Agent) (t : Moment) (h : History)
     (qA : ℕ) (mA : Means) (qB : ℕ) (mB : Means) : Prop :=
   i ≠ j ∧ mA ≠ mB ∧
-  dstit i t (Exec i t (Offer i j qA mA qB mB)) h ∧
-  dstit j t (Exec j t (Accept j i qA mA qB mB)) h
+  BilateralExchangeAction i j t h (Offer i j qA mA qB mB) (Accept j i qA mA qB mB)
 
 /-- Theorem 3.1 (Double Inequality of Subjective Valuations):
-    In any voluntary bilateral exchange, if the passive baseline α₀ is in the foregone
-    action menu of both agents, then both agents strictly prefer the exchange outcome
-    to the status quo passive baseline.
-    Proof: Direct application of Demonstrated Preference (Axiom 2(3)') to both deliberative acts. -/
+    In any voluntary bilateral exchange, both agents strictly prefer the exchange outcome
+    to their status quo passive baseline α₀.
+    Follows directly from PurposefulAct without requiring global transitivity,
+    connectedness, or teleological injectivity. -/
 theorem double_inequality_of_exchange (i j : Agent) (t : Moment) (h : History)
     (qA : ℕ) (mA : Means) (qB : ℕ) (mB : Means)
-    (h_exch : BilateralExchange i j t h qA mA qB mB)
-    (h_feas_i : Offer i j qA mA qB mB ∈ A_feas i t h)
-    (h_feas_j : Accept j i qA mA qB mB ∈ A_feas j t h)
-    (h_foregone_i : α₀ ∈ (A_feas i t h).erase (Offer i j qA mA qB mB))
-    (h_foregone_j : α₀ ∈ (A_feas j t h).erase (Accept j i qA mA qB mB)) :
+    (h_exch : BilateralExchange i j t h qA mA qB mB) :
     Preference i t h (End_of i (Offer i j qA mA qB mB) t h) (End_of i α₀ t h) ∧
     Preference j t h (End_of j (Accept j i qA mA qB mB) t h) (End_of j α₀ t h) := by
-  have h_dstit_i := h_exch.2.2.1
-  have h_dstit_j := h_exch.2.2.2
-  have h_dem_i := (demonstrated_preference i t h (Offer i j qA mA qB mB) h_feas_i).mp h_dstit_i
-  have h_dem_j := (demonstrated_preference j t h (Accept j i qA mA qB mB) h_feas_j).mp h_dstit_j
-  exact ⟨h_dem_i α₀ h_foregone_i, h_dem_j α₀ h_foregone_j⟩
+  have hi := h_exch.2.2.2.1
+  have hj := h_exch.2.2.2.2
+  exact ⟨hi.2.2.1, hj.2.2.1⟩
 
 -- =========================================================================
 -- Section 2: Mengerian Emergence of Money via Bourbaki-Witt

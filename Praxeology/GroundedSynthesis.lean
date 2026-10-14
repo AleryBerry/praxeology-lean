@@ -1,6 +1,14 @@
-import Mathlib.Data.Finset.Basic
-import Mathlib.Data.Fintype.Basic
-import Mathlib.Order.Basic
+module
+
+public import Mathlib.Data.Finset.Basic
+public import Mathlib.Data.Fintype.Basic
+public import Mathlib.Order.Basic
+
+set_option linter.style.header false
+set_option linter.unusedVariables false
+set_option linter.style.longLine false
+
+@[expose] public section
 
 namespace Praxeology.GroundedSynthesis
 
@@ -75,7 +83,9 @@ theorem homogeneous_units_compatible_with_grounded_action :
   refine ⟨D, rfl, by decide, ?_⟩
   refine ⟨by decide, rfl, ⟨rfl, rfl⟩, ?_⟩
   intro β _ ⟨_, h0⟩
-  contradiction
+  revert h0
+  dsimp [D]
+  decide
 
 -- ============================================================================
 -- 2. MEGGER'S HIGHWAYMAN (COERCION) VS. CATALLACTIC EXCHANGE & PUBLIC GOODS
@@ -186,3 +196,5 @@ theorem lawson_epistemic_second_best_regret :
   decide
 
 end Praxeology.GroundedSynthesis
+
+end

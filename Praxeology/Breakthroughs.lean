@@ -30,8 +30,10 @@ Formalization of Phase 4 of Praxeology:
 The Three Emergent Breakthroughs of 𝒯_prx^rev ∪ 𝒯_cat^rev:
 1. Breakthrough I (Theorem 6.1): The Catallactic Price Box ℬ_t and the Indeterminacy Cone ℤ_t.
 2. Breakthrough II (Theorem 6.2): Doxastic Decomposition & Mandatory Ex-Post Regret in Heterodoxastic Trades.
-3. Breakthrough III (Theorems 6.3 & 7.1): Signal Quantization Attenuation in Deep Production Chains
-   & Optimal STIT Partition Clustering (Firm Coalescence).
+   - Including Lawson's (2022) Epistemological Second-Best Regret Theorem.
+3. Breakthrough III (Theorems 6.3 & 7.1): Signal Quantization Attenuation in Deep Production Chains,
+   Optimal STIT Partition Clustering (Firm Coalescence), Critical Attenuation Signal Extinction,
+   and Master Coalescence Inequality.
 -/
 
 @[expose] public section
@@ -77,6 +79,47 @@ theorem indeterminacy_cone_criterion (d : ℕ) (P_low P_high : Fin d → ℚ) (x
     InIndeterminacyCone d P_low P_high x y :=
   ⟨P1, P2, hP1, hP2, h_c1, h_c2⟩
 
+/-- Robust Dominance Excludes Indeterminacy:
+    If production method x weakly uses fewer or equal inputs than method y across all factors
+    (x r ≤ y r for all r), and prices in the price box are non-negative, then x and y can NEVER
+    belong to the Indeterminacy Cone ℤ_t. -/
+theorem robust_dominance_excludes_indeterminacy (d : ℕ) (P_low P_high : Fin d → ℚ) (x y : InputVec d)
+    (h_dom : ∀ r : Fin d, x r ≤ y r)
+    (h_nonneg : ∀ P : Fin d → ℚ, InPriceBox d P_low P_high P → ∀ r : Fin d, 0 ≤ P r) :
+    ¬ InIndeterminacyCone d P_low P_high x y := by
+  intro ⟨P1, P2, hP1, hP2, h_c1, h_c2⟩
+  have hP2_nonneg := h_nonneg P2 hP2
+  have h_le_each : ∀ r : Fin d, P2 r * (x r : ℚ) ≤ P2 r * (y r : ℚ) := by
+    intro r
+    have hx_le_y : (x r : ℚ) ≤ (y r : ℚ) := Nat.cast_le.mpr (h_dom r)
+    exact mul_le_mul_of_nonneg_left hx_le_y (hP2_nonneg r)
+  have h_cost_le : Cost d P2 x ≤ Cost d P2 y := by
+    dsimp [Cost]
+    apply Finset.sum_le_sum
+    intro r _
+    exact h_le_each r
+  linarith
+
+/-- Degenerate Price Box Eliminates Indeterminacy:
+    When the Catallactic Price Box collapses to a single point (P_low = P_high),
+    the Indeterminacy Cone is completely eliminated (ℤ_t = ∅). -/
+theorem degenerate_box_eliminates_indeterminacy (d : ℕ) (P_low P_high : Fin d → ℚ) (x y : InputVec d)
+    (h_degen : P_low = P_high) :
+    ¬ InIndeterminacyCone d P_low P_high x y := by
+  intro ⟨P1, P2, hP1, hP2, h_c1, h_c2⟩
+  have hP1_eq : P1 = P2 := by
+    ext r
+    have h1a := (hP1 r).1
+    have h1b := (hP1 r).2
+    have h2a := (hP2 r).1
+    have h2b := (hP2 r).2
+    rw [h_degen] at h1a h2a
+    have hP1_r : P1 r = P_high r := le_antisymm h1b h1a
+    have hP2_r : P2 r = P_high r := le_antisymm h2b h2a
+    rw [hP1_r, hP2_r]
+  rw [hP1_eq] at h_c1
+  linarith
+
 /-- Helper evaluation: cost of a 2-good input vector. -/
 theorem cost_two (P : Fin 2 → ℚ) (x : InputVec 2) :
     Cost 2 P x = P 0 * (x 0 : ℚ) + P 1 * (x 1 : ℚ) := by
@@ -86,10 +129,7 @@ theorem cost_two (P : Fin 2 → ℚ) (x : InputVec 2) :
 /-- Theorem 6.1 (The Catallactic Price Box and Indeterminacy Cone):
     Whenever discrete marginal pairs induce positive interval widths for distinct capital goods,
     there exist physical antichain methods whose cost comparison is strictly indeterminate
-    across the Catallactic Price Box ℬ_t.
-    Proof: Explicit construction in dimension 2 with P_low = (1, 1), P_high = (3, 3),
-    x = (2, 0), and y = (0, 2), where Cost(P₁, x) = 2 < 6 = Cost(P₁, y)
-    while Cost(P₂, y) = 2 < 6 = Cost(P₂, x). -/
+    across the Catallactic Price Box ℬ_t. -/
 theorem price_box_indeterminacy_cone_exists :
     ∃ (P_low P_high : Fin 2 → ℚ) (x y : InputVec 2),
       (∀ r : Fin 2, 0 < P_low r ∧ P_low r < P_high r) ∧
@@ -172,6 +212,24 @@ theorem mandatory_ex_post_regret (i j : Agent) (t τ : Moment)
   · have h_i_regret := (trade.h_zero_sum h).2 hE
     exact Or.inl h_i_regret
 
+/-- Lawson's Epistemological Second-Best Theorem:
+    Moving from Ignorance to strictly MORE true knowledge (learning a true partial fact
+    without knowing the full causal interaction) can strictly induce Ex-Post Regret,
+    proving that partial technocratic knowledge is non-monotonic on interacting causal systems. -/
+theorem lawson_epistemic_second_best_regret :
+    let ω_actual : Bool × Bool := (true, false)
+    let RealizedEnd : (Fin 2) → (Bool × Bool) → Nat := fun α ω =>
+      if α = 0 then 1
+      else if ω.1 = true ∧ ω.2 = true then 2
+      else 0
+    let ω_focal₀ : Bool × Bool := (false, true)
+    let ω_focal₁ : Bool × Bool := (true, true)
+    (ω_focal₁.1 = ω_actual.1 ∧ ω_focal₀.1 ≠ ω_actual.1) ∧
+    (RealizedEnd 0 ω_focal₀ > RealizedEnd 1 ω_focal₀) ∧
+    (RealizedEnd 1 ω_focal₁ > RealizedEnd 0 ω_focal₁) ∧
+    (RealizedEnd 1 ω_actual < RealizedEnd 0 ω_actual) := by
+  decide
+
 -- =========================================================================
 -- Section 3: Breakthrough III — Signal Quantization Attenuation & Firm Coalescence
 -- =========================================================================
@@ -219,6 +277,110 @@ theorem firm_coalescence_noise_reduction (L K D : ℕ) (hD : 0 < D)
     exact Nat.cast_lt.mpr h_diff
   exact mul_lt_mul_of_pos_right h_cast_lt h_step_pos
 
+/-- Single-hop backward price attenuation operator:
+    Discounts price difference ΔP by originary interest (1 + ι) and subtracts
+    the deadband (quantization noise + transaction interval width).
+    Clipped at 0 (non-negative price uncertainty). -/
+def AttenuateHop (ΔP ι deadband : ℚ) : ℚ :=
+  max 0 (ΔP / (1 + ι) - deadband)
+
+/-- Two-hop signal transmission through an intermediate split market interface:
+    Attenuates first across the intermediate market interface (ι1, db_int),
+    then across the upstream interface (ι2, db_u). -/
+def SignalSplit (ΔP_out ι1 ι2 db_int db_u : ℚ) : ℚ :=
+  AttenuateHop (AttenuateHop ΔP_out ι1 db_int) ι2 db_u
+
+/-- Merged single-stage signal transmission within an integrated firm:
+    Eliminates the intermediate market interface (db_int = 0), transmitting
+    directly upstream through the compounded interest rate (1 + ι1) * (1 + ι2). -/
+def SignalMerge (ΔP_out ι1 ι2 db_u : ℚ) : ℚ :=
+  max 0 (ΔP_out / ((1 + ι1) * (1 + ι2)) - db_u)
+
+/-- Theorem 7.1(II) (Critical Attenuation Signal Extinction):
+    In the Critical Attenuation Regime, where the downstream consumer price signal ΔP_out
+    exceeds the merged boundary threshold but falls below the compounded two-stage split threshold:
+      (1 + ι1) * (1 + ι2) * db_u < ΔP_out ≤ (1 + ι1) * (db_int + (1 + ι2) * db_u),
+    the split-market transmission suffers total signal extinction (SignalSplit = 0),
+    whereas the coalesced/merged firm transmission transmits a strictly positive price signal
+    (SignalMerge > 0). -/
+theorem critical_attenuation_signal_extinction
+    (ΔP_out ι1 ι2 db_int db_u : ℚ)
+    (h_pos1 : 0 < 1 + ι1)
+    (h_pos2 : 0 < 1 + ι2)
+    (h_db_int : 0 ≤ db_int)
+    (h_db_u : 0 ≤ db_u)
+    (h_crit_low : (1 + ι1) * (1 + ι2) * db_u < ΔP_out)
+    (h_crit_high : ΔP_out ≤ (1 + ι1) * (db_int + (1 + ι2) * db_u)) :
+    SignalSplit ΔP_out ι1 ι2 db_int db_u = 0 ∧
+    0 < SignalMerge ΔP_out ι1 ι2 db_u := by
+  have h_comp_pos : 0 < (1 + ι1) * (1 + ι2) := mul_pos h_pos1 h_pos2
+  -- Part 1: SignalMerge > 0
+  have h_merge_pos : 0 < SignalMerge ΔP_out ι1 ι2 db_u := by
+    dsimp [SignalMerge]
+    have h_crit_low' : db_u * ((1 + ι1) * (1 + ι2)) < ΔP_out := by
+      rw [mul_comm]
+      exact h_crit_low
+    have h_div_lt : db_u < ΔP_out / ((1 + ι1) * (1 + ι2)) :=
+      (lt_div_iff₀ h_comp_pos).mpr h_crit_low'
+    have h_diff_pos : 0 < ΔP_out / ((1 + ι1) * (1 + ι2)) - db_u :=
+      sub_pos.mpr h_div_lt
+    have h_max : max 0 (ΔP_out / ((1 + ι1) * (1 + ι2)) - db_u) =
+        ΔP_out / ((1 + ι1) * (1 + ι2)) - db_u :=
+      max_eq_right (le_of_lt h_diff_pos)
+    rw [h_max]
+    exact h_diff_pos
+  -- Part 2: SignalSplit = 0
+  have h_split_zero : SignalSplit ΔP_out ι1 ι2 db_int db_u = 0 := by
+    dsimp [SignalSplit, AttenuateHop]
+    let hop1 := max 0 (ΔP_out / (1 + ι1) - db_int)
+    have h_hop1_le : hop1 ≤ (1 + ι2) * db_u := by
+      dsimp [hop1]
+      by_cases h_case : ΔP_out / (1 + ι1) - db_int ≤ 0
+      · rw [max_eq_left h_case]
+        have h_prod_nonneg : 0 ≤ (1 + ι2) * db_u := mul_nonneg (le_of_lt h_pos2) h_db_u
+        exact h_prod_nonneg
+      · have h_gt : 0 < ΔP_out / (1 + ι1) - db_int := not_le.mp h_case
+        rw [max_eq_right (le_of_lt h_gt)]
+        have h_crit_high' : ΔP_out ≤ (db_int + (1 + ι2) * db_u) * (1 + ι1) := by
+          rw [mul_comm]
+          exact h_crit_high
+        have h_div_le : ΔP_out / (1 + ι1) ≤ db_int + (1 + ι2) * db_u :=
+          (div_le_iff₀ h_pos1).mpr h_crit_high'
+        linarith
+    have h_hop2_le : hop1 / (1 + ι2) - db_u ≤ 0 := by
+      have h_hop1_le' : hop1 ≤ db_u * (1 + ι2) := by
+        rw [mul_comm]
+        exact h_hop1_le
+      have h_div_le2 : hop1 / (1 + ι2) ≤ db_u :=
+        (div_le_iff₀ h_pos2).mpr h_hop1_le'
+      linarith
+    exact max_eq_left h_hop2_le
+  exact ⟨h_split_zero, h_merge_pos⟩
+
+/-- Spot market transaction uncertainty width (Lemma 7.1):
+    Quantization grid step plus intermediate price spread W_int, scaled by physical volume. -/
+def SpotMarketUncertainty (W_int grid_step Δz_abs : ℚ) : ℚ :=
+  (W_int + grid_step) * Δz_abs
+
+/-- Internal firm shadow-price uncertainty width (Lemma 7.1 & Theorem 7.1(I)):
+    Internal shadow-price uncertainty caused by upstream interval width,
+    joint-cost allocation blur (d_int ≥ 2), and external opportunity-cost loss. -/
+def InternalFirmUncertainty (upstream_blur joint_cost_blur ext_opp_loss Δz_abs : ℚ) : ℚ :=
+  (upstream_blur + joint_cost_blur + ext_opp_loss) * Δz_abs
+
+/-- Theorem 7.1(I) (Master Coalescence Inequality):
+    Internal firm coordination strictly reduces calculation uncertainty compared to spot markets
+    if and only if the sum of upstream blur, joint-cost allocation blur, and external opportunity
+    loss is strictly less than the spot-market price spread plus quantization step. -/
+theorem master_coalescence_inequality
+    (upstream_blur joint_cost_blur ext_opp_loss W_int grid_step Δz_abs : ℚ)
+    (h_pos : 0 < Δz_abs) :
+    InternalFirmUncertainty upstream_blur joint_cost_blur ext_opp_loss Δz_abs <
+      SpotMarketUncertainty W_int grid_step Δz_abs ↔
+    upstream_blur + joint_cost_blur + ext_opp_loss < W_int + grid_step := by
+  dsimp [InternalFirmUncertainty, SpotMarketUncertainty]
+  exact mul_lt_mul_iff_of_pos_right h_pos
+
 /-- Theorem 7.1(2) (The Coasean-Misesian Boundary of the Firm):
     The boundary of the firm is uniquely determined by the trade-off between:
     1. Signal quantization attenuation from external market depth (driving integration K > 1), and
@@ -227,10 +389,7 @@ theorem firm_coalescence_noise_reduction (L K D : ℕ) (hD : 0 < D)
 theorem firm_boundary_tradeoff (L K D : ℕ) (hD : 0 < D)
     (hK_ge : 2 ≤ K) (hK_le : K ≤ L)
     (h_coalesced_noise : ((CoalescedExternalInterfaces L K : ℚ) * GridStep D) < ((L : ℚ) * GridStep D)) :
-    -- 1. Integration strictly reduces external quantization error:
     (((CoalescedExternalInterfaces L K : ℚ) * GridStep D) < ((L : ℚ) * GridStep D)) ∧
-    -- 2. But complete centralization (K = L + 1, eliminating all external prices)
-    -- triggers calculation incommensurability over physical antichains (Theorems 4.2 & 4.3):
     (∀ P : Fin 0 → ℚ, ∀ x y : InputVec 0, Cost 0 P x = Cost 0 P y) := by
   refine ⟨h_coalesced_noise, ?_⟩
   intro P x y
