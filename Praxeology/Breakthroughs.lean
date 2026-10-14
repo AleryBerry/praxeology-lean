@@ -134,13 +134,14 @@ theorem price_box_indeterminacy_cone_exists :
 def BelievesEvent (i : Agent) (t : Moment) (E : History → Prop) : Prop :=
   Belief i t E
 
-/-- Realized subjective gain from action α at future moment τ in history h:
+/-- Realized subjective gain from action α taken at moment t, evaluated at future moment τ in history h:
     the actual outcome satisfies the agent's expectation and improves upon status quo. -/
-axiom RealizedGain (i : Agent) (α : Action) (τ : Moment) (h : History) : Prop
+def RealizedGain (i : Agent) (t : Moment) (α : Action) (τ : Moment) (h : History) : Prop :=
+  Preference i τ h (End_of i α t h) (End_of i α₀ t h)
 
 /-- Ex-post regret: the agent's realized outcome fails to achieve the expected gain. -/
-def ExPostRegret (i : Agent) (α : Action) (τ : Moment) (h : History) : Prop :=
-  ¬ RealizedGain i α τ h
+def ExPostRegret (i : Agent) (t : Moment) (α : Action) (τ : Moment) (h : History) : Prop :=
+  ¬ RealizedGain i t α τ h
 
 /-- Heterodoxastic Trade:
     Two agents i and j engage in an exchange whose payoffs depend on a future event E:
@@ -153,7 +154,7 @@ structure HeterodoxasticExchange (i j : Agent) (t τ : Moment)
   h_future : t < τ
   h_bel_i : BelievesEvent i t E
   h_bel_j : BelievesEvent j t (fun h => ¬ E h)
-  h_zero_sum : ∀ h : History, (E h → ¬ RealizedGain j α_j τ h) ∧ (¬ E h → ¬ RealizedGain i α_i τ h)
+  h_zero_sum : ∀ h : History, (E h → ¬ RealizedGain j t α_j τ h) ∧ (¬ E h → ¬ RealizedGain i t α_i τ h)
 
 /-- Theorem 6.2 (Mandatory Ex-Post Regret in Heterodoxastic Trades):
     In any speculative trade founded on conflicting doxastic expectations (heterodoxastic exchange),
@@ -163,7 +164,7 @@ theorem mandatory_ex_post_regret (i j : Agent) (t τ : Moment)
     (α_i α_j : Action) (E : History → Prop)
     (trade : HeterodoxasticExchange i j t τ α_i α_j E)
     (h : History) :
-    ExPostRegret i α_i τ h ∨ ExPostRegret j α_j τ h := by
+    ExPostRegret i t α_i τ h ∨ ExPostRegret j t α_j τ h := by
   dsimp [ExPostRegret]
   by_cases hE : E h
   · have h_j_regret := (trade.h_zero_sum h).1 hE

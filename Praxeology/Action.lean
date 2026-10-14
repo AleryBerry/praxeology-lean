@@ -53,10 +53,6 @@ def Scarce (i : Agent) (t : Moment) (h : History) (m : Means) : Prop :=
 /-- Teleological mapping associating each action with its intended end. -/
 axiom End_of : Agent → Action → Moment → History → Ends
 
-/-- Distinct feasible actions in a choice situation aim at distinct ends. -/
-axiom end_of_injective (i : Agent) (t : Moment) (h : History)
-    {α β : Action} (hα : α ∈ A_feas i t h) (hβ : β ∈ A_feas i t h) :
-    α ≠ β → End_of i α t h ≠ End_of i β t h
 
 /-- Strict ordinal preference relation ≻_{i,t,h} over ends.
     No cardinal utility is assumed; evaluation is purely ordinal and subjective. -/
@@ -100,25 +96,25 @@ axiom FutureRealizes (e : Ends) : History → Prop
 def ChoiceNode (i : Agent) (t : Moment) (h : History) : Prop :=
   (A_feas i t h).card ≥ 2 ∧
   ∃ α ∈ (A_feas i t h).erase α₀,
-    Belief i t (fun _ =>
-      DynamicBox i t α₀ (FutureRealizes (End_of i α₀ t h)) ∧
-      DynamicBox i t α (FutureRealizes (End_of i α t h)) ∧
-      Preference i t h (End_of i α t h) (End_of i α₀ t h))
+    Belief i t (fun h' =>
+      DynamicBox i t α₀ (FutureRealizes (End_of i α₀ t h')) ∧
+      DynamicBox i t α (FutureRealizes (End_of i α t h')) ∧
+      Preference i t h' (End_of i α t h') (End_of i α₀ t h'))
 
 /-- Act_i(t, h, α*): Purposeful action predicate containing:
     1. Felt unease & causal belief: agent expects α* to yield an improvement over passive state α₀.
     2. Deliberative STIT execution: agent deliberatively brings about α*.
     3. Comparative superiority: agent expects α* to be strictly preferred to all alternatives. -/
 def Act (i : Agent) (t : Moment) (h : History) (α_star : Action) : Prop :=
-  Belief i t (fun _ =>
-    DynamicBox i t α₀ (FutureRealizes (End_of i α₀ t h)) ∧
-    DynamicBox i t α_star (FutureRealizes (End_of i α_star t h)) ∧
-    Preference i t h (End_of i α_star t h) (End_of i α₀ t h)) ∧
+  Belief i t (fun h' =>
+    DynamicBox i t α₀ (FutureRealizes (End_of i α₀ t h')) ∧
+    DynamicBox i t α_star (FutureRealizes (End_of i α_star t h')) ∧
+    Preference i t h' (End_of i α_star t h') (End_of i α₀ t h')) ∧
   dstit i t (Exec i t α_star) h ∧
-  Belief i t (fun _ =>
+  Belief i t (fun h' =>
     ∀ β ∈ (A_feas i t h).erase α_star,
-      DynamicBox i t β (FutureRealizes (End_of i β t h)) →
-      Preference i t h (End_of i α_star t h) (End_of i β t h))
+      DynamicBox i t β (FutureRealizes (End_of i β t h')) →
+      Preference i t h' (End_of i α_star t h') (End_of i β t h'))
 
 /-- PA_i(t, h): Purposeful Action principle.
     At every choice node, there exists a unique action α* that is purposefully enacted. -/
@@ -147,17 +143,9 @@ axiom demonstrated_preference (i : Agent) (t : Moment) (h : History) (α_star : 
 -- 6. Theorem 1.1' (Dialectical Undeniability / Performative Consistency)
 -- =========================================================================
 
-/-- Acoustic utterance: physical sound emission without intentional semantic assertion. -/
-axiom Utter (i : Agent) (t : Moment) (h : History) (content : String) : Prop
-
-/-- Intentional assertion: teleological communication of a proposition p. -/
-axiom Asserts (i : Agent) (t : Moment) (h : History) (p : Prop) : Prop
-
-/-- Axiom of Assertoric Action:
-    Asserting a proposition is an intentional act using scarce communicative means
-    to attain a communicative end. Therefore, assertion is purposeful action. -/
-axiom assertion_is_action (i : Agent) (t : Moment) (h : History) (p : Prop) :
-  Asserts i t h p → ∃ α ∈ A_feas i t h, Act i t h α
+/-- Intentional assertion: agent i purposefully acts at ⟨t, h⟩ to communicate proposition p. -/
+def Asserts (i : Agent) (t : Moment) (h : History) (_p : Prop) : Prop :=
+  ∃ α ∈ A_feas i t h, Act i t h α
 
 /-- The proposition denying the presence of any purposeful action at ⟨t, h⟩. -/
 def DenialOfAction (i : Agent) (t : Moment) (h : History) : Prop :=
@@ -169,9 +157,7 @@ def DenialOfAction (i : Agent) (t : Moment) (h : History) : Prop :=
 theorem dialectical_undeniability (i : Agent) (t : Moment) (h : History)
     (h_assert : Asserts i t h (DenialOfAction i t h))
     (h_denial : DenialOfAction i t h) : False := by
-  have h_act : ∃ α ∈ A_feas i t h, Act i t h α :=
-    assertion_is_action i t h (DenialOfAction i t h) h_assert
-  exact h_denial h_act
+  exact h_denial h_assert
 
 -- =========================================================================
 -- 7. Theorem 1.2 (Existence and Uniqueness of Opportunity Cost)

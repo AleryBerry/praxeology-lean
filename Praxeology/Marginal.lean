@@ -206,14 +206,6 @@ theorem marginal_utility_eval {i : Agent} {t : Moment} {h : History} {m : Means}
   rw [diff_S_opt_eq_singleton reg k hk_pos hk] at h_spec
   exact Finset.mem_singleton.mp h_spec
 
-/-- Theorem 2.1(1) (Optimal Allocation Uniquely Solves Sub-Menu Maximization):
-    S*(k) is strictly preferred to any alternative equal-sized sub-menu of E₁(m). -/
-axiom S_opt_maximizes_sub_menu {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : AtomicRegime i t h m N) (k : ℕ) (hk : k ≤ N)
-    (S' : Finset Ends) (hS'_sub : S' ⊆ reg.all_ends) (hS'_card : S'.card = k)
-    (hne : S' ≠ S_opt reg k hk) :
-    SubMenuPref i t h (S_opt reg k hk) S'
-
 /-- Theorem 2.1(3) (Law of Purely Ordinal Diminishing Marginal Utility):
     For any unit increments 1 ≤ k₁ < k₂ ≤ N, the marginal utility of the earlier increment
     is strictly preferred to that of the later increment:
@@ -304,18 +296,23 @@ theorem action_impossibility_under_negative_time_pref (i : Agent) (h : History) 
 -- Section 4: Theorem 2.4' (Positive Originary Interest with Stationarity)
 -- =========================================================================
 
-/-- Intertemporal bundle evaluation: end corresponding to consuming q units of m at moment τ. -/
-axiom BundleEnd (m : Means) (q : ℕ) (τ : Moment) : Ends
+/-- Untimed end of holding/consuming q discrete units of means m. -/
+axiom QuantityEnd (m : Means) (q : ℕ) : Ends
 
-/-- Rejection of unit-for-unit exchange under positive time preference and endowment stationarity:
-    Holding physical endowment stationary and preferences constant, an agent strictly prefers
-    q units of good m at an earlier moment τ₁ to the same q units at a later moment τ₂. -/
-axiom unit_for_unit_exchange_rejected (i : Agent) (t : Moment) (h : History)
-    (m : Means) (q : ℕ) (hq : 0 < q)
+/-- Intertemporal bundle evaluation: end corresponding to consuming q units of m at moment τ. -/
+noncomputable def BundleEnd (m : Means) (q : ℕ) (τ : Moment) : Ends :=
+  TimedEnd (QuantityEnd m q) τ
+
+/-- Theorem 2.4'(1) (Rejection of Unit-for-Unit Exchange):
+    Derived as a theorem directly from Axiom 5 (positive_time_preference) under endowment stationarity. -/
+theorem unit_for_unit_exchange_rejected (i : Agent) (t : Moment) (h : History)
+    (m : Means) (q : ℕ) (_hq : 0 < q)
     (τ1 τ2 : Moment) (hτ1 : τ1 ∈ h) (hτ2 : τ2 ∈ h)
     (h_order : (t < τ1 ∨ t = τ1) ∧ τ1 < τ2)
-    (h_stationarity : endowment i τ1 h m = endowment i τ2 h m) :
-    Preference i t h (BundleEnd m q τ1) (BundleEnd m q τ2)
+    (_h_stationarity : endowment i τ1 h m = endowment i τ2 h m) :
+    Preference i t h (BundleEnd m q τ1) (BundleEnd m q τ2) := by
+  dsimp [BundleEnd]
+  exact positive_time_preference i t h (QuantityEnd m q) τ1 τ2 hτ1 hτ2 h_order
 
 /-- Theorem 2.4' (Positive Originary Interest):
     If an agent voluntarily accepts future delivery ⟨q', τ₂⟩ over earlier delivery ⟨q, τ₁⟩
@@ -329,12 +326,21 @@ theorem positive_originary_interest (i : Agent) (t : Moment) (h : History)
     (h_order : (t < τ1 ∨ t = τ1) ∧ τ1 < τ2)
     (h_stationarity : endowment i τ1 h m = endowment i τ2 h m)
     (h_accept : Preference i t h (BundleEnd m q' τ2) (BundleEnd m q τ1))
-    (h_mono : q' ≤ q → ¬ Preference i t h (BundleEnd m q' τ2) (BundleEnd m q τ1)) :
+    (h_sync_mono : q' ≤ q →
+      Preference i t h (BundleEnd m q τ2) (BundleEnd m q' τ2) ∨
+      BundleEnd m q τ2 = BundleEnd m q' τ2) :
     q < q' ∧ (∃ δ : ℕ, δ ≥ 1 ∧ q' = q + δ) ∧ (0 < ((q' - q : ℚ) / (q : ℚ))) := by
   have h_lt : q < q' := by
-    by_contra h_le
-    have h_le' : q' ≤ q := by omega
-    exact h_mono h_le' h_accept
+    by_contra h_not_lt
+    have h_le : q' ≤ q := by omega
+    have h_u4u := unit_for_unit_exchange_rejected i t h m q hq τ1 τ2 hτ1 hτ2 h_order h_stationarity
+    have h_pref_cycle := pref_trans i t h h_accept h_u4u
+    cases h_sync_mono h_le with
+    | inl h_mono_pref =>
+      exact pref_asymm i t h h_pref_cycle h_mono_pref
+    | inr h_mono_eq =>
+      rw [h_mono_eq] at h_pref_cycle
+      exact pref_irrefl i t h (BundleEnd m q' τ2) h_pref_cycle
   have h_prem : ∃ δ : ℕ, δ ≥ 1 ∧ q' = q + δ := by
     refine ⟨q' - q, by omega, by omega⟩
   refine ⟨h_lt, h_prem, ?_⟩

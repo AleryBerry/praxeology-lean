@@ -174,12 +174,6 @@ axiom choice_partition_nonempty (i : Agent) (t : Moment) (h : History)
     {α : Action} (hα : α ∈ A_feas i t h) :
     ∃ h' : History, h' ∈ ChoicePartition i t α
 
-/-- Independence of Agency:
-    Simultaneous choices across all acting entities have a non-empty joint intersection in H(t). -/
-axiom independence_of_agency (t : Moment) (h : History) (choice : Agent → Action)
-    (h_feas : ∀ i : Agent, choice i ∈ A_feas i t h) :
-    ∃ h' : History, t ∈ h' ∧ ∀ i : Agent, h' ∈ ChoicePartition i t (choice i)
-
 -- =========================================================================
 -- 5. Model-Theoretic Truth Conditions (Exec, DynamicBox, dstit)
 -- =========================================================================
@@ -244,20 +238,10 @@ axiom min_plausible_subset_bundle (i : Agent) (t : Moment) :
 axiom min_plausible_nonempty (i : Agent) (t : Moment) :
   (MinPlausible i t).Nonempty
 
-/-- Minimal plausibility worlds localized to ⟨t, h⟩. -/
-axiom MinPlausibleAt (i : Agent) (t : Moment) (h : History) : Set History
-
-axiom min_plausible_at_nonempty (i : Agent) (t : Moment) (h : History) :
-  (MinPlausibleAt i t h).Nonempty
-
 /-- Subjective Belief B_i ψ at moment t:
     ψ holds on all minimally plausible worlds of agent i at moment t. -/
 def Belief (i : Agent) (t : Moment) (ψ : History → Prop) : Prop :=
   ∀ h' ∈ MinPlausible i t, ψ h'
-
-/-- Localized Subjective Belief B_i(t, h) ψ. -/
-def BeliefAt (i : Agent) (t : Moment) (h : History) (ψ : History → Prop) : Prop :=
-  ∀ h' ∈ MinPlausibleAt i t h, ψ h'
 
 /-- Dynamic Epistemic Event Update:
     Restricts minimal plausibility worlds to those satisfying event ε. -/

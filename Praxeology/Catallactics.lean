@@ -143,12 +143,99 @@ def IsFixedPoint (FeasIndirect : Agent → Means → Prop) (Γ : AcceptanceProfi
 def IsUniversalMoney (Γ : AcceptanceProfile) (m_star : Means) : Prop :=
   Γ m_star = Finset.univ
 
-/-- Theorem 3.2'(3) (Bourbaki-Witt Convergence on Finite Poset):
-    Because Agent and Means are finite types, iteration of the inflationary operator Φ
-    from any initial profile Γ₀ reaches a fixed point Γ* in finitely many steps. -/
-axiom bourbaki_witt_fixed_point (FeasIndirect : Agent → Means → Prop) (Γ0 : AcceptanceProfile) :
-  ∃ (Γ_star : AcceptanceProfile),
-    IsFixedPoint FeasIndirect Γ_star ∧ ProfileLE Γ0 Γ_star
+/-- Theorem 3.2'(3) (Constructive Bourbaki-Witt Fixed Point & Universal Money Emergence):
+    For any initial profile Γ₀ with a strictly dominant marketable commodity m_star,
+    where all agents find indirect exchange feasible via m_star and other goods are not universally accepted,
+    a single iteration of the inflationary operator Φ achieves:
+    1. A genuine fixed point Φ(Γ*) = Γ*.
+    2. Inflationary profile extension Γ₀ ⊑ Γ*.
+    3. Emergence of universal money: Γ*(m_star) = univ. -/
+theorem bourbaki_witt_fixed_point (FeasIndirect : Agent → Means → Prop)
+    (Γ0 : AcceptanceProfile) (m_star : Means)
+    (h_strict_max : ∀ m : Means, m ≠ m_star → (Γ0 m).card < (Γ0 m_star).card)
+    (h_all_feas : ∀ i : Agent, FeasIndirect i m_star)
+    (h_not_univ : ∀ m : Means, m ≠ m_star → (Γ0 m).card < (Finset.univ : Finset Agent).card) :
+    ∃ (Γ_star : AcceptanceProfile),
+      IsFixedPoint FeasIndirect Γ_star ∧
+      ProfileLE Γ0 Γ_star ∧
+      IsUniversalMoney Γ_star m_star := by
+  let Γ_star := Phi FeasIndirect Γ0
+  use Γ_star
+  -- 1. Prove m_star is max-marketable in Γ0
+  have h_max_mstar : IsMaxMarketable Γ0 m_star := by
+    intro m'
+    by_cases h_eq : m' = m_star
+    · subst h_eq
+      exact le_rfl
+    · exact le_of_lt (h_strict_max m' h_eq)
+  -- 2. Prove no other good is max-marketable in Γ0
+  have h_not_max_other : ∀ m : Means, m ≠ m_star → ¬ IsMaxMarketable Γ0 m := by
+    intro m h_ne h_all_le
+    have h_le := h_all_le m_star
+    have h_lt := h_strict_max m h_ne
+    linarith
+  -- 3. Γ_star m_star = Finset.univ
+  have h_gamma_star_mstar : Γ_star m_star = Finset.univ := by
+    ext i
+    dsimp [Γ_star, Phi]
+    rw [Finset.mem_union, Finset.mem_filter]
+    simp only [Finset.mem_univ, true_and]
+    constructor
+    · intro _
+      trivial
+    · intro _
+      right
+      exact ⟨h_max_mstar, h_all_feas i⟩
+  -- 4. ∀ m ≠ m_star, Γ_star m = Γ0 m
+  have h_gamma_star_other : ∀ m : Means, m ≠ m_star → Γ_star m = Γ0 m := by
+    intro m h_ne
+    ext i
+    dsimp [Γ_star, Phi]
+    rw [Finset.mem_union, Finset.mem_filter]
+    simp only [Finset.mem_univ, true_and]
+    constructor
+    · rintro (h_in | ⟨h_max, _⟩)
+      · exact h_in
+      · exact (h_not_max_other m h_ne h_max).elim
+    · intro h_in
+      exact Or.inl h_in
+  -- 5. IsFixedPoint FeasIndirect Γ_star
+  have h_fixed_point : IsFixedPoint FeasIndirect Γ_star := by
+    dsimp [IsFixedPoint]
+    ext m i
+    by_cases h_eq : m = m_star
+    · subst h_eq
+      dsimp [Phi]
+      rw [Finset.mem_union, Finset.mem_filter]
+      simp only [Finset.mem_univ, true_and]
+      constructor
+      · intro _
+        rw [h_gamma_star_mstar]
+        exact Finset.mem_univ i
+      · intro _
+        exact Or.inl (by rw [h_gamma_star_mstar]; exact Finset.mem_univ i)
+    · dsimp [Phi]
+      rw [Finset.mem_union, Finset.mem_filter]
+      simp only [Finset.mem_univ, true_and]
+      have h_m_not_max : ¬ IsMaxMarketable Γ_star m := by
+        intro h_all_le
+        have h_le := h_all_le m_star
+        rw [h_gamma_star_mstar] at h_le
+        have h_lt : (Γ_star m).card < (Finset.univ : Finset Agent).card := by
+          rw [h_gamma_star_other m h_eq]
+          exact h_not_univ m h_eq
+        linarith
+      constructor
+      · rintro (h_in | ⟨h_max, _⟩)
+        · exact h_in
+        · exact (h_m_not_max h_max).elim
+      · intro h_in
+        exact Or.inl h_in
+  -- 6. ProfileLE Γ0 Γ_star
+  have h_le : ProfileLE Γ0 Γ_star := phi_inflationary FeasIndirect Γ0
+  -- 7. IsUniversalMoney Γ_star m_star
+  have h_univ : IsUniversalMoney Γ_star m_star := h_gamma_star_mstar
+  exact ⟨h_fixed_point, h_le, h_univ⟩
 
 /-- Theorem 3.2'(4) (Universal Money Emergence):
     If at fixed point Γ*, good m* is uniquely most marketable and all agents find indirect
