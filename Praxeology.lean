@@ -7,5 +7,6 @@ public import Praxeology.Catallactics
 public import Praxeology.Breakthroughs
 public import Praxeology.Consistency
 public import Praxeology.Diagnostic
+public import Praxeology.StrictAction
 
 set_option linter.style.header false
