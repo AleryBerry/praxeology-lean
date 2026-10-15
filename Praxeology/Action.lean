@@ -20,20 +20,34 @@ set_option linter.unusedDecidableInType false
 set_option linter.deprecated false
 
 /-!
-# Praxeology.Action
+# Praxeology.Action — Theorem 1: The Praxeological Action Axiom & Demonstrated Preference
 
-Core action theory of praxeology:
-Purposeful action via undominated choice, set-valued opportunity cost,
-and dialectical performative self-consistency without neoclassical patches.
+Foundational action theory of praxeology:
+Purposeful human action via undominated choice, demonstrated preference, set-valued
+opportunity cost, and dialectical performative self-consistency without neoclassical patches.
 
-## Contents
-1. Physical Endowment, Production Requirements, and Scarcity.
-2. Ends of Actions and Ordinal Preference (irreflexive, asymmetric, NO global transitivity or completeness).
-3. Purposeful Action via Undominated Choice (`PurposefulAct`) and Demonstrated Preference (`DemonstratedPref`).
-4. Poset Induction Engine for Finite Sets (`exists_undominated_aux`, `exists_least_urgent_aux`).
-5. Minimalist Set-Valued Opportunity Cost (`OCSet`).
-6. Dialectical Self-Consistency (`Asserts`, `dialectical_undeniability`).
-7. Machine-Checked Independence Boundaries (Buridan tie, Incomparable foregone options, Local vs Universal action).
+## Established Theorems in this Module:
+- **Theorem 1.1 (Action Is Non-Passive)**: `purposeful_act_non_passive`
+  Purposeful action strictly excludes enacting the passive baseline α₀, and its realized
+  end strictly diverges from that of inertia.
+- **Theorem 1.2 (Purposeful Action Forces Branching Time)**: `global_purposeful_act_branches_history`
+  Action does not occur in a deterministic vacuum; purposeful choice strictly forces
+  historical branching through the counterfactual refrainability of α₀.
+- **Theorem 1.3 (Unique Execution of Purposeful Action)**: `purposeful_act_unique_execution`
+  From disjointness of STIT choice partition cells, an acting agent executes at most
+  one purposeful action at any decision node ⟨t, h⟩.
+- **Theorem 1.4 (Multi-Option Demonstrated Preference Consistency)**: `three_option_menu_consistency`
+  Under multi-option menus, purposeful action uniquely selects the top-ranked option
+  and refutes all dominated alternatives without Buridan inconsistencies.
+- **Theorem 1.5a (Star-Order Opportunity Cost Non-Emptiness)**: `ocset_nonempty_of_star_order`
+  The opportunity cost set (`OCSet`) of undominated foregone ends is non-empty under pure revealed star-orders.
+- **Theorem 1.5b (Poset Opportunity Cost Non-Emptiness)**: `ocset_nonempty_of_trans`
+  On any finite poset with irreflexive, transitive preference, `OCSet` is guaranteed non-empty.
+- **Theorem 1.6 (Pure Praxeological Law in Re)**: `pure_praxeological_law_in_re`
+  Hülsmann's counterfactual path-dependent capital availability holds constructively via trajectory narrowing.
+- **Theorem 1.7 (Constructive Action Core Consistency Witness)**: `unified_core_non_vacuous_and_regret_compatible`
+  Finite witness certifying that purposeful action, homogeneous unit ties, and counterfactual regret
+  are mutually consistent with zero global axioms.
 -/
 
 @[expose] public section
@@ -101,7 +115,9 @@ def DemonstratedPref (i : Agent) (t : Moment) (h : History) (α_star β : Action
 /-- Backward compatibility alias for Act. -/
 abbrev Act := PurposefulAct
 
-/-- Purposeful action is non-passive: it is distinct from α₀ and achieves a distinct end. -/
+/-- Theorem 1.1 (Action Is Non-Passive):
+    Purposeful human action strictly excludes enacting the passive baseline α₀,
+    and its realized end strictly diverges from that of inertia. -/
 theorem purposeful_act_non_passive (i : Agent) (t : Moment) (h : History) (α_star : Action)
     (h_act : PurposefulAct i t h α_star) :
     α_star ≠ α₀ ∧ End_of i α_star t h ≠ End_of i α₀ t h := by
@@ -116,7 +132,24 @@ theorem purposeful_act_non_passive (i : Agent) (t : Moment) (h : History) (α_st
     exact h_not_end rfl
   exact ⟨h_not_act, h_not_end⟩
 
-/-- Unique execution of purposeful action:
+/-- Theorem 1.2 (Global Purposeful Action Forces Branching Time):
+    Action does not occur in a vacuum; if agent i executes purposeful action α* ≠ α₀ at ⟨t, h⟩,
+    then the counterfactual refrainability of α₀ guarantees the existence of a distinct
+    branching history h₀ ≠ h in ChoicePartition i t α₀ passing through moment t. -/
+theorem global_purposeful_act_branches_history (i : Agent) (t : Moment) (h : History) (α_star : Action)
+    (h_act : PurposefulAct i t h α_star) (ht : t ∈ h) :
+    ∃ h₀ ∈ ChoicePartition i t α₀, h₀ ≠ h := by
+  have ⟨h_ne_α₀, _⟩ := purposeful_act_non_passive i t h α_star h_act
+  have h_α₀_feas := alpha_zero_feasible i t h
+  obtain ⟨h₀, hh₀⟩ := choice_partition_nonempty i t h h_α₀_feas
+  refine ⟨h₀, hh₀, ?_⟩
+  rintro rfl
+  have h_exec : Exec i t α_star h₀ := h_act.2.1
+  dsimp [Exec] at h_exec
+  have h_disj := choice_partition_disjoint i t h₀ h_act.1 h_α₀_feas h_ne_α₀
+  exact Set.disjoint_left.mp h_disj h_exec hh₀
+
+/-- Theorem 1.3 (Unique Execution of Purposeful Action):
     From disjointness of STIT choice partition cells, an agent can physically
     execute at most one purposeful action at any moment and history. -/
 theorem purposeful_act_unique_execution (i : Agent) (t : Moment) (h : History) (α₁ α₂ : Action)
@@ -126,6 +159,51 @@ theorem purposeful_act_unique_execution (i : Agent) (t : Moment) (h : History) (
   by_contra hne
   have h_disj := choice_partition_disjoint i t h h1.1 h2.1 hne
   exact Set.disjoint_left.mp h_disj h1.2.1 h2.2.1
+
+/-- Theorem 1.4 (Multi-Option Demonstrated Preference Consistency):
+    Under a 3-option choice menu {α1, α2, α3} with strict ordinal ranking e1 ≻ e2 ≻ e3,
+    e1 strictly beating the passive baseline e0, and α1 being physically executed,
+    PurposefulAct is completely consistent, uniquely selecting α1 and refuting
+    purposeful execution for both dominated actions α2 and α3. -/
+theorem three_option_menu_consistency
+    (i : Agent) (t : Moment) (h : History)
+    (α1 α2 α3 : Action)
+    (h_menu : A_feas i t h = {α1, α2, α3})
+    (hne12 : α1 ≠ α2) (hne13 : α1 ≠ α3) (hne23 : α2 ≠ α3)
+    (h_exec1 : Exec i t α1 h)
+    (h_pref10 : Preference i t h (End_of i α1 t h) (End_of i α₀ t h))
+    (h_pref12 : Preference i t h (End_of i α1 t h) (End_of i α2 t h))
+    (h_pref23 : Preference i t h (End_of i α2 t h) (End_of i α3 t h))
+    (h_trans : ∀ e1 e2 e3, Preference i t h e1 e2 → Preference i t h e2 e3 → Preference i t h e1 e3) :
+    PurposefulAct i t h α1 ∧
+    ¬ PurposefulAct i t h α2 ∧
+    ¬ PurposefulAct i t h α3 := by
+  have h_feas1 : α1 ∈ A_feas i t h := by rw [h_menu]; simp
+  have h_feas2 : α2 ∈ A_feas i t h := by rw [h_menu]; simp
+  have h_feas3 : α3 ∈ A_feas i t h := by rw [h_menu]; simp
+  have h_pref13 : Preference i t h (End_of i α1 t h) (End_of i α3 t h) :=
+    h_trans (End_of i α1 t h) (End_of i α2 t h) (End_of i α3 t h) h_pref12 h_pref23
+  -- 1. α1 satisfies PurposefulAct
+  have h_act1 : PurposefulAct i t h α1 := by
+    refine ⟨h_feas1, h_exec1, h_pref10, ?_⟩
+    intro β hβ
+    rw [h_menu] at hβ
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hβ
+    rcases hβ with hβ1 | hβ2 | hβ3
+    · rw [hβ1]; exact pref_irrefl i t h (End_of i α1 t h)
+    · rw [hβ2]; exact pref_asymm i t h h_pref12
+    · rw [hβ3]; exact pref_asymm i t h h_pref13
+  -- 2. α2 fails PurposefulAct (dominated by α1)
+  have h_not_act2 : ¬ PurposefulAct i t h α2 := by
+    intro h_act2
+    have h_undom2 := h_act2.2.2.2 α1 h_feas1
+    exact h_undom2 h_pref12
+  -- 3. α3 fails PurposefulAct (dominated by α2)
+  have h_not_act3 : ¬ PurposefulAct i t h α3 := by
+    intro h_act3
+    have h_undom3 := h_act3.2.2.2 α2 h_feas2
+    exact h_undom3 h_pref23
+  exact ⟨h_act1, h_not_act2, h_not_act3⟩
 
 /-- Buridan Tie Compatibility Theorem:
     Two distinct actions α₁ ≠ α₂ using homogeneous units can serve the exact same end,
@@ -297,7 +375,7 @@ noncomputable def OCSet (i : Agent) (t : Moment) (h : History) (α_star : Action
   (ForegoneEnds i t h α_star).filter (fun e =>
     ∀ e' ∈ ForegoneEnds i t h α_star, ¬ Preference i t h e' e)
 
-/-- Star-Order Non-Emptiness:
+/-- Theorem 1.5a (Star-Order Opportunity Cost Non-Emptiness):
     In a pure revealed star-order (where purposeful action reveals preferences involving
     the chosen end, but reveals no strict preferences among unchosen foregone ends),
     OCSet is identical to ForegoneEnds, and is strictly non-empty whenever ForegoneEnds is non-empty. -/
@@ -317,7 +395,7 @@ theorem ocset_nonempty_of_star_order (i : Agent) (t : Moment) (h : History)
       refine ⟨he_in, fun e' he'_in => h_star e he_in e' he'_in⟩
   exact ⟨h_eq, h_eq.symm ▸ h_ne⟩
 
-/-- Strict Partial Order Non-Emptiness:
+/-- Theorem 1.5b (Poset Opportunity Cost Non-Emptiness):
     For ANY finite non-empty set of foregone ends equipped with an irreflexive,
     transitive preference relation, OCSet is guaranteed to be non-empty (OCSet.Nonempty). -/
 theorem ocset_nonempty_of_trans (i : Agent) (t : Moment) (h : History)
@@ -460,131 +538,7 @@ theorem universal_action_not_proved_by_local_assertion :
   dsimp
   decide
 -- =========================================================================
--- Section 8: Ex-Ante vs. Ex-Post Ends & Cross-Branch Counterfactual Regret
--- =========================================================================
-
-/-- Counterfactual action model formalizing the epistemic gap between ex-ante expectations
-    across plausible histories and ex-post realization across branching histories. -/
-structure CounterfactualActionModel (Agent Moment History Action Ends : Type)
-    [DecidableEq Action] [DecidableEq Ends] where
-  «α₀» : Action
-  prec : Moment → Moment → Prop
-  mem_hist : Moment → History → Prop
-  A_feas : Agent → Moment → History → Finset Action
-  A_cont : Agent → Moment → History → Finset Action
-  cont_subset_feas : ∀ i t h, A_cont i t h ⊆ A_feas i t h
-  alpha_zero_mem_cont : ∀ i t h, «α₀» ∈ A_cont i t h
-  ChoicePartition : Agent → Moment → Action → Set History
-  Exec : Agent → Moment → Action → History → Prop
-  exec_iff_mem_partition : ∀ i t α h, Exec i t α h ↔ h ∈ ChoicePartition i t α
-  MinPlausible : Agent → Moment → History → Set History
-  OutcomeOf : Agent → Action → Moment → Moment → History → Ends
-  ExpectedMaturation : Agent → Action → Moment → History → Moment
-  Pref : Agent → Moment → History → Ends → Ends → Prop
-  pref_asymm : ∀ i t h e1 e2, Pref i t h e1 e2 → ¬ Pref i t h e2 e1
-
-/-- Irreflexivity of preference in CounterfactualActionModel derived from asymmetry. -/
-theorem CounterfactualActionModel.pref_irrefl
-    {Agent Moment History Action Ends : Type} [DecidableEq Action] [DecidableEq Ends]
-    (M : CounterfactualActionModel Agent Moment History Action Ends)
-    (i : Agent) (t : Moment) (h : History) (e : Ends) :
-    ¬ M.Pref i t h e e :=
-  fun h_refl => M.pref_asymm i t h e e h_refl h_refl
-
-/-- Ex-ante purposeful action: at decision node ⟨t, h⟩, α_star is contemplated, physically executed,
-    expected to beat α₀ across all minimally plausible worlds, and undominated by any alternative. -/
-def ExAntePurposefulAct {Agent Moment History Action Ends : Type}
-    [DecidableEq Action] [DecidableEq Ends]
-    (M : CounterfactualActionModel Agent Moment History Action Ends)
-    (i : Agent) (t : Moment) (h : History) (α_star : Action) : Prop :=
-  α_star ∈ M.A_cont i t h ∧
-  M.Exec i t α_star h ∧
-  (∀ h' ∈ M.MinPlausible i t h,
-    M.Pref i t h
-      (M.OutcomeOf i α_star t (M.ExpectedMaturation i α_star t h') h')
-      (M.OutcomeOf i M.α₀ t (M.ExpectedMaturation i M.α₀ t h') h')) ∧
-  (∀ h' ∈ M.MinPlausible i t h, ∀ β ∈ M.A_cont i t h,
-    ¬ M.Pref i t h
-      (M.OutcomeOf i β t (M.ExpectedMaturation i β t h') h')
-      (M.OutcomeOf i α_star t (M.ExpectedMaturation i α_star t h') h'))
-
-/-- Cross-branch counterfactual regret: at realized maturation τ_actual on h_actual,
-    the agent strictly prefers what WOULD have occurred on the counterfactual branch h_cf
-    had alternative β been chosen, over what ACTUALLY occurred. -/
-def CrossBranchRegret {Agent Moment History Action Ends : Type}
-    [DecidableEq Action] [DecidableEq Ends]
-    (M : CounterfactualActionModel Agent Moment History Action Ends)
-    (i : Agent) (t τ_actual : Moment) (h_actual : History) (α_star β : Action) : Prop :=
-  β ∈ M.A_cont i t h_actual ∧
-  ∃ h_cf ∈ M.ChoicePartition i t β,
-    ∃ τ_cf : Moment, M.prec t τ_cf ∧ M.mem_hist τ_cf h_cf ∧
-      M.Pref i τ_actual h_actual
-        (M.OutcomeOf i β t τ_cf h_cf)
-        (M.OutcomeOf i α_star t τ_actual h_actual)
-
-/-- Infallible stationary agents never experience self-regret against passive baseline α₀. -/
-theorem infallible_stationary_excludes_self_regret
-    {Agent Moment History Action Ends : Type}
-    [DecidableEq Action] [DecidableEq Ends]
-    (M : CounterfactualActionModel Agent Moment History Action Ends)
-    (i : Agent) (t τ_actual : Moment) (h_actual : History) (α_star : Action)
-    (h_act : ExAntePurposefulAct M i t h_actual α_star)
-    (h_veridical : h_actual ∈ M.MinPlausible i t h_actual)
-    (h_mat_eq : τ_actual = M.ExpectedMaturation i α_star t h_actual)
-    (h_stationary : ∀ e1 e2, M.Pref i τ_actual h_actual e1 e2 ↔ M.Pref i t h_actual e1 e2)
-    (h_cf_consistent : ∀ h_cf ∈ M.ChoicePartition i t M.α₀, ∀ τ_cf,
-      M.prec t τ_cf → M.mem_hist τ_cf h_cf →
-      M.OutcomeOf i M.α₀ t τ_cf h_cf =
-        M.OutcomeOf i M.α₀ t (M.ExpectedMaturation i M.α₀ t h_actual) h_actual) :
-    ¬ CrossBranchRegret M i t τ_actual h_actual α_star M.α₀ := by
-  intro h_regret
-  rcases h_regret with ⟨_, h_cf, h_cf_mem, τ_cf, h_prec_cf, h_mem_cf, h_pref_cf⟩
-  have h_unease := h_act.2.2.1 h_actual h_veridical
-  have h_out_eq := h_cf_consistent h_cf h_cf_mem τ_cf h_prec_cf h_mem_cf
-  rw [h_out_eq] at h_pref_cf
-  have h_pref_t := (h_stationary _ _).mp h_pref_cf
-  rw [h_mat_eq] at h_pref_t
-  exact M.pref_asymm i t h_actual _ _ h_unease h_pref_t
-
-/-- Strictly stationary preferences are completely compatible with cross-branch counterfactual regret. -/
-theorem stationary_pref_compatible_with_cross_branch_regret :
-    ∃ (M : CounterfactualActionModel Unit (Fin 2) (Fin 2) (Fin 2) (Fin 3)),
-      (∀ t1 h1 t2 h2, M.Pref () t1 h1 = M.Pref () t2 h2) ∧
-      ExAntePurposefulAct M () 0 0 1 ∧
-      CrossBranchRegret M () 0 1 0 1 0 := by
-  let M : CounterfactualActionModel Unit (Fin 2) (Fin 2) (Fin 2) (Fin 3) := {
-    «α₀» := 0
-    prec := fun t1 t2 => t1 < t2
-    mem_hist := fun _ _ => True
-    A_feas := fun _ _ _ => {0, 1}
-    A_cont := fun _ _ _ => {0, 1}
-    cont_subset_feas := by intro _ _ _ a ha; exact ha
-    alpha_zero_mem_cont := by intro _ _ _; decide
-    ChoicePartition := fun _ _ α => { h | h = if α = 0 then 1 else 0 }
-    Exec := fun _ _ α h => h = if α = 0 then 1 else 0
-    exec_iff_mem_partition := by intro _ _ _ _; rfl
-    MinPlausible := fun _ _ _ => {1}
-    OutcomeOf := fun _ α _ _ h =>
-      if α = 0 then 1 else if h = 1 then 2 else 0
-    ExpectedMaturation := fun _ _ _ _ => 1
-    Pref := fun _ _ _ e1 e2 => e2 < e1
-    pref_asymm := by intro _ _ _ e1 e2 h12 h21; exact Nat.lt_asymm h12 h21
-  }
-  refine ⟨M, ?_, ?_, ?_⟩
-  · intro _ _ _ _; rfl
-  · refine ⟨by decide, rfl, ?_, ?_⟩
-    · intro h' hh'
-      have h_eq : h' = 1 := hh'
-      subst h_eq
-      decide
-    · intro h' hh' β hβ
-      have h_eq : h' = 1 := hh'
-      subst h_eq
-      fin_cases β <;> decide
-  · refine ⟨by decide, 1, rfl, 1, by decide, trivial, by decide⟩
-
--- =========================================================================
--- Section 9: The Unified Action Axiom & Ontological Reductions
+-- Section 8: The Unified Action Axiom & Ontological Reductions
 -- =========================================================================
 
 /-- Pure Praxeological Core:
@@ -713,7 +667,7 @@ theorem action_implies_branching_universe {Agent Moment History Action Ends : Ty
     exact h_en_ne_α₀ rfl
   exact ⟨h₀, hh₀_in, h_ne, h_en_h₀, h_en_ne_α₀⟩
 
-/-- Reduction Theorem 5 (Pure Praxeological Law in Re):
+/-- Theorem 1.6 (Pure Praxeological Law in Re):
     Hülsmann's counterfactual path-dependent availability holds purely through history-bundle
     narrowing, without requiring natural-number warehouse arithmetic. -/
 theorem pure_praxeological_law_in_re {Agent Moment History Action Ends : Type}
@@ -741,7 +695,7 @@ def ConcretePureCore : PurePraxeologicalCore Unit (Fin 2) (Fin 2) (Fin 3) (Fin 3
   Pref := fun _ _ _ e1 e2 => e2 < e1
   pref_asymm := by intro _ _ _ e1 e2 h12 h21; exact Nat.lt_asymm h12 h21
 
-/-- Reduction Theorem 6 (Constructive Finite Model Witness):
+/-- Theorem 1.7 (Constructive Action Core Consistency Witness):
     The Unified Action Core is non-vacuous and simultaneously compatible with:
     1. Homogeneous Unit / Buridan Ties (two distinct actions yielding the exact same outcome).
     2. Cross-Branch Counterfactual Regret under strictly stationary preferences. -/

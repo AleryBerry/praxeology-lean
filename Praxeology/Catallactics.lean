@@ -20,17 +20,26 @@ set_option linter.style.longLine false
 set_option linter.style.openClassical false
 
 /-!
-# Praxeology.Catallactics
+# Praxeology.Catallactics — Theorems 4 & 5: Catallactics & Economic Calculation
 
-Formalization of Phase 3 of Praxeology:
-Catallactics, Money Emergence (Bourbaki-Witt), Discrete Marginal Pairs,
-and the Economic Calculation Problem (ECP), following `spec/04_catallactics_ecp.md`.
-
-## Contents
-1. Section 1: Bilateral Exchange & Double Inequality of Valuations (Axiom 6 & Theorem 3.1).
-2. Section 2: Mengerian Emergence of Money via Bourbaki-Witt (Theorem 3.2').
-3. Section 3: Repaired Discrete Marginal Pairs Grid (Theorem 3.3').
-4. Section 4: Physical Antichains, Catallactic Pricing vs. Socialist Incommensurability (Theorems 4.2 & 4.3).
+Formalization of catallactics and socialist calculation:
+- **Theorem 4: Catallactic Bilateral Exchange & Bourbaki-Witt Money Emergence**
+  - **Theorem 4.1 (Double Inequality of Subjective Valuations)**: `double_inequality_of_exchange`
+    Voluntary bilateral exchange executes iff both trading partners strictly expect subjective gain over inertia α₀.
+  - **Theorem 4.2 (Megger's Highwayman Separation of Coercion vs. Exchange)**: `highwayman_is_purposeful_but_not_catallactic`
+    Coercive extortion satisfies naive immediate purposeful choice but strictly degrades baseline welfare,
+    demarcating voluntary catallactic exchange from hegemonic coercion.
+  - **Theorem 4.3 (Constructive Bourbaki-Witt Fixed Point & Universal Money Emergence)**: `bourbaki_witt_fixed_point`
+    The inflationary marketability operator on finite acceptance profiles converges in finite steps to a fixed point,
+    inducing the spontaneous emergence of universal money.
+  - **Theorem 4.4 (Discrete Marginal Pairs & Pricing Grid Bounds)**: `marginal_pairs_equilibrium`
+    Discrete marginal pairs on currency grid M_D establish unambiguous market-clearing intervals with extra-marginal deterrence.
+- **Theorem 5: The Mises-Hayek Economic Calculation Problem (ECP)**
+  - **Theorem 5.1 (Undefinedness of Antichain Cost Minimization Under Socialism)**: `socialist_calculation_incommensurability`
+    Without market prices for capital goods, cost comparisons over physical antichains are non-invariant under
+    ordinal automorphisms, rendering central economic calculation mathematically undefined.
+  - **Theorem 5.2 (Semantic Incommensurability Barrier vs. Algorithmic Complexity)**: `semantic_incommensurability_barrier`
+    The socialist calculation problem is not a computational Turing time-complexity barrier, but an epistemic undefinedness.
 -/
 
 @[expose] public section
@@ -80,7 +89,7 @@ def IsCoerciveExtortion {ActI ActJ EndsI EndsJ : Type}
   PurposefulResponseI N α_i α_threat ∧
   N.StrictPref_i (N.Outcome_i N.α₀_i N.α₀_j) (N.Outcome_i α_i α_threat)
 
-/-- Theorem (The Megger Highwayman Separation Theorem):
+/-- Theorem 4.2 (Megger's Highwayman Separation of Coercion vs. Exchange):
     Handing over money to a robber is a purposeful action that beats the immediate passive
     baseline `α₀_i` (satisfying naive exchange definitions), yet strictly violates
     `IsCatallacticExchange` and satisfies `IsCoerciveExtortion`! -/
@@ -127,7 +136,7 @@ def BilateralExchange (i j : Agent) (t : Moment) (h : History)
   i ≠ j ∧ mA ≠ mB ∧
   BilateralExchangeAction i j t h (Offer i j qA mA qB mB) (Accept j i qA mA qB mB)
 
-/-- Theorem 3.1 (Double Inequality of Subjective Valuations):
+/-- Theorem 4.1 (Double Inequality of Subjective Valuations):
     In any voluntary bilateral exchange, both agents strictly prefer the exchange outcome
     to their status quo passive baseline α₀.
     Follows directly from PurposefulAct without requiring global transitivity,
@@ -161,7 +170,7 @@ def IsMaxMarketable (Γ : AcceptanceProfile) (m : Means) : Prop :=
 noncomputable def Phi (FeasIndirect : Agent → Means → Prop) (Γ : AcceptanceProfile) (m : Means) : Finset Agent :=
   Γ m ∪ Finset.univ.filter (fun i => IsMaxMarketable Γ m ∧ FeasIndirect i m)
 
-/-- Theorem 3.2'(2) (Inflationary Property):
+/-- Lemma (Inflationary Property of the Mengerian Operator):
     The Mengerian operator Φ is inflationary: Γ ⊑ Φ(Γ). -/
 theorem phi_inflationary (FeasIndirect : Agent → Means → Prop) (Γ : AcceptanceProfile) :
     ProfileLE Γ (Phi FeasIndirect Γ) := by
@@ -203,7 +212,7 @@ def IsFixedPoint (FeasIndirect : Agent → Means → Prop) (Γ : AcceptanceProfi
 def IsUniversalMoney (Γ : AcceptanceProfile) (m_star : Means) : Prop :=
   Γ m_star = Finset.univ
 
-/-- Theorem 3.2'(3) (Constructive Bourbaki-Witt Fixed Point & Universal Money Emergence):
+/-- Theorem 4.3 (Constructive Bourbaki-Witt Fixed Point & Universal Money Emergence):
     For any initial profile Γ₀ with a strictly dominant marketable commodity m_star,
     where all agents find indirect exchange feasible via m_star and other goods are not universally accepted,
     a single iteration of the inflationary operator Φ achieves:
@@ -297,7 +306,7 @@ theorem bourbaki_witt_fixed_point (FeasIndirect : Agent → Means → Prop)
   have h_univ : IsUniversalMoney Γ_star m_star := h_gamma_star_mstar
   exact ⟨h_fixed_point, h_le, h_univ⟩
 
-/-- Theorem 3.2'(4) (Universal Money Emergence):
+/-- Corollary to Theorem 4.3 (Universal Money Emergence):
     If at fixed point Γ*, good m* is uniquely most marketable and all agents find indirect
     exchange feasible, then m* achieves universal acceptance (Universal Money). -/
 theorem universal_money_emergence (FeasIndirect : Agent → Means → Prop)
@@ -332,7 +341,7 @@ theorem grid_step_pos (D : ℕ) (hD : 0 < D) : 0 < GridStep D := by
   have hD_q : (0 : ℚ) < (D : ℚ) := Nat.cast_pos.mpr hD
   exact one_div_pos.mpr hD_q
 
-/-- Theorem 3.3' (Marginal Pairs Extra-Marginal Deterrence & Intra-Marginal Clearance):
+/-- Theorem 4.4 (Discrete Marginal Pairs & Pricing Grid Bounds):
     On the discrete currency grid with subdivision factor D > 0, price P satisfies:
       max(v_s(r*), v_b(r* + 1) + 1/D) ≤ P ≤ min(v_b(r*), v_s(r* + 1) - 1/D)
     This guarantees:
@@ -354,6 +363,9 @@ theorem marginal_pairs_equilibrium (v_b v_s : ℕ → ℚ) (r_star D : ℕ) (hD 
   have h4_le : P ≤ v_s (r_star + 1) - GridStep D := le_trans hP_max (min_le_right _ _)
   have h4 : P < v_s (r_star + 1) := by linarith
   exact ⟨h1, h2, h3, h4⟩
+
+/-- Canonical alias for Theorem 4.4. -/
+abbrev marginal_pairs_discrete_grid := marginal_pairs_equilibrium
 
 /-- Price bracket width W = P_max - P_min is non-negative. -/
 theorem price_bracket_width_nonneg (v_b v_s : ℕ → ℚ) (r_star D : ℕ)
@@ -398,7 +410,7 @@ theorem antichain_incomparable {d : ℕ} (x y : InputVec d) (h : PhysicalAnticha
 def Cost (d : ℕ) (P : Fin d → ℚ) (x : InputVec d) : ℚ :=
   ∑ r : Fin d, P r * (x r : ℚ)
 
-/-- Theorem 4.2(1) (Catallactic Commensurability):
+/-- Lemma (Catallactic Commensurability):
     Under market pricing, the cost functional maps all heterogeneous input vectors
     (including physical antichains) into the totally ordered field ℚ.
     Therefore, Cost induces a complete total order, and argmin Cost is well-defined. -/
@@ -412,7 +424,7 @@ theorem catallactic_cost_linearly_ordered (d : ℕ) (P : Fin d → ℚ) (x y : I
 def IsRankPreserving (φ : Fin 4 → ℕ) : Prop :=
   φ 0 > φ 1 ∧ φ 1 > φ 2 ∧ φ 2 > φ 3
 
-/-- Theorem 4.2(2) (Undefinedness of Cost Minimization under Socialism / Automorphism Non-Invariance):
+/-- Theorem 5.1 (Undefinedness of Antichain Cost Minimization Under Socialism):
     Under socialism (R_soc), market prices for capital goods do not exist.
     If a central planning bureau attempts to rank production methods by summing
     ordinal utility ranks of foregone consumer ends, the resulting comparison is
@@ -458,7 +470,7 @@ theorem socialist_calculation_incommensurability :
     omega
   exact ⟨φ1, φ2, h_ord1, h_ord2, h_sum1, h_sum2⟩
 
-/-- Theorem 4.3 (Semantic Incommensurability vs. Algorithmic Complexity):
+/-- Theorem 5.2 (Semantic Incommensurability Barrier vs. Algorithmic Complexity):
     The failure of central economic calculation is not an NP-hardness or Turing time-complexity
     barrier on known objective functions, but a semantic undefinedness:
     without catallactic market exchange in capital goods, no objective cost functional

@@ -20,19 +20,25 @@ set_option linter.unusedDecidableInType false
 set_option linter.deprecated false
 
 /-!
-# Praxeology.Marginal
+# Praxeology.Marginal — Theorems 2 & 3: Marginal Utility & Time Preference
 
-Formalization of Phase 2 of Praxeology:
-Law of Diminishing Marginal Utility, Avenue B Time Preference (Doxastic Open Horizon),
-Mengerian Marginal Sacrifice, and Originary Interest.
-
-## Contents
-1. Section 1: Aggregate Feasibility & Standard Atomic Regime.
-2. Section 2: Axiom 4 (Sub-Menu Monotonicity) & Diminishing Marginal Utility (DMU).
-3. Section 3: Mengerian Marginal Sacrifice Without Neoclassical Utility.
-4. Section 4: Avenue B Time Preference via Doxastic Open Epistemic Horizon.
-5. Section 5: Originary Interest & Unit-for-Unit Exchange Rejection.
-6. Section 6: Certified Machine-Checked Boundaries (DMU Fails under Complementarity, Positive Time Preference Independence).
+Formalization of the intertemporal value theory of praxeology:
+- **Theorem 2: The Law of Ordinal Diminishing Marginal Utility & Mengerian Marginal Sacrifice**
+  - **Theorem 2.1 (Law of Purely Ordinal Diminishing Marginal Utility)**: `diminishing_marginal_utility`
+    Successive homogeneous units of scarce means are allocated to progressively less urgent independent ends.
+  - **Theorem 2.2 (Mengerian Marginal Sacrifice Without Utility)**: `mengerian_marginal_sacrifice_exists`
+    When a unit of scarce means is lost, purposeful economizing sacrifices the least-urgent fulfilled end.
+- **Theorem 3: Universal Positive Time Preference & Originary Interest**
+  - **Theorem 3.1 (Avenue B: Impossibility of Action Under Universal Negative Time Preference)**: `avenue_b_impossibility_of_negative_time_pref`
+    Under open epistemic horizons, an agent holding negative time preference can never purposefully act.
+  - **Theorem 3.2 (Enacted Action Demonstrates Non-Negative Time Preference)**: `enacted_consumption_demonstrates_nonneg_time_pref`
+    Enacted consumption demonstrates that deferral is not strictly preferred.
+  - **Theorem 3.3 (Enacted Action Demonstrates Strictly Positive Time Preference)**: `enacted_consumption_demonstrates_strict_time_pref`
+    Distinct-end dominant consumption demonstrates strictly positive time preference.
+  - **Theorem 3.4 (Rejection of Unit-for-Unit Intertemporal Exchange)**: `unit_for_unit_exchange_rejected`
+    Exchange of identical goods across time without a premium is strictly rejected under endowment stationarity.
+  - **Theorem 3.5 (Strictly Positive Originary Interest)**: `positive_originary_interest`
+    Voluntary intertemporal exchange strictly forces a positive premium and a positive rational interest rate ι > 0.
 -/
 
 @[expose] public section
@@ -235,7 +241,7 @@ theorem diminishing_marginal_utility {i : Agent} {t : Moment} {h : History} {m :
 def IsLeastUrgentEnd (Pref : Ends → Ends → Prop) (S : Finset Ends) (e_min : Ends) : Prop :=
   e_min ∈ S ∧ ∀ e ∈ S, ¬ Pref e_min e
 
-/-- Theorem (Mengerian Least-Urgent End Existence):
+/-- Lemma (Mengerian Least-Urgent End Existence):
     Any non-empty finite set S equipped with an irreflexive, transitive relation Pref
     has at least one minimal (least-urgent) element. -/
 theorem mengerian_least_urgent_end_exists [DecidableEq Ends]
@@ -291,7 +297,7 @@ def DoxasticOpenHorizon (i : Agent) (τ : Moment) (h : History) (e : Ends) (α_e
     τ < τ' ∧
     End_of i α_defer τ h = TimedEnd e τ'
 
-/-- Theorem 2.3' (Avenue B: Impossibility of Action Under Universal Negative Time Preference):
+/-- Theorem 3.1 (Avenue B: Impossibility of Action Under Universal Negative Time Preference):
     Under PurposefulAct and DoxasticOpenHorizon, an agent holding UniversalNegativeTimePreference
     can NEVER purposefully execute immediate consumption α_e at any active moment.
     Notice: Requires ZERO transitivity, ZERO completeness, and ZERO teleological injectivity! -/
@@ -323,7 +329,7 @@ theorem post_horizon_no_action
   have h_np := purposeful_act_non_passive i t h α h_act
   exact h_np.1 h_eq
 
-/-- Theorem 2.3'' (Enacted Consumption Demonstrates Non-Negative Time Preference):
+/-- Theorem 3.2 (Enacted Action Demonstrates Non-Negative Time Preference):
     If an agent DOES purposefully execute immediate consumption α_e at moment τ under DoxasticOpenHorizon,
     then there exists a future moment τ' > τ such that the agent demonstrates Non-Negative Time Preference:
     deferral is NOT strictly preferred to immediate consumption. -/
@@ -348,7 +354,7 @@ def DistinctEndDominantAct (i : Agent) (t : Moment) (h : History) (α_star : Act
   ∀ β ∈ A_feas i t h, End_of i β t h ≠ End_of i α_star t h →
     Preference i t h (End_of i α_star t h) (End_of i β t h)
 
-/-- Theorem 2.3''' (Enacted Consumption Demonstrates Positive Time Preference):
+/-- Theorem 3.3 (Enacted Action Demonstrates Strictly Positive Time Preference):
     If an agent executes a Distinct-End Dominant Act to consume α_e at τ under DoxasticOpenHorizon,
     with injective time indexing (τ ≠ τ' → TimedEnd e τ ≠ TimedEnd e τ'),
     then the agent strictly demonstrates Positive Time Preference:
@@ -389,7 +395,7 @@ axiom QuantityEnd (m : Means) (q : ℕ) : Ends
 noncomputable def BundleEnd (m : Means) (q : ℕ) (τ : Moment) : Ends :=
   TimedEnd (QuantityEnd m q) τ
 
-/-- Theorem 2.4'(1) (Rejection of Unit-for-Unit Exchange):
+/-- Theorem 3.4 (Rejection of Unit-for-Unit Intertemporal Exchange):
     Derived as a theorem directly from Axiom 5 (positive_time_preference) under endowment stationarity. -/
 theorem unit_for_unit_exchange_rejected (i : Agent) (t : Moment) (h : History)
     (m : Means) (q : ℕ) (_hq : 0 < q)
@@ -400,7 +406,7 @@ theorem unit_for_unit_exchange_rejected (i : Agent) (t : Moment) (h : History)
   dsimp [BundleEnd]
   exact positive_time_preference i t h (QuantityEnd m q) τ1 τ2 hτ1 hτ2 h_order
 
-/-- Theorem 2.4' (Positive Originary Interest):
+/-- Theorem 3.5 (Strictly Positive Originary Interest):
     If an agent voluntarily accepts future delivery ⟨q', τ₂⟩ over earlier delivery ⟨q, τ₁⟩
     where q > 0 and τ₁ < τ₂, and bundle preference is monotone in quantity, then:
     1. The future quantity must strictly exceed the earlier quantity: q < q'.
