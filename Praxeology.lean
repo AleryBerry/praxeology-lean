@@ -58,12 +58,13 @@ subjective value, market exchange, socialist calculation, firm boundaries, and b
 - **Theorem 7: The Coasean-Misesian Boundary of the Firm & Signal Quantization Attenuation**
   ([`Praxeology.FirmBoundary`](file:///home/aleryberry/Projects/praxeology_lean/praxeology/Praxeology/FirmBoundary.lean))
   Catallactic price-box indeterminacy cones, multi-stage signal attenuation, master coalescence inequality,
-  and the Coasean-Misesian firm boundary tradeoff.
-  *Theorems 7.1–7.6*.
+  the Coasean-Misesian firm boundary tradeoff, and credit-induced artificial conglomeration (spontaneous cartelization).
+  *Theorems 7.1–7.8*.
 
 - **Theorem 8: The Austrian Business Cycle Theory (ABCT) & Synchronized Cluster of Errors**
   ([`Praxeology.BusinessCycle`](file:///home/aleryberry/Projects/praxeology_lean/praxeology/Praxeology/BusinessCycle.lean))
   Fiduciary signal opacity, artificial interest rate distortion, endogenous IC1 factor tug-of-war starvation,
-  Hülsmann-Rothbard synchronized cluster of errors, and kernel-checked non-vacuity witness.
-  *Theorems 8.1–8.6*.
+  Hülsmann-Rothbard synchronized cluster of errors, midstream factor bailout impossibility, Cantillon bailout regret cascade,
+  and kernel-checked non-vacuity witness.
+  *Theorems 8.1–8.8*.
 -/

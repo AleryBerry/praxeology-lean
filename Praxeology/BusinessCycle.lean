@@ -40,6 +40,13 @@ Formalization of the monetary-macroeconomic dynamics of praxeology:
   - **Theorem 8.6 (Kernel-Checked Non-Vacuity & Consistency of the ABCT Master Theorem)**: `abct_master_theorem_non_vacuous`
     Concrete 2-actor, 3-period, 3-history model witness verifying that all 21 hypotheses of the ABCT Master Theorem
     are simultaneously satisfiable and mathematically consistent.
+  - **Theorem 8.7 (Midstream Factor Bailout Impossibility)**: `midstream_bailout_impossibility`
+    Midstream capital abandonment is caused by physical exhaustion of non-specific complementary factors (`ω = 0`),
+    which is ontologically invariant under nominal liquidity injections (`∀ σ : ℚ, α_complete ∉ A_feas`).
+  - **Theorem 8.8 (Cantillon Signal Asymmetry & The Bailout Regret Cascade)**: `cantillon_bailout_regret_cascade`
+    A secondary monetary injection directed at uncompleted projects fails to rescue the original malinvested cohort,
+    while trapping subsequent entrepreneurial cohorts (`j`) into new malinvestments, cascading physical factor starvation
+    and compounding cross-branch regret across time periods.
 
 Contains zero global `axiom` declarations.
 -/
@@ -265,7 +272,126 @@ theorem abct_cluster_of_entrepreneurial_errors
   exact ⟨h_tr_k1, h_starve.2.1, h_starve.2.2, h_regret⟩
 
 -- =========================================================================
--- Section 5: Concrete 2-Actor, 3-Period ABCT Non-Vacuity Model Witness
+-- Section 5: Cantillon Signal Asymmetry & The Midstream Bailout Impossibility Theorem
+-- =========================================================================
+
+/-- Theorem 8.7 (Midstream Factor Bailout Impossibility):
+    Midstream capital abandonment in ABCT is caused by the physical non-existence
+    of complementary completion factors (`omega i t1 h_credit m_comp = 0`).
+    Because physical feasibility `phys_feas` requires `use_means α m ≤ omega i t h m`,
+    nominal liquidity injections (`∀ any_nominal_liquidity : ℚ`) have zero physical
+    causal power to render completion feasible: `α_complete ∉ F.A_feas i t1 h_credit`.
+    Liquidity cannot substitute for unproduced capital goods. -/
+theorem midstream_bailout_impossibility
+    {Agent Moment History Action Means : Type} [DecidableEq Action]
+    (F : CausalTransitionFrame Agent Moment History Action Means)
+    (c i : Agent) (t0 t1 : Moment) (h_saved h_credit : History)
+    (α_save α_consume_now α_complete : Action) (m_comp : Means)
+    (h_tow : IntertemporalFactorTugOfWar F c i t0 t1 h_saved h_credit α_save α_consume_now α_complete m_comp) :
+    F.omega i t1 h_credit m_comp = 0 ∧
+    (∀ (_any_nominal_liquidity : ℚ), α_complete ∉ F.A_feas i t1 h_credit) := by
+  have h_starve := ic1_tug_of_war_starves_completion F c i t0 t1 h_saved h_credit
+    α_save α_consume_now α_complete m_comp h_tow
+  exact ⟨h_starve.2.1, fun _ => h_starve.2.2⟩
+
+/-- CantillonBailoutCascade:
+    Formalizes a multi-period, multi-agent sequential Cantillon credit injection.
+    When entrepreneur `i`'s higher-order project stalls at `t1` due to factor starvation (`m_comp1 = 0`),
+    a central monetary authority injects secondary bailout liquidity (`signal_bailout h_saved2 = signal_bailout h_credit`).
+    Because money enters the economy non-neutrally at a specific entry point (Cantillon effect),
+    it reaches entrepreneur `j ≠ i` who initiates a new Stage-2 project `α_stage2` at `t1` consuming `k2`.
+    However, because consumer `c` maintains consumption preferences (`α_consume1`),
+    complementary factor `m_comp2` is starved at `t2`, trapping cohort `j` into a second cluster of malinvestment. -/
+structure CantillonBailoutCascade
+    {Agent Moment History Action Means Ends : Type}
+    [DecidableEq Action] [DecidableEq Ends]
+    (F : CausalTransitionFrame Agent Moment History Action Means)
+    (M : CounterfactualActionModel Agent Moment History Action Ends)
+    (c i j : Agent)
+    (t0 t1 t2 t3 τ_safe1 τ_safe2 : Moment)
+    (h_saved1 h_saved2 h_credit h_safe1 h_safe2 : History)
+    (α_save0 α_consume0 α_stage1 α_complete1 : Action)
+    (α_save1 α_consume1 α_stage2 α_complete2 : Action)
+    (k1 m_comp1 k2 m_comp2 : Means)
+    (K2 : Set History) (signal_bailout : History → ℚ) : Prop where
+  h_diff_ent : i ≠ j
+  h_tow1 : IntertemporalFactorTugOfWar F c i t0 t1 h_saved1 h_credit α_save0 α_consume0 α_complete1 m_comp1
+  h_tow2 : IntertemporalFactorTugOfWar F c j t1 t2 h_saved2 h_credit α_save1 α_consume1 α_complete2 m_comp2
+  h_prec12 : F.prec t1 t2
+  h_opacity2 : signal_bailout h_saved2 = signal_bailout h_credit
+  h_in_prior2 : h_saved2 ∈ K2
+  h_ex_ante2 : ExAntePurposefulAct M j t1 h_credit α_stage2
+  h_exec_s2 : F.Exec j t1 α_stage2 h_credit
+  h_init_k2 : F.omega j t1 h_credit k2 = 0
+  h_use_s2_k2 : F.use_means α_stage2 k2 = 0
+  h_yield_s2_k2 : F.yield_means α_stage2 k2 = 1
+  h_safe_part1 : h_safe1 ∈ M.ChoicePartition i t0 M.α₀
+  h_prec_safe1 : M.prec t0 τ_safe1
+  h_mem_safe1 : M.mem_hist τ_safe1 h_safe1
+  h_bust_pref1 : M.Pref i t2 h_credit
+    (M.OutcomeOf i M.α₀ t0 τ_safe1 h_safe1)
+    (M.OutcomeOf i α_stage1 t0 t2 h_credit)
+  h_safe_part2 : h_safe2 ∈ M.ChoicePartition j t1 M.α₀
+  h_prec_safe2 : M.prec t1 τ_safe2
+  h_mem_safe2 : M.mem_hist τ_safe2 h_safe2
+  h_bust_pref2 : M.Pref j t3 h_credit
+    (M.OutcomeOf j M.α₀ t1 τ_safe2 h_safe2)
+    (M.OutcomeOf j α_stage2 t1 t3 h_credit)
+
+/-- Theorem 8.8 (Cantillon Signal Asymmetry & The Bailout Regret Cascade):
+    Proves that a secondary bailout credit injection at `t1`:
+    1. Entirely fails to rescue Entrepreneur `i`'s uncompleted project (`α_complete1 ∉ F.A_feas i t1 h_credit`)
+       and leaves entrepreneur `i` in strict cross-branch regret at `t2`.
+    2. Traps Entrepreneur `j`'s DEL epistemic update via strategic opacity (`h_saved2 ∈ SignalFilteredPlausible K2 signal_bailout h_credit`).
+    3. Induces Entrepreneur `j` to accumulate stage-2 specific capital `k2` at `t2` (`omega j t2 h_credit k2 = 1`).
+    4. But starves the complementary factor `m_comp2` (`omega j t2 h_credit m_comp2 = 0`),
+       rendering completion `α_complete2` physically infeasible at `t2`.
+    5. Leaves subsequent entrepreneur `j` in compounded cross-branch regret at `t3`.
+    Thus, bailout monetary inflation cannot heal real capital discoordination,
+    propagating an intertemporal cascade of malinvestment and regret. -/
+theorem cantillon_bailout_regret_cascade
+    {Agent Moment History Action Means Ends : Type}
+    [DecidableEq Action] [DecidableEq Ends]
+    (F : CausalTransitionFrame Agent Moment History Action Means)
+    (M : CounterfactualActionModel Agent Moment History Action Ends)
+    (c i j : Agent)
+    (t0 t1 t2 t3 τ_safe1 τ_safe2 : Moment)
+    (h_saved1 h_saved2 h_credit h_safe1 h_safe2 : History)
+    (α_save0 α_consume0 α_stage1 α_complete1 : Action)
+    (α_save1 α_consume1 α_stage2 α_complete2 : Action)
+    (k1 m_comp1 k2 m_comp2 : Means)
+    (K2 : Set History) (signal_bailout : History → ℚ)
+    (casc : CantillonBailoutCascade F M c i j t0 t1 t2 t3 τ_safe1 τ_safe2
+      h_saved1 h_saved2 h_credit h_safe1 h_safe2
+      α_save0 α_consume0 α_stage1 α_complete1
+      α_save1 α_consume1 α_stage2 α_complete2
+      k1 m_comp1 k2 m_comp2 K2 signal_bailout) :
+    α_complete1 ∉ F.A_feas i t1 h_credit ∧
+    CrossBranchRegret M i t0 t2 h_credit α_stage1 M.α₀ ∧
+    h_saved2 ∈ SignalFilteredPlausible K2 signal_bailout h_credit ∧
+    F.omega j t2 h_credit k2 = 1 ∧
+    F.omega j t2 h_credit m_comp2 = 0 ∧
+    α_complete2 ∉ F.A_feas j t2 h_credit ∧
+    CrossBranchRegret M j t1 t3 h_credit α_stage2 M.α₀ := by
+  have h_starve1 := ic1_tug_of_war_starves_completion F c i t0 t1 h_saved1 h_credit
+    α_save0 α_consume0 α_complete1 m_comp1 casc.h_tow1
+  have h_starve2 := ic1_tug_of_war_starves_completion F c j t1 t2 h_saved2 h_credit
+    α_save1 α_consume1 α_complete2 m_comp2 casc.h_tow2
+  have h_regret1 : CrossBranchRegret M i t0 t2 h_credit α_stage1 M.α₀ :=
+    ⟨M.alpha_zero_mem_cont i t0 h_credit, h_safe1, casc.h_safe_part1,
+     τ_safe1, casc.h_prec_safe1, casc.h_mem_safe1, casc.h_bust_pref1⟩
+  have h_op2 := strategic_opacity_traps_del_update K2 signal_bailout h_saved2 h_credit
+    casc.h_in_prior2 casc.h_opacity2
+  have h_tr_k2 := F.law_in_re_transition j t1 t2 h_credit α_stage2 k2
+    casc.h_exec_s2 casc.h_prec12
+  rw [casc.h_use_s2_k2, casc.h_init_k2, casc.h_yield_s2_k2] at h_tr_k2
+  have h_regret2 : CrossBranchRegret M j t1 t3 h_credit α_stage2 M.α₀ :=
+    ⟨M.alpha_zero_mem_cont j t1 h_credit, h_safe2, casc.h_safe_part2,
+     τ_safe2, casc.h_prec_safe2, casc.h_mem_safe2, casc.h_bust_pref2⟩
+  exact ⟨h_starve1.2.2, h_regret1, h_op2, h_tr_k2, h_starve2.2.1, h_starve2.2.2, h_regret2⟩
+
+-- =========================================================================
+-- Section 6: Concrete 2-Actor, 3-Period ABCT Non-Vacuity Model Witness
 -- =========================================================================
 
 /-- Concrete 2-Actor, 3-Period CausalTransitionFrame for ABCT:

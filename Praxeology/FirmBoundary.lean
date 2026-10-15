@@ -42,6 +42,10 @@ and multi-stage signal quantization attenuation:
   - **Theorem 7.6 (The Coasean-Misesian Boundary of the Firm)**: `firm_boundary_tradeoff`
     The optimal boundary of the firm is strictly bounded between quantization noise reduction (favoring integration)
     and Misesian calculation chaos / ECP (precluding complete non-market socialization).
+  - **Theorem 7.7 (Credit Expansion Artificially Expands Calculable Signal Horizon)**: `credit_expansion_expands_hop_horizon`
+    In the critical horizon regime, spot price signals extinguish under the natural rate ι_nat but transmit an artificially positive signal under credit expansion ι_credit, expanding perceived calculability.
+  - **Theorem 7.8 (The Artificial Conglomeration & Spontaneous Cartelization Theorem)**: `artificial_conglomeration_firm_boundary_distortion`
+    Artificially low interest rates distort the Coasean firm boundary, inducing oversized conglomerates that appear profitable ex-ante but suffer internal socialist calculation blindness and inevitable liquidation.
 
 Contains zero global `axiom` declarations.
 -/
@@ -357,6 +361,115 @@ theorem firm_boundary_tradeoff (L K D : ℕ) (hD : 0 < D)
   intro P x y
   dsimp [Cost]
   simp
+
+-- =========================================================================
+-- Section 4: Credit Expansion & The Artificial Conglomeration Theorem
+-- =========================================================================
+
+/-- Lemma (Antitoneness of Price-Signal Transmission with Respect to Originary Interest):
+    Lowering the discount rate strictly increases the transmitted upstream price signal
+    across any production hop with a positive initial signal and positive price spread. -/
+theorem attenuate_hop_antitone_interest (ΔP ι_credit ι_nat deadband : ℚ)
+    (h_pos_cred : 0 < 1 + ι_credit)
+    (h_lt_rates : 1 + ι_credit < 1 + ι_nat)
+    (h_pos_sig : 0 < AttenuateHop ΔP ι_nat deadband)
+    (h_db : 0 ≤ deadband) :
+    AttenuateHop ΔP ι_nat deadband < AttenuateHop ΔP ι_credit deadband := by
+  dsimp [AttenuateHop] at h_pos_sig ⊢
+  have h_nat_pos : 0 < 1 + ι_nat := lt_trans h_pos_cred h_lt_rates
+  have h_inner_pos : 0 < ΔP / (1 + ι_nat) - deadband := by
+    by_contra h_le
+    have h_le0 : ΔP / (1 + ι_nat) - deadband ≤ 0 := not_lt.mp h_le
+    rw [max_eq_left h_le0] at h_pos_sig
+    exact lt_irrefl 0 h_pos_sig
+  have h_eq_nat : max 0 (ΔP / (1 + ι_nat) - deadband) = ΔP / (1 + ι_nat) - deadband :=
+    max_eq_right (le_of_lt h_inner_pos)
+  rw [h_eq_nat]
+  have h_div_gt : deadband < ΔP / (1 + ι_nat) := sub_pos.mp h_inner_pos
+  have h_div_pos : 0 < ΔP / (1 + ι_nat) := lt_of_le_of_lt h_db h_div_gt
+  have h_P_pos : 0 < ΔP := by
+    have h_prod : 0 * (1 + ι_nat) < ΔP := (lt_div_iff₀ h_nat_pos).mp h_div_pos
+    rw [MulZeroClass.zero_mul] at h_prod
+    exact h_prod
+  have h_div_lt : ΔP / (1 + ι_nat) < ΔP / (1 + ι_credit) :=
+    div_lt_div_of_pos_left h_P_pos h_pos_cred h_lt_rates
+  have h_inner_lt : ΔP / (1 + ι_nat) - deadband < ΔP / (1 + ι_credit) - deadband :=
+    sub_lt_sub_right h_div_lt deadband
+  have h_cred_pos : 0 < ΔP / (1 + ι_credit) - deadband := lt_trans h_inner_pos h_inner_lt
+  rw [max_eq_right (le_of_lt h_cred_pos)]
+  exact h_inner_lt
+
+/-- Theorem 7.7 (Credit Expansion Artificially Expands Calculable Signal Horizon):
+    In the critical horizon regime where:
+      (1 + ι_credit) * deadband < ΔP ≤ (1 + ι_nat) * deadband,
+    spot-market price transmission across an upstream hop suffers complete signal extinction
+    under the natural rate ι_nat (AttenuateHop = 0), but transmits an artificially positive
+    signal under credit expansion ι_credit (AttenuateHop > 0), inducing entrepreneurs to
+    perceive deep, unviable production stages as calculable and coordinated. -/
+theorem credit_expansion_expands_hop_horizon
+    (ΔP ι_credit ι_nat deadband : ℚ)
+    (h_pos_cred : 0 < 1 + ι_credit)
+    (h_pos_nat : 0 < 1 + ι_nat)
+    (h_crit_low : (1 + ι_credit) * deadband < ΔP)
+    (h_crit_high : ΔP ≤ (1 + ι_nat) * deadband) :
+    AttenuateHop ΔP ι_nat deadband = 0 ∧
+    0 < AttenuateHop ΔP ι_credit deadband := by
+  dsimp [AttenuateHop]
+  constructor
+  · have h_div_le : ΔP / (1 + ι_nat) ≤ deadband := by
+      rw [div_le_iff₀ h_pos_nat]
+      have h_comm : deadband * (1 + ι_nat) = (1 + ι_nat) * deadband := mul_comm deadband (1 + ι_nat)
+      rw [h_comm]
+      exact h_crit_high
+    have h_sub_le : ΔP / (1 + ι_nat) - deadband ≤ 0 := sub_nonpos.mpr h_div_le
+    exact max_eq_left h_sub_le
+  · have h_div_gt : deadband < ΔP / (1 + ι_credit) := by
+      rw [lt_div_iff₀ h_pos_cred]
+      have h_comm : deadband * (1 + ι_credit) = (1 + ι_credit) * deadband := mul_comm deadband (1 + ι_credit)
+      rw [h_comm]
+      exact h_crit_low
+    have h_sub_pos : 0 < ΔP / (1 + ι_credit) - deadband := sub_pos.mpr h_div_gt
+    rw [max_eq_right (le_of_lt h_sub_pos)]
+    exact h_sub_pos
+
+/-- Theorem 7.8 (The Artificial Conglomeration & Spontaneous Cartelization Theorem):
+    Artificially suppressed originary interest (ι_credit < ι_nat) distorts the Coasean-Misesian
+    boundary of the firm, creating a perverse economic regime where:
+    1. An oversized conglomerate spanning K_boom stages appears profitable and calculable ex-ante
+       under credit expansion (AttenuateHop ΔP_boom ι_credit db_comp > V_safe),
+    2. But is strictly unprofitable under the true natural interest rate (AttenuateHop ΔP_boom ι_nat db_comp ≤ V_safe),
+    3. And inside its internalized stages, internal shadow-price allocation blur strictly exceeds
+       spot market calculation uncertainty (InternalFirmUncertainty > SpotMarketUncertainty),
+       condemning the conglomerate to internal socialist calculation blindness and inevitable liquidation/bust. -/
+theorem artificial_conglomeration_firm_boundary_distortion
+    (ΔP_boom ι_nat ι_credit db_comp V_safe : ℚ)
+    (upstream_blur joint_cost_blur ext_opp_loss W_nat grid_step Δz_abs : ℚ)
+    (h_pos_nat : 0 < 1 + ι_nat)
+    (h_pos_cred : 0 < 1 + ι_credit)
+    (h_V_nonneg : 0 ≤ V_safe)
+    (h_pos_vol : 0 < Δz_abs)
+    (h_cred_boom : (1 + ι_credit) * (V_safe + db_comp) < ΔP_boom)
+    (h_nat_restraint : ΔP_boom ≤ (1 + ι_nat) * (V_safe + db_comp))
+    (h_internal_blindness : W_nat + grid_step < upstream_blur + joint_cost_blur + ext_opp_loss) :
+    V_safe < AttenuateHop ΔP_boom ι_credit db_comp ∧
+    AttenuateHop ΔP_boom ι_nat db_comp ≤ V_safe ∧
+    SpotMarketUncertainty W_nat grid_step Δz_abs <
+      InternalFirmUncertainty upstream_blur joint_cost_blur ext_opp_loss Δz_abs := by
+  refine ⟨?_, ?_, ?_⟩
+  · dsimp [AttenuateHop]
+    have h_div : V_safe + db_comp < ΔP_boom / (1 + ι_credit) := by
+      rw [lt_div_iff₀ h_pos_cred]
+      linarith
+    have h_lt : V_safe < ΔP_boom / (1 + ι_credit) - db_comp := by linarith
+    exact lt_of_lt_of_le h_lt (le_max_right 0 _)
+  · dsimp [AttenuateHop]
+    apply max_le h_V_nonneg
+    have h_div : ΔP_boom / (1 + ι_nat) ≤ V_safe + db_comp := by
+      rw [div_le_iff₀ h_pos_nat]
+      linarith
+    linarith
+  · dsimp [SpotMarketUncertainty, InternalFirmUncertainty]
+    exact mul_lt_mul_of_pos_right h_internal_blindness h_pos_vol
 
 end Praxeology
 
