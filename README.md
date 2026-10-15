@@ -199,7 +199,7 @@ This builds all 1038 jobs, compiling every proof and model witness.
 ### Check for Zero Axioms & Zero Sorrys
 Verify that no unproven stubs or unintended global axioms exist in the core library:
 ```bash
-grep -rn "sorry" praxeology/Praxeology/ Praxeology.lean || echo "0 sorrys found"
+grep -rn "sorry" Praxeology/ Praxeology.lean || echo "0 sorrys found"
 ```
 
 ---
@@ -208,24 +208,25 @@ grep -rn "sorry" praxeology/Praxeology/ Praxeology.lean || echo "0 sorrys found"
 
 ```
 praxeology_lean/
-├── Praxeology.lean                     # Root public exports & Grand Theorems docstrings
+├── .github/                            # CI workflows (Lean action CI, release tags, updates)
+├── .gitignore                          # Git ignore rules (ignores .lake/)
+├── lakefile.toml                       # Lake package configuration
+├── lean-toolchain                      # Lean toolchain: v4.35.0
+├── lake-manifest.json                  # Pinned dependency manifest (Mathlib v4.35.0)
+├── Praxeology.lean                     # Canonical library root module & 8 Grand Theorems index
+├── Praxeology/
+│   ├── Frame.lean                      # Spatiotemporal ontology & ModelM0 witness (Thm 0.1)
+│   ├── Action.lean                     # Purposeful action, OCSet, & menu consistency (Thm 1)
+│   ├── Marginal.lean                   # Ordinal marginal utility & time preference (Thms 2 & 3)
+│   ├── Catallactics.lean               # Exchange, Bourbaki-Witt, Gresham, & ECP (Thms 4 & 5)
+│   ├── Counterfactuals.lean            # Regret, Lawson second-best, & cascades (Thm 6)
+│   ├── FirmBoundary.lean               # Coasean boundaries & conglomeration (Thm 7)
+│   └── BusinessCycle.lean              # ABCT, Cantillon cascade, & non-vacuity (Thm 8)
 ├── spec/                               # Mathematical specifications & ontological blueprints
 │   ├── 01_ontology_and_frames.md
 │   ├── 02_action_and_preference.md
 │   ├── 03_intertemporal_marginal.md
 │   └── 04_catallactics_ecp.md
-├── praxeology/
-│   ├── lakefile.toml                   # Lake package configuration
-│   ├── lean-toolchain                  # Lean toolchain: v4.35.0
-│   ├── Praxeology.lean                 # Canonical library root module
-│   └── Praxeology/
-│       ├── Frame.lean                  # Spatiotemporal ontology & ModelM0 witness (Thm 0.1)
-│       ├── Action.lean                 # Purposeful action, OCSet, & menu consistency (Thm 1)
-│       ├── Marginal.lean               # Ordinal marginal utility & time preference (Thms 2 & 3)
-│       ├── Catallactics.lean           # Exchange, Bourbaki-Witt, Gresham, & ECP (Thms 4 & 5)
-│       ├── Counterfactuals.lean        # Regret, Lawson second-best, & cascades (Thm 6)
-│       ├── FirmBoundary.lean           # Coasean boundaries & conglomeration (Thm 7)
-│       └── BusinessCycle.lean          # ABCT, Cantillon cascade, & non-vacuity (Thm 8)
 └── README.md                           # Documentation, theorem index, & research summary
 ```
 
