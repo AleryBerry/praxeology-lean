@@ -32,10 +32,14 @@ structure DeliberationNode (Action Ends : Type) [DecidableEq Action] [DecidableE
   h_α₀_mem : «α₀» ∈ A_cont
   EndOf : Action → Ends
   StrictPref : Ends → Ends → Prop
-  pref_irrefl : ∀ e, ¬ StrictPref e e
   pref_asymm : ∀ e₁ e₂, StrictPref e₁ e₂ → ¬ StrictPref e₂ e₁
   Exec : Action → Prop
   exec_disjoint : ∀ α β, α ≠ β → ¬ (Exec α ∧ Exec β)
+
+/-- Irreflexivity of StrictPref derived directly from asymmetry. -/
+theorem DeliberationNode.pref_irrefl {Action Ends : Type} [DecidableEq Action] [DecidableEq Ends]
+    (D : DeliberationNode Action Ends) (e : Ends) : ¬ D.StrictPref e e :=
+  fun h_refl => D.pref_asymm e e h_refl h_refl
 
 /-- Grounded Purposeful Action:
     1. α* is in the contemplated feasible menu.
@@ -76,7 +80,6 @@ theorem homogeneous_units_compatible_with_grounded_action :
     h_α₀_mem := by decide
     EndOf := fun α => if α = 0 then 0 else 1
     StrictPref := fun e₁ e₂ => e₁ = 1 ∧ e₂ = 0
-    pref_irrefl := by intro e ⟨h1, h0⟩; rw [h1] at h0; contradiction
     pref_asymm := by intro e₁ e₂ ⟨h1, _⟩ ⟨_, h0⟩; rw [h1] at h0; contradiction
     Exec := fun α => α = 1
     exec_disjoint := by intro α β hne ⟨hα, hβ⟩; subst hα hβ; exact hne rfl
@@ -212,6 +215,38 @@ theorem grounded_abct_synthesis_verified :
     Praxeology.CrossBranchRegret Praxeology.ABCTConcreteActionModel 0 0 2 0 1 0 := by
   have h := Praxeology.abct_master_theorem_non_vacuous
   exact ⟨h.1, h.2.2.1, h.2.2.2.1, h.2.2.2.2.1, h.2.2.2.2.2⟩
+
+-- ============================================================================
+-- 5. UNIFIED ACTION AXIOM & ONTOLOGICAL REDUCTIONS EXPORT
+-- ============================================================================
+
+/-- Master verification theorem certifying that branching time, STIT choice exclusivity,
+    pure set-theoretic laws in re, and counterfactual regret under stationary preferences
+    all derive constructively from the Unified Action Axiom with zero global axioms. -/
+theorem unified_action_reductions_verified :
+    (∀ {Agent Moment History Action Ends : Type}
+       (C : Praxeology.PurePraxeologicalCore Agent Moment History Action Ends)
+       (i : Agent) (t : Moment) (H_t : Set History) (h : History),
+       Praxeology.UnifiedPurposefulAct C i t H_t h →
+       ∃ h₀ ∈ H_t, h₀ ≠ h ∧ C.enacted i t h₀ = C.α₀ ∧ C.enacted i t h ≠ C.α₀) ∧
+    (∀ {Agent Moment History Action Ends : Type}
+       (C : Praxeology.PurePraxeologicalCore Agent Moment History Action Ends)
+       (i : Agent) (t t' : Moment) (H_t'_cf : Set History)
+       (α_build α_consume β_down : Action),
+       (∀ h', C.enacted i t' h' = β_down → C.enacted i t h' = α_build) →
+       H_t'_cf ⊆ Praxeology.ChoiceCell C i t α_consume →
+       α_consume ≠ α_build →
+       ¬ Praxeology.BranchFeas C i t' H_t'_cf β_down) ∧
+    (∃ (C : Praxeology.PurePraxeologicalCore Unit (Fin 2) (Fin 2) (Fin 3) (Fin 3)),
+       (∀ t1 h1 t2 h2, C.Pref () t1 h1 = C.Pref () t2 h2) ∧
+       (∃ α₁ α₂ : Fin 3, α₁ ≠ α₂ ∧ ∀ t h', C.Outcome () α₁ t h' = C.Outcome () α₂ t h') ∧
+       (∃ (H_0 : Set (Fin 2)) (h : Fin 2),
+         Praxeology.UnifiedPurposefulAct C () 0 H_0 h ∧
+         ∃ h₀ ∈ Praxeology.ChoiceCell C () 0 C.α₀,
+           C.Pref () 1 h (C.Outcome () C.α₀ 0 h₀) (C.Outcome () (C.enacted () 0 h) 0 h))) :=
+  ⟨Praxeology.action_implies_branching_universe,
+   Praxeology.pure_praxeological_law_in_re,
+   Praxeology.unified_core_non_vacuous_and_regret_compatible⟩
 
 end Praxeology.GroundedSynthesis
 

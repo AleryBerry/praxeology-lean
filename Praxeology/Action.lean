@@ -68,13 +68,14 @@ axiom End_of : Agent → Action → Moment → History → Ends
     Evaluation is purely ordinal and subjective. -/
 axiom Preference (i : Agent) (t : Moment) (h : History) : Ends → Ends → Prop
 
-/-- Preference is strictly irreflexive: no end is strictly preferred to itself. -/
-axiom pref_irrefl (i : Agent) (t : Moment) (h : History) (e : Ends) :
-  ¬(Preference i t h e e)
-
 /-- Preference is asymmetric: if e₁ is strictly preferred to e₂, e₂ is not preferred to e₁. -/
 axiom pref_asymm (i : Agent) (t : Moment) (h : History) {e1 e2 : Ends} :
   Preference i t h e1 e2 → ¬(Preference i t h e2 e1)
+
+/-- Preference is strictly irreflexive: derived directly from asymmetry. -/
+theorem pref_irrefl (i : Agent) (t : Moment) (h : History) (e : Ends) :
+    ¬(Preference i t h e e) :=
+  fun h_refl => pref_asymm i t h h_refl h_refl
 
 -- =========================================================================
 -- 3. Purposeful Action via Undominated Choice
@@ -480,8 +481,15 @@ structure CounterfactualActionModel (Agent Moment History Action Ends : Type)
   OutcomeOf : Agent → Action → Moment → Moment → History → Ends
   ExpectedMaturation : Agent → Action → Moment → History → Moment
   Pref : Agent → Moment → History → Ends → Ends → Prop
-  pref_irrefl : ∀ i t h e, ¬ Pref i t h e e
   pref_asymm : ∀ i t h e1 e2, Pref i t h e1 e2 → ¬ Pref i t h e2 e1
+
+/-- Irreflexivity of preference in CounterfactualActionModel derived from asymmetry. -/
+theorem CounterfactualActionModel.pref_irrefl
+    {Agent Moment History Action Ends : Type} [DecidableEq Action] [DecidableEq Ends]
+    (M : CounterfactualActionModel Agent Moment History Action Ends)
+    (i : Agent) (t : Moment) (h : History) (e : Ends) :
+    ¬ M.Pref i t h e e :=
+  fun h_refl => M.pref_asymm i t h e e h_refl h_refl
 
 /-- Ex-ante purposeful action: at decision node ⟨t, h⟩, α_star is contemplated, physically executed,
     expected to beat α₀ across all minimally plausible worlds, and undominated by any alternative. -/
@@ -560,7 +568,6 @@ theorem stationary_pref_compatible_with_cross_branch_regret :
       if α = 0 then 1 else if h = 1 then 2 else 0
     ExpectedMaturation := fun _ _ _ _ => 1
     Pref := fun _ _ _ e1 e2 => e2 < e1
-    pref_irrefl := by intro _ _ _ e; exact Nat.lt_irrefl e.val
     pref_asymm := by intro _ _ _ e1 e2 h12 h21; exact Nat.lt_asymm h12 h21
   }
   refine ⟨M, ?_, ?_, ?_⟩
@@ -575,6 +582,199 @@ theorem stationary_pref_compatible_with_cross_branch_regret :
       subst h_eq
       fin_cases β <;> decide
   · refine ⟨by decide, 1, rfl, 1, by decide, trivial, by decide⟩
+
+-- =========================================================================
+-- Section 9: The Unified Action Axiom & Ontological Reductions
+-- =========================================================================
+
+/-- Pure Praxeological Core:
+    Contains ONLY five primitive maps and ONE structural axiom (`pref_asymm`).
+    Branching time, STIT choice exclusivity, covering, and causal laws in re
+    are all derived as pure theorems without external temporal or topological axioms. -/
+structure PurePraxeologicalCore (Agent Moment History Action Ends : Type) where
+  «α₀» : Action
+  enacted : Agent → Moment → History → Action
+  A_cont : Agent → Moment → History → Finset Action
+  Plausible : Agent → Moment → History → Set History
+  Outcome : Agent → Action → Moment → History → Ends
+  Pref : Agent → Moment → History → Ends → Ends → Prop
+  pref_asymm : ∀ i t h e₁ e₂, Pref i t h e₁ e₂ → ¬ Pref i t h e₂ e₁
+
+/-- Derived Physical Execution: agent i executes α at ⟨t, h⟩ iff α is enacted. -/
+def PurePraxeologicalCore.Exec {Agent Moment History Action Ends : Type}
+    (C : PurePraxeologicalCore Agent Moment History Action Ends)
+    (i : Agent) (t : Moment) (α : Action) (h : History) : Prop :=
+  C.enacted i t h = α
+
+/-- Derived STIT Choice Cell: the set of histories along which agent i enacts α at t. -/
+def ChoiceCell {Agent Moment History Action Ends : Type}
+    (C : PurePraxeologicalCore Agent Moment History Action Ends)
+    (i : Agent) (t : Moment) (α : Action) : Set History :=
+  { h | C.enacted i t h = α }
+
+/-- Derived Branch Feasibility: action α is physically branch-feasible in history bundle H_t
+    iff there is at least one history in H_t where α is enacted. -/
+def BranchFeas {Agent Moment History Action Ends : Type}
+    (C : PurePraxeologicalCore Agent Moment History Action Ends)
+    (i : Agent) (t : Moment) (H_t : Set History) (α : Action) : Prop :=
+  ∃ h' ∈ H_t, C.enacted i t h' = α
+
+/-- The Unified Action Axiom (UnifiedPurposefulAct):
+    At decision node ⟨t, h⟩ within history bundle H_t:
+    1. Actual Membership & Contemplation: h ∈ H_t and enacted choice is contemplated.
+    2. Counterfactual Refrainability (OiR): passive baseline α₀ is contemplated and branch-feasible.
+    3. Doxastic Non-Vacuity & Felt Unease: plausibility set is non-empty, and anticipated outcome
+       of enacted choice strictly beats anticipated outcome of passive baseline across all plausible worlds.
+    4. Undominated Ex-Ante Choice: no contemplated alternative strictly dominates the enacted choice. -/
+def UnifiedPurposefulAct {Agent Moment History Action Ends : Type}
+    (C : PurePraxeologicalCore Agent Moment History Action Ends)
+    (i : Agent) (t : Moment) (H_t : Set History) (h : History) : Prop :=
+  h ∈ H_t ∧
+  C.enacted i t h ∈ C.A_cont i t h ∧
+  C.α₀ ∈ C.A_cont i t h ∧
+  BranchFeas C i t H_t C.α₀ ∧
+  (C.Plausible i t h).Nonempty ∧
+  (∀ h' ∈ C.Plausible i t h,
+    C.Pref i t h
+      (C.Outcome i (C.enacted i t h) t h')
+      (C.Outcome i C.α₀ t h')) ∧
+  (∀ h' ∈ C.Plausible i t h, ∀ β ∈ C.A_cont i t h,
+    ¬ C.Pref i t h
+      (C.Outcome i β t h')
+      (C.Outcome i (C.enacted i t h) t h'))
+
+/-- Reduction Theorem 1 (Derived Preference Irreflexivity):
+    Strict irreflexivity follows directly from asymmetry with zero auxiliary order axioms. -/
+theorem derived_pref_irrefl {Agent Moment History Action Ends : Type}
+    (C : PurePraxeologicalCore Agent Moment History Action Ends)
+    (i : Agent) (t : Moment) (h : History) (e : Ends) :
+    ¬ C.Pref i t h e e :=
+  fun h_refl => C.pref_asymm i t h e e h_refl h_refl
+
+/-- Reduction Theorem 2 (Derived STIT Choice Partition Properties):
+    Modeling execution as a function `enacted` turns partition covering, disjointness,
+    and non-empty choice cell equivalence into 0-axiom theorems of equality. -/
+theorem derived_stit_partition_properties {Agent Moment History Action Ends : Type}
+    (C : PurePraxeologicalCore Agent Moment History Action Ends)
+    (i : Agent) (t : Moment) :
+    (∀ h, h ∈ ChoiceCell C i t (C.enacted i t h)) ∧
+    (∀ α β, α ≠ β → Disjoint (ChoiceCell C i t α) (ChoiceCell C i t β)) ∧
+    (∀ (H_t : Set History) α, BranchFeas C i t H_t α ↔ (H_t ∩ ChoiceCell C i t α).Nonempty) := by
+  refine ⟨fun h => rfl, ?_, ?_⟩
+  · intro α β hne
+    refine Set.disjoint_left.2 ?_
+    intro h (ha : C.enacted i t h = α) (hb : C.enacted i t h = β)
+    subst ha hb
+    exact hne rfl
+  · intro H_t α
+    constructor
+    · rintro ⟨h', hh', h_act⟩
+      exact ⟨h', hh', h_act⟩
+    · rintro ⟨h', hh', (h_act : C.enacted i t h' = α)⟩
+      exact ⟨h', hh', h_act⟩
+
+/-- Reduction Theorem 3 (Action Is Non-Passive):
+    Purposeful action strictly excludes enacting the passive baseline, and its anticipated
+    outcome strictly diverges from the passive baseline across all plausible worlds. -/
+theorem unified_action_non_passive {Agent Moment History Action Ends : Type}
+    (C : PurePraxeologicalCore Agent Moment History Action Ends)
+    (i : Agent) (t : Moment) (H_t : Set History) (h : History)
+    (h_act : UnifiedPurposefulAct C i t H_t h) :
+    C.enacted i t h ≠ C.α₀ ∧
+    ∀ h' ∈ C.Plausible i t h,
+      C.Outcome i (C.enacted i t h) t h' ≠ C.Outcome i C.α₀ t h' := by
+  have ⟨_, _, _, _, h_pl_nonempty, h_unease, _⟩ := h_act
+  rcases h_pl_nonempty with ⟨h_pl, h_pl_mem⟩
+  have h_pref_pl := h_unease h_pl h_pl_mem
+  have h_ne_act : C.enacted i t h ≠ C.α₀ := by
+    intro h_eq
+    rw [h_eq] at h_pref_pl
+    exact derived_pref_irrefl C i t h _ h_pref_pl
+  refine ⟨h_ne_act, ?_⟩
+  intro h' hh' h_out_eq
+  have h_pref' := h_unease h' hh'
+  rw [h_out_eq] at h_pref'
+  exact derived_pref_irrefl C i t h _ h_pref'
+
+/-- Reduction Theorem 4 (Purposeful Action Forces Branching Time):
+    Time does not branch in a vacuum; the Action Axiom itself mathematically forces
+    the history bundle H_t to contain at least two distinct branching histories. -/
+theorem action_implies_branching_universe {Agent Moment History Action Ends : Type}
+    (C : PurePraxeologicalCore Agent Moment History Action Ends)
+    (i : Agent) (t : Moment) (H_t : Set History) (h : History)
+    (h_act : UnifiedPurposefulAct C i t H_t h) :
+    ∃ h₀ ∈ H_t, h₀ ≠ h ∧ C.enacted i t h₀ = C.α₀ ∧ C.enacted i t h ≠ C.α₀ := by
+  have ⟨_, _, _, ⟨h₀, hh₀_in, h_en_h₀⟩, _, _, _⟩ := h_act
+  have ⟨h_en_ne_α₀, _⟩ := unified_action_non_passive C i t H_t h h_act
+  have h_ne : h₀ ≠ h := by
+    intro h_eq
+    subst h_eq
+    rw [h_en_h₀] at h_en_ne_α₀
+    exact h_en_ne_α₀ rfl
+  exact ⟨h₀, hh₀_in, h_ne, h_en_h₀, h_en_ne_α₀⟩
+
+/-- Reduction Theorem 5 (Pure Praxeological Law in Re):
+    Hülsmann's counterfactual path-dependent availability holds purely through history-bundle
+    narrowing, without requiring natural-number warehouse arithmetic. -/
+theorem pure_praxeological_law_in_re {Agent Moment History Action Ends : Type}
+    (C : PurePraxeologicalCore Agent Moment History Action Ends)
+    (i : Agent) (t t' : Moment) (H_t'_cf : Set History)
+    (α_build α_consume β_down : Action)
+    (h_requires : ∀ h', C.enacted i t' h' = β_down → C.enacted i t h' = α_build)
+    (h_cf_subset : H_t'_cf ⊆ ChoiceCell C i t α_consume)
+    (h_distinct : α_consume ≠ α_build) :
+    ¬ BranchFeas C i t' H_t'_cf β_down := by
+  rintro ⟨h', hh'_in, (h_down : C.enacted i t' h' = β_down)⟩
+  have h_cell := h_cf_subset hh'_in
+  dsimp [ChoiceCell] at h_cell
+  have h_built := h_requires h' h_down
+  rw [h_cell] at h_built
+  exact h_distinct h_built
+
+/-- Concrete finite witness of PurePraxeologicalCore. -/
+def ConcretePureCore : PurePraxeologicalCore Unit (Fin 2) (Fin 2) (Fin 3) (Fin 3) where
+  «α₀» := 0
+  enacted := fun _ t h => if t = 0 then (if h = 0 then 1 else 0) else 0
+  A_cont := fun _ _ _ => {0, 1, 2}
+  Plausible := fun _ _ _ => {1}
+  Outcome := fun _ α _ h => if α = 0 then 1 else if h = 1 then 2 else 0
+  Pref := fun _ _ _ e1 e2 => e2 < e1
+  pref_asymm := by intro _ _ _ e1 e2 h12 h21; exact Nat.lt_asymm h12 h21
+
+/-- Reduction Theorem 6 (Constructive Finite Model Witness):
+    The Unified Action Core is non-vacuous and simultaneously compatible with:
+    1. Homogeneous Unit / Buridan Ties (two distinct actions yielding the exact same outcome).
+    2. Cross-Branch Counterfactual Regret under strictly stationary preferences. -/
+theorem unified_core_non_vacuous_and_regret_compatible :
+    ∃ (C : PurePraxeologicalCore Unit (Fin 2) (Fin 2) (Fin 3) (Fin 3)),
+      (∀ t1 h1 t2 h2, C.Pref () t1 h1 = C.Pref () t2 h2) ∧
+      (∃ α₁ α₂ : Fin 3, α₁ ≠ α₂ ∧ ∀ t h', C.Outcome () α₁ t h' = C.Outcome () α₂ t h') ∧
+      (∃ (H_0 : Set (Fin 2)) (h : Fin 2),
+        UnifiedPurposefulAct C () 0 H_0 h ∧
+        ∃ h₀ ∈ ChoiceCell C () 0 C.α₀,
+          C.Pref () 1 h (C.Outcome () C.α₀ 0 h₀) (C.Outcome () (C.enacted () 0 h) 0 h)) := by
+  refine ⟨ConcretePureCore, ?_, ?_, ?_⟩
+  · intro _ _ _ _; rfl
+  · refine ⟨1, 2, by decide, ?_⟩
+    intro t h'
+    dsimp [ConcretePureCore]
+  · refine ⟨{0, 1}, 0, ?_, ?_⟩
+    · refine ⟨Or.inl rfl, by decide, by decide, ?_, ?_, ?_, ?_⟩
+      · refine ⟨1, Or.inr rfl, rfl⟩
+      · refine ⟨1, rfl⟩
+      · intro h' hh'
+        have h_eq : h' = 1 := hh'
+        subst h_eq
+        dsimp [ConcretePureCore]
+        decide
+      · intro h' hh' β hβ
+        have h_eq : h' = 1 := hh'
+        subst h_eq
+        dsimp [ConcretePureCore]
+        fin_cases β <;> decide
+    · refine ⟨1, rfl, ?_⟩
+      dsimp [ConcretePureCore]
+      decide
 
 end Praxeology
 

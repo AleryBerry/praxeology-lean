@@ -119,11 +119,6 @@ instance : Membership Moment History where
 theorem History.ext (h1 h2 : History) (h : h1.val = h2.val) : h1 = h2 := by
   cases h1; cases h2; cases h; rfl
 
-/-- Discrete Successors:
-    Every moment in a history has an immediate unique discrete successor in that history. -/
-axiom discrete_successors (t : Moment) (h : History) (ht : t ∈ h) :
-  ∃! t_succ : Moment, t_succ ∈ h ∧ t < t_succ ∧ ¬∃ τ ∈ h, t < τ ∧ τ < t_succ
-
 /-- Every moment belongs to at least one maximal history. -/
 axiom moment_in_history (t : Moment) : ∃ h : History, t ∈ h
 
@@ -191,7 +186,7 @@ def DynamicBox (i : Agent) (t : Moment) (α : Action) (ψ : History → Prop) : 
 
 /-- Choice Cell Π_i(t, h):
     The unique cell of the agency partition containing history h. -/
-def ChoiceCell (i : Agent) (t : Moment) (h : History) : Set History :=
+def STITChoiceCell (i : Agent) (t : Moment) (h : History) : Set History :=
   { h' : History | ∃ α ∈ A_feas i t h, h ∈ ChoicePartition i t α ∧ h' ∈ ChoicePartition i t α }
 
 /-- Deliberative STIT (dstit):
@@ -199,14 +194,14 @@ def ChoiceCell (i : Agent) (t : Moment) (h : History) : Set History :=
     1. Positive condition: ψ holds on all histories in agent i's choice cell at ⟨t, h⟩.
     2. Negative (deliberative) condition: ψ fails on at least one counterfactual history in H(t). -/
 def dstit (i : Agent) (t : Moment) (ψ : History → Prop) (h : History) : Prop :=
-  (∀ h' ∈ ChoiceCell i t h, ψ h') ∧
+  (∀ h' ∈ STITChoiceCell i t h, ψ h') ∧
   (∃ h'' : History, t ∈ h'' ∧ ¬ ψ h'')
 
-/-- If h is in the choice partition cell of α, then every history in ChoiceCell i t h
+/-- If h is in the choice partition cell of α, then every history in STITChoiceCell i t h
     is also in ChoicePartition i t α. -/
 theorem choiceCell_subset_partition (i : Agent) (t : Moment) (h : History)
     {α : Action} (hα : α ∈ A_feas i t h) (hh : h ∈ ChoicePartition i t α) :
-    ChoiceCell i t h ⊆ ChoicePartition i t α := by
+    STITChoiceCell i t h ⊆ ChoicePartition i t α := by
   intro h' hh'
   rcases hh' with ⟨β, hβ, hh_β, hh'_β⟩
   by_cases h_eq : β = α
@@ -219,7 +214,7 @@ theorem dstit_exec_mem (i : Agent) (t : Moment) (h : History) (α : Action)
     (_h_feas : α ∈ A_feas i t h) (ht : t ∈ h) (h_dstit : dstit i t (Exec i t α) h) :
     Exec i t α h := by
   obtain ⟨β, hβ, hhβ⟩ := choice_partition_cover i t h ht
-  have h_in_cell : h ∈ ChoiceCell i t h := ⟨β, hβ, hhβ, hhβ⟩
+  have h_in_cell : h ∈ STITChoiceCell i t h := ⟨β, hβ, hhβ, hhβ⟩
   have h_pos := h_dstit.1 h h_in_cell
   exact h_pos
 

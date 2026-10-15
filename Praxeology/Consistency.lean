@@ -299,7 +299,6 @@ def ABCTConcreteActionModel :
     else 0
   ExpectedMaturation := fun _ _ _ _ => 2
   Pref := fun _ _ _ e1 e2 => e2 < e1
-  pref_irrefl := by intro _ _ _ e; exact Nat.lt_irrefl e.val
   pref_asymm := by intro _ _ _ e1 e2 h12 h21; exact Nat.lt_asymm h12 h21
 
 /-- Theorem 5.2 (Kernel-Checked Non-Vacuity of the ABCT Master Theorem):
