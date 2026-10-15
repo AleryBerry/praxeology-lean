@@ -34,6 +34,9 @@ Formalization of catallactics and socialist calculation:
     inducing the spontaneous emergence of universal money.
   - **Theorem 4.4 (Discrete Marginal Pairs & Pricing Grid Bounds)**: `marginal_pairs_equilibrium`
     Discrete marginal pairs on currency grid M_D establish unambiguous market-clearing intervals with extra-marginal deterrence.
+  - **Theorem 4.5 (Praxeological Gresham's Law & Coercive Par-Pricing Circulation Collapse)**: `greshams_law_circulation_collapse`
+    Under coercive legal tender mandating par exchange of undervalued good money and overvalued bad money,
+    purposeful cost-minimizing buyers tender bad money and hoard good money, driving good money circulation to ∅.
 - **Theorem 5: The Mises-Hayek Economic Calculation Problem (ECP)**
   - **Theorem 5.1 (Undefinedness of Antichain Cost Minimization Under Socialism)**: `socialist_calculation_incommensurability`
     Without market prices for capital goods, cost comparisons over physical antichains are non-invariant under
@@ -377,7 +380,94 @@ theorem price_bracket_width_nonneg (v_b v_s : ℕ → ℚ) (r_star D : ℕ)
   linarith
 
 -- =========================================================================
--- Section 4: Physical Antichains, Catallactic Pricing vs. Socialist Incommensurability
+-- Section 4: Praxeological Gresham's Law & Coercive Par-Pricing Circulation Collapse
+-- =========================================================================
+
+/-- Praxeological subjective tender cost functional:
+    Tendering quantity P of medium m with subjective commodity value V(m)
+    incurs subjective cost P * V(m). -/
+def SubjectiveTenderCost (V : ℚ) (P : ℚ) : ℚ := P * V
+
+/-- Lemma (Gresham Subjective Tender Dominance):
+    When two media m_good and m_bad are mandated at legal par (1:1),
+    tendering the lower-valued medium m_bad incurs strictly less subjective cost
+    than tendering the higher-valued medium m_good: P * V(m_bad) < P * V(m_good). -/
+theorem greshams_law_tender_dominance
+    (V_good V_bad P : ℚ)
+    (h_pos_bad : 0 < V_bad)
+    (h_bad_lt_good : V_bad < V_good)
+    (h_P_pos : 0 < P) :
+    SubjectiveTenderCost V_bad P < SubjectiveTenderCost V_good P := by
+  dsimp [SubjectiveTenderCost]
+  exact mul_lt_mul_of_pos_left h_bad_lt_good h_P_pos
+
+/-- Coercive Par-Pricing Model:
+    Formalizes a legal-tender decree coercing acceptance at par between two distinct media:
+    `m_good` (undervalued commodity money) and `m_bad` (overvalued / debased money). -/
+structure CoerciveParPricingModel (Agent Means : Type) [DecidableEq Means] where
+  m_good : Means
+  m_bad : Means
+  h_distinct : m_good ≠ m_bad
+  V : Means → ℚ
+  h_pos_bad : 0 < V m_bad
+  h_undervalued : V m_bad < V m_good
+
+/-- The subset of transacting agents actively tendering medium m in spot exchanges. -/
+def CirculatingTender
+    {Agent Means : Type} [DecidableEq Means]
+    (Agents : Finset Agent)
+    (tender : Agent → Means) (m : Means) : Finset Agent :=
+  Agents.filter (fun i => tender i = m)
+
+/-- Theorem 4.5 (Praxeological Gresham's Law & Coercive Par-Pricing Circulation Collapse):
+    When a legal-tender decree forces two currencies `m_good` and `m_bad` to be accepted at par,
+    but `m_good` has strictly higher non-monetary / intrinsic commodity valuation (`V m_bad < V m_good`),
+    every purposeful buyer minimizing subjective sacrifice tenders `m_bad` and hoards `m_good`.
+    As a result:
+    1. Circulating tender of good money collapses to the empty set: `CirculatingTender Agents tender m_good = ∅`.
+    2. Debased money completely captures market circulation: `CirculatingTender Agents tender m_bad = Agents`.
+    This establishes Gresham's Law ("bad money drives out good when coerced at par") as the exact
+    dual fixed-point collapse of the Bourbaki-Witt money emergence theorem. -/
+theorem greshams_law_circulation_collapse
+    {Agent Means : Type} [DecidableEq Means]
+    (M : CoerciveParPricingModel Agent Means)
+    (Agents : Finset Agent)
+    (tender : Agent → Means)
+    (P : ℚ) (h_P_pos : 0 < P)
+    (h_feasible_tender : ∀ i ∈ Agents, tender i = M.m_good ∨ tender i = M.m_bad)
+    (h_rational_tender : ∀ i ∈ Agents,
+      SubjectiveTenderCost (M.V (tender i)) P ≤ SubjectiveTenderCost (M.V M.m_bad) P ∧
+      SubjectiveTenderCost (M.V (tender i)) P ≤ SubjectiveTenderCost (M.V M.m_good) P) :
+    CirculatingTender Agents tender M.m_good = ∅ ∧
+    CirculatingTender Agents tender M.m_bad = Agents := by
+  dsimp [CirculatingTender]
+  have h_cost_lt : SubjectiveTenderCost (M.V M.m_bad) P < SubjectiveTenderCost (M.V M.m_good) P :=
+    greshams_law_tender_dominance (M.V M.m_good) (M.V M.m_bad) P
+      M.h_pos_bad M.h_undervalued h_P_pos
+  constructor
+  · rw [Finset.filter_eq_empty_iff]
+    intro i hi h_tender_good
+    have h_min := h_rational_tender i hi
+    have h_bad_le := h_min.1
+    rw [h_tender_good] at h_bad_le
+    linarith
+  · ext i
+    simp only [Finset.mem_filter]
+    constructor
+    · intro ⟨hi, _⟩; exact hi
+    · intro hi
+      refine ⟨hi, ?_⟩
+      have h_cases := h_feasible_tender i hi
+      rcases h_cases with h_good | h_bad
+      · exfalso
+        have h_min := h_rational_tender i hi
+        have h_bad_le := h_min.1
+        rw [h_good] at h_bad_le
+        linarith
+      · exact h_bad
+
+-- =========================================================================
+-- Section 5: Physical Antichains, Catallactic Pricing vs. Socialist Incommensurability
 -- =========================================================================
 
 /-- Physical input vector across d distinct capital/input categories. -/

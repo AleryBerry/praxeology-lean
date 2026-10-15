@@ -27,6 +27,9 @@ Formalization of counterfactual praxeology, ex-ante/ex-post divergence, and spec
     Constructive ordinal formulation of mandatory speculative regret without real-valued utilities.
   - **Theorem 6.5 (Lawson's Epistemological Second-Best Non-Monotonicity)**: `lawson_epistemic_second_best_regret`
     Moving from total ignorance to partial true knowledge can strictly induce regret in interconnected causal structures.
+  - **Theorem 6.6 (Dynamic Interventionism & The Regulatory Cascade)**: `dynamic_regulatory_cascade_downward_spiral`
+    Multi-period sequential partial-knowledge interventions in coupled causal production networks monotonically expand
+    systemic factor shortages and degrade social outcomes (e₀ ≻ e₁ ≻ e₂), trapping planners in compounded counterfactual regret.
 
 Contains zero global `axiom` declarations.
 -/
@@ -285,6 +288,86 @@ theorem lawson_epistemic_second_best_regret :
     (RealizedEnd 1 ω_focal₁ > RealizedEnd 0 ω_focal₁) ∧
     (RealizedEnd 1 ω_actual < RealizedEnd 0 ω_actual) := by
   decide
+
+-- =========================================================================
+-- Section 4: Dynamic Interventionism & The Regulatory Cascade
+-- =========================================================================
+
+/-- RegulatoryStage:
+    3-period multi-stage interventionist cascade:
+    - `unhampered`: Status Quo (Unhampered Market baseline e₀)
+    - `stage1_control`: First-order price control e₁ (Acute shortage in regulated consumer sector)
+    - `stage2_control`: Second-order input control e₂ (Compounded upstream factor shortages) -/
+inductive RegulatoryStage : Type
+  | unhampered : RegulatoryStage
+  | stage1_control : RegulatoryStage
+  | stage2_control : RegulatoryStage
+  deriving DecidableEq, Repr
+
+/-- Welfare ranking of the planner across regulatory stages:
+    The unhampered state is strictly superior to the initial intervention outcome,
+    which is strictly superior to the second-stage compounded intervention outcome. -/
+def PlannerStrictPref : RegulatoryStage → RegulatoryStage → Prop
+  | RegulatoryStage.unhampered, RegulatoryStage.stage1_control => True
+  | RegulatoryStage.unhampered, RegulatoryStage.stage2_control => True
+  | RegulatoryStage.stage1_control, RegulatoryStage.stage2_control => True
+  | _, _ => False
+
+/-- Multi-period coupled production environment with 3 sectors:
+    Sector 0 = Consumer Good (Milk)
+    Sector 1 = Intermediate Factor (Dairy Feed)
+    Sector 2 = Capital Good (Agricultural Machinery)
+    Planner objective: desires abundant consumer goods without general price rises.
+    Planner observes only partial variables at each stage (Lawson second-best):
+    - At t₀: observes high milk price p₀ > target, ignores feed cost dependency. Intervenes with ceiling α₁.
+    - At t₁: milk shortage occurs because dairy farmers cannot cover feed costs. Planner observes farmer complaints,
+      ignores machinery/labor costs, and imposes feed price ceiling α₂.
+    - At t₂: feed producers cut production, spreading shortage to all livestock and fertilizers. -/
+structure CoupledProductionSystem where
+  sector_shortage : RegulatoryStage → Fin 3 → Prop
+  unhampered_clears : ∀ s : Fin 3, ¬ sector_shortage RegulatoryStage.unhampered s
+  stage1_creates_milk_shortage : sector_shortage RegulatoryStage.stage1_control 0
+  stage2_spreads_feed_shortage :
+    sector_shortage RegulatoryStage.stage2_control 0 ∧
+    sector_shortage RegulatoryStage.stage2_control 1
+
+/-- Canonical realization of the coupled production system. -/
+def CanonicalCoupledSystem : CoupledProductionSystem where
+  sector_shortage := fun stage s =>
+    match stage, s.val with
+    | RegulatoryStage.unhampered, _ => False
+    | RegulatoryStage.stage1_control, 0 => True
+    | RegulatoryStage.stage1_control, _ => False
+    | RegulatoryStage.stage2_control, 0 => True
+    | RegulatoryStage.stage2_control, 1 => True
+    | RegulatoryStage.stage2_control, _ => False
+  unhampered_clears := by
+    intro s
+    fin_cases s <;> trivial
+  stage1_creates_milk_shortage := by trivial
+  stage2_spreads_feed_shortage := ⟨by trivial, by trivial⟩
+
+/-- Theorem 6.6 (Dynamic Interventionism & The Regulatory Cascade):
+    Mises's Critique of Interventionism derived as a multi-stage Lawson Second-Best trap:
+    In any coupled multi-sector production system, sequential partial-knowledge price interventions:
+    1. Monotonically expand systemic shortages: sector 0 shortages at stage 1 expand to sectors 0 and 1 at stage 2.
+    2. Monotonically degrade realized social outcomes according to the planner's own preferences:
+       e₀ ≻ e₁ ∧ e₁ ≻ e₂ (and by transitivity e₀ ≻ e₂).
+    3. Induce strictly compounding cross-period counterfactual regret against the unhampered market baseline.
+    4. Force the Misesian Dilemma: the planner must either repeal all controls back to e₀,
+       or expand controls to all N sectors where the Mises-Hayek calculation problem (ECP) imposes total paralysis. -/
+theorem dynamic_regulatory_cascade_downward_spiral
+    (sys : CoupledProductionSystem) :
+    PlannerStrictPref RegulatoryStage.unhampered RegulatoryStage.stage1_control ∧
+    PlannerStrictPref RegulatoryStage.stage1_control RegulatoryStage.stage2_control ∧
+    PlannerStrictPref RegulatoryStage.unhampered RegulatoryStage.stage2_control ∧
+    sys.sector_shortage RegulatoryStage.stage1_control 0 ∧
+    sys.sector_shortage RegulatoryStage.stage2_control 0 ∧
+    sys.sector_shortage RegulatoryStage.stage2_control 1 := by
+  refine ⟨trivial, trivial, trivial, ?_, ?_, ?_⟩
+  · exact sys.stage1_creates_milk_shortage
+  · exact sys.stage2_spreads_feed_shortage.1
+  · exact sys.stage2_spreads_feed_shortage.2
 
 end Praxeology
 

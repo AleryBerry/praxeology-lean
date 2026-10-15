@@ -41,8 +41,8 @@ subjective value, market exchange, socialist calculation, firm boundaries, and b
 - **Theorem 4: Catallactic Bilateral Exchange & Bourbaki-Witt Money Emergence**
   ([`Praxeology.Catallactics`](file:///home/aleryberry/Projects/praxeology_lean/praxeology/Praxeology/Catallactics.lean))
   Double inequality of exchange, Megger's highwayman separation of coercion vs. exchange,
-  fixed-point universal money emergence, and discrete marginal pairs pricing bounds.
-  *Theorems 4.1–4.4*.
+  fixed-point universal money emergence, discrete marginal pairs pricing bounds, and praxeological Gresham's law.
+  *Theorems 4.1–4.5*.
 
 - **Theorem 5: The Mises-Hayek Economic Calculation Problem (ECP)**
   ([`Praxeology.Catallactics`](file:///home/aleryberry/Projects/praxeology_lean/praxeology/Praxeology/Catallactics.lean))
@@ -52,8 +52,8 @@ subjective value, market exchange, socialist calculation, firm boundaries, and b
 - **Theorem 6: Counterfactual Action, Speculative Regret, & Epistemic Second-Best**
   ([`Praxeology.Counterfactuals`](file:///home/aleryberry/Projects/praxeology_lean/praxeology/Praxeology/Counterfactuals.lean))
   Ex-ante/ex-post divergence, cross-branch regret, mandatory regret in heterodoxastic speculation,
-  and Lawson's epistemic second-best non-monotonicity.
-  *Theorems 6.1–6.5*.
+  Lawson's epistemic second-best non-monotonicity, and dynamic interventionist regulatory cascades.
+  *Theorems 6.1–6.6*.
 
 - **Theorem 7: The Coasean-Misesian Boundary of the Firm & Signal Quantization Attenuation**
   ([`Praxeology.FirmBoundary`](file:///home/aleryberry/Projects/praxeology_lean/praxeology/Praxeology/FirmBoundary.lean))
