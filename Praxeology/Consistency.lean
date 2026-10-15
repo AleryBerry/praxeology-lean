@@ -225,6 +225,141 @@ def ModelM0 : FinitePraxeologicalModel where
 theorem finite_model_witness_consistent : Nonempty FinitePraxeologicalModel :=
   ⟨ModelM0⟩
 
+-- =========================================================================
+-- Section 5: Concrete 2-Actor, 3-Period ABCT Counterfactual Model Witness
+-- =========================================================================
+
+/-- Concrete 2-Actor, 3-Period CausalTransitionFrame for ABCT:
+    - Agents (`Fin 2`): `0` = Entrepreneur, `1` = Resource-Consumer
+    - Moments (`Fin 3`): `0` = Boom initiation (t0), `1` = Midstream bottleneck (t1), `2` = Realization/Bust (t2)
+    - Histories (`Fin 3`): `0` = h_credit (Credit shock), `1` = h_saved (Genuine savings), `2` = h_safe (Safe baseline)
+    - Actions (`Fin 3`): `0` = α₀ (Safe/Passive baseline), `1` = α_stage1 (Start long project), `2` = α_complete (Complete stage 2)
+    - Means (`Fin 2`): `0` = k1 (Stage-1 intermediate capital), `1` = m_comp (Complementary completion factor) -/
+def ABCTConcreteTransitionFrame :
+    CausalTransitionFrame (Fin 2) (Fin 3) (Fin 3) (Fin 3) (Fin 2) where
+  «α₀» := 0
+  prec := fun t1 t2 => t1.val = 0 ∧ t2.val = 1
+  A_feas := fun _ t h =>
+    if t = 0 then {0, 1}
+    else if t = 1 ∧ h = 1 then {0, 2}
+    else {0}
+  alpha_zero_mem := by
+    intro i t h
+    fin_cases t <;> fin_cases h <;> decide
+  Exec := fun i t α h =>
+    i = 0 ∧ t = 0 ∧ α = 1 ∧ h = 0
+  omega := fun _ t h m =>
+    if t = 0 then 0
+    else if t = 1 ∧ h = 0 ∧ m = 0 then 1
+    else if t = 1 ∧ h = 1 then 1
+    else 0
+  use_means := fun α m =>
+    if α = 2 ∧ m = 1 then 1 else 0
+  yield_means := fun α m =>
+    if α = 1 ∧ m = 0 then 1 else 0
+  phys_feas := by
+    intro i t h α hα m
+    fin_cases i <;> fin_cases t <;> fin_cases h <;> fin_cases α <;> fin_cases m <;>
+      revert hα <;> decide
+  law_in_re_transition := by
+    intro i t t' h α m h_exec h_prec
+    rcases h_exec with ⟨rfl, rfl, rfl, rfl⟩
+    rcases h_prec with ⟨_, ht'⟩
+    have ht1 : t' = 1 := Fin.ext ht'
+    subst ht1
+    fin_cases m <;> decide
+
+/-- Concrete 2-Actor, 3-Period CounterfactualActionModel for ABCT:
+    - Ends (`Fin 3`): `0` = e_bust (Liquidation loss), `1` = e_safe (Safe baseline return), `2` = e_boom (Completed project return)
+    - Strict stationary preference: `e_boom (2) ≻ e_safe (1) ≻ e_bust (0)` (`e2 < e1`).
+    - Under strategic opacity at `t0` on `h_credit (0)`, Entrepreneur's `MinPlausible` is `{1}` (`h_saved`),
+      where `α_stage1 (1)` yields `2` (`e_boom`) > `1` (`e_safe`).
+    - On the actual path `h_credit (0)` at `t2 (2)`, `α_stage1 (1)` yields `0` (`e_bust`), while the
+      counterfactual safe branch `h_safe (2)` yields `1` (`e_safe`), triggering strict `CrossBranchRegret`. -/
+def ABCTConcreteActionModel :
+    CounterfactualActionModel (Fin 2) (Fin 3) (Fin 3) (Fin 3) (Fin 3) where
+  «α₀» := 0
+  prec := fun t1 t2 => t1 < t2
+  mem_hist := fun _ _ => True
+  A_feas := fun _ t _ => if t = 0 then {0, 1} else {0}
+  A_cont := fun _ t _ => if t = 0 then {0, 1} else {0}
+  cont_subset_feas := by intro _ _ _ a ha; exact ha
+  alpha_zero_mem_cont := by
+    intro i t h
+    fin_cases t <;> decide
+  ChoicePartition := fun _ _ α =>
+    { h | (α = 0 ∧ h = 2) ∨ (α = 1 ∧ (h = 0 ∨ h = 1)) }
+  Exec := fun _ _ α h =>
+    (α = 0 ∧ h = 2) ∨ (α = 1 ∧ (h = 0 ∨ h = 1))
+  exec_iff_mem_partition := by intro _ _ _ _; rfl
+  MinPlausible := fun _ _ _ => {1}
+  OutcomeOf := fun _ α _ _ h =>
+    if α = 0 then 1
+    else if α = 1 ∧ h = 1 then 2
+    else 0
+  ExpectedMaturation := fun _ _ _ _ => 2
+  Pref := fun _ _ _ e1 e2 => e2 < e1
+  pref_irrefl := by intro _ _ _ e; exact Nat.lt_irrefl e.val
+  pref_asymm := by intro _ _ _ e1 e2 h12 h21; exact Nat.lt_asymm h12 h21
+
+/-- Theorem 5.2 (Kernel-Checked Non-Vacuity of the ABCT Master Theorem):
+    Instantiates `abct_intertemporal_malinvestment_regret` on `ABCTConcreteTransitionFrame`
+    and `ABCTConcreteActionModel` with explicit rational parameters:
+    `ΔP_proj = 11`, `ι_nat = 1/4`, `ι_credit = 1/10`, `deadband = 1`, `V_safe = 8`.
+    Certifies that all 21 hypotheses of the ABCT Master Theorem are simultaneously
+    satisfiable and non-vacuous. -/
+theorem abct_master_theorem_non_vacuous :
+    let F := ABCTConcreteTransitionFrame
+    let M := ABCTConcreteActionModel
+    let K : Set (Fin 3) := {0, 1}
+    let signal : Fin 3 → ℚ := fun h => if h = 2 then (1 : ℚ) / 4 else (1 : ℚ) / 10
+    (AttenuateHop 11 (1 / 4) 1 ≤ 8 ∧ 8 < AttenuateHop 11 (1 / 10) 1) ∧
+    (1 : Fin 3) ∈ SignalFilteredPlausible K signal 0 ∧
+    F.omega 0 1 0 0 = 1 ∧
+    F.omega 0 1 0 1 = 0 ∧
+    (2 : Fin 3) ∉ F.A_feas 0 1 0 ∧
+    CrossBranchRegret M 0 0 2 0 1 0 := by
+  have h_ex_ante : ExAntePurposefulAct ABCTConcreteActionModel 0 0 0 1 := by
+    refine ⟨by decide, Or.inr ⟨rfl, Or.inl rfl⟩, ?_, ?_⟩
+    · intro h' hh'
+      have h_eq : h' = 1 := hh'
+      subst h_eq
+      dsimp [ABCTConcreteActionModel]
+      decide
+    · intro h' hh' β hβ
+      have h_eq : h' = 1 := hh'
+      subst h_eq
+      dsimp [ABCTConcreteActionModel]
+      fin_cases β <;> decide
+  exact abct_intertemporal_malinvestment_regret
+    ABCTConcreteTransitionFrame
+    ABCTConcreteActionModel
+    ({0, 1} : Set (Fin 3))
+    (fun h => if h = 2 then (1 : ℚ) / 4 else (1 : ℚ) / 10)
+    0 0 1 2 2 1 0 2 1 2 0 1
+    11 (1 / 4) (1 / 10) 1 8
+    (by norm_num)
+    (by norm_num)
+    (by norm_num)
+    (by norm_num)
+    (by norm_num)
+    (by simp)
+    rfl
+    h_ex_ante
+    ⟨rfl, rfl, rfl, rfl⟩
+    ⟨rfl, rfl⟩
+    rfl
+    rfl
+    rfl
+    rfl
+    rfl
+    rfl
+    rfl
+    (by simp [ABCTConcreteActionModel])
+    (by dsimp [ABCTConcreteActionModel]; decide)
+    trivial
+    (by dsimp [ABCTConcreteActionModel]; decide)
+
 end Praxeology
 
 end

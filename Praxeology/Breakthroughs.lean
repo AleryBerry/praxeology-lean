@@ -395,6 +395,205 @@ theorem firm_boundary_tradeoff (L K D : ℕ) (hD : 0 < D)
   intro P x y
   dsimp [Cost]
   simp
+-- =========================================================================
+-- Section 4: Strategic Opacity, Capital Complementarity, & ABCT Malinvestment
+-- =========================================================================
+
+/-- DEL epistemic update filtered by an observable monetary/price signal. -/
+def SignalFilteredPlausible {History : Type}
+    (K : Set History) (signal : History → ℚ) (h_actual : History) : Set History :=
+  { h' ∈ K | signal h' = signal h_actual }
+
+/-- Strategic opacity traps the agent's epistemic update: if an unbacked credit-expansion
+    world produces the same nominal interest signal as a genuine savings world,
+    the savings world remains in the agent's signal-filtered plausibility set. -/
+theorem strategic_opacity_traps_del_update {History : Type}
+    (K : Set History) (signal : History → ℚ) (h_saved h_credit : History)
+    (h_in_prior : h_saved ∈ K)
+    (h_opacity : signal h_saved = signal h_credit) :
+    h_saved ∈ SignalFilteredPlausible K signal h_credit :=
+  ⟨h_in_prior, h_opacity⟩
+
+/-- Artificial credit expansion distorts intertemporal stage valuation:
+    an artificially lowered discount rate ι_credit makes a higher-order capital project
+    appear profitable (> V_safe) despite the natural rate ι_nat making it unprofitable (≤ V_safe). -/
+theorem credit_expansion_distorts_stage_valuation
+    (ΔP_proj ι_nat ι_credit deadband V_safe : ℚ)
+    (h_pos_nat : 0 < 1 + ι_nat)
+    (h_pos_cred : 0 < 1 + ι_credit)
+    (h_V_nonneg : 0 ≤ V_safe)
+    (h_cred_boom : (1 + ι_credit) * (V_safe + deadband) < ΔP_proj)
+    (h_nat_restraint : ΔP_proj ≤ (1 + ι_nat) * (V_safe + deadband)) :
+    AttenuateHop ΔP_proj ι_nat deadband ≤ V_safe ∧
+    V_safe < AttenuateHop ΔP_proj ι_credit deadband := by
+  constructor
+  · unfold AttenuateHop
+    apply max_le h_V_nonneg
+    have h_div : ΔP_proj / (1 + ι_nat) ≤ V_safe + deadband := by
+      rw [div_le_iff₀ h_pos_nat]
+      linarith
+    linarith
+  · unfold AttenuateHop
+    have h_div : V_safe + deadband < ΔP_proj / (1 + ι_credit) := by
+      rw [lt_div_iff₀ h_pos_cred]
+      linarith
+    have h_lt : V_safe < ΔP_proj / (1 + ι_credit) - deadband := by linarith
+    exact lt_of_lt_of_le h_lt (le_max_right 0 _)
+
+/-- Austrian Business Cycle Theory (ABCT) Master Malinvestment & Regret Theorem:
+    Credit-expansion induced signal distortion induces an entrepreneur to begin
+    an unsustainable higher-order capital structure (yielding intermediate k1 but not
+    the complementary means m_comp required for completion). At stage t1, completion
+    α_complete is strictly physically infeasible. At bust moment t2, the agent suffers
+    cross-branch counterfactual regret relative to the safe baseline α₀. -/
+theorem abct_intertemporal_malinvestment_regret
+    {Agent Moment History Action Means Ends : Type}
+    [DecidableEq Action] [DecidableEq Ends]
+    (F : CausalTransitionFrame Agent Moment History Action Means)
+    (M : CounterfactualActionModel Agent Moment History Action Ends)
+    (K : Set History) (signal : History → ℚ)
+    (i : Agent) (t0 t1 t2 τ_safe : Moment) (h_saved h_credit h_safe : History)
+    (α_stage1 α_complete : Action) (k1 m_comp : Means)
+    (ΔP_proj ι_nat ι_credit deadband V_safe : ℚ)
+    (h_pos_nat : 0 < 1 + ι_nat) (h_pos_cred : 0 < 1 + ι_credit) (h_V_nonneg : 0 ≤ V_safe)
+    (h_cred_boom : (1 + ι_credit) * (V_safe + deadband) < ΔP_proj)
+    (h_nat_restraint : ΔP_proj ≤ (1 + ι_nat) * (V_safe + deadband))
+    (h_in_prior : h_saved ∈ K) (h_opacity : signal h_saved = signal h_credit)
+    (h_ex_ante : ExAntePurposefulAct M i t0 h_credit α_stage1)
+    (h_exec_s1 : F.Exec i t0 α_stage1 h_credit) (h_prec01 : F.prec t0 t1)
+    (h_init_k1 : F.omega i t0 h_credit k1 = 0)
+    (h_use_s1_k1 : F.use_means α_stage1 k1 = 0)
+    (h_yield_s1_k1 : F.yield_means α_stage1 k1 = 1)
+    (h_init_comp : F.omega i t0 h_credit m_comp = 0)
+    (h_use_s1_comp : F.use_means α_stage1 m_comp = 0)
+    (h_yield_s1_comp : F.yield_means α_stage1 m_comp = 0)
+    (h_comp_req : F.use_means α_complete m_comp = 1)
+    (h_safe_part : h_safe ∈ M.ChoicePartition i t0 M.α₀)
+    (h_prec_safe : M.prec t0 τ_safe) (h_mem_safe : M.mem_hist τ_safe h_safe)
+    (h_bust_pref : M.Pref i t2 h_credit
+      (M.OutcomeOf i M.α₀ t0 τ_safe h_safe)
+      (M.OutcomeOf i α_stage1 t0 t2 h_credit)) :
+    (AttenuateHop ΔP_proj ι_nat deadband ≤ V_safe ∧
+      V_safe < AttenuateHop ΔP_proj ι_credit deadband) ∧
+    h_saved ∈ SignalFilteredPlausible K signal h_credit ∧
+    F.omega i t1 h_credit k1 = 1 ∧
+    F.omega i t1 h_credit m_comp = 0 ∧
+    α_complete ∉ F.A_feas i t1 h_credit ∧
+    CrossBranchRegret M i t0 t2 h_credit α_stage1 M.α₀ := by
+  have h_val := credit_expansion_distorts_stage_valuation
+    ΔP_proj ι_nat ι_credit deadband V_safe h_pos_nat h_pos_cred h_V_nonneg h_cred_boom h_nat_restraint
+  have h_op := strategic_opacity_traps_del_update K signal h_saved h_credit h_in_prior h_opacity
+  have h_tr_k1 := F.law_in_re_transition i t0 t1 h_credit α_stage1 k1 h_exec_s1 h_prec01
+  rw [h_use_s1_k1, h_init_k1, h_yield_s1_k1, Nat.add_zero, Nat.zero_add] at h_tr_k1
+  have h_tr_comp := F.law_in_re_transition i t0 t1 h_credit α_stage1 m_comp h_exec_s1 h_prec01
+  rw [h_use_s1_comp, h_init_comp, h_yield_s1_comp, Nat.add_zero, Nat.zero_add] at h_tr_comp
+  have h_infeas : α_complete ∉ F.A_feas i t1 h_credit := by
+    apply infeasible_of_insufficient_endowment F i t1 h_credit α_complete m_comp
+    rw [h_tr_comp, h_comp_req]
+    exact Nat.zero_lt_one
+  have h_regret : CrossBranchRegret M i t0 t2 h_credit α_stage1 M.α₀ :=
+    ⟨M.alpha_zero_mem_cont i t0 h_credit, h_safe, h_safe_part, τ_safe, h_prec_safe, h_mem_safe, h_bust_pref⟩
+  exact ⟨h_val, h_op, h_tr_k1, h_tr_comp, h_infeas, h_regret⟩
+/-- IntertemporalFactorTugOfWar (Axiom IC1 as an explicit structure):
+    Models multi-agent intertemporal resource coupling between a resource-supplying
+    Consumer `c` and an Entrepreneur `i`. At `t0`, if Consumer `c` executes
+    `α_save` (on `h_saved`), 1 unit of complementary factor `m_comp` is released
+    to Entrepreneur `i` at `t1`. If Consumer `c` executes `α_consume_now`
+    (unchanged time preference on `h_credit`), `m_comp` is exhausted in consumption,
+    leaving Entrepreneur `i` with `omega i t1 h_credit m_comp = 0`. -/
+structure IntertemporalFactorTugOfWar
+    {Agent Moment History Action Means : Type} [DecidableEq Action]
+    (F : CausalTransitionFrame Agent Moment History Action Means)
+    (c i : Agent) (t0 t1 : Moment) (h_saved h_credit : History)
+    (α_save α_consume_now α_complete : Action) (m_comp : Means) : Prop where
+  h_prec01 : F.prec t0 t1
+  h_consumer_saves_on_saved : F.Exec c t0 α_save h_saved
+  h_consumer_consumes_on_credit : F.Exec c t0 α_consume_now h_credit
+  h_saved_releases_factor :
+    F.Exec c t0 α_save h_saved → F.prec t0 t1 → F.omega i t1 h_saved m_comp = 1
+  h_credit_exhausts_factor :
+    F.Exec c t0 α_consume_now h_credit → F.prec t0 t1 → F.omega i t1 h_credit m_comp = 0
+  h_comp_req : F.use_means α_complete m_comp = 1
+
+/-- Theorem 8.4 (Endogenous IC1 Tug-of-War Factor Starvation):
+    When Consumer `c` maintains unchanged time preference on `h_credit` (`α_consume_now`)
+    rather than saving (`α_save` on `h_saved`), the complementary factor `m_comp` is
+    available on `h_saved` (`omega = 1`) but starved on `h_credit` (`omega = 0`),
+    rendering Stage-2 completion `α_complete` physically infeasible on `h_credit`. -/
+theorem ic1_tug_of_war_starves_completion
+    {Agent Moment History Action Means : Type} [DecidableEq Action]
+    (F : CausalTransitionFrame Agent Moment History Action Means)
+    (c i : Agent) (t0 t1 : Moment) (h_saved h_credit : History)
+    (α_save α_consume_now α_complete : Action) (m_comp : Means)
+    (h_tow : IntertemporalFactorTugOfWar F c i t0 t1 h_saved h_credit α_save α_consume_now α_complete m_comp) :
+    F.omega i t1 h_saved m_comp = 1 ∧
+    F.omega i t1 h_credit m_comp = 0 ∧
+    α_complete ∉ F.A_feas i t1 h_credit := by
+  have h_saved_om := h_tow.h_saved_releases_factor h_tow.h_consumer_saves_on_saved h_tow.h_prec01
+  have h_cred_om := h_tow.h_credit_exhausts_factor h_tow.h_consumer_consumes_on_credit h_tow.h_prec01
+  refine ⟨h_saved_om, h_cred_om, ?_⟩
+  apply infeasible_of_insufficient_endowment F i t1 h_credit α_complete m_comp
+  rw [h_cred_om, h_tow.h_comp_req]
+  exact Nat.zero_lt_one
+
+/-- Theorem 8.5 (Hülsmann-Rothbard Synchronized Cluster of Entrepreneurial Errors):
+    In any non-empty cohort of entrepreneurs `Entrepreneurs : Finset Agent` who
+    all observe the same credit-distorted market interest signal (`signal h_saved = signal h_credit`),
+    fiduciary credit expansion (`ι_credit < ι_nat`) does not merely cause an isolated error;
+    it induces a synchronized cluster of errors where EVERY entrepreneur `i ∈ Entrepreneurs`
+    simultaneously builds Stage-1 capital `k1`, encounters midstream completion infeasibility
+    (`α_complete ∉ F.A_feas i t1 h_credit`) due to Consumer `c`'s unchanged consumption on `h_credit`,
+    and suffers strict `CrossBranchRegret` at `t2`. -/
+theorem abct_cluster_of_entrepreneurial_errors
+    {Agent Moment History Action Means Ends : Type}
+    [DecidableEq Action] [DecidableEq Ends]
+    (F : CausalTransitionFrame Agent Moment History Action Means)
+    (M : CounterfactualActionModel Agent Moment History Action Ends)
+    (Entrepreneurs : Finset Agent) (h_nonempty : Entrepreneurs.Nonempty)
+    (K : Set History) (signal : History → ℚ)
+    (c : Agent) (t0 t1 t2 τ_safe : Moment) (h_saved h_credit h_safe : History)
+    (α_save α_consume_now α_stage1 α_complete : Action) (k1 m_comp : Means)
+    (ΔP_proj ι_nat ι_credit deadband V_safe : ℚ)
+    (h_pos_nat : 0 < 1 + ι_nat) (h_pos_cred : 0 < 1 + ι_credit) (h_V_nonneg : 0 ≤ V_safe)
+    (h_cred_boom : (1 + ι_credit) * (V_safe + deadband) < ΔP_proj)
+    (h_nat_restraint : ΔP_proj ≤ (1 + ι_nat) * (V_safe + deadband))
+    (h_in_prior : h_saved ∈ K) (h_opacity : signal h_saved = signal h_credit)
+    (h_use_s1_k1 : F.use_means α_stage1 k1 = 0)
+    (h_yield_s1_k1 : F.yield_means α_stage1 k1 = 1)
+    (h_prec_safe : M.prec t0 τ_safe) (h_mem_safe : M.mem_hist τ_safe h_safe)
+    (h_cohort_act : ∀ i ∈ Entrepreneurs, ExAntePurposefulAct M i t0 h_credit α_stage1)
+    (h_cohort_exec : ∀ i ∈ Entrepreneurs, F.Exec i t0 α_stage1 h_credit)
+    (h_cohort_init_k1 : ∀ i ∈ Entrepreneurs, F.omega i t0 h_credit k1 = 0)
+    (h_cohort_tow : ∀ i ∈ Entrepreneurs,
+      IntertemporalFactorTugOfWar F c i t0 t1 h_saved h_credit α_save α_consume_now α_complete m_comp)
+    (h_cohort_safe : ∀ i ∈ Entrepreneurs, h_safe ∈ M.ChoicePartition i t0 M.α₀)
+    (h_cohort_bust : ∀ i ∈ Entrepreneurs,
+      M.Pref i t2 h_credit
+        (M.OutcomeOf i M.α₀ t0 τ_safe h_safe)
+        (M.OutcomeOf i α_stage1 t0 t2 h_credit)) :
+    (AttenuateHop ΔP_proj ι_nat deadband ≤ V_safe ∧
+      V_safe < AttenuateHop ΔP_proj ι_credit deadband) ∧
+    h_saved ∈ SignalFilteredPlausible K signal h_credit ∧
+    ∀ i ∈ Entrepreneurs,
+      F.omega i t1 h_credit k1 = 1 ∧
+      F.omega i t1 h_credit m_comp = 0 ∧
+      α_complete ∉ F.A_feas i t1 h_credit ∧
+      CrossBranchRegret M i t0 t2 h_credit α_stage1 M.α₀ := by
+  have h_val := credit_expansion_distorts_stage_valuation
+    ΔP_proj ι_nat ι_credit deadband V_safe h_pos_nat h_pos_cred h_V_nonneg h_cred_boom h_nat_restraint
+  have h_op := strategic_opacity_traps_del_update K signal h_saved h_credit h_in_prior h_opacity
+  refine ⟨h_val, h_op, ?_⟩
+  intro i hi
+  have h_tow := h_cohort_tow i hi
+  have h_starve := ic1_tug_of_war_starves_completion F c i t0 t1 h_saved h_credit
+    α_save α_consume_now α_complete m_comp h_tow
+  have h_tr_k1 := F.law_in_re_transition i t0 t1 h_credit α_stage1 k1
+    (h_cohort_exec i hi) h_tow.h_prec01
+  rw [h_use_s1_k1, h_cohort_init_k1 i hi, h_yield_s1_k1, Nat.add_zero, Nat.zero_add] at h_tr_k1
+  have h_regret : CrossBranchRegret M i t0 t2 h_credit α_stage1 M.α₀ :=
+    ⟨M.alpha_zero_mem_cont i t0 h_credit, h_safe, h_cohort_safe i hi,
+     τ_safe, h_prec_safe, h_mem_safe, h_cohort_bust i hi⟩
+  exact ⟨h_tr_k1, h_starve.2.1, h_starve.2.2, h_regret⟩
 
 end Praxeology
 

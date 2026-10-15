@@ -268,6 +268,68 @@ def DELUpdate (i : Agent) (t : Moment) (ε : History → Prop) : Set History :=
 def BeliefAfterUpdate (i : Agent) (t : Moment) (ε : History → Prop) (ψ : History → Prop) : Prop :=
   ∀ h' ∈ DELUpdate i t ε, ψ h'
 
+-- =========================================================================
+-- Section 8: Causal State-Transition Frame (Laws in Re & Path-Dependence)
+-- =========================================================================
+
+/-- Causal state-transition frame formalizing physical laws in re and
+    intertemporal capital accumulation/depletion. -/
+structure CausalTransitionFrame (Agent Moment History Action Means : Type)
+    [DecidableEq Action] where
+  «α₀» : Action
+  prec : Moment → Moment → Prop
+  A_feas : Agent → Moment → History → Finset Action
+  alpha_zero_mem : ∀ i t h, «α₀» ∈ A_feas i t h
+  Exec : Agent → Moment → Action → History → Prop
+  omega : Agent → Moment → History → Means → ℕ
+  use_means : Action → Means → ℕ
+  yield_means : Action → Means → ℕ
+  phys_feas : ∀ i t h α, α ∈ A_feas i t h → ∀ m, use_means α m ≤ omega i t h m
+  law_in_re_transition : ∀ i t t' h α m,
+    Exec i t α h → prec t t' →
+    omega i t' h m + use_means α m = omega i t h m + yield_means α m
+
+/-- Actions requiring more physical means than available in endowment are infeasible. -/
+theorem infeasible_of_insufficient_endowment
+    {Agent Moment History Action Means : Type} [DecidableEq Action]
+    (F : CausalTransitionFrame Agent Moment History Action Means)
+    (i : Agent) (t : Moment) (h : History) (β : Action) (m : Means)
+    (h_insufficient : F.omega i t h m < F.use_means β m) :
+    β ∉ F.A_feas i t h := by
+  intro h_mem
+  have h_le := F.phys_feas i t h β h_mem m
+  exact Nat.lt_irrefl _ (Nat.lt_of_lt_of_le h_insufficient h_le)
+
+/-- Hülsmann's Path-Dependent Counterfactual Availability Theorem:
+    Upstream choice to build capital vs. consume inertial state causally determines
+    downstream feasibility of capital-using production methods across branching histories. -/
+theorem hulsmann_path_dependent_availability
+    {Agent Moment History Action Means : Type} [DecidableEq Action]
+    (F : CausalTransitionFrame Agent Moment History Action Means)
+    (i : Agent) (t t1' t2' : Moment) (h1 h2 : History)
+    (α_build α_consume β_downstream : Action) (m_cap : Means)
+    (h_prec1 : F.prec t t1') (h_prec2 : F.prec t t2')
+    (h_init1 : F.omega i t h1 m_cap = 0)
+    (h_init2 : F.omega i t h2 m_cap = 0)
+    (h_exec1 : F.Exec i t α_build h1)
+    (h_exec2 : F.Exec i t α_consume h2)
+    (h_use_build : F.use_means α_build m_cap = 0)
+    (h_yield_build : F.yield_means α_build m_cap = 1)
+    (h_use_cons : F.use_means α_consume m_cap = 0)
+    (h_yield_cons : F.yield_means α_consume m_cap = 0)
+    (h_req_down : F.use_means β_downstream m_cap = 1) :
+    F.omega i t1' h1 m_cap = 1 ∧
+    F.omega i t2' h2 m_cap = 0 ∧
+    β_downstream ∉ F.A_feas i t2' h2 := by
+  have h_tr1 := F.law_in_re_transition i t t1' h1 α_build m_cap h_exec1 h_prec1
+  rw [h_use_build, h_init1, h_yield_build, Nat.add_zero, Nat.zero_add] at h_tr1
+  have h_tr2 := F.law_in_re_transition i t t2' h2 α_consume m_cap h_exec2 h_prec2
+  rw [h_use_cons, h_init2, h_yield_cons, Nat.add_zero, Nat.zero_add] at h_tr2
+  refine ⟨h_tr1, h_tr2, ?_⟩
+  apply infeasible_of_insufficient_endowment F i t2' h2 β_downstream m_cap
+  rw [h_tr2, h_req_down]
+  exact Nat.zero_lt_one
+
 end Praxeology
 
 end

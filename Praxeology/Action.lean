@@ -458,6 +458,123 @@ theorem universal_action_not_proved_by_local_assertion :
     ActAt 0 ∧ ¬ ActAt 1 := by
   dsimp
   decide
+-- =========================================================================
+-- Section 8: Ex-Ante vs. Ex-Post Ends & Cross-Branch Counterfactual Regret
+-- =========================================================================
+
+/-- Counterfactual action model formalizing the epistemic gap between ex-ante expectations
+    across plausible histories and ex-post realization across branching histories. -/
+structure CounterfactualActionModel (Agent Moment History Action Ends : Type)
+    [DecidableEq Action] [DecidableEq Ends] where
+  «α₀» : Action
+  prec : Moment → Moment → Prop
+  mem_hist : Moment → History → Prop
+  A_feas : Agent → Moment → History → Finset Action
+  A_cont : Agent → Moment → History → Finset Action
+  cont_subset_feas : ∀ i t h, A_cont i t h ⊆ A_feas i t h
+  alpha_zero_mem_cont : ∀ i t h, «α₀» ∈ A_cont i t h
+  ChoicePartition : Agent → Moment → Action → Set History
+  Exec : Agent → Moment → Action → History → Prop
+  exec_iff_mem_partition : ∀ i t α h, Exec i t α h ↔ h ∈ ChoicePartition i t α
+  MinPlausible : Agent → Moment → History → Set History
+  OutcomeOf : Agent → Action → Moment → Moment → History → Ends
+  ExpectedMaturation : Agent → Action → Moment → History → Moment
+  Pref : Agent → Moment → History → Ends → Ends → Prop
+  pref_irrefl : ∀ i t h e, ¬ Pref i t h e e
+  pref_asymm : ∀ i t h e1 e2, Pref i t h e1 e2 → ¬ Pref i t h e2 e1
+
+/-- Ex-ante purposeful action: at decision node ⟨t, h⟩, α_star is contemplated, physically executed,
+    expected to beat α₀ across all minimally plausible worlds, and undominated by any alternative. -/
+def ExAntePurposefulAct {Agent Moment History Action Ends : Type}
+    [DecidableEq Action] [DecidableEq Ends]
+    (M : CounterfactualActionModel Agent Moment History Action Ends)
+    (i : Agent) (t : Moment) (h : History) (α_star : Action) : Prop :=
+  α_star ∈ M.A_cont i t h ∧
+  M.Exec i t α_star h ∧
+  (∀ h' ∈ M.MinPlausible i t h,
+    M.Pref i t h
+      (M.OutcomeOf i α_star t (M.ExpectedMaturation i α_star t h') h')
+      (M.OutcomeOf i M.α₀ t (M.ExpectedMaturation i M.α₀ t h') h')) ∧
+  (∀ h' ∈ M.MinPlausible i t h, ∀ β ∈ M.A_cont i t h,
+    ¬ M.Pref i t h
+      (M.OutcomeOf i β t (M.ExpectedMaturation i β t h') h')
+      (M.OutcomeOf i α_star t (M.ExpectedMaturation i α_star t h') h'))
+
+/-- Cross-branch counterfactual regret: at realized maturation τ_actual on h_actual,
+    the agent strictly prefers what WOULD have occurred on the counterfactual branch h_cf
+    had alternative β been chosen, over what ACTUALLY occurred. -/
+def CrossBranchRegret {Agent Moment History Action Ends : Type}
+    [DecidableEq Action] [DecidableEq Ends]
+    (M : CounterfactualActionModel Agent Moment History Action Ends)
+    (i : Agent) (t τ_actual : Moment) (h_actual : History) (α_star β : Action) : Prop :=
+  β ∈ M.A_cont i t h_actual ∧
+  ∃ h_cf ∈ M.ChoicePartition i t β,
+    ∃ τ_cf : Moment, M.prec t τ_cf ∧ M.mem_hist τ_cf h_cf ∧
+      M.Pref i τ_actual h_actual
+        (M.OutcomeOf i β t τ_cf h_cf)
+        (M.OutcomeOf i α_star t τ_actual h_actual)
+
+/-- Infallible stationary agents never experience self-regret against passive baseline α₀. -/
+theorem infallible_stationary_excludes_self_regret
+    {Agent Moment History Action Ends : Type}
+    [DecidableEq Action] [DecidableEq Ends]
+    (M : CounterfactualActionModel Agent Moment History Action Ends)
+    (i : Agent) (t τ_actual : Moment) (h_actual : History) (α_star : Action)
+    (h_act : ExAntePurposefulAct M i t h_actual α_star)
+    (h_veridical : h_actual ∈ M.MinPlausible i t h_actual)
+    (h_mat_eq : τ_actual = M.ExpectedMaturation i α_star t h_actual)
+    (h_stationary : ∀ e1 e2, M.Pref i τ_actual h_actual e1 e2 ↔ M.Pref i t h_actual e1 e2)
+    (h_cf_consistent : ∀ h_cf ∈ M.ChoicePartition i t M.α₀, ∀ τ_cf,
+      M.prec t τ_cf → M.mem_hist τ_cf h_cf →
+      M.OutcomeOf i M.α₀ t τ_cf h_cf =
+        M.OutcomeOf i M.α₀ t (M.ExpectedMaturation i M.α₀ t h_actual) h_actual) :
+    ¬ CrossBranchRegret M i t τ_actual h_actual α_star M.α₀ := by
+  intro h_regret
+  rcases h_regret with ⟨_, h_cf, h_cf_mem, τ_cf, h_prec_cf, h_mem_cf, h_pref_cf⟩
+  have h_unease := h_act.2.2.1 h_actual h_veridical
+  have h_out_eq := h_cf_consistent h_cf h_cf_mem τ_cf h_prec_cf h_mem_cf
+  rw [h_out_eq] at h_pref_cf
+  have h_pref_t := (h_stationary _ _).mp h_pref_cf
+  rw [h_mat_eq] at h_pref_t
+  exact M.pref_asymm i t h_actual _ _ h_unease h_pref_t
+
+/-- Strictly stationary preferences are completely compatible with cross-branch counterfactual regret. -/
+theorem stationary_pref_compatible_with_cross_branch_regret :
+    ∃ (M : CounterfactualActionModel Unit (Fin 2) (Fin 2) (Fin 2) (Fin 3)),
+      (∀ t1 h1 t2 h2, M.Pref () t1 h1 = M.Pref () t2 h2) ∧
+      ExAntePurposefulAct M () 0 0 1 ∧
+      CrossBranchRegret M () 0 1 0 1 0 := by
+  let M : CounterfactualActionModel Unit (Fin 2) (Fin 2) (Fin 2) (Fin 3) := {
+    «α₀» := 0
+    prec := fun t1 t2 => t1 < t2
+    mem_hist := fun _ _ => True
+    A_feas := fun _ _ _ => {0, 1}
+    A_cont := fun _ _ _ => {0, 1}
+    cont_subset_feas := by intro _ _ _ a ha; exact ha
+    alpha_zero_mem_cont := by intro _ _ _; decide
+    ChoicePartition := fun _ _ α => { h | h = if α = 0 then 1 else 0 }
+    Exec := fun _ _ α h => h = if α = 0 then 1 else 0
+    exec_iff_mem_partition := by intro _ _ _ _; rfl
+    MinPlausible := fun _ _ _ => {1}
+    OutcomeOf := fun _ α _ _ h =>
+      if α = 0 then 1 else if h = 1 then 2 else 0
+    ExpectedMaturation := fun _ _ _ _ => 1
+    Pref := fun _ _ _ e1 e2 => e2 < e1
+    pref_irrefl := by intro _ _ _ e; exact Nat.lt_irrefl e.val
+    pref_asymm := by intro _ _ _ e1 e2 h12 h21; exact Nat.lt_asymm h12 h21
+  }
+  refine ⟨M, ?_, ?_, ?_⟩
+  · intro _ _ _ _; rfl
+  · refine ⟨by decide, rfl, ?_, ?_⟩
+    · intro h' hh'
+      have h_eq : h' = 1 := hh'
+      subst h_eq
+      decide
+    · intro h' hh' β hβ
+      have h_eq : h' = 1 := hh'
+      subst h_eq
+      fin_cases β <;> decide
+  · refine ⟨by decide, 1, rfl, 1, by decide, trivial, by decide⟩
 
 end Praxeology
 
