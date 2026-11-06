@@ -751,6 +751,21 @@ def executeFiveProjectLoanAdvances
         (fiveProjectPhysicalBorrower bid.borrower) fiveProjectLoanMarket.principal).bind
         fun next => executeFiveProjectLoanAdvances next rest
 
+/-- Execute each scheduled loan transfer and return exactly the bids whose
+matched transfer succeeded. -/
+def executeFiveProjectLoanAdvancesWithTrace
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :
+    List LoanReservationBid →
+      Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit ×
+        List LoanReservationBid)
+  | [] => some (state, [])
+  | bid :: rest =>
+      (executeFiveProjectMoneyTransfer state fiveProjectBank
+        (fiveProjectPhysicalBorrower bid.borrower) fiveProjectLoanMarket.principal).bind
+        fun next =>
+          (executeFiveProjectLoanAdvancesWithTrace next rest).map fun (final, advances) =>
+            (final, bid :: advances)
+
 /-- Clear the loan market using bank money in the state produced by the note
 issuance and household-transfer branches. These source stages therefore affect
 loan capacity through their executed inventory changes. -/
@@ -762,17 +777,29 @@ def fiveProjectLoanOutcomeAfterSourcesFor (D : FiveProjectRegimeData) :
         clearLoanMarket fiveProjectLoanMarket
           (transferred.stock fiveProjectBank fiveProjectMoneyGood)
 
+/-- Execute funding and preserve the matched advance list alongside the
+resulting physical state. A list appears here only when every generated
+advance transfer has executed through the interpreter. -/
+def fiveProjectFundedTraceFor (D : FiveProjectRegimeData) :
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit ×
+      List LoanReservationBid) :=
+  (issueFiveProjectFiduciaryNotes D (fiveProjectFactorInitialState D)).bind
+    fun noted =>
+      (executeFiveProjectHouseholdCashTransfer D noted).bind fun transferred =>
+        (fiveProjectLoanOutcomeAfterSourcesFor D).bind fun outcome =>
+          executeFiveProjectLoanAdvancesWithTrace transferred outcome.funded
+
+def fiveProjectExecutedLoanAdvancesFor (D : FiveProjectRegimeData) :
+    Option (List LoanReservationBid) :=
+  (fiveProjectFundedTraceFor D).map Prod.snd
+
 /-- Build the pre-production physical state by executing note issuance,
 the household cash transfer, and the loan auction's actual funded advances in sequence.
 The loan-auction source total and physical bank receipts are the same regime
 data used to compute capacity. -/
 def fiveProjectFundedStateFor (D : FiveProjectRegimeData) :
     Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :=
-  (issueFiveProjectFiduciaryNotes D (fiveProjectFactorInitialState D)).bind
-    fun noted =>
-      (executeFiveProjectHouseholdCashTransfer D noted).bind fun transferred =>
-        (fiveProjectLoanOutcomeAfterSourcesFor D).bind fun outcome =>
-          executeFiveProjectLoanAdvances transferred outcome.funded
+  fiveProjectFundedTraceFor D |>.map Prod.fst
 
 /-- Read a money balance after the regime's notes, household transfer, and funded loan
 advances have executed, before household factor consumption and factor trades.
@@ -897,11 +924,12 @@ def fiveProjectFactorMarketAtStateFor (D : FiveProjectRegimeData)
     Option (ℕ × List LoanReservationBid) :=
   (fiveProjectLoanOutcomeAfterSourcesFor D).bind fun outcome =>
     outcome.quotedRepayment.bind fun quote =>
-      let supply := fiveProjectAvailableSupplierFactors D state +
-        fiveProjectAvailableHouseholdFactors D state
-      (ascendingCompletionFactorPrice? outcome.funded quote 1 supply 3).map
-        fun price =>
-          (price, factorDemandingProjectsAt outcome.funded quote price)
+      (fiveProjectExecutedLoanAdvancesFor D).bind fun actualAdvances =>
+        let supply := fiveProjectAvailableSupplierFactors D state +
+          fiveProjectAvailableHouseholdFactors D state
+        (ascendingCompletionFactorPrice? actualAdvances quote 1 supply 3).map
+          fun price =>
+            (price, factorDemandingProjectsAt actualAdvances quote price)
 
 /-- State immediately before factor-market clearing, after the executed
 funding branch and the household's stated factor-consumption operation. -/
@@ -1337,9 +1365,10 @@ theorem fiveProject_baseline_factor_trades_execute :
       fiveProjectCompletionGood = some 1 := by
   decide
 
-/-- Under fiduciary expansion, the two projects that remain eligible at price
-three under the current-cash clearing rule acquire the supplier's two factors;
-the excluded projects do not receive inventory. -/
+/-- Under fiduciary expansion, the two projects that remain eligible under the
+initial-buffer participation rule at price two acquire the supplier's two
+factors; the excluded projects do not receive inventory. This is distinct
+from the physical affordability check on each executed transfer. -/
 theorem fiveProject_fiduciary_factor_trades_execute :
     (fiveProjectFactorExecution .fiduciaryExpansion).isSome = true ∧
     fiveProjectExecutedStock? .fiduciaryExpansion fiveProjectFactorSupplier

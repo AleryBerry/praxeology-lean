@@ -256,15 +256,15 @@ We represent one loan by the following permitted transitions:
 
 The transition relation records these three cases. It does not permit a repayment event before the advance or a second repayment after the obligation has been discharged.
 
-### Definition 10.16 (Matched Repayment)
+### Definition 10.16 (Physical and Purposeful Repayment)
 
-A repayment is a purposeful exchange on the advance's history, after the advance and before maturity, in which the borrower transfers the promised amount $R$ of money to the lender and receives the specified quantity $Q$ of collateral. The exchange occurs over an immediate temporal transition.
+A **physical repayment execution** is a matched borrower offer and lender acceptance on the advance's history. It occurs over an immediate temporal transition, after the advance, and settles no later than contractual maturity. A **purposeful repayment** adds the separate behavioral evidence that the matched exchange meets the model's purposeful-action conditions. The contract and its promised amount alone establish neither execution nor purposefulness.
 
-By the paired inventory equations, a matched repayment increases the lender's money stock by $R$ and returns $Q$ units of collateral to the borrower's stock. These physical transfers do not alone prove that the borrower can repay or that repayment is purposeful; the matched action and its appraisal are explicit evidence.
+By the paired inventory equations, a physical repayment increases the lender's money stock by $R$ and returns $Q$ units of collateral to the borrower's stock. These transfer equations do not alone prove that the borrower can repay or that repayment is purposeful. The Lean type `RepaymentExecution` records the physical event, while `CreditRepayment` adds the behavioral certificate.
 
 ### Definition 10.17 (Collateral Custody and Unpaid Maturity)
 
-A collateral-custody trace runs from the moment after the advance to maturity along the same history. If the lender neither uses nor yields the collateral over this trace, the inventory balance keeps the lender's collateral stock unchanged. An **unpaid maturity** records both such custody and the absence of any matched repayment before maturity.
+A collateral-custody trace runs from the moment after the advance to maturity along the same history. If the lender neither uses nor yields the collateral over this trace, the inventory balance keeps the lender's collateral stock unchanged. An **unpaid maturity** records both such custody and evidence that no physical repayment settled by maturity. This excludes a repayment event without claiming that no repayment action was feasible or purposeful.
 
 We take non-repayment as evidence in this definition. We do not infer it merely from the absence of a feasible repayment action, since that would require additional premises about the borrower's resources and available choices.
 

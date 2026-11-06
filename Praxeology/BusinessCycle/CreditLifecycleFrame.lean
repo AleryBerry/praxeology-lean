@@ -1782,6 +1782,9 @@ def entrepreneurCreditAdvance : CreditAdvance entrepreneurLoanTerms where
   advanceBeforeMaturity := by
     change lifecyclePrecedence secondAdvanceMoment maturityMoment
     decide
+  maturityOnHistory := by
+    change lifecycleMemHist maturityMoment mainHistory
+    decide
   purposefulExchange := entrepreneurAdvance_is_bilateral_exchange
 
 def operatorRepaymentOutsideOption : WorkshopMeans → ℕ :=

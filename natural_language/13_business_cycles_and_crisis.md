@@ -11,6 +11,14 @@ The conditional chain studied here has five possible components:
 4. **Completion obstruction:** Completion fails only when the required physical input or monetary input is absent under the model's feasibility rule.
 5. **Contextual regret:** Regret additionally requires a safe alternative, a shared compatible context, physically grounded outcomes, and the relevant preference comparison.
 
+### Branch-Sensitive Execution in the Five-Project Example
+
+The executable example in `BusinessCycle.ProfileProgram` is a finite physical ledger. Its named phase list determines the number and order of execution steps. At each step, the existing inventory interpreter produces the next physical state, while the cursor records a transaction only when the relevant action is enacted: money transfers require matching offers and acceptances, production records require the completion operation, and later sales and repayments use the inventory and contract terms then present. The event trace is the source of the cursor's transaction summaries.
+
+Loan capacity is cleared from the bank's cash after the note-issuance and household-transfer steps. The program records an advance only when the lender's offer and borrower's acceptance match. When the factor market is reached, it uses those recorded advances and factors currently available for sale. The existing initial-buffer rule determines market participation; current holdings separately determine whether each purchase can execute. Completion is proposed only for projects with a matched factor purchase. Customer offers use output actually held and customer money remaining. Repayment attempts use recorded advances and their promised terms. A failed action still uses its scheduled phase, so the generator does not silently retry it; a clearing result already recorded is not retroactively repriced.
+
+These steps establish physical accounting for the selected path and make refusal branches available for comparison. They do not establish that the selected actions are purposeful. The example does not model early production or conversion into capital, a household deposit claim or bank obligation, the default witness as part of the same cycle, or foreclosure. In particular, the boundary with four funded projects and only two completion inputs remains unresolved: more cash alone supplies no missing physical input.
+
 ## Discrete Return Comparisons and Rate Signals
 
 Let $s$ be a projected spread, $r$ a positive rate, $d$ a nonnegative allowance for uncertainty or rounding, and $v$ a benchmark. Since quantities are natural numbers, the model compares these terms by multiplication:

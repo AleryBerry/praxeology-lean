@@ -351,22 +351,139 @@ def fiveProjectPassiveInstruction :
 /-- The finite cursor stores market terms when each clearing round is
 reached and records transfers only when the physical interpreter's offer and
 acceptance match. -/
+inductive FiveProjectPhysicalPhase where
+  | noteIssuance
+  | householdCashTransfer
+  | loanClearing
+  | loanAcceptance (project : Fin 5)
+  | householdConsumption
+  | factorClearing
+  | factorPurchase (slot : Fin 5)
+  | completion
+  | customerSale (project : Fin 5)
+  | loanSettlement (project : Fin 5)
+  deriving DecidableEq, Repr
+
+/-- The current finite settlement schedule. Project-specific phases carry
+their project index, so inserting an earlier phase does not silently change
+the identity of a later transaction. -/
+def fiveProjectPhysicalPhases : List FiveProjectPhysicalPhase :=
+  [.noteIssuance, .householdCashTransfer, .loanClearing,
+   .loanAcceptance 0, .loanAcceptance 1, .loanAcceptance 2,
+   .loanAcceptance 3, .loanAcceptance 4, .householdConsumption,
+   .factorClearing, .factorPurchase 0, .factorPurchase 1,
+   .factorPurchase 2, .factorPurchase 3, .factorPurchase 4,
+   .completion, .customerSale 0, .customerSale 1, .customerSale 2,
+   .customerSale 3, .customerSale 4, .loanSettlement 0,
+   .loanSettlement 1, .loanSettlement 2, .loanSettlement 3,
+   .loanSettlement 4]
+
+def fiveProjectPhysicalFuel : ℕ := fiveProjectPhysicalPhases.length
+
+abbrev FiveProjectPhysicalProfile :=
+  ActionProfile (Agent := FiveProjectPhysicalAgent)
+    (Means := FiveProjectPhysicalGood) (Operation := FiveProjectPhysicalOperation)
+
+/-- Evidence attached to a physical transfer event. The event retains the
+profile that enacted it and proofs that the seller's offer and buyer's
+acceptance agree in every transaction field. -/
+structure FiveProjectMatchedTransfer where
+  profile : FiveProjectPhysicalProfile
+  seller : FiveProjectPhysicalAgent
+  buyer : FiveProjectPhysicalAgent
+  quantity : ℕ
+  good : FiveProjectPhysicalGood
+  payment : ℕ
+  moneyGood : FiveProjectPhysicalGood
+  offerEnacted : profile seller =
+    .offer seller buyer quantity good payment moneyGood
+  acceptanceEnacted : profile buyer =
+    .accept buyer seller quantity good payment moneyGood
+
+/-- A transition emits only enacted operations and exactly matched transfers.
+The physical inventory transition remains the interpreter's responsibility;
+these records identify its resulting contractual and market events. -/
+inductive FiveProjectPhysicalEvent where
+  | notesIssued (profile : FiveProjectPhysicalProfile) (quantity : ℕ)
+      (enacted : profile fiveProjectBank =
+        .operate (.issueFiduciaryNotes quantity))
+  | householdCashTransferred (quantity : ℕ)
+      (transfer : FiveProjectMatchedTransfer)
+  | advanceMatched (bid : LoanReservationBid)
+      (transfer : FiveProjectMatchedTransfer)
+  | factorPurchaseMatched (bid : LoanReservationBid)
+      (seller : FiveProjectPhysicalAgent)
+      (transfer : FiveProjectMatchedTransfer)
+  | projectCompleted (profile : FiveProjectPhysicalProfile)
+      (bid : LoanReservationBid)
+      (enacted : profile (fiveProjectPhysicalBorrower bid.borrower) =
+        .operate (.completeProject bid.borrower))
+  | customerOutputSold (project : Fin 5) (quantity : ℕ)
+      (transfer : FiveProjectMatchedTransfer)
+  | loanRepaid (bid : LoanReservationBid)
+      (transfer : FiveProjectMatchedTransfer)
+
 structure FiveProjectPhysicalCursor where
-  position : ℕ := 0
-  actualNotesIssued : ℕ := 0
-  actualHouseholdMoneyTransferred : ℕ := 0
+  remainingPhases : List FiveProjectPhysicalPhase := fiveProjectPhysicalPhases
+  events : List FiveProjectPhysicalEvent := []
   loanQuote : Option ℕ := none
   plannedAdvances : List LoanReservationBid := []
-  actualAdvances : List LoanReservationBid := []
   factorClearing : Option (ℕ × List LoanReservationBid) := none
-  actualFactorPurchases : List LoanReservationBid := []
-  completedProjects : List LoanReservationBid := []
-  actualCustomerSales : List (Fin 5 × ℕ) := []
-  actualRepayments : List LoanReservationBid := []
-  householdOfferRemaining : ℕ := 0
+  householdOfferLimit : ℕ := 0
+
+/-- Transaction summaries are views over the event trace, so the stored
+cursor cannot disagree with its recorded physical events. -/
+def FiveProjectPhysicalCursor.actualNotesIssued
+    (cursor : FiveProjectPhysicalCursor) : ℕ :=
+  (cursor.events.filterMap fun
+    | .notesIssued _ quantity _ => some quantity
+    | _ => none).sum
+
+def FiveProjectPhysicalCursor.actualHouseholdMoneyTransferred
+    (cursor : FiveProjectPhysicalCursor) : ℕ :=
+  (cursor.events.filterMap fun
+    | .householdCashTransferred quantity _ => some quantity
+    | _ => none).sum
+
+def FiveProjectPhysicalCursor.actualAdvances
+    (cursor : FiveProjectPhysicalCursor) : List LoanReservationBid :=
+  cursor.events.filterMap fun
+    | .advanceMatched bid _ => some bid
+    | _ => none
+
+def FiveProjectPhysicalCursor.actualFactorPurchases
+    (cursor : FiveProjectPhysicalCursor) : List LoanReservationBid :=
+  cursor.events.filterMap fun
+    | .factorPurchaseMatched bid _ _ => some bid
+    | _ => none
+
+def FiveProjectPhysicalCursor.completedProjects
+    (cursor : FiveProjectPhysicalCursor) : List LoanReservationBid :=
+  cursor.events.filterMap fun
+    | .projectCompleted _ bid _ => some bid
+    | _ => none
+
+def FiveProjectPhysicalCursor.actualCustomerSales
+    (cursor : FiveProjectPhysicalCursor) : List (Fin 5 × ℕ) :=
+  cursor.events.filterMap fun
+    | .customerOutputSold project quantity _ => some (project, quantity)
+    | _ => none
+
+def FiveProjectPhysicalCursor.actualRepayments
+    (cursor : FiveProjectPhysicalCursor) : List LoanReservationBid :=
+  cursor.events.filterMap fun
+    | .loanRepaid bid _ => some bid
+    | _ => none
+
+def FiveProjectPhysicalCursor.householdOfferRemaining
+    (cursor : FiveProjectPhysicalCursor) : ℕ :=
+  cursor.householdOfferLimit -
+    (cursor.events.filter fun
+      | .factorPurchaseMatched _ seller _ => decide (seller = fiveProjectHousehold)
+      | _ => false).length
 
 def fiveProjectInitialCursor (D : FiveProjectRegimeData) : FiveProjectPhysicalCursor :=
-  { householdOfferRemaining := D.householdFactorsOffered }
+  { householdOfferLimit := D.householdFactorsOffered }
 
 /-- Exact bilateral matching test shared by cursor event recording. -/
 def fiveProjectTransferMatched
@@ -377,6 +494,16 @@ def fiveProjectTransferMatched
     (moneyGood : FiveProjectPhysicalGood) : Bool :=
   decide (profile seller = .offer seller buyer quantity good payment moneyGood ∧
     profile buyer = .accept buyer seller quantity good payment moneyGood)
+
+def fiveProjectMatchedTransfer?
+    (profile : FiveProjectPhysicalProfile)
+    (seller buyer : FiveProjectPhysicalAgent) (quantity : ℕ)
+    (good : FiveProjectPhysicalGood) (payment : ℕ)
+    (moneyGood : FiveProjectPhysicalGood) : Option FiveProjectMatchedTransfer :=
+  if h : profile seller = .offer seller buyer quantity good payment moneyGood ∧
+      profile buyer = .accept buyer seller quantity good payment moneyGood then
+    some ⟨profile, seller, buyer, quantity, good, payment, moneyGood, h.1, h.2⟩
+  else none
 
 /-- Supplier stock plus only the household stock it explicitly offers,
 capped by the quantity remaining and the household's current holdings. -/
@@ -458,6 +585,155 @@ def fiveProjectDynamicCustomerInstruction
   if 0 < quantity then fiveProjectCustomerPurchaseInstruction project quantity
   else fiveProjectPassiveInstruction
 
+/-- Append one certified event to the physical trace. All transaction
+projections are computed from this trace. -/
+def fiveProjectApplyEvent (cursor : FiveProjectPhysicalCursor)
+    (event : FiveProjectPhysicalEvent) : FiveProjectPhysicalCursor :=
+  { cursor with events := cursor.events ++ [event] }
+
+def fiveProjectApplyEvents (cursor : FiveProjectPhysicalCursor)
+    (events : List FiveProjectPhysicalEvent) : FiveProjectPhysicalCursor :=
+  events.foldl fiveProjectApplyEvent cursor
+
+/-- Extract the transition's event list from its named phase, selected
+profile, and pre-transition physical state. Every transfer constructor is
+created from a `FiveProjectMatchedTransfer` proof, so unmatched proposals do
+not enter the trace. -/
+def fiveProjectTransitionEvents (D : FiveProjectRegimeData)
+    (cursor : FiveProjectPhysicalCursor)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (profile : FiveProjectPhysicalProfile) : List FiveProjectPhysicalEvent :=
+  match cursor.remainingPhases with
+  | .noteIssuance :: _ =>
+      if h : profile fiveProjectBank =
+          .operate (.issueFiduciaryNotes D.fiduciaryNotesIssued) then
+        [.notesIssued profile D.fiduciaryNotesIssued h]
+      else []
+  | .householdCashTransfer :: _ =>
+      match fiveProjectMatchedTransfer? profile fiveProjectHousehold fiveProjectBank
+          D.householdMoneyTransferred fiveProjectMoneyGood 0 fiveProjectMoneyGood with
+      | none => []
+      | some transfer => [.householdCashTransferred D.householdMoneyTransferred transfer]
+  | .loanClearing :: _ => []
+  | .loanAcceptance project :: _ =>
+      match cursor.plannedAdvances[project.val]? with
+      | none => []
+      | some bid =>
+          match fiveProjectMatchedTransfer? profile fiveProjectBank
+              (fiveProjectPhysicalBorrower bid.borrower)
+              fiveProjectLoanMarket.principal fiveProjectMoneyGood 0
+              fiveProjectMoneyGood with
+          | none => []
+          | some transfer => [.advanceMatched bid transfer]
+  | .householdConsumption :: _ => []
+  | .factorClearing :: _ => []
+  | .factorPurchase slot :: _ =>
+      match cursor.factorClearing with
+      | none => []
+      | some (price, projects) =>
+          match projects[slot.val]?, fiveProjectCurrentFactorSeller? cursor state with
+          | some bid, some seller =>
+              match fiveProjectMatchedTransfer? profile seller
+                  (fiveProjectPhysicalBorrower bid.borrower) 1
+                  fiveProjectCompletionGood price fiveProjectMoneyGood with
+              | none => []
+              | some transfer => [.factorPurchaseMatched bid seller transfer]
+          | _, _ => []
+  | .completion :: _ =>
+      cursor.actualFactorPurchases.filterMap fun bid =>
+        if h : profile (fiveProjectPhysicalBorrower bid.borrower) =
+            .operate (.completeProject bid.borrower) then
+          some (.projectCompleted profile bid h)
+        else none
+  | .customerSale project :: _ =>
+      let quantity := min
+        (state.stock (fiveProjectPhysicalBorrower project) fiveProjectOutputGood)
+        (state.stock 6 fiveProjectMoneyGood)
+      if 0 < quantity then
+        match fiveProjectMatchedTransfer? profile
+            (fiveProjectPhysicalBorrower project) 6 quantity
+            fiveProjectOutputGood quantity fiveProjectMoneyGood with
+        | none => []
+        | some transfer => [.customerOutputSold project quantity transfer]
+      else []
+  | .loanSettlement project :: _ =>
+      match cursor.loanQuote, cursor.plannedAdvances[project.val]? with
+      | some repayment, some bid =>
+          if cursor.actualAdvances.contains bid then
+            match fiveProjectMatchedTransfer? profile
+                (fiveProjectPhysicalBorrower bid.borrower) fiveProjectBank repayment
+                fiveProjectMoneyGood 0 fiveProjectMoneyGood with
+            | none => []
+            | some transfer => [.loanRepaid bid transfer]
+          else []
+      | _, _ => []
+  | [] => []
+
+/-- A borrowing project is a different physical actor from the bank. -/
+theorem fiveProjectBorrower_ne_bank (project : Fin 5) :
+    fiveProjectBank ≠ fiveProjectPhysicalBorrower project := by
+  intro heq
+  have hval := congrArg Fin.val heq
+  fin_cases project <;>
+    norm_num [fiveProjectBank, fiveProjectPhysicalBorrower] at hval
+
+/-- A loan-offer stage contains a unilateral refusal profile: the bank keeps
+its scheduled offer, the borrower idles, and every other actor keeps the
+stage's idle action. Since offer and acceptance do not match, no advance event
+is recorded. -/
+theorem fiveProject_unilateral_loan_refusal
+    (D : FiveProjectRegimeData)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (bid : LoanReservationBid)
+    (hOffer : (fiveProjectAdvanceInstruction bid).affordableProfile
+        fiveProjectPhysicalOperations state fiveProjectBank =
+      .offer fiveProjectBank (fiveProjectPhysicalBorrower bid.borrower)
+        fiveProjectLoanMarket.principal fiveProjectMoneyGood 0 fiveProjectMoneyGood) :
+    let instruction := fiveProjectAdvanceInstruction bid
+    let stage := instruction.stage fiveProjectPhysicalOperations state
+    ∃ profile : stage.choices.Profile,
+      profile.1 fiveProjectBank =
+        .offer fiveProjectBank (fiveProjectPhysicalBorrower bid.borrower)
+          fiveProjectLoanMarket.principal fiveProjectMoneyGood 0 fiveProjectMoneyGood ∧
+      profile.1 (fiveProjectPhysicalBorrower bid.borrower) = .idle ∧
+      (∀ peer, peer ≠ fiveProjectBank →
+        peer ≠ fiveProjectPhysicalBorrower bid.borrower →
+        profile.1 peer = instruction.profile peer) ∧
+      fiveProjectTransitionEvents D
+        { remainingPhases := [.loanAcceptance 0], plannedAdvances := [bid] }
+        state profile.1 = [] := by
+  let instruction := fiveProjectAdvanceInstruction bid
+  let stage := instruction.stage fiveProjectPhysicalOperations state
+  let offer : EconomyAction FiveProjectPhysicalAgent FiveProjectPhysicalGood
+      FiveProjectPhysicalOperation :=
+    .offer fiveProjectBank (fiveProjectPhysicalBorrower bid.borrower)
+      fiveProjectLoanMarket.principal fiveProjectMoneyGood 0 fiveProjectMoneyGood
+  have hmenu : offer ∈ stage.choices.menu fiveProjectBank := by
+    change (EconomyAction.offer fiveProjectBank
+        (fiveProjectPhysicalBorrower bid.borrower)
+        fiveProjectLoanMarket.principal fiveProjectMoneyGood 0 fiveProjectMoneyGood) ∈
+      insert EconomyAction.idle
+        (insert ((fiveProjectAdvanceInstruction bid).affordableProfile
+          fiveProjectPhysicalOperations state fiveProjectBank)
+          ((fiveProjectAdvanceInstruction bid).affordableAlternatives
+            fiveProjectPhysicalOperations state fiveProjectBank))
+    rw [← hOffer]
+    exact Finset.mem_insert_of_mem (Finset.mem_insert_self _ _)
+  let profile := stage.choices.unilateralProfile fiveProjectBank offer hmenu
+  have hbank : profile.1 fiveProjectBank = offer := by
+    exact stage.choices.unilateralProfile_self fiveProjectBank offer hmenu
+  have hborrower : profile.1 (fiveProjectPhysicalBorrower bid.borrower) = .idle := by
+    exact stage.choices.unilateralProfile_other fiveProjectBank
+      (fiveProjectPhysicalBorrower bid.borrower) offer hmenu
+      (fiveProjectBorrower_ne_bank bid.borrower).symm
+  refine ⟨profile, hbank, hborrower, ?_, ?_⟩
+  · intro peer hpeerBank hpeerBorrower
+    rw [stage.choices.unilateralProfile_other fiveProjectBank peer offer hmenu hpeerBank]
+    simp [fiveProjectAdvanceInstruction, fiveProjectTransferInstruction,
+      fiveProjectScheduledTransferProfile, hpeerBank, hpeerBorrower]
+  · simp [fiveProjectTransitionEvents, offer, fiveProjectMatchedTransfer?,
+      hbank, hborrower]
+
 /-- Generate a branch's next proposal from its cursor and current inventory.
 Clearing results already stored in the cursor remain fixed; later transfer
 quantities and seller availability are read from the actual state. -/
@@ -465,44 +741,36 @@ def fiveProjectPhysicalInstruction (D : FiveProjectRegimeData)
     (cursor : FiveProjectPhysicalCursor)
     (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :
     PhysicalProfileInstruction FiveProjectPhysicalAgent FiveProjectPhysicalGood
-      FiveProjectPhysicalOperation := by
-  by_cases hissue : cursor.position = 0
-  · exact fiveProjectIssueNotesInstruction D
-  · by_cases htransfer : cursor.position = 1
-    · exact fiveProjectHouseholdCashTransferInstruction D
-    · by_cases hloanClear : cursor.position = 2
-      · exact fiveProjectPassiveInstruction
-      · by_cases hadvance : 3 ≤ cursor.position ∧ cursor.position < 8
-        · exact ((cursor.plannedAdvances.drop (cursor.position - 3)).head?).elim
-            fiveProjectPassiveInstruction fiveProjectAdvanceInstruction
-        · by_cases hconsume : cursor.position = 8
-          · exact fiveProjectHouseholdConsumptionInstruction D
-          · by_cases hfactorClear : cursor.position = 9
-            · exact fiveProjectPassiveInstruction
-            · by_cases hfactor : 10 ≤ cursor.position ∧ cursor.position < 15
-              · exact match cursor.factorClearing with
-                | none => fiveProjectPassiveInstruction
-                | some (price, projects) =>
-                    ((projects.drop (cursor.position - 10)).head?).elim
-                      fiveProjectPassiveInstruction fun bid =>
-                        fiveProjectDynamicFactorPurchaseInstruction cursor state
-                          bid.borrower price
-              · by_cases hcomplete : cursor.position = 15
-                · exact fiveProjectCompletionInstruction cursor.actualFactorPurchases
-                · by_cases hcustomer : 16 ≤ cursor.position ∧ cursor.position < 21
-                  · exact fiveProjectDynamicCustomerInstruction state
-                      ⟨cursor.position - 16, by omega⟩
-                  · by_cases hrepay : 21 ≤ cursor.position ∧ cursor.position < 26
-                    · exact match cursor.loanQuote,
-                        (cursor.actualAdvances.drop (cursor.position - 21)).head? with
-                      | some repayment, some bid =>
-                          fiveProjectRepaymentInstruction
-                            { borrower := bid.borrower
-                              principal := fiveProjectLoanMarket.principal
-                              principal_positive := fiveProjectLoanMarket.principal_positive
-                              promisedRepayment := repayment }
-                      | _, _ => fiveProjectPassiveInstruction
-                    · exact fiveProjectPassiveInstruction
+      FiveProjectPhysicalOperation :=
+  match cursor.remainingPhases with
+  | .noteIssuance :: _ => fiveProjectIssueNotesInstruction D
+  | .householdCashTransfer :: _ => fiveProjectHouseholdCashTransferInstruction D
+  | .loanClearing :: _ => fiveProjectPassiveInstruction
+  | .loanAcceptance project :: _ =>
+      (cursor.plannedAdvances[project.val]?).elim
+        fiveProjectPassiveInstruction fiveProjectAdvanceInstruction
+  | .householdConsumption :: _ => fiveProjectHouseholdConsumptionInstruction D
+  | .factorClearing :: _ => fiveProjectPassiveInstruction
+  | .factorPurchase slot :: _ =>
+      match cursor.factorClearing with
+      | none => fiveProjectPassiveInstruction
+      | some (price, projects) =>
+          (projects[slot.val]?).elim fiveProjectPassiveInstruction fun bid =>
+            fiveProjectDynamicFactorPurchaseInstruction cursor state bid.borrower price
+  | .completion :: _ => fiveProjectCompletionInstruction cursor.actualFactorPurchases
+  | .customerSale project :: _ => fiveProjectDynamicCustomerInstruction state project
+  | .loanSettlement project :: _ =>
+      match cursor.loanQuote, cursor.plannedAdvances[project.val]? with
+      | some repayment, some bid =>
+          if cursor.actualAdvances.contains bid then
+            fiveProjectRepaymentInstruction
+              { borrower := bid.borrower
+                principal := fiveProjectLoanMarket.principal
+                principal_positive := fiveProjectLoanMarket.principal_positive
+                promisedRepayment := repayment }
+          else fiveProjectPassiveInstruction
+      | _, _ => fiveProjectPassiveInstruction
+  | [] => fiveProjectPassiveInstruction
 
 /-- Advance the finite cursor after interpreting the selected profile. Every
 position is consumed; only exact matched transfers and enacted production are
@@ -513,92 +781,18 @@ def fiveProjectNextCursor (D : FiveProjectRegimeData)
     (profile : ActionProfile (Agent := FiveProjectPhysicalAgent)
       (Means := FiveProjectPhysicalGood) (Operation := FiveProjectPhysicalOperation))
     (state' : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :
-    FiveProjectPhysicalCursor := by
-  let next := { cursor with position := cursor.position + 1 }
-  by_cases hissue : cursor.position = 0
-  · exact { next with actualNotesIssued :=
-      if (profile fiveProjectBank =
-          .operate (.issueFiduciaryNotes D.fiduciaryNotesIssued)) then
-        cursor.actualNotesIssued + D.fiduciaryNotesIssued
-      else cursor.actualNotesIssued }
-  · by_cases htransfer : cursor.position = 1
-    · exact { next with actualHouseholdMoneyTransferred :=
-        if (fiveProjectTransferMatched profile fiveProjectHousehold fiveProjectBank
-            D.householdMoneyTransferred fiveProjectMoneyGood 0 fiveProjectMoneyGood) then
-          cursor.actualHouseholdMoneyTransferred + D.householdMoneyTransferred
-        else cursor.actualHouseholdMoneyTransferred }
-    · by_cases hloanClear : cursor.position = 2
-      · let clearing := clearLoanMarket fiveProjectLoanMarket
+    FiveProjectPhysicalCursor :=
+  let next := { cursor with remainingPhases := cursor.remainingPhases.drop 1 }
+  match cursor.remainingPhases with
+  | .loanClearing :: _ =>
+      let clearing := clearLoanMarket fiveProjectLoanMarket
           (state'.stock fiveProjectBank fiveProjectMoneyGood)
-        let nextWithQuote := { next with loanQuote := clearing.quotedRepayment }
-        exact { nextWithQuote with plannedAdvances := clearing.funded }
-      · by_cases hadvance : 3 ≤ cursor.position ∧ cursor.position < 8
-        · let slot := cursor.position - 3
-          exact match (cursor.plannedAdvances.drop slot).head? with
-          | none => next
-          | some bid =>
-              if (fiveProjectTransferMatched profile fiveProjectBank
-                  (fiveProjectPhysicalBorrower bid.borrower)
-                  fiveProjectLoanMarket.principal fiveProjectMoneyGood 0
-                  fiveProjectMoneyGood) then
-                { next with actualAdvances := cursor.actualAdvances ++ [bid] }
-              else next
-        · by_cases hconsume : cursor.position = 8
-          · exact next
-          · by_cases hfactorClear : cursor.position = 9
-            · exact { next with factorClearing :=
-                fiveProjectDynamicFactorClearing D cursor state' }
-            · by_cases hfactor : 10 ≤ cursor.position ∧ cursor.position < 15
-              · let slot := cursor.position - 10
-                exact match cursor.factorClearing with
-                | none => next
-                | some (price, projects) =>
-                    match (projects.drop slot).head?,
-                      fiveProjectCurrentFactorSeller? cursor state with
-                    | some bid, some seller =>
-                        if (fiveProjectTransferMatched profile seller
-                            (fiveProjectPhysicalBorrower bid.borrower) 1
-                            fiveProjectCompletionGood price fiveProjectMoneyGood) then
-                          let nextWithPurchase := { next with
-                            actualFactorPurchases := cursor.actualFactorPurchases ++ [bid] }
-                          { nextWithPurchase with householdOfferRemaining :=
-                            if seller = fiveProjectHousehold then
-                              cursor.householdOfferRemaining - 1
-                            else cursor.householdOfferRemaining }
-                        else next
-                    | _, _ => next
-              · by_cases hcomplete : cursor.position = 15
-                · let completed := cursor.actualFactorPurchases.filter fun bid =>
-                    decide (profile (fiveProjectPhysicalBorrower bid.borrower) =
-                      .operate (.completeProject bid.borrower))
-                  exact { next with completedProjects :=
-                    cursor.completedProjects ++ completed }
-                · by_cases hcustomer : 16 ≤ cursor.position ∧ cursor.position < 21
-                  · let project : Fin 5 := ⟨cursor.position - 16, by omega⟩
-                    let quantity := min
-                      (state.stock (fiveProjectPhysicalBorrower project)
-                        fiveProjectOutputGood)
-                      (state.stock 6 fiveProjectMoneyGood)
-                    exact if (0 < quantity ∧ fiveProjectTransferMatched profile
-                        (fiveProjectPhysicalBorrower project) 6 quantity
-                        fiveProjectOutputGood quantity fiveProjectMoneyGood) then
-                      { next with actualCustomerSales :=
-                        cursor.actualCustomerSales ++ [(project, quantity)] }
-                    else next
-                  · by_cases hrepay : 21 ≤ cursor.position ∧ cursor.position < 26
-                    · let slot := cursor.position - 21
-                      exact match cursor.loanQuote,
-                          (cursor.actualAdvances.drop slot).head? with
-                      | some repayment, some bid =>
-                          if (fiveProjectTransferMatched profile
-                              (fiveProjectPhysicalBorrower bid.borrower)
-                              fiveProjectBank repayment fiveProjectMoneyGood 0
-                              fiveProjectMoneyGood) then
-                            { next with actualRepayments :=
-                              cursor.actualRepayments ++ [bid] }
-                          else next
-                      | _, _ => next
-                    · exact next
+      let nextWithQuote := { next with loanQuote := clearing.quotedRepayment }
+      { nextWithQuote with plannedAdvances := clearing.funded }
+  | .factorClearing :: _ =>
+      { next with factorClearing := fiveProjectDynamicFactorClearing D cursor state' }
+  | _ => fiveProjectApplyEvents next
+      (fiveProjectTransitionEvents D cursor state profile)
 
 def fiveProjectPhysicalRegimeGenerator (D : FiveProjectRegimeData) :
     PhysicalProfileGenerator FiveProjectPhysicalAgent FiveProjectPhysicalGood
@@ -646,14 +840,18 @@ def fiveProjectRunStepWithProfile (D : FiveProjectRegimeData)
 /-- At the household-consumption cursor, enact the listed unilateral
 consumption alternative when the specified stock is present. -/
 def fiveProjectRunHouseholdConsumption (D : FiveProjectRegimeData)
-    (run : FiveProjectPhysicalRun) (hposition : run.cursor.position = 8)
+    (run : FiveProjectPhysicalRun)
+    (hphase : run.cursor.remainingPhases.head? = some .householdConsumption)
     (hpositive : 0 < D.householdFactorEndowment)
     (hstock : D.householdFactorEndowment ≤
       run.state.stock fiveProjectHousehold fiveProjectCompletionGood) :
     FiveProjectPhysicalRun := by
   let instruction := fiveProjectPhysicalInstruction D run.cursor run.state
   have hinstruction : instruction = fiveProjectHouseholdConsumptionInstruction D := by
-    simp [instruction, fiveProjectPhysicalInstruction, hposition]
+    cases hremaining : run.cursor.remainingPhases with
+    | nil => simp [hremaining] at hphase
+    | cons phase rest =>
+      cases phase <;> simp_all [instruction, fiveProjectPhysicalInstruction]
   let stage := instruction.stage fiveProjectPhysicalOperations run.state
   let consume : EconomyAction FiveProjectPhysicalAgent FiveProjectPhysicalGood
       FiveProjectPhysicalOperation :=
@@ -672,7 +870,7 @@ def fiveProjectRunChoices (D : FiveProjectRegimeData) :
   | enact :: rest, run =>
       fiveProjectRunChoices D rest (fiveProjectRunStep D enact run)
 
-/-- Execute the first three cursor positions so issuance and household cash
+/-- Execute the first three named phases so issuance and household cash
 transfer have either matched or been refused before loan capacity is read. -/
 def fiveProjectFundingPrefix (D : FiveProjectRegimeData)
     (enactNotes enactHouseholdTransfer : Bool) : FiveProjectPhysicalRun :=
@@ -743,7 +941,7 @@ theorem fiveProject_refused_advance_changes_later_factor_input :
       (clearing.1, clearing.2.map LoanReservationBid.borrower)) = some (2, [0, 1]) := by
   decide
 
-/-- Consume the household's stated factor endowment at position eight, using
+/-- Consume the household's stated factor endowment at its named phase, using
 the existing unilateral branch in the generated choice stage. -/
 def fiveProjectHouseholdConsumedBeforeFactorClearing : FiveProjectPhysicalRun := by
   let D := fiveProjectRegimeData .householdTransfer
@@ -773,10 +971,11 @@ theorem fiveProject_household_consumption_changes_later_factor_input :
     let D := fiveProjectRegimeData .householdTransfer
     let before := fiveProjectRunChoices D (List.replicate 8 true)
       (fiveProjectInitialRun D)
-    before.cursor.position = 8 ∧
+    before.cursor.remainingPhases.head? = some .householdConsumption ∧
     before.state.stock fiveProjectHousehold fiveProjectCompletionGood = 2 ∧
     fiveProjectAvailableFactorSupply D before.cursor before.state = 4 ∧
-    fiveProjectHouseholdConsumedBeforeFactorClearing.cursor.position = 9 ∧
+    fiveProjectHouseholdConsumedBeforeFactorClearing.cursor.remainingPhases.head? =
+      some .factorClearing ∧
     fiveProjectHouseholdConsumedBeforeFactorClearing.state.stock
       fiveProjectHousehold fiveProjectCompletionGood = 0 ∧
     fiveProjectAvailableFactorSupply D
@@ -805,7 +1004,7 @@ theorem fiveProject_refused_factor_purchase_prevents_completion_and_sale :
     let afterCustomerSales := fiveProjectRunChoices D (List.replicate 5 true) afterCompletion
     beforeRefusal.cursor.factorClearing.map
       (fun clearing => clearing.2.map LoanReservationBid.borrower) = some [0, 1] ∧
-    afterRefusal.cursor.position = 11 ∧
+    afterRefusal.cursor.remainingPhases.head? = some (.factorPurchase 1) ∧
     afterRefusal.cursor.actualFactorPurchases = [] ∧
     afterFactorSlots.cursor.actualFactorPurchases.all
       (fun bid => decide (bid.borrower ≠ 0)) = true ∧
@@ -870,14 +1069,16 @@ program. Each market is cleared when its cursor position is reached from the
 actual branch inventory and previously matched events. -/
 def fiveProjectPhysicalRegimeProgram (D : FiveProjectRegimeData) :=
   compilePhysicalProfileGenerator fiveProjectPhysicalOperations
-    (fiveProjectPhysicalRegimeGenerator D) 26 (fiveProjectInitialCursor D)
+    (fiveProjectPhysicalRegimeGenerator D) fiveProjectPhysicalFuel
+    (fiveProjectInitialCursor D)
     (fiveProjectFactorInitialState D)
 
 /-- The generated history enacts each affordable scheduled profile through
 the same state-dependent cursor and physical interpreter. -/
 def fiveProjectPhysicalRegimeHistory (D : FiveProjectRegimeData) :=
   physicalProfileGeneratorHistory fiveProjectPhysicalOperations
-    (fiveProjectPhysicalRegimeGenerator D) 26 (fiveProjectInitialCursor D)
+    (fiveProjectPhysicalRegimeGenerator D) fiveProjectPhysicalFuel
+    (fiveProjectInitialCursor D)
     (fiveProjectFactorInitialState D)
 
 /-- Final inventory state on the selected schedule history. -/
@@ -890,7 +1091,19 @@ scheduled profile. This is a convenience for checking the selected named
 path; branch alternatives remain available through `fiveProjectRunStepWithProfile`.
 -/
 def fiveProjectNamedProgramRun (D : FiveProjectRegimeData) : FiveProjectPhysicalRun :=
-  fiveProjectRunChoices D (List.replicate 26 true) (fiveProjectInitialRun D)
+  fiveProjectRunChoices D (List.replicate fiveProjectPhysicalFuel true)
+    (fiveProjectInitialRun D)
+
+/-- The direct selected-path runner and the compiled program's history have
+the same interpreter-derived inventory at every agent and physical good. -/
+theorem fiveProject_named_run_matches_compiled_history :
+    ∀ regime agent good,
+      (fiveProjectNamedProgramRun (fiveProjectRegimeData regime)).state.stock
+          agent good =
+        (fiveProjectPhysicalRegimeTerminalState
+          (fiveProjectRegimeData regime)).stock agent good := by
+  intro regime agent good
+  cases regime <;> fin_cases agent <;> fin_cases good <;> decide
 
 /-- The three selected paths record only matched funding, factor purchases,
 customer sales, and repayments. Their clearing prices use the existing
@@ -938,7 +1151,8 @@ theorem fiveProjectPhysicalRegimeProgram_stable (D : FiveProjectRegimeData) :
     (fiveProjectPhysicalRegimeProgram D).HasStableOperationSemantics
       fiveProjectPhysicalOperations :=
   compilePhysicalProfileGenerator_stable fiveProjectPhysicalOperations
-    (fiveProjectPhysicalRegimeGenerator D) 26 (fiveProjectInitialCursor D)
+    (fiveProjectPhysicalRegimeGenerator D) fiveProjectPhysicalFuel
+    (fiveProjectInitialCursor D)
     (fiveProjectFactorInitialState D)
 
 /-- Add the supplied program-level beliefs and preferences to the physical

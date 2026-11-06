@@ -79,7 +79,7 @@ an economy-wide distributional effect from a network execution.
 
 ## 4. Credit contracts and monetary accounting
 
-[`PawnLoanTerms`](../Praxeology/Catallactics/Credit.lean#L29) stores a positive
+[`PawnLoanTerms`](../Praxeology/Catallactics/Credit.lean#L30) stores a positive
 natural-number principal and the promised repayment amount directly. Its gross
 repayment factor and net nominal rate are derived as rational numbers, and its
 nominal premium is a signed integer amount. The contract representation
@@ -92,7 +92,7 @@ The credit module records advances, fiduciary issuance, repayment, and unpaid
 maturity as separate lifecycle evidence. Its accounting theorems derive
 inventory changes from matched ActionFrame transfers and state when
 redemption offers are infeasible for insufficient balances. The result
-[`fiduciary_origination_and_cash_shortfall_contract_comparison`](../Praxeology/Catallactics/Credit.lean#L1514)
+[`fiduciary_origination_and_cash_shortfall_contract_comparison`](../Praxeology/Catallactics/Credit.lean#L1651)
 has additional strong premises: two terms share borrower, principal, and
 money; a purposeful fiduciary issuance, origination, advance, and repayment
 are represented; and the borrower's cash immediately before repayment falls

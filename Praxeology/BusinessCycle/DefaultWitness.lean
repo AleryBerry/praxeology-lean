@@ -127,6 +127,9 @@ def entrepreneurUnpaidAdvance : CreditAdvance entrepreneurUnpaidLoanTerms where
   advanceBeforeMaturity := by
     change lifecyclePrecedence secondAdvanceMoment unpaidMaturityMoment
     decide
+  maturityOnHistory := by
+    change lifecycleMemHist unpaidMaturityMoment unpaidMaturityHistory
+    decide
   purposefulExchange := entrepreneur_unpaid_advance_is_bilateral_exchange
 
 /-- The lender's inventory run from settlement to maturity records a matched
@@ -184,72 +187,89 @@ would have to occur at project completion or at the first repayment decision;
 the borrower idles at both moments. -/
 def entrepreneurUnpaidMaturity : UnpaidMaturity entrepreneurUnpaidAdvance where
   custody := entrepreneurUnpaidCollateralCustody
-  noRepaymentByMaturity := by
+  noPhysicalRepaymentByMaturity := by
     rintro ⟨R⟩
     have h_on_history :
-        creditLifecycleActionFrame.mem_hist R.moment unpaidMaturityHistory :=
+        creditLifecycleActionFrame.mem_hist R.decisionMoment unpaidMaturityHistory :=
       R.successor.1
-    have h_path_cases_raw : R.moment = (0 : Node) ∨ R.moment.val = 1 ∨
-        R.moment.val = 2 ∨ R.moment.val = 3 ∨ R.moment.val = 4 ∨
-        R.moment = (14 : Node) := by
-      change lifecycleMemHist R.moment unpaidMaturityHistory at h_on_history
+    have h_path_cases_raw : R.decisionMoment = (0 : Node) ∨ R.decisionMoment.val = 1 ∨
+        R.decisionMoment.val = 2 ∨ R.decisionMoment.val = 3 ∨
+        R.decisionMoment.val = 4 ∨ R.decisionMoment = (14 : Node) := by
+      change lifecycleMemHist R.decisionMoment unpaidMaturityHistory at h_on_history
       simpa [unpaidMaturityHistory, historyByIndex, lifecycleLeaf,
         lifecycleMemHist, lifecycleAncestor] using h_on_history
-    have h_after_advance :
-        lifecycleDepth secondAdvanceMoment < lifecycleDepth R.moment :=
-      lifecycle_precedence_depth secondAdvanceMoment R.moment R.afterAdvance
+    have h_after_advance : MomentAtOrBefore creditLifecycleActionFrame
+        secondAdvanceMoment R.decisionMoment := by
+      have hAfter := R.afterAdvance
+      change MomentAtOrBefore creditLifecycleActionFrame
+        entrepreneurUnpaidAdvance.nextMoment R.decisionMoment at hAfter
+      simpa [entrepreneurUnpaidAdvance] using hAfter
+    have h_after_advance_depth :
+        lifecycleDepth secondAdvanceMoment ≤ lifecycleDepth R.decisionMoment := by
+      rcases h_after_advance with heq | hprec
+      · have hdecision : R.decisionMoment = secondAdvanceMoment := heq.symm
+        rw [hdecision]
+      · exact (lifecycle_precedence_depth secondAdvanceMoment R.decisionMoment hprec).le
     rcases h_path_cases_raw with h_zero | h_one | h_two | h_completion |
         h_repayment | h_maturity
-    · have h_same_moment : R.moment = (0 : Node) := h_zero
-      rw [h_same_moment] at h_after_advance
-      norm_num [lifecycleDepth, secondAdvanceMoment, mainMoment] at h_after_advance
-    · have h_same_moment : R.moment = (1 : Node) := Fin.ext h_one
-      rw [h_same_moment] at h_after_advance
-      norm_num [lifecycleDepth, secondAdvanceMoment, mainMoment] at h_after_advance
-    · have h_same_moment : R.moment = (2 : Node) := Fin.ext h_two
-      rw [h_same_moment] at h_after_advance
-      norm_num [lifecycleDepth, secondAdvanceMoment, mainMoment] at h_after_advance
-    · have h_same_moment : R.moment = (3 : Node) := Fin.ext h_completion
-      rcases bilateral_exchange_enacted_actions entrepreneurUnpaidLoanTerms.borrower
-          entrepreneurUnpaidLoanTerms.lender R.moment unpaidMaturityHistory
-          entrepreneurUnpaidLoanTerms.repayment entrepreneurUnpaidLoanTerms.money
-          entrepreneurUnpaidLoanTerms.collateralQuantity entrepreneurUnpaidLoanTerms.collateral
-          R.purposefulExchange with ⟨h_offer, _⟩
-      change creditLifecycleActionFrame.enacted .entrepreneur R.moment
+    · have h_same_moment : R.decisionMoment = (0 : Node) := h_zero
+      rw [h_same_moment] at h_after_advance_depth
+      norm_num [lifecycleDepth, secondAdvanceMoment, mainMoment] at h_after_advance_depth
+    · have h_same_moment : R.decisionMoment = (1 : Node) := Fin.ext h_one
+      rw [h_same_moment] at h_after_advance_depth
+      norm_num [lifecycleDepth, secondAdvanceMoment, mainMoment] at h_after_advance_depth
+    · have h_same_moment : R.decisionMoment = secondAdvanceMoment := by
+        apply Fin.ext
+        exact h_two
+      have hOffer := R.borrowerOfferMatched
+      rw [h_same_moment] at hOffer
+      change creditLifecycleActionFrame.enacted .entrepreneur secondAdvanceMoment
         unpaidMaturityHistory = creditLifecycleActionFrame.Offer .entrepreneur
-          .operator entrepreneurUnpaidLoanTerms.repayment
-          entrepreneurUnpaidLoanTerms.money entrepreneurUnpaidLoanTerms.collateralQuantity
-          entrepreneurUnpaidLoanTerms.collateral at h_offer
-      have h_idle : creditLifecycleActionFrame.enacted .entrepreneur R.moment
-          unpaidMaturityHistory = .idle := by
-        rw [h_same_moment]
-        decide
-      rw [h_idle] at h_offer
-      cases h_offer
-    · have h_same_moment : R.moment = (4 : Node) := Fin.ext h_repayment
-      rcases bilateral_exchange_enacted_actions entrepreneurUnpaidLoanTerms.borrower
-          entrepreneurUnpaidLoanTerms.lender R.moment unpaidMaturityHistory
-          entrepreneurUnpaidLoanTerms.repayment entrepreneurUnpaidLoanTerms.money
+          .operator entrepreneurUnpaidLoanTerms.repayment entrepreneurUnpaidLoanTerms.money
           entrepreneurUnpaidLoanTerms.collateralQuantity entrepreneurUnpaidLoanTerms.collateral
-          R.purposefulExchange with ⟨h_offer, _⟩
-      change creditLifecycleActionFrame.enacted .entrepreneur R.moment
+        at hOffer
+      have h_idle : creditLifecycleActionFrame.enacted .entrepreneur secondAdvanceMoment
+          unpaidMaturityHistory = .idle := by decide
+      rw [h_idle] at hOffer
+      cases hOffer
+    · have h_same_moment : R.decisionMoment = (3 : Node) := Fin.ext h_completion
+      have hOffer := R.borrowerOfferMatched
+      rw [h_same_moment] at hOffer
+      change creditLifecycleActionFrame.enacted .entrepreneur (3 : Node)
         unpaidMaturityHistory = creditLifecycleActionFrame.Offer .entrepreneur
-          .operator entrepreneurUnpaidLoanTerms.repayment
-          entrepreneurUnpaidLoanTerms.money entrepreneurUnpaidLoanTerms.collateralQuantity
-          entrepreneurUnpaidLoanTerms.collateral at h_offer
-      have h_idle : creditLifecycleActionFrame.enacted .entrepreneur R.moment
-          unpaidMaturityHistory = .idle := by
-        rw [h_same_moment]
-        exact unpaid_history_repayment_decision_is_unmatched.1
-      rw [h_idle] at h_offer
-      cases h_offer
-    · have h_same_moment : R.moment = unpaidMaturityMoment := by
+          .operator entrepreneurUnpaidLoanTerms.repayment entrepreneurUnpaidLoanTerms.money
+          entrepreneurUnpaidLoanTerms.collateralQuantity entrepreneurUnpaidLoanTerms.collateral
+        at hOffer
+      have h_idle : creditLifecycleActionFrame.enacted .entrepreneur (3 : Node)
+          unpaidMaturityHistory = .idle := by decide
+      rw [h_idle] at hOffer
+      cases hOffer
+    · have h_same_moment : R.decisionMoment = (4 : Node) := Fin.ext h_repayment
+      have hOffer := R.borrowerOfferMatched
+      rw [h_same_moment] at hOffer
+      change creditLifecycleActionFrame.enacted .entrepreneur (4 : Node)
+        unpaidMaturityHistory = creditLifecycleActionFrame.Offer .entrepreneur
+          .operator entrepreneurUnpaidLoanTerms.repayment entrepreneurUnpaidLoanTerms.money
+          entrepreneurUnpaidLoanTerms.collateralQuantity entrepreneurUnpaidLoanTerms.collateral
+        at hOffer
+      change creditLifecycleActionFrame.enacted .entrepreneur firstRepaymentMoment
+        unpaidMaturityHistory = creditLifecycleActionFrame.Offer .entrepreneur
+          .operator entrepreneurUnpaidLoanTerms.repayment entrepreneurUnpaidLoanTerms.money
+          entrepreneurUnpaidLoanTerms.collateralQuantity entrepreneurUnpaidLoanTerms.collateral
+        at hOffer
+      rw [unpaid_history_repayment_decision_is_unmatched.1] at hOffer
+      cases hOffer
+    · have h_same_moment : R.decisionMoment = unpaidMaturityMoment := by
         simpa [unpaidMaturityMoment, unpaidMaturityHistory,
           historyByIndex, lifecycleLeaf] using h_maturity
-      have h_before := R.beforeMaturity
-      rw [h_same_moment] at h_before
-      exact creditLifecycleActionFrame.moment_lt_irrefl
-        unpaidMaturityMoment h_before
+      have hSuccessor := R.successor
+      rw [h_same_moment] at hSuccessor
+      rcases R.settlesByMaturity with hsettles | hsettles
+      · rw [hsettles] at hSuccessor
+        exact creditLifecycleActionFrame.moment_lt_irrefl
+          unpaidMaturityMoment hSuccessor.2.2.1
+      · exact creditLifecycleActionFrame.moment_lt_irrefl unpaidMaturityMoment
+          (creditLifecycleActionFrame.moment_lt_trans hSuccessor.2.2.1 hsettles)
 
 /-- The branch's actual result is an outstanding contract reaching unpaid
 maturity after the borrower's repayment inaction. The lender's maturity stock

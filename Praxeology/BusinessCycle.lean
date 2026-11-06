@@ -15,6 +15,7 @@ public import Praxeology.BusinessCycle.Regimes
 public import Praxeology.BusinessCycle.FactorExecution
 public import Praxeology.BusinessCycle.ProfileProgram
 public import Praxeology.BusinessCycle.DefaultWitness
+public import Praxeology.BusinessCycle.PhysicalSettlementWitness
 
 /-!
 # Business Cycle

@@ -1385,8 +1385,10 @@ structure EarlierControlSecurityEvidence (i : Agent) (t : Moment) (h : History) 
   laterAction : Action
   earlierAction_feasible : earlierAction ∈ A_feas i t h
   laterAction_feasible : laterAction ∈ A_feas i t h
+  /-- The selected earlier-control action is the actual action. The later
+  control option is evaluated as an alternative and is not also required to
+  occur on this same actor-history. -/
   earlierAction_executed : Exec i t earlierAction h
-  laterAction_executed : Exec i t laterAction h
   earlierAction_end : End_of i earlierAction t h = W.BundleEnd earlierBundle
   laterAction_end : End_of i laterAction t h = W.BundleEnd laterBundle
   storage_reproduces_valued_plans : ∀ S,
@@ -1436,12 +1438,18 @@ structure CurrentSecurityChoiceEvidence (i : Agent) (t : Moment) (h : History) w
   currentSecurity : Ends
   saving_feasible : savingAction ∈ A_feas i t h
   spending_feasible : spendingAction ∈ A_feas i t h
-  saving_history_passes_through : t ∈ h
-  saving_action_executed : W.enacted i t h = savingAction
-  security_matures_now : W.ExpectedMaturation i savingAction t h = t
+  saving_execution : @Exec W i t savingAction h
+  savingSuccessor : Moment
+  successor_is_immediate : IsNextMoment W.Precedence W.mem_hist
+    t savingSuccessor h
+  security_matures_at_successor :
+    W.ExpectedMaturation i savingAction t h = savingSuccessor
+  /-- This is actual delivery at the immediate successor. Valuation and the
+  intended end are evaluated at the decision; the service need not already be
+  in the pre-action inventory. -/
   security_outcome :
     W.OutcomeOf i savingAction t
-      (W.ExpectedMaturation i savingAction t h) h = currentSecurity
+      savingSuccessor h = currentSecurity
   security_is_valued : W.ValuedEnd i t h currentSecurity
   saving_end_is_security : End_of i savingAction t h = currentSecurity
   spending_end : Ends
@@ -1462,7 +1470,7 @@ theorem current_security_choice_is_purposeful
     (E : CurrentSecurityChoiceEvidence i t h) :
     PurposefulAct i t h E.savingAction := by
   refine ⟨E.saving_feasible, ?_, ?_, ?_⟩
-  · exact ⟨E.saving_history_passes_through, E.saving_action_executed⟩
+  · exact E.saving_execution
   · exact Or.inr (by rw [E.saving_end_is_security]; exact E.security_preferred_to_idle)
   · intro β hβ
     rw [E.saving_end_is_security]

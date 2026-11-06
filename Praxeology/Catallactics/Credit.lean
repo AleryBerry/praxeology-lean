@@ -11,8 +11,9 @@ public import Praxeology.Production
 /-!
 # Credit Contracts and Loan Events
 
-Credit is represented by matched, purposeful exchange actions. A collateralized
-advance transfers cash to the borrower and collateral into the lender's custody;
+Physical credit events are represented by matched exchange actions.
+Purposefulness remains separate behavioral evidence. A collateralized advance
+transfers cash to the borrower and collateral into the lender's custody;
 repayment reverses those flows. A custody run records the physical collateral
 held through maturity. This module deliberately leaves legal title outside the
 ActionFrame inventory vocabulary.
@@ -350,6 +351,10 @@ theorem credit_unpaid_maturity_defaults :
     CreditTransition .outstanding .unpaidMaturity .defaulted :=
   .unpaidMaturity
 
+/-- Reflexive closure of an ActionFrame's strict temporal precedence. -/
+def MomentAtOrBefore (W : ActionFrame) (t u : W.Moment) : Prop :=
+  t = u ∨ W.Precedence t u
+
 /-- An actual purposeful advance: the lender offers principal for custody of
 collateral, the borrower accepts, and both acts are recorded on the same
 history at adjacent moments. -/
@@ -360,10 +365,62 @@ structure CreditAdvance {W : ActionFrame} (T : PawnLoanTerms W) where
   successor : IsNextMoment W.Precedence W.mem_hist moment nextMoment history
   /-- Contractual maturity is strictly later than settlement of the advance. -/
   advanceBeforeMaturity : W.Precedence nextMoment T.maturity
+  maturityOnHistory : W.mem_hist T.maturity history
   purposefulExchange : @BilateralExchange W T.lender T.borrower moment history
     T.principal T.money T.collateralQuantity T.collateral
 
+/-- A matched advance event without any behavioral-purposefulness proof. The
+contractual deadline is attached to the settlement point and loan history. -/
+structure AdvanceExecution {W : ActionFrame} {T : PawnLoanTerms W} where
+  history : W.History
+  decisionMoment : W.Moment
+  settlementMoment : W.Moment
+  successor : IsNextMoment W.Precedence W.mem_hist
+    decisionMoment settlementMoment history
+  settlesByMaturity : MomentAtOrBefore W settlementMoment T.maturity
+  maturityOnHistory : W.mem_hist T.maturity history
+  lenderOfferMatched : W.enacted T.lender decisionMoment history =
+    W.Offer T.lender T.borrower T.principal T.money
+      T.collateralQuantity T.collateral
+  borrowerAcceptanceMatched : W.enacted T.borrower decisionMoment history =
+    W.Accept T.borrower T.lender T.principal T.money
+      T.collateralQuantity T.collateral
+
+namespace AdvanceExecution
+
+/-- A matched physical origination transfers principal and collateral as
+specified by the contract. -/
+theorem physical_transfer {W : ActionFrame} {T : PawnLoanTerms W}
+    (A : AdvanceExecution (T := T)) :
+    W.omega T.borrower A.settlementMoment A.history T.money =
+        W.omega T.borrower A.decisionMoment A.history T.money + T.principal ∧
+    W.omega T.lender A.settlementMoment A.history T.collateral =
+        W.omega T.lender A.decisionMoment A.history T.collateral + T.collateralQuantity := by
+  have hflow := bilateral_exchange_commodity_transfers T.lender T.borrower
+    A.decisionMoment A.settlementMoment A.history T.principal T.money
+    T.collateralQuantity T.collateral T.distinctAgents T.distinctGoods
+    A.successor A.lenderOfferMatched A.borrowerAcceptanceMatched
+  exact ⟨hflow.2.1, hflow.2.2.1⟩
+
+end AdvanceExecution
+
 namespace CreditAdvance
+
+/-- Discarding behavioral evidence leaves the enacted physical loan event. -/
+def execution {W : ActionFrame} {T : PawnLoanTerms W} (A : CreditAdvance T) :
+    AdvanceExecution (T := T) where
+  history := A.history
+  decisionMoment := A.moment
+  settlementMoment := A.nextMoment
+  successor := A.successor
+  settlesByMaturity := Or.inr A.advanceBeforeMaturity
+  maturityOnHistory := A.maturityOnHistory
+  lenderOfferMatched :=
+    (bilateral_exchange_enacted_actions T.lender T.borrower A.moment A.history
+      T.principal T.money T.collateralQuantity T.collateral A.purposefulExchange).1
+  borrowerAcceptanceMatched :=
+    (bilateral_exchange_enacted_actions T.lender T.borrower A.moment A.history
+      T.principal T.money T.collateralQuantity T.collateral A.purposefulExchange).2
 
 /-- The lender's matched-offer inventory step, derived from the purposeful
 bilateral exchange and its ActionFrame enactment. -/
@@ -846,6 +903,77 @@ def lenderInventoryRun {W : ActionFrame} {T : PawnLoanTerms W}
 
 end CreditRepayment
 
+/-- A physically matched repayment, independently of whether either party's
+action has a purposefulness proof. The deadline concerns settlement, so an
+offer made by maturity but settled afterward is late. -/
+structure RepaymentExecution {W : ActionFrame} {T : PawnLoanTerms W}
+    {A : AdvanceExecution (T := T)} where
+  decisionMoment : W.Moment
+  settlementMoment : W.Moment
+  successor : IsNextMoment W.Precedence W.mem_hist
+    decisionMoment settlementMoment A.history
+  afterAdvance : MomentAtOrBefore W A.settlementMoment decisionMoment
+  settlesByMaturity : MomentAtOrBefore W settlementMoment T.maturity
+  borrowerOfferMatched : W.enacted T.borrower decisionMoment A.history =
+    W.Offer T.borrower T.lender T.repayment T.money
+      T.collateralQuantity T.collateral
+  lenderAcceptanceMatched : W.enacted T.lender decisionMoment A.history =
+    W.Accept T.lender T.borrower T.repayment T.money
+      T.collateralQuantity T.collateral
+
+namespace RepaymentExecution
+
+/-- A matched physical repayment transfers the promised cash and returns the
+pledged collateral. -/
+theorem physical_transfer {W : ActionFrame} {T : PawnLoanTerms W}
+    {A : AdvanceExecution (T := T)} (R : RepaymentExecution (T := T) (A := A)) :
+    W.omega T.borrower R.settlementMoment A.history T.money + T.repayment =
+        W.omega T.borrower R.decisionMoment A.history T.money ∧
+    W.omega T.lender R.settlementMoment A.history T.money =
+        W.omega T.lender R.decisionMoment A.history T.money + T.repayment ∧
+    W.omega T.borrower R.settlementMoment A.history T.collateral =
+        W.omega T.borrower R.decisionMoment A.history T.collateral + T.collateralQuantity ∧
+    W.omega T.lender R.settlementMoment A.history T.collateral + T.collateralQuantity =
+        W.omega T.lender R.decisionMoment A.history T.collateral := by
+  exact bilateral_exchange_commodity_transfers T.borrower T.lender
+    R.decisionMoment R.settlementMoment A.history T.repayment T.money
+    T.collateralQuantity T.collateral T.distinctAgents.symm T.distinctGoods
+    R.successor R.borrowerOfferMatched R.lenderAcceptanceMatched
+
+/-- Physical settlement clears the outstanding obligation without invoking a
+behavioral certificate. -/
+theorem clears_obligation {W : ActionFrame} {T : PawnLoanTerms W}
+    {A : AdvanceExecution (T := T)} (_R : RepaymentExecution (T := T) (A := A)) :
+    CreditTransition .outstanding .repayment .repaid :=
+  .repayment
+
+end RepaymentExecution
+
+/-- Purposeful repayment evidence forgets down to a physical execution. -/
+def CreditRepayment.execution {W : ActionFrame} {T : PawnLoanTerms W}
+    {A : CreditAdvance T} (R : CreditRepayment A) :
+    RepaymentExecution (T := T) (A := A.execution) where
+  decisionMoment := R.moment
+  settlementMoment := R.nextMoment
+  successor := R.successor
+  afterAdvance := Or.inr (by simpa [CreditAdvance.execution] using R.afterAdvance)
+  settlesByMaturity := by
+    have hlinear := (W.histories_maximal_linear A.history).1
+      R.successor.2.1 A.maturityOnHistory
+    rcases hlinear with hnext | heq | hlate
+    · exact Or.inr hnext
+    · exact Or.inl heq
+    · exact False.elim (R.successor.2.2.2 T.maturity A.maturityOnHistory
+        ⟨R.beforeMaturity, hlate⟩)
+  borrowerOfferMatched :=
+    (bilateral_exchange_enacted_actions T.borrower T.lender R.moment A.history
+      T.repayment T.money T.collateralQuantity T.collateral
+      R.purposefulExchange).1
+  lenderAcceptanceMatched :=
+    (bilateral_exchange_enacted_actions T.borrower T.lender R.moment A.history
+      T.repayment T.money T.collateralQuantity T.collateral
+      R.purposefulExchange).2
+
 /-- Repayment returns collateral to the borrower and transfers the repayment
 amount of cash to the lender. -/
 theorem CreditRepayment.physical_transfer {W : ActionFrame}
@@ -960,7 +1088,16 @@ absence of a possible action. -/
 structure UnpaidMaturity {W : ActionFrame} {T : PawnLoanTerms W}
     (A : CreditAdvance T) where
   custody : CollateralCustodyTrace A
-  noRepaymentByMaturity : ¬ Nonempty (CreditRepayment A)
+  noPhysicalRepaymentByMaturity :
+    ¬ Nonempty (RepaymentExecution (T := T) (A := A.execution))
+
+/-- No behavioral repayment certificate follows from the stronger physical
+non-redemption evidence. -/
+theorem UnpaidMaturity.noRepaymentByMaturity {W : ActionFrame}
+    {T : PawnLoanTerms W} {A : CreditAdvance T} (D : UnpaidMaturity A) :
+    ¬ Nonempty (CreditRepayment A) := by
+  rintro ⟨R⟩
+  exact D.noPhysicalRepaymentByMaturity ⟨R.execution⟩
 
 /-- At unpaid maturity, the lender holds at least the collateral quantity
 transferred at origination, provided the intervening trace records no use of

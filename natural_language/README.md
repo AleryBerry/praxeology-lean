@@ -14,9 +14,9 @@ Most arguments keep three kinds of evidence distinct. The **physical and account
 
 Later applications package related evidence so it can be checked and reused: a credit advance, an inventory trace preserving the principal, a rate comparison, and a completion bottleneck can be stated separately before being combined into a cycle result.
 
-Finite witness worlds serve a distinct mathematical purpose from general conditional theorems. A theorem establishes that a conclusion follows if its premises hold; a concrete finite model (an **action frame witness**) shows that the selected premises can hold together without contradiction or vacuity. In constructive praxeology, these witnesses operate at two levels:
-- **Model-Theoretic Consistency:** Constructive models (such as the two-moment frame, bilateral trade frame, workshop hierarchy frame, credit lifecycle frame, and grounded business-cycle frame) certify that the axiomatic system is inhabited and mathematically sound.
-- **Mechanism Demonstration:** Concrete multi-agent worlds establish that joint economic phenomena—such as entrepreneurship under uncertainty, capital structure distortion, complementary factor starvation, and error clustering—arise directly from the verified interaction of physical conservation, temporal branching, and subjective valuation.
+Finite witness worlds serve a distinct mathematical purpose from general conditional theorems. A theorem establishes that a conclusion follows if its premises hold; a concrete finite model (an **action frame witness**) shows that the selected premises can hold together in that model. In constructive praxeology, these witnesses have two limited uses:
+- **Model inhabitation:** Constructive models such as the two-moment frame, bilateral trade frame, workshop hierarchy frame, and credit lifecycle frame exhibit particular inhabited structures. Each supports only the properties encoded in that model; inhabitation does not by itself certify every economic interpretation or establish the whole theory as sound.
+- **Conditional mechanism checks:** Finite examples instantiate specific exchanges, production steps, complementary-factor constraints, or credit outcomes. The business-cycle modules also prove conditional cluster results, but a concrete multi-entrepreneur witness combining the full funding, production, default, purposeful-choice, and regret chain remains outstanding. No example shows that a credit shock alone establishes an economy-wide crisis or error cluster.
 
 ## Chapters
 

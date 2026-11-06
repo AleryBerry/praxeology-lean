@@ -942,6 +942,61 @@ theorem entrepreneur_purposeful_proposal :
       exact WorkshopActionFrame.pref_asymm .entrepreneur
         WMoment.root (0 : WorkshopHist) h_pref h_pref
 
+/-- Concrete storage and security evidence in the workshop frame. The enacted
+proposal yields enough tokens to attain the entrepreneur's valued profit end;
+the feasible idle alternative yields only two tokens. This inhabits the
+earlier-control record without requiring both alternatives to execute on one
+history. -/
+def workshopEarlierControlSecurityEvidence :
+    @EarlierControlSecurityEvidence WorkshopActionFrame
+      .entrepreneur WMoment.root (0 : WorkshopHist) := by
+  refine {
+    earlierBundle := w_omega .entrepreneur .leaf0 0
+    laterBundle := w_omega .entrepreneur .leaf8 8
+    earlierAction := .proposeScope
+    laterAction := .idle
+    earlierAction_feasible := by decide
+    laterAction_feasible := by decide
+    earlierAction_executed := ⟨trivial, rfl⟩
+    earlierAction_end := by rfl
+    laterAction_end := by rfl
+    storage_reproduces_valued_plans := ?_
+    earlySecurityService := .entrepreneurProfit
+    security_is_valued := by
+      change workshopValuedEnd .entrepreneur .root 0 .entrepreneurProfit
+      change True
+      trivial
+    security_attainable_early := by
+      change AttainsEnd workshop_requirement
+        (w_omega .entrepreneur .leaf0 0) .entrepreneurProfit
+      intro m
+      fin_cases m <;> decide
+    security_unattainable_late := ?_
+  }
+  · intro S hvalued hlate
+    change (∀ e ∈ S, workshopValuedEnd .entrepreneur .root 0 e) at hvalued
+    change JointlyAttains workshop_requirement
+      (w_omega .entrepreneur .leaf8 8) S at hlate
+    have hsubset : S ⊆ {.entrepreneurProfit} := by
+      intro e he
+      have heval := hvalued e he
+      cases e <;> simp [workshopValuedEnd] at heval ⊢
+    rcases Finset.subset_singleton_iff.mp hsubset with hempty | hsingleton
+    · subst S
+      intro m
+      simp
+    · subst S
+      have hfalse : False := by
+        have htoken := hlate tokenMeans
+        norm_num [JointlyAttains, workshop_requirement, tokenMeans, w_omega] at htoken
+      exact hfalse.elim
+  · change ¬ AttainsEnd workshop_requirement
+      (w_omega .entrepreneur .leaf8 8) .entrepreneurProfit
+    intro hattains
+    have htoken := hattains tokenMeans
+    change 3 ≤ 2 at htoken
+    omega
+
 theorem operator_purposeful_acceptance :
     @PurposefulAct WorkshopActionFrame .operator
       WMoment.root (0 : WorkshopHist) WorkshopAction.acceptScope := by

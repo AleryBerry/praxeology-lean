@@ -17,7 +17,7 @@ formalization is a complete account of an economic theory. See the
 | [04 Catallactics and ECP](04_catallactics_ecp.md) | [`Catallactics`](../Praxeology/Catallactics.lean), [`Catallactics/Credit`](../Praxeology/Catallactics/Credit.lean) | Exchange, monetary processes, prices, calculation, and credit contracts |
 | [05 Counterfactuals and regret](05_counterfactuals_regret.md) | [`Action`](../Praxeology/Action.lean), [`Entrepreneurship`](../Praxeology/Entrepreneurship.lean) | Context-matched regret and conditional entrepreneurial-cycle synthesis |
 | [06 Firm boundary](06_firm_boundary.md) | [`Organization`](../Praxeology/Organization.lean), [`FirmBoundary`](../Praxeology/FirmBoundary.lean), [`FirmWitness`](../Praxeology/FirmWitness.lean) | Delegation, firm boundaries, information, and a finite workshop witness |
-| [07 Business cycle](07_business_cycle.md) | [`Entrepreneurship`](../Praxeology/Entrepreneurship.lean), [`BusinessCycle`](../Praxeology/BusinessCycle.lean) and its submodules | Conditional cycle, cohort, information, and lifecycle results; concrete multi-borrower construction remains outstanding |
+| [07 Business cycle](07_business_cycle.md) | [`Entrepreneurship`](../Praxeology/Entrepreneurship.lean), [`BusinessCycle`](../Praxeology/BusinessCycle.lean) and its submodules | Conditional cycle, cohort, information, and lifecycle results; a physical multi-borrower schedule exists, while its purposeful-choice/default/regret integration remains outstanding |
 | [08 Econometric limits](08_econometric_limits.md) | [`EconometricLimits`](../Praxeology/EconometricLimits.lean) | Non-identifiability within specified interpretation classes and observations |
 | [09 Behavioral poset](09_behavioral_poset.md) | [`BehavioralPoset`](../Praxeology/BehavioralPoset.lean) | Asymmetric preferences, conditional transitivity, menu examples, and a Condorcet witness |
 | [10 State monopoly](10_state_monopoly.md) | [`StateMonopoly`](../Praxeology/StateMonopoly.lean) | Conditional institutional classifications and finite accounting results |
@@ -46,6 +46,8 @@ audit are documented in the [root README](../README.md) and
 [`claims_and_assumptions.md`](claims_and_assumptions.md). Project-specific
 axioms and unfinished proofs are not accepted.
 
-`natural_language/` is deliberately deferred pending reconciliation with the
-formal development. Those chapters are not currently faithful translations of
-the Lean specifications.
+`natural_language/` remains a reader-facing draft. Chapters 2, 10, and 13 now
+include targeted updates for the evaluation-horizon adapter, physical versus
+purposeful credit evidence, and branch-sensitive cycle execution. A full
+chapter-by-chapter fidelity review remains outstanding; the Lean declarations
+remain authoritative where prose and source differ.

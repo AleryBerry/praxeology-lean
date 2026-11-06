@@ -97,6 +97,8 @@ structure FiniteCreditAdvanceRow {W : ActionFrame} {T : FiniteTreeSpec}
   successor : IsNextMoment T.Precedence T.MemHist node nextNode history
   advanceBeforeMaturity : W.Precedence
     (S.presentation.moment nextNode) terms.maturity
+  maturityOnHistory : W.mem_hist terms.maturity
+    (S.presentation.history history)
   purposefulOffer : @PurposefulAct W terms.lender (S.presentation.moment node)
     (S.presentation.history history)
     (W.Offer terms.lender terms.borrower terms.principal terms.money
@@ -121,6 +123,7 @@ def instantiate {W : ActionFrame} {T : FiniteTreeSpec}
     nextMoment := S.presentation.moment J.nextNode
     successor := S.presentation.map_next_moment J.successor
     advanceBeforeMaturity := J.advanceBeforeMaturity
+    maturityOnHistory := J.maturityOnHistory
     purposefulExchange :=
       ⟨terms.distinctAgents, terms.distinctGoods,
         ⟨terms.distinctAgents, J.purposefulOffer, J.offer_nonzero,
