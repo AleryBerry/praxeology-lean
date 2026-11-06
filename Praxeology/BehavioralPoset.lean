@@ -34,6 +34,66 @@ structure StrictPreference (α : Type) where
 structure StrictPoset (α : Type) extends StrictPreference α where
   trans : ∀ e₁ e₂ e₃, lt e₁ e₂ → lt e₂ e₃ → lt e₁ e₃
 
+/-- Three alternatives used to separate asymmetry from transitivity. -/
+inductive CyclicPreferenceEnd where
+  | first
+  | second
+  | third
+  deriving DecidableEq
+
+instance : Fintype CyclicPreferenceEnd where
+  elems := {.first, .second, .third}
+  complete := by
+    intro e
+    cases e <;> simp
+
+/-- A strict three-cycle: first outranks second, second outranks third, and
+third outranks first. -/
+def cyclicPreferenceRelation : CyclicPreferenceEnd → CyclicPreferenceEnd → Prop
+  | .first, .second => True
+  | .second, .third => True
+  | .third, .first => True
+  | _, _ => False
+
+/-- The cyclic relation is an irreflexive asymmetric preference, matching the
+minimal strict-preference laws required by an `ActionFrame`. -/
+def cyclicStrictPreference : StrictPreference CyclicPreferenceEnd where
+  lt := cyclicPreferenceRelation
+  irrefl := by
+    intro e
+    cases e <;> simp [cyclicPreferenceRelation]
+  asymm := by
+    intro e₁ e₂ h
+    cases e₁ <;> cases e₂ <;> simp [cyclicPreferenceRelation] at h ⊢
+
+/-- This asymmetric preference is not transitive: first outranks second and
+second outranks third, but first does not outrank third. -/
+theorem asymmetric_preference_need_not_be_transitive :
+    ¬ ∀ e₁ e₂ e₃, cyclicStrictPreference.lt e₁ e₂ →
+      cyclicStrictPreference.lt e₂ e₃ → cyclicStrictPreference.lt e₁ e₃ := by
+  intro htrans
+  have hfirst : cyclicStrictPreference.lt .first .second := by
+    change cyclicPreferenceRelation .first .second
+    trivial
+  have hsecond : cyclicStrictPreference.lt .second .third := by
+    change cyclicPreferenceRelation .second .third
+    trivial
+  have h := htrans .first .second .third hfirst hsecond
+  change cyclicPreferenceRelation .first .third at h
+  simp [cyclicPreferenceRelation] at h
+
+/-- Therefore this same relation cannot be extended to a `StrictPoset` without
+changing its preference comparisons. -/
+theorem cyclic_preference_not_a_strict_poset :
+    ¬ ∃ P : StrictPoset CyclicPreferenceEnd,
+      P.lt = cyclicPreferenceRelation := by
+  rintro ⟨P, hlt⟩
+  have hfirst : P.lt .first .second := by rw [hlt]; trivial
+  have hsecond : P.lt .second .third := by rw [hlt]; trivial
+  have h := P.trans .first .second .third hfirst hsecond
+  rw [hlt] at h
+  simp [cyclicPreferenceRelation] at h
+
 /-- In any ActionFrame, the subjective preference relation of an agent at a decision node
 induces a strict preference structure on ends. -/
 def action_frame_strict_preference (W : ActionFrame) (i : W.Agent) (t : W.Moment) (h : W.History) :
@@ -248,10 +308,13 @@ an agent's own prior precommitment prunes temptation from their own menu,
 whereas external invasion by another agent contracts clean-title stocks
 and strips previously feasible actions from the victim's choice menu. -/
 theorem self_precommitment_vs_external_menu_stripping
-    [W : ActionFrame] {i j : W.Agent} {t t' : W.Moment} {h : W.History}
+    [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}
     (α_tax : W.Action)
-    (h_invasive : EndogenouslyInvasiveJ i j t t' h α_tax) :
-    (∃ m : W.Means, W.omega i t' (jointBranch i j t h W.alpha_zero α_tax) m <
+    (h_invasive : EndogenouslyInvasiveJ i j t h α_tax) :
+    (∃ m : W.Means, W.omega i
+        (W.ExpectedMaturation i W.alpha_zero t
+          (jointBranch i j t h W.alpha_zero α_tax))
+        (jointBranch i j t h W.alpha_zero α_tax) m <
       W.omega i t h m) := by
   exact h_invasive
 

@@ -6,6 +6,7 @@ Authors: Alexander Etxeberria
 module
 
 public import Praxeology.FiniteEconomy.Physical
+import Mathlib.Tactic.IntervalCases
 
 /-!
 # Ten-agent five-stage physical supply-chain fixture
@@ -215,6 +216,87 @@ theorem fiveStageSupplyChain_reaches_terminal :
 theorem fiveStageSupplyChain_retail_service :
     ((fiveStageSupplyChainRun 9).get (by decide)).services 4 = 1 := by
   decide
+
+/-- The linear supply-chain tree has only its terminal node as a leaf. -/
+theorem fiveStageSupplyChain_history_unique
+    (h : fiveStageSupplyChainTree.History) :
+    h = fiveStageSupplyChainHistory := by
+  apply Subtype.ext
+  apply Fin.ext
+  change h.1.val = 9
+  have hbound : h.1.val < 10 := by
+    exact h.1.isLt
+  have hleaf : h.1.val = 9 := by
+    by_contra hne
+    have hlt : h.1.val < 9 := by omega
+    let child : fiveStageSupplyChainTree.Node :=
+      ⟨h.1.val + 1, by simp [fiveStageSupplyChainTree]; omega⟩
+    have hchild_ne : child ≠ 0 := by
+      intro heq
+      have hval := congrArg Fin.val heq
+      simp [child] at hval
+    have hparent : fiveStageSupplyChainTree.parent child = h.1 := by
+      apply Fin.ext
+      simp [child, fiveStageSupplyChainTree, fiveStageSupplyChainParent]
+    exact h.2 child hchild_ne hparent
+  exact hleaf
+
+/-- Every prefix on the unique supply-chain history has a successful physical
+run. -/
+theorem fiveStageSupplyChain_runAt_successful
+    (h : fiveStageSupplyChainTree.History)
+    (t : fiveStageSupplyChainTree.Node)
+    (_ht : fiveStageSupplyChainTree.MemHist t h) :
+    ∃ state, fiveStageSupplyChainProgram.runAt h t = some state := by
+  have hbound : t.val ≤ 9 := by
+    have hlt := t.isLt
+    simp [fiveStageSupplyChainTree] at hlt
+    omega
+  rw [fiveStageSupplyChain_history_unique h]
+  rw [fiveStageSupplyChain_runAt_eq t.val hbound]
+  have hsome : (fiveStageSupplyChainRun t.val).isSome := by
+    interval_cases t.val <;> decide
+  cases hrun : fiveStageSupplyChainRun t.val with
+  | none => simp [hrun] at hsome
+  | some state => exact ⟨state, rfl⟩
+
+/-- Total physical ledger generated from the five-stage executable program.
+Edge affordability is recovered from successful interpreter steps. -/
+def fiveStageSupplyChainSolventProgram :
+    SolventFinitePhysicalProgram fiveStageSupplyChainTree SupplyChainAgent
+      SupplyChainGood SupplyChainOperation Unit :=
+  SolventFinitePhysicalProgram.ofSuccessfulAt fiveStageSupplyChainProgram
+    (by
+      intro h t ht
+      exact fiveStageSupplyChain_runAt_successful h t ht)
+
+/-- The total state view reaches the same terminal retail service as the
+original optional interpreter. -/
+theorem fiveStageSupplyChainSolventProgram_retail_service
+    (hterminal : fiveStageSupplyChainTree.MemHist 9
+      fiveStageSupplyChainHistory) :
+    (fiveStageSupplyChainSolventProgram.stateAt fiveStageSupplyChainHistory
+      9 hterminal).services 4 = 1 := by
+  have hrun := fiveStageSupplyChainSolventProgram.runAt_stateAt
+    fiveStageSupplyChainHistory 9 hterminal
+  change fiveStageSupplyChainProgram.runAt fiveStageSupplyChainHistory 9 = _ at hrun
+  let terminal : fiveStageSupplyChainTree.Node :=
+    ⟨9, by simp [fiveStageSupplyChainTree]⟩
+  have hindex : (9 : fiveStageSupplyChainTree.Node) = terminal := by
+    apply Fin.ext
+    rfl
+  have hrunNode : fiveStageSupplyChainProgram.runAt
+      fiveStageSupplyChainHistory terminal =
+      some (fiveStageSupplyChainSolventProgram.stateAt
+        fiveStageSupplyChainHistory 9 hterminal) := by
+    rw [← hindex]
+    exact hrun
+  have hrunEq := fiveStageSupplyChain_runAt_eq 9 (by omega)
+  have hrunRun : fiveStageSupplyChainRun 9 =
+      some (fiveStageSupplyChainSolventProgram.stateAt
+        fiveStageSupplyChainHistory 9 hterminal) := by
+    exact hrunEq.symm.trans hrunNode
+  simpa [hrunRun] using fiveStageSupplyChain_retail_service
 
 end Praxeology
 

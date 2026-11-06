@@ -2,9 +2,9 @@
 """
 scripts/audit_axiomatic_floor.py
 
-Heuristic source-pattern screen for selected modeling choices and suspicious
-patterns in the Praxeology Lean 4 formalization. Findings require semantic review;
-the script does not establish ontological leakage, theorem validity, or axiom independence.
+Heuristic source-pattern report for manual review of selected modeling choices.
+Findings require semantic review; absence of findings does not establish
+theorem validity, axiom independence, or a well-founded economic model.
 
 Five heuristic checks:
 1. Omit & Shadow-Structure Detector:
@@ -134,7 +134,7 @@ class AxiomaticFloorAuditor:
                         })
         return findings
 
-    def run_full_audit(self) -> Tuple[bool, Dict[str, Any]]:
+    def run_full_audit(self) -> Dict[str, Any]:
         omit_findings = self.audit_omit_and_shadow_structures()
         shadow_findings = self.audit_shadow_primitives()
         bridge_findings = self.audit_implicational_bridges()
@@ -152,15 +152,7 @@ class AxiomaticFloorAuditor:
             "singleton_collapse_count": len(singleton_findings),
         }
 
-        all_passed = (
-            scorecard["omit_count"] == 0 and
-            scorecard["shadow_structure_count"] == 0 and
-            scorecard["shadow_primitive_count"] == 0 and
-            scorecard["implicational_bridge_count"] == 0 and
-            scorecard["singleton_collapse_count"] == 0
-        )
-
-        return all_passed, {
+        return {
             "scorecard": scorecard,
             "omits": omits,
             "shadow_structs": shadow_structs,
@@ -170,25 +162,23 @@ class AxiomaticFloorAuditor:
         }
 
 
-def print_report(all_passed: bool, data: Dict[str, Any]):
+def print_report(data: Dict[str, Any]):
     sc = data["scorecard"]
     print("=" * 80)
-    print("PRAXEOLOGY LEAN — AXIOMATIC FLOOR & ONTOLOGICAL LEAKAGE AUDIT")
+    print("PRAXEOLOGY LEAN — ADVISORY MODELING-PATTERN REPORT")
     print("=" * 80)
     print()
-    print("5-CHECK SCORECARD:")
-    print(f"  1. `omit` Annotations:              {sc['omit_count']:>4}  (Target: 0)")
-    print(f"  2. Shadow Structures (Doxastic):   {sc['shadow_structure_count']:>4}  (Target: 0)")
-    print(f"  3. Shadow Primitive Bypasses:      {sc['shadow_primitive_count']:>4}  (Target: 0)")
-    print(f"  4. Implicational Bridge Stuffing:  {sc['implicational_bridge_count']:>4}  (Target: 0)")
-    print(f"  5. Singleton Plausibility Traps:   {sc['singleton_collapse_count']:>4}  (Target: 0)")
+    print("Pattern counts (review each hit in context):")
+    print(f"  1. `omit` annotations:              {sc['omit_count']:>4}")
+    print(f"  2. Shadow-structure names:          {sc['shadow_structure_count']:>4}")
+    print(f"  3. Shadow-primitive patterns:       {sc['shadow_primitive_count']:>4}")
+    print(f"  4. Arithmetic-bridge patterns:      {sc['implicational_bridge_count']:>4}")
+    print(f"  5. Singleton-plausibility patterns: {sc['singleton_collapse_count']:>4}")
     print()
 
-    if all_passed:
-        print(">> STATUS: [PASSED] No configured source patterns were found.")
-        print(">> This heuristic result does not establish semantic soundness or axiom independence.")
-    else:
-        print(">> STATUS: [REVIEW FINDINGS] Configured source patterns were found.")
+    has_findings = any(sc.values())
+    if has_findings:
+        print(">> Pattern hits follow; inspect each declaration's Lean type and proof.")
         print()
         print("-" * 80)
         print("DETAILED PATTERN FINDINGS:")
@@ -222,6 +212,10 @@ def print_report(all_passed: bool, data: Dict[str, Any]):
             print(f"\n[!] Singleton Plausibility Collapses ({len(data['singleton_collapses'])} occurrences):")
             for item in data["singleton_collapses"]:
                 print(f"    - {item['file']}:{item['line']} -> {item['text']}")
+    else:
+        print(">> No configured patterns found; this is not a semantic verification result.")
+
+    print("This report is advisory and never assigns semantic pass/fail status.")
 
     print()
     print("=" * 80)
@@ -229,9 +223,9 @@ def print_report(all_passed: bool, data: Dict[str, Any]):
 
 def main():
     auditor = AxiomaticFloorAuditor()
-    passed, data = auditor.run_full_audit()
-    print_report(passed, data)
-    sys.exit(0 if passed else 1)
+    data = auditor.run_full_audit()
+    print_report(data)
+    sys.exit(0)
 
 
 if __name__ == "__main__":

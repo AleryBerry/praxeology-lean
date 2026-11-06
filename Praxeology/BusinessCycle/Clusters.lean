@@ -90,16 +90,10 @@ structure CreditShockCohort (W : ActionFrame) (Context Entrepreneur : Type)
   aggregate_principal_within_issue :
     entrepreneurs.sum (fun e => (project e).funding.terms.principal) ≤
       commonIssuance.principal
-  commonCreditRate : ℕ
+  commonCreditRate : ℚ
   credit_rate_shared : ∀ e ∈ entrepreneurs,
     (project e).funding.terms.grossRepaymentFactor = commonCreditRate
   rateQuotes : ∀ e, SavingCreditLoanQuotes (project e).funding.advance
-  /-- The credit-side redemption closes after the financed project reaches its
-  completion node. This makes the cohort's records a staged lifecycle rather
-  than a set of unrelated issue, advance, and repayment certificates. -/
-  repaymentAfterProject : ∀ e ∈ entrepreneurs,
-    W.Precedence (project e).cycle.investment.next
-      (rateQuotes e).creditRepayment.moment
   saving_borrower_matches_agent : ∀ e ∈ entrepreneurs,
     (rateQuotes e).savingTerms.borrower = agent e
   /-- The reader observes the actual Catallactics quote at each enacted
@@ -111,7 +105,7 @@ structure CreditShockCohort (W : ActionFrame) (Context Entrepreneur : Type)
   credit_signal_read : ∀ e,
     signalReader (agent e) (project e).funding.advance.decisionNode =
       (project e).funding.terms.marketSignal
-  naturalRate : Entrepreneur → ℕ
+  naturalRate : Entrepreneur → ℚ
   credit_rate_below_natural : ∀ e ∈ entrepreneurs, commonCreditRate < naturalRate e
   /-- The baseline rate is itself an enacted Catallactics loan quote. -/
   noShockQuote : Entrepreneur → EnactedLoanQuote W
@@ -136,11 +130,9 @@ structure CreditShockCohort (W : ActionFrame) (Context Entrepreneur : Type)
 
 namespace CreditShockCohort
 
-/-- Each exposed loan is recorded on one ActionFrame history in this order:
-the shared issue precedes the advance, the advance precedes the investment
-decision, project completion is reached before redemption, and redemption
-precedes contractual maturity. The associated inventory changes remain the
-ones proved by the ActionFrame exchange and production laws. -/
+/-- Each exposed loan's origination is recorded on one ActionFrame history:
+the shared issue precedes the advance, and the advance precedes the investment
+decision. No repayment outcome is part of this ordering result. -/
 theorem credit_lifecycle_ordered {W : ActionFrame} {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
@@ -150,19 +142,25 @@ theorem credit_lifecycle_ordered {W : ActionFrame} {Context Entrepreneur : Type}
       W.Precedence C.commonIssuance.nextMoment
         (C.project e).funding.advance.moment) ∧
     W.Precedence (C.project e).funding.advance.nextMoment
-      (C.project e).cycle.investment.x.moment ∧
-    W.Precedence (C.project e).cycle.investment.next
-      (C.rateQuotes e).creditRepayment.moment ∧
-    W.Precedence (C.rateQuotes e).creditRepayment.moment
-      (C.project e).funding.terms.maturity := by
+      (C.project e).cycle.investment.x.moment := by
   exact ⟨(C.backedAdvance e he).advance_after_issue,
-    (C.project e).funding.advancePrecedesDecision,
-    C.repaymentAfterProject e he,
-    (C.rateQuotes e).creditRepayment.beforeMaturity⟩
+    (C.project e).funding.advancePrecedesDecision⟩
 
-/-- The issue, project, and credit-side repayment are tied to the same
-ActionFrame history; repayment cannot silently come from a separate scenario.
--/
+/-- If repayment is separately supplied, project completion can be ordered
+before it without making successful repayment a premise of the cohort. -/
+theorem credit_lifecycle_ordered_with_repayment {W : ActionFrame}
+    {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
+    (C : CreditShockCohort W Context Entrepreneur)
+    {e : Entrepreneur} (_he : e ∈ C.entrepreneurs)
+    (R : CreditRepayment (C.project e).funding.advance)
+    (h_project_before_repayment :
+      W.Precedence (C.project e).cycle.investment.next R.moment) :
+    W.Precedence (C.project e).cycle.investment.next R.moment ∧
+      W.Precedence R.moment (C.project e).funding.terms.maturity := by
+  exact ⟨h_project_before_repayment, R.beforeMaturity⟩
+
+/-- The issue, project, and advance are tied to the same ActionFrame history;
+later settlement evidence remains separately indexed by the advance. -/
 theorem credit_lifecycle_same_history {W : ActionFrame}
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
@@ -174,9 +172,9 @@ theorem credit_lifecycle_same_history {W : ActionFrame}
   exact ⟨(C.backedAdvance e he).history_matches.symm,
     (C.project e).funding.advanceHistoryIsDecisionHistory⟩
 
-/-- The staged cohort lifecycle changes actual ActionFrame balances: issuance
-adds the note principal, the borrower receives each advance, and the matched
-repayment returns its contractual amount while releasing collateral. -/
+/-- Origination changes actual ActionFrame balances: issuance adds the note
+principal and the borrower receives the matched advance. This conclusion
+does not depend on a later repayment outcome. -/
 theorem credit_lifecycle_balance_changes {W : ActionFrame}
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
@@ -192,44 +190,56 @@ theorem credit_lifecycle_balance_changes {W : ActionFrame}
       W.omega (C.agent e) (C.project e).funding.advance.moment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.money +
-        (C.project e).funding.terms.principal ∧
-    W.omega (C.commonLender) (C.rateQuotes e).creditRepayment.nextMoment
+        (C.project e).funding.terms.principal := by
+  have hissue := C.commonIssuance.issuer_media_increases
+  have hadvance := (C.project e).funding.advance.physical_transfer
+  have hborrower : (C.project e).funding.terms.borrower = C.agent e :=
+    C.credit_borrower_matches_agent e he
+  refine ⟨?_, ?_⟩
+  · rw [← C.common_lender_is_issuer]
+    exact hissue
+  · simpa only [hborrower] using hadvance.1
+
+/-- A separately supplied matched repayment changes lender cash and returns
+pledged collateral to the borrower. -/
+theorem credit_lifecycle_repayment_balance_changes {W : ActionFrame}
+    {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
+    (C : CreditShockCohort W Context Entrepreneur)
+    {e : Entrepreneur} (he : e ∈ C.entrepreneurs)
+    (R : CreditRepayment (C.project e).funding.advance) :
+    W.omega C.commonLender R.nextMoment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.money =
-      W.omega C.commonLender (C.rateQuotes e).creditRepayment.moment
+      W.omega C.commonLender R.moment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.money +
         (C.project e).funding.terms.repayment ∧
-    W.omega (C.agent e) (C.rateQuotes e).creditRepayment.nextMoment
+    W.omega (C.agent e) R.nextMoment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.collateral =
-      W.omega (C.agent e) (C.rateQuotes e).creditRepayment.moment
+      W.omega (C.agent e) R.moment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.collateral +
         (C.project e).funding.terms.collateralQuantity := by
-  have hissue := C.commonIssuance.issuer_media_increases
-  have hadvance := (C.project e).funding.advance.physical_transfer
-  have hrepayment := (C.rateQuotes e).creditRepayment.physical_transfer
+  have hrepayment := R.physical_transfer
   have hborrower : (C.project e).funding.terms.borrower = C.agent e :=
     C.credit_borrower_matches_agent e he
   have hlender : (C.project e).funding.terms.lender = C.commonLender := by
     exact (C.backedAdvance e he).lender_is_issuer.trans C.common_lender_is_issuer
-  refine ⟨?_, ?_, ?_, ?_⟩
-  · rw [← C.common_lender_is_issuer]
-    exact hissue
-  · simpa only [hborrower] using hadvance.1
+  refine ⟨?_, ?_⟩
   · rw [← hlender]
     exact hrepayment.1
   · rw [← hborrower]
     exact hrepayment.2
 
-/-- Full account-level cash and collateral movements for a cohort member.
-This records both sides of each transfer, so issuing notes, advancing a loan,
-and redeeming it are visible as changes to the ActionFrame inventories. -/
+/-- Full account-level cash and collateral movements for a cohort member with
+separately supplied repayment evidence. This records both sides of the
+issuance, advance, and repayment transfers. -/
 theorem credit_lifecycle_full_transfer {W : ActionFrame}
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
-    {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
+    {e : Entrepreneur} (he : e ∈ C.entrepreneurs)
+    (R : CreditRepayment (C.project e).funding.advance) :
     W.omega C.commonLender C.commonIssuance.nextMoment
         C.commonIssuance.history C.commonIssuance.money =
       W.omega C.commonLender C.commonIssuance.moment
@@ -256,32 +266,32 @@ theorem credit_lifecycle_full_transfer {W : ActionFrame}
       W.omega (C.agent e) (C.project e).funding.advance.moment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.collateral ∧
-    W.omega C.commonLender (C.rateQuotes e).creditRepayment.nextMoment
+    W.omega C.commonLender R.nextMoment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.money =
-      W.omega C.commonLender (C.rateQuotes e).creditRepayment.moment
+      W.omega C.commonLender R.moment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.money +
         (C.project e).funding.terms.repayment ∧
-    W.omega (C.agent e) (C.rateQuotes e).creditRepayment.nextMoment
+    W.omega (C.agent e) R.nextMoment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.money +
         (C.project e).funding.terms.repayment =
-      W.omega (C.agent e) (C.rateQuotes e).creditRepayment.moment
+      W.omega (C.agent e) R.moment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.money ∧
-    W.omega (C.agent e) (C.rateQuotes e).creditRepayment.nextMoment
+    W.omega (C.agent e) R.nextMoment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.collateral =
-      W.omega (C.agent e) (C.rateQuotes e).creditRepayment.moment
+      W.omega (C.agent e) R.moment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.collateral +
         (C.project e).funding.terms.collateralQuantity ∧
-    W.omega C.commonLender (C.rateQuotes e).creditRepayment.nextMoment
+    W.omega C.commonLender R.nextMoment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.collateral +
         (C.project e).funding.terms.collateralQuantity =
-      W.omega C.commonLender (C.rateQuotes e).creditRepayment.moment
+      W.omega C.commonLender R.moment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.collateral := by
   have hbase := C.credit_lifecycle_balance_changes he
@@ -290,18 +300,17 @@ theorem credit_lifecycle_full_transfer {W : ActionFrame}
     (C.project e).funding.advance.lender_media_decreases
   have hadvanceCollateral :=
     (C.project e).funding.advance.borrower_collateral_decreases
-  have hrepaymentBorrower :=
-    (C.rateQuotes e).creditRepayment.borrower_money_decreases
-  have hrepaymentLenderCollateral :=
-    (C.rateQuotes e).creditRepayment.lender_collateral_decreases
+  have hrepaymentBorrower := R.borrower_money_decreases
+  have hrepaymentLenderCollateral := R.lender_collateral_decreases
   have hborrower : (C.project e).funding.terms.borrower = C.agent e :=
     C.credit_borrower_matches_agent e he
   have hlender : (C.project e).funding.terms.lender = C.commonLender := by
     exact (C.backedAdvance e he).lender_is_issuer.trans C.common_lender_is_issuer
   have hissuer : C.commonIssuance.issuer = C.commonLender :=
     C.common_lender_is_issuer
-  rcases hbase with ⟨hissueBalance, hadvanceBalance, hrepaymentBalance,
-    hcollateralReturned⟩
+  rcases hbase with ⟨hissueBalance, hadvanceBalance⟩
+  have hsettlement := C.credit_lifecycle_repayment_balance_changes he R
+  rcases hsettlement with ⟨hrepaymentBalance, hcollateralReturned⟩
   refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · simpa only [hissuer] using hissue
   · simpa only [hlender] using hadvanceLender
@@ -964,7 +973,11 @@ structure PriceSqueezeCohort {W : ActionFrame} {Context Entrepreneur : Type}
   pre_affordable : ∀ e ∈ affected,
     PrecautionaryCashDemand response.preBox (quantity e) ≤
       W.omega (C.agent e) next history money
-  cash_buffer_crossed : ∀ e ∈ affected,
+  /-- The project's unchanged cash balance lies below the cost threshold
+  obtained by adding the stated bottleneck-price increase to its pre-response
+  bill. This crossing is an explicit scenario condition; a price increase by
+  itself does not establish it. -/
+  cash_below_price_adjusted_threshold : ∀ e ∈ affected,
     W.omega (C.agent e) next history money <
       PrecautionaryCashDemand response.preBox (quantity e) +
         response.increase * quantity e response.bottleneck
@@ -998,7 +1011,7 @@ theorem post_cost_unaffordable {W : ActionFrame} {Context Entrepreneur : Type}
     W.omega (C.agent e) S.next S.history S.money <
       PrecautionaryCashDemand S.response.postBox (S.quantity e) := by
   rw [S.response.post_cost_eq_pre_cost_add]
-  exact S.cash_buffer_crossed e he
+  exact S.cash_below_price_adjusted_threshold e he
 
 /-- A shared price response makes every member of the specified affected set
 unable to cover its completion bill; hence at least `minimumFailures` are
@@ -1016,30 +1029,28 @@ theorem at_least_minimum_failures_unaffordable {W : ActionFrame}
   exact ⟨S.affected, S.cluster_size, fun _ he => he,
     fun e he => S.post_cost_unaffordable he⟩
 
-/-- If an affected project has enough cash for its post-response factor bill,
-and its other inputs and contemplation conditions hold, the completion remains
-feasible. This gives the ActionFrame boundary case to the squeeze result. -/
-theorem completion_feasible_with_sufficient_post_price_cash
-    {W : ActionFrame} {Context Entrepreneur : Type}
-    [DecidableEq Entrepreneur] {C : CreditShockCohort W Context Entrepreneur}
-    {d : ℕ} (S : PriceSqueezeCohort C d) {e : Entrepreneur}
-    (he : e ∈ S.affected)
-    (h_contemplated : (C.project e).cycle.investment.completion ∈
-      W.A_cont (C.agent e) S.next S.history)
-    (h_cash : PrecautionaryCashDemand S.response.postBox (S.quantity e) ≤
-      W.omega (C.agent e) S.next S.history S.money)
-    (h_other_inputs : ∀ m, m ≠ S.money →
-      W.use_means (C.project e).cycle.investment.completion m ≤
-        W.omega (C.agent e) S.next S.history m) :
-    (C.project e).cycle.investment.completion ∈
-      W.A_feas (C.agent e) S.next S.history := by
-  apply (W.A_feas_coupling (C.agent e) S.next S.history
-    (C.project e).cycle.investment.completion).2
+/-- A contemplated completion remains feasible when the current inventory
+covers its stated cash cost and every other required input. This boundary
+lemma is independent of the price-squeeze cohort, whose affected projects are
+defined by having insufficient cash. The concrete sufficient-real-input
+execution is recorded in `fiveProject_sufficient_real_inputs_output_sales_execute`.
+-/
+theorem completion_feasible_with_sufficient_current_cash
+    {W : ActionFrame} (agent : W.Agent) (moment : W.Moment)
+    (history : W.History) (money : W.Means) (completion : W.Action)
+    (cashCost : ℕ)
+    (h_contemplated : completion ∈ W.A_cont agent moment history)
+    (h_cost : W.use_means completion money = cashCost)
+    (h_cash : cashCost ≤ W.omega agent moment history money)
+    (h_other_inputs : ∀ m, m ≠ money →
+      W.use_means completion m ≤ W.omega agent moment history m) :
+    completion ∈ W.A_feas agent moment history := by
+  apply (W.A_feas_coupling agent moment history completion).2
   refine ⟨h_contemplated, ?_⟩
   intro m
-  by_cases hm : m = S.money
+  by_cases hm : m = money
   · subst m
-    rw [S.completion_cost e he]
+    rw [h_cost]
     exact h_cash
   · exact h_other_inputs m hm
 
@@ -1122,12 +1133,6 @@ theorem two_distinct_regretful_entrepreneurs {W : ActionFrame}
     hregret e₁ he₁, hregret e₂ he₂⟩
 
 end PriceSqueezeCohort
-
-/-- Sufficient cash after a price change avoids a cash-shortfall squeeze. -/
-theorem sufficient_cash_avoids_price_squeeze
-    {d : ℕ} (B : FactorPriceBox d) (q : Fin d → ℕ) (cash : ℕ)
-    (h : PrecautionaryCashDemand B q ≤ cash) :
-    ¬ cash < PrecautionaryCashDemand B q := by omega
 
 /-- A blocked project alone cannot imply contextual regret: a regret witness
 also requires a feasible safe alternative. -/

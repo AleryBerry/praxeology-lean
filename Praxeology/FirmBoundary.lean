@@ -1969,7 +1969,11 @@ theorem artificial_conglomeration_firm_boundary_distortion
     exact Nat.mul_lt_mul_of_pos_right h_internal_blindness h_pos_vol
 
 
-theorem purposeful_firm_coalescence_non_vacuous :
+/-- A finite ActionFrame witness for the stated purposefulness alternatives,
+paired with numeric coalescence-signal inequalities. The signal parameters
+and this branching choice frame are separate inputs; this witness does not
+derive the choice technology from the signal calculation. -/
+theorem purposeful_firm_coalescence_separate_choice_and_signal_witness :
     ∃ (i : FiniteBranchingModel.Agent)
       (t : FiniteBranchingModel.Moment)
       (h : FiniteBranchingModel.History) (L K _K_min grid_step : ℕ)
@@ -1984,6 +1988,7 @@ theorem purposeful_firm_coalescence_non_vacuous :
        CoalescedQuantizationNoise geom.external grid_step <
          TotalQuantizationNoise L grid_step ∧
        0 < geom.external.remaining) := by
+  let : ActionFrame := FiniteBranchingModel
   let geom : FirmCoalescenceGeometry 4 2 := {
     external := ⟨2, by decide⟩
     internalizedPositive := by decide

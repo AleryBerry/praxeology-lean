@@ -8,12 +8,17 @@ module
 public import Praxeology.Entrepreneurship
 
 /-!
-# A Grounded Two-Agent Entrepreneurial Cycle
+# A Two-Agent Complementary-Input Regret Witness
 
 This finite witness reuses the bilateral exchange ActionFrame. The first agent
-exchanges a current good for an intermediate good, which is recorded as an
-inventory transition. A second valued end makes the later liquidity comparison
-explicit without changing the entrepreneur's initial investment appraisal.
+chooses a matched exchange under a deliberately specified objective, receives
+an intermediate good, and later lacks a complementary input. A second valued
+end makes the conditional regret comparison explicit.
+
+This is an illustration of the conditional investment-regret theorem, not a
+causal ABCT model: it has no loan contract, monetary expansion, loan market,
+factor-price mechanism, or cohort of entrepreneurs. Its root and later
+valuations are explicit scenario assumptions.
 -/
 
 @[expose] public section
@@ -167,11 +172,12 @@ def abctGroundedCapitalFormation :
       abctGroundedInvestment (1 : Fin 3) :=
   ⟨abctGroundedInventoryStep, rfl, by decide, by decide, by decide⟩
 
-/-- Concrete two-agent instantiation of the general entrepreneur theorem.
-The boom action is a purposeful matched exchange, its receipt enters the
-entrepreneur's observed stock, the required complementary means remain absent,
-and a shared deterministic context derives bust regret from the physical
-bundles. -/
+/-- Concrete two-agent instantiation of the conditional entrepreneur theorem.
+The matched exchange is purposeful under the root valuation stipulated by
+this frame; its receipt enters inventory, the complementary means remain
+absent, and a deterministic context derives later regret from the specified
+terminal valuation. This is not evidence that a credit expansion endogenously
+causes a general business cycle. -/
 theorem abct_grounded_action_frame_master :
     ABCTGroundedActionFrame.omega (0 : Fin 2) .leaf3 (3 : Fin 4) (1 : Fin 3) = 1 ∧
     ABCTGroundedActionFrame.omega (0 : Fin 2) .leaf3 (3 : Fin 4) (2 : Fin 3) = 0 ∧

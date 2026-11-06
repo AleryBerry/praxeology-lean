@@ -36,13 +36,13 @@ $$
 This operator preserves existing acceptance and adds the agents satisfying the stated adoption rule. To ground adoption in purposeful human action, we evaluate candidate media through their downstream consumption bundles.
 
 ### Definition 9.2b (Mengerian Adoption Decision)
-In an Action Frame, let an agent $i$ at decision node $\langle t, h \rangle$ evaluate media of exchange under acceptance profile $\Gamma$. The adoption of a candidate medium $m \in \mathcal{M}$ through action $\alpha_{\text{adopt}}(m)$ yields a downstream commodity consumption bundle $\text{downstreamBundle}(m)$, while holding cash yields baseline bundle $\text{holdBundle}$:
+In an Action Frame, a **Mengerian adoption decision** at decision node $\langle t, h \rangle$ specifies an adoption action $\alpha_{\text{adopt}}(m)$ yielding downstream commodity consumption bundle $\text{downstreamBundle}(m)$ for each candidate medium $m \in \mathcal{M}$, with baseline bundle $\text{holdBundle}$ under inaction:
 
 $$
-\text{outcome}(i, \alpha_{\text{adopt}}(m), t, h) = \text{BundleEnd}(\text{downstreamBundle}(m))
+\text{outcome}(i, \alpha_{\text{adopt}}(m), t, h) = \text{BundleEnd}(\text{downstreamBundle}(m)), \quad \text{outcome}(i, \alpha_0, t, h) = \text{BundleEnd}(\text{holdBundle})
 $$
 
-Because a more widely marketable good $m^{\ast}$ ($|\Gamma(m)| < |\Gamma(m^{\ast})|$) unlocks strictly greater indirect exchange opportunities across the network, its downstream consumption bundle teleologically dominates that of a less marketable good:
+In this setting, a dominant medium $m^{\ast}$ possesses superior marketability over candidate $m$ ( $|\Gamma(m)| < |\Gamma(m^{\ast})|$ ) when the indirect exchange network it opens yields a downstream consumption bundle that teleologically dominates that of the less marketable good:
 
 $$
 |\Gamma(m)| < |\Gamma(m^{\ast})| \wedge \alpha_{\text{adopt}}(m) \in \mathcal{A}_{\text{feas}} \implies
@@ -56,7 +56,7 @@ $$
 |\Gamma(m)| < |\Gamma(m^{\ast})| \implies \neg \mathsf{P}(i, t, h, \alpha_{\text{adopt}}(m))
 $$
 
-**Proof.** Suppose by contradiction that adopting the less marketable good $m$ were purposeful ($\mathsf{P}(i, t, h, \alpha_{\text{adopt}}(m))$). Then $\alpha_{\text{adopt}}(m)$ is feasible. By Definition 9.2b, the downstream bundle of $m^{\ast}$ teleologically dominates that of $m$. By `teleological_bundle_dominance_induces_preference`, this teleological dominance natively induces strict preference:
+**Proof.** Suppose by contradiction that adopting the less marketable good $m$ were purposeful ( $\mathsf{P}(i, t, h, \alpha_{\text{adopt}}(m))$ ). Then $\alpha_{\text{adopt}}(m)$ is feasible. By Definition 9.2b, the downstream bundle of $m^{\ast}$ teleologically dominates that of $m$. By `teleological_bundle_dominance_induces_preference`, this teleological dominance natively induces strict preference:
 
 $$
 \text{outcome}(i, \alpha_{\text{adopt}}(m^{\ast}), t, h) \succ_{i,t,h} \text{outcome}(i, \alpha_{\text{adopt}}(m), t, h)

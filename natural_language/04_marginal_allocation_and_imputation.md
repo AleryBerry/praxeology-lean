@@ -171,7 +171,7 @@ $$
 Under this teleological grounding, purposeful action mathematically mandates the realization of the optimal bundle.
 
 ### Theorem 4.14 (Purposeful Allocation Recovers the Ranked Sets)
-At a fixed decision situation, let $1\le k_1 < k_2\le N$. For each $k\in\{k_1,k_2\}$, let $\mathcal{M}_{\text{bundle}}(k)$ be a bundle allocation menu in which feasible nonpassive actions are assigned finite bundles from $E_1(m)$ requiring at most $k$ units, with action $\alpha_{\text{opt}}(k)$ attaining $S^{\ast}(k)$. Let action ends be grounded in commodity bundles whose optimal allocation teleologically dominates suboptimal alternatives. If $\alpha_1$ and $\alpha_2$ are purposeful nonpassive actions in the respective allocation systems, then:
+At a fixed decision situation, let $1\le k_1 < k_2\le N$. For each $`k\in\{k_1,k_2\}`$, let $`\mathcal{M}_{\text{bundle}}(k)`$ be a bundle allocation menu in which feasible nonpassive actions are assigned finite bundles from $E_1(m)$ requiring at most $k$ units, with action $\alpha_{\text{opt}}(k)$ attaining $S^{\ast}(k)$. Let action ends be grounded in commodity bundles whose optimal allocation teleologically dominates suboptimal alternatives. If $\alpha_1$ and $\alpha_2$ are purposeful nonpassive actions in the respective allocation systems, then:
 1. *Purposeful action uniquely forces the realization of the respective optimal bundles:*
 
 $$
@@ -190,7 +190,7 @@ $$
 \text{outcome}(i, \alpha_{\text{opt}}, t, h) \succ_{i,t,h} \text{outcome}(i, \alpha, t, h)
 $$
 
-Because $\alpha_{\text{opt}}$ is feasible, this strict preference contradicts the undominatedness clause of purposeful human action ($\mathsf{P}(i, t, h, \alpha)$). Therefore, $\text{bundleOf}(\alpha) = S^{\ast}(k)$. Applying this to $k_1$ and $k_2$, the marginal-end comparison now follows directly from Theorem 4.13. $\blacksquare$
+Because $\alpha_{\text{opt}}$ is feasible, this strict preference contradicts the undominatedness clause of purposeful human action ( $\mathsf{P}(i, t, h, \alpha)$ ). Therefore, $\text{bundleOf}(\alpha) = S^{\ast}(k)$. Applying this to $k_1$ and $k_2$, the marginal-end comparison now follows directly from Theorem 4.13. $\blacksquare$
 
 ---
 
@@ -402,7 +402,7 @@ $$
 $$
 
 **Proof.**
-1. By Definition 4.12, $S^{\ast}(k) \setminus S^{\ast}(k-1) = \{ e_{\text{seq}}(k-1) \} = \{ \text{MU}_{i,t,h}(m, k) \}$.
+1. By Definition 4.12, $`S^{\ast}(k) \setminus S^{\ast}(k-1) = \{ e_{\text{seq}}(k-1) \} = \{ \text{MU}_{i,t,h}(m, k) \}`$.
 2. The optimal bundle $S^{\ast}(k)$ strictly Mengerian-dominates $S^{\ast}(k-1)$: the set difference is the singleton marginal end by part 1, and the reverse difference is empty. The commodity bundle of $\alpha_{\text{opt}}$ therefore teleologically dominates that of $\alpha_{\text{loseFactor}}$. By `teleological_bundle_dominance_induces_preference`, this teleological dominance natively induces strict preference between the action outcomes. $\blacksquare$
 
 ### Theorem 4.29 (An Earlier Production Step Changes a Later Menu)

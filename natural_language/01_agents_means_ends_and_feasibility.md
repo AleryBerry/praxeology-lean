@@ -147,19 +147,21 @@ $$
 \triangleright_{\mathrm{P}}(b_1, b_2) \iff (\forall m \in \mathcal{M}, b_2(m) \le b_1(m)) \wedge (\exists m \in \mathcal{M}, b_2(m) < b_1(m))
 $$
 
-**Teleological Bundle Dominance.** We say that $b_1$ dominates $b_2$ with respect to requirement schedule $\rho$, written $\triangleright_{\mathrm{T}}(\rho, b_1, b_2)$, when every finite set of ends attainable under $b_2$ is also attainable under $b_1$, and at least one finite set attainable under $b_1$ is not attainable under $b_2$:
+**Teleological Bundle Dominance.** We say that $b_1$ dominates $b_2$ with respect to requirement schedule $\rho$ and a domain of valued ends $`\mathcal{E}_{\mathrm{val}} \subseteq \mathcal{E}`$, written $`\triangleright_{\mathrm{T}}(\rho, \mathcal{E}_{\mathrm{val}}, b_1, b_2)`$, when every finite set of valued ends $`S \subseteq_{\text{fin}} \mathcal{E}_{\mathrm{val}}`$ attainable under $b_2$ is also attainable under $b_1$, and at least one finite set of valued ends attainable under $b_1$ is not attainable under $b_2$:
 
 $$
 \begin{aligned}
-\triangleright_{\mathrm{T}}(\rho, b_1, b_2) \iff & \left( \forall S \subseteq_{\text{fin}} \mathcal{E}, \text{attains}(\rho, b_2, S) \implies \text{attains}(\rho, b_1, S) \right) \\
-& \wedge \; \left( \exists S \subseteq_{\text{fin}} \mathcal{E}, \text{attains}(\rho, b_1, S) \wedge \neg \text{attains}(\rho, b_2, S) \right)
+\triangleright_{\mathrm{T}}(\rho, \mathcal{E}_{\mathrm{val}}, b_1, b_2) \iff & \left( \forall S \subseteq_{\text{fin}} \mathcal{E}_{\mathrm{val}}, \text{attains}(\rho, b_2, S) \implies \text{attains}(\rho, b_1, S) \right) \\
+& \wedge \; \left( \exists S \subseteq_{\text{fin}} \mathcal{E}_{\mathrm{val}}, \text{attains}(\rho, b_1, S) \wedge \neg \text{attains}(\rho, b_2, S) \right)
 \end{aligned}
 $$
 
-The two relations answer different questions. Physical dominance compares quantities coordinate by coordinate. Attainability-based dominance asks whether the first bundle supports every finite set of ends supported by the second, and at least one additional set. We need the latter distinction because extra stock can be unusable when a required complement is missing; quantity alone does not tell us which ends become possible.
+When $`\mathcal{E}_{\mathrm{val}} = \mathcal{E}`$, this coincides with global bundle dominance $\triangleright_{\mathrm{T}}(\rho, b_1, b_2)$. Restricting to valued ends ensures that attainability comparisons reflect the teleological significance of means to an evaluating agent rather than ends irrelevant to that agent's purposes.
+
+The two relations answer different questions. Physical dominance compares quantities coordinate by coordinate. Attainability-based dominance asks whether the first bundle supports every finite set of valued ends supported by the second, and at least one additional set. We need the latter distinction because extra stock can be unusable when a required complement is missing; quantity alone does not tell us which ends become possible.
 
 ### Theorem 1.9 (Attainability-Based Dominance Is a Strict Partial Order)
-Let $\rho : \mathcal{E} \times \mathcal{M} \to \mathbb{N}$ be a technological requirement schedule. The relation $\triangleright_{\mathrm{T}}(\rho, \cdot, \cdot)$ on physical bundles $\mathcal{M} \to \mathbb{N}$ is a strict partial order: it is irreflexive, strictly asymmetric, and transitive.
+Let $\rho : \mathcal{E} \times \mathcal{M} \to \mathbb{N}$ be a technological requirement schedule and $`\mathcal{E}_{\mathrm{val}} \subseteq \mathcal{E}`$ any set of ends. The relation $`\triangleright_{\mathrm{T}}(\rho, \mathcal{E}_{\mathrm{val}}, \cdot, \cdot)`$ on physical bundles $\mathcal{M} \to \mathbb{N}$ is a strict partial order: it is irreflexive, strictly asymmetric, and transitive.
 
 **Proof.**
 1. **Irreflexivity**: Suppose $\triangleright_{\mathrm{T}}(\rho, b, b)$. Then there exists $S$ such that $\text{attains}(\rho, b, S) \wedge \neg \text{attains}(\rho, b, S)$, a direct contradiction.

@@ -165,7 +165,7 @@ Whenever foreign demand satisfies $P_R \Delta K_R^{\text{foreign}} \ge S \cdot P
 ### Proposition 4 (Universal Yield Compression and Conservation of Secondary Exchange)
 In an unhampered market with 100% reserve money (the absence of fiduciary credit creation) and unconstrained private property rights:
 1. Secondary market transactions in existing land strictly conserve money tokens across the community, refuting the claim that secondary trading "absorbs" or "destroys" liquid capital.
-2. Under universal positive originary interest ($\iota > 0$), bidding up fixed land prices strictly compresses prospective yields. An upward-sloping return schedule ($\partial r_R / \partial K_R > 0$) is mathematically impossible without ongoing fiduciary credit expansion.
+2. For fixed positive rental receipts $\rho$, a higher purchase price $P_R$ lowers the ratio $\rho/P_R$. This arithmetic does not establish a universal interest floor, an equilibrium bidding limit, or that an upward-sloping return schedule is impossible without fiduciary credit expansion; those require additional premises not supplied by the Lean results.
 
 **Proof.**
 1. **Conservation of Money Tokens:**
@@ -193,9 +193,9 @@ P_R' > P_R \implies r_R(P_R') = \frac{\rho}{P_R'} < \frac{\rho}{P_R} = r_R(P_R)
 $$
 
    (in target notation: $\partial r_R / \partial P_R = -\rho / P_R^2 < 0$ ).
-   - By Theorems 7.4, 7.5, and 7.8 (Chapter 7), acting agents exhibit universal positive originary time preference ($\iota > 0$).
-   - As $P_R$ rises, prospective yield $r_R$ compresses monotonically toward the time-preference floor $1 + \iota$. When $r_R$ approaches this floor, purposeful actors refuse to pay higher prices for land, redirecting savings toward higher-yielding productive capital ($r_P > r_R$).
-   - The return sign reversal ($\partial r_R / \partial K_R > 0$) is therefore impossible in an unhampered market. $\blacksquare$
+   - The Lean time-preference results do not show that acting agents universally have positive originary time preference. A strict earlier-over-later comparison is conditional on the open-horizon condition, a feasible later alternative, a purposeful act that dominates feasible distinct-end alternatives, and injective timing.
+   - Given fixed $\rho > 0$, the ratio $r_R=\rho/P_R$ decreases as $P_R$ increases. The project does not derive a time-preference floor, agents' refusal prices, portfolio redirection, or the impossibility of a return sign reversal in an unhampered market from that ratio alone.
+   - The market-equilibrium claims in this proposition remain additional economic claims, not conclusions established by the Lean theorem. $\blacksquare$
 
 ### Proposition 5 (Assessor Incommensurability and Improvement Decay under Land Value Taxation)
 Under statutory planning monopolies, Georgist Land Value Taxation fails the requirement of rational economic calculation, cannibalizes the return on physical capital improvements, and induces the physical decay of the housing stock.

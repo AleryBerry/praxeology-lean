@@ -129,13 +129,13 @@ theorem workshop_credit_advance_next_at_transfer
       all_goals simp [w_enacted, hl, hb] at h_offer'
     exact this.elim
 
-/-- The existing workshop ActionFrame has no completed matched loan lifecycle:
-every purposeful exchange is at transfer or sale, and either event leaves no
-later purposeful exchange between the same parties on that history. -/
-theorem workshop_no_credit_repayment
-    (T : PawnLoanTerms WorkshopActionFrame) (A : CreditAdvance T) :
-    ¬ Nonempty (CreditRepayment A) := by
-  rintro ⟨R⟩
+/-- If repayment evidence is supplied in the workshop frame, its required
+post-advance order conflicts with the workshop's two available exchange
+moments. This result is conditional on a repayment certificate; origination
+and the independent multiple-borrower restriction do not use it. -/
+theorem workshop_repayment_evidence_incompatible
+    (T : PawnLoanTerms WorkshopActionFrame) (A : CreditAdvance T)
+    (R : CreditRepayment A) : False := by
   have h_advance_moment := workshop_bilateral_exchange_moment
     T.lender T.borrower A.moment A.history T.principal T.money
     T.collateralQuantity T.collateral A.purposefulExchange

@@ -32,7 +32,7 @@ structure PawnLoanTerms (W : ActionFrame) where
   money : W.Means
   collateral : W.Means
   principal : ℕ
-  netRepaymentFactor : ℕ
+  promisedRepayment : ℕ
   collateralQuantity : ℕ
   maturity : W.Moment
   distinctAgents : lender ≠ borrower
@@ -40,36 +40,32 @@ structure PawnLoanTerms (W : ActionFrame) where
   principalPositive : 0 < principal
   collateralPositive : 0 < collateralQuantity
 
-/-- The contractual gross repayment factor. -/
-def PawnLoanTerms.grossRepaymentFactor {W : ActionFrame} (T : PawnLoanTerms W) : ℕ :=
-  T.netRepaymentFactor + 1
-
-/-- Contractual repayment derived from principal and the net factor. -/
+/-- Contractual repayment is stored directly in the loan terms. -/
 def PawnLoanTerms.repayment {W : ActionFrame} (T : PawnLoanTerms W) : ℕ :=
-  T.principal * T.grossRepaymentFactor
+  T.promisedRepayment
 
-/-- The nominal premium promised above principal, without assuming a valuation
-or price index. -/
-def PawnLoanTerms.nominalPremium {W : ActionFrame} (T : PawnLoanTerms W) : ℕ :=
-  T.principal * T.netRepaymentFactor
+/-- Contractual gross repayment factor from directly contracted principal and
+promised repayment. The contract currently records no duration in a common
+time unit, so this is not an annualized yield. -/
+def PawnLoanTerms.grossRepaymentFactor {W : ActionFrame} (T : PawnLoanTerms W) : ℚ :=
+  (T.repayment : ℚ) / (T.principal : ℚ)
 
-/-- The loan identity determines the same gross repayment factor whenever
-principal and repayment are fixed. Thus an equal rate is derived from the
-contract's two cash quantities, not supplied as a separate rate assumption. -/
+/-- Simple nominal rate for the contract period, derived from the gross factor.
+It may be positive, zero, or negative. -/
+def PawnLoanTerms.netRate {W : ActionFrame} (T : PawnLoanTerms W) : ℚ :=
+  T.grossRepaymentFactor - 1
+
+/-- Signed nominal premium in the same discrete money unit as principal. -/
+def PawnLoanTerms.nominalPremium {W : ActionFrame} (T : PawnLoanTerms W) : ℤ :=
+  (T.repayment : ℤ) - (T.principal : ℤ)
+
+/-- Equal principal and equal promised repayment imply equal derived gross factors. -/
 theorem PawnLoanTerms.same_grossRepaymentFactor_of_same_principal_and_repayment
     {W : ActionFrame} (T₁ T₂ : PawnLoanTerms W)
     (h_principal : T₁.principal = T₂.principal)
     (h_repayment : T₁.repayment = T₂.repayment) :
     T₁.grossRepaymentFactor = T₂.grossRepaymentFactor := by
-  have h_products :
-      T₁.principal * T₁.grossRepaymentFactor =
-        T₁.principal * T₂.grossRepaymentFactor := by
-    calc
-      T₁.principal * T₁.grossRepaymentFactor = T₁.repayment := rfl
-      _ = T₂.repayment := h_repayment
-      _ = T₂.principal * T₂.grossRepaymentFactor := rfl
-      _ = T₁.principal * T₂.grossRepaymentFactor := by rw [h_principal]
-  exact (mul_left_cancel_iff_of_pos T₁.principalPositive).mp h_products
+  simp [grossRepaymentFactor, h_principal, h_repayment]
 
 /-- Evidence that two loan rates are quotations from the same Catallactic
 market. Here its good is a standardized one-period loan service, so the
@@ -98,9 +94,9 @@ structure CatallacticCreditRateComparison {W : ActionFrame}
     savingRound.reservation.sellerFloor =
       savingRound.reservation.buyerCeiling
   savingRate_is_clearing_price :
-    T_saving.grossRepaymentFactor = savingRound.base.clearing.price
+    T_saving.grossRepaymentFactor = (savingRound.base.clearing.price : ℚ)
   creditRate_is_clearing_price :
-    T_credit.grossRepaymentFactor = creditRound.base.clearing.price
+    T_credit.grossRepaymentFactor = (creditRound.base.clearing.price : ℚ)
 
 namespace CatallacticCreditRateComparison
 
@@ -135,47 +131,191 @@ theorem same_gross_repayment_factor {W : ActionFrame}
   calc
     T_saving.grossRepaymentFactor = Q.savingRound.base.clearing.price :=
       Q.savingRate_is_clearing_price
-    _ = Q.creditRound.base.clearing.price := Q.same_clearing_price
+    _ = Q.creditRound.base.clearing.price :=
+      congrArg (fun price : ℕ => (price : ℚ)) Q.same_clearing_price
     _ = T_credit.grossRepaymentFactor := Q.creditRate_is_clearing_price.symm
 
 end CatallacticCreditRateComparison
 
-theorem PawnLoanTerms.repayment_covers_principal {W : ActionFrame}
-    (T : PawnLoanTerms W) : T.principal ≤ T.repayment := by
-  dsimp [PawnLoanTerms.repayment, PawnLoanTerms.grossRepaymentFactor]
-  nlinarith
-
-theorem PawnLoanTerms.nominalPremium_nonnegative {W : ActionFrame}
-    (T : PawnLoanTerms W) : 0 ≤ T.nominalPremium := Nat.zero_le _
-
 theorem PawnLoanTerms.nominalPremium_eq_zero_iff {W : ActionFrame}
     (T : PawnLoanTerms W) : T.nominalPremium = 0 ↔ T.repayment = T.principal := by
-  constructor
-  · intro h
-    dsimp [PawnLoanTerms.nominalPremium, PawnLoanTerms.repayment,
-      PawnLoanTerms.grossRepaymentFactor] at *
-    nlinarith [T.principalPositive]
-  · intro h
-    dsimp [PawnLoanTerms.nominalPremium, PawnLoanTerms.repayment,
-      PawnLoanTerms.grossRepaymentFactor] at *
-    nlinarith [T.principalPositive]
+  constructor <;> intro h <;> dsimp [nominalPremium] at h ⊢ <;> omega
 
 theorem PawnLoanTerms.principal_add_nominalPremium {W : ActionFrame}
     (T : PawnLoanTerms W) :
-    T.principal + T.nominalPremium = T.repayment := by
-  dsimp [PawnLoanTerms.nominalPremium, PawnLoanTerms.repayment,
-    PawnLoanTerms.grossRepaymentFactor]
+    (T.principal : ℤ) + T.nominalPremium = T.repayment := by
+  dsimp [nominalPremium]
   ring
+
+theorem PawnLoanTerms.nominalPremium_nonnegative_iff {W : ActionFrame}
+    (T : PawnLoanTerms W) :
+    0 ≤ T.nominalPremium ↔ T.principal ≤ T.repayment := by
+  dsimp [nominalPremium]
+  omega
 
 theorem PawnLoanTerms.nominalPremium_mono
     {W : ActionFrame} (T₁ T₂ : PawnLoanTerms W)
     (hprincipal : T₁.principal = T₂.principal)
     (hrepayment : T₁.repayment ≤ T₂.repayment) :
     T₁.nominalPremium ≤ T₂.nominalPremium := by
-  have h₁ := T₁.principal_add_nominalPremium
-  have h₂ := T₂.principal_add_nominalPremium
-  rw [hprincipal] at h₁
+  dsimp [nominalPremium]
   omega
+
+/-- A fixed ActionFrame contract record used to exhibit the rate range. Each
+example has positive principal and distinct lender/borrower and money/collateral.
+Only the promised repayment changes. -/
+def nominalRateWitnessLoan (promisedRepayment : ℕ) :
+    PawnLoanTerms FiniteBranchingModel where
+  lender := (0 : Fin 2)
+  borrower := (1 : Fin 2)
+  money := (0 : Fin 3)
+  collateral := (1 : Fin 3)
+  principal := 2
+  promisedRepayment := promisedRepayment
+  collateralQuantity := 1
+  maturity := (1 : Fin 4)
+  distinctAgents := by
+    change (0 : Fin 2) ≠ (1 : Fin 2)
+    decide
+  distinctGoods := by
+    change (0 : Fin 3) ≠ (1 : Fin 3)
+    decide
+  principalPositive := by decide
+  collateralPositive := by decide
+
+/-- Valid loan-term records, not just rational arithmetic, witness positive,
+zero, and negative nominal rates and corresponding signed premiums. -/
+theorem nominal_loan_rate_contract_examples :
+    0 < (nominalRateWitnessLoan 3).netRate ∧
+    (nominalRateWitnessLoan 2).netRate = 0 ∧
+    (nominalRateWitnessLoan 1).netRate < 0 ∧
+    0 < (nominalRateWitnessLoan 3).nominalPremium ∧
+    (nominalRateWitnessLoan 2).nominalPremium = 0 ∧
+    (nominalRateWitnessLoan 1).nominalPremium < 0 := by
+  let Tpos := nominalRateWitnessLoan 3
+  let Tzero := nominalRateWitnessLoan 2
+  let Tneg := nominalRateWitnessLoan 1
+  have hp_pos : Tpos.principal = 2 := rfl
+  have hp_zero : Tzero.principal = 2 := rfl
+  have hp_neg : Tneg.principal = 2 := rfl
+  have hr_pos : Tpos.repayment = 3 := rfl
+  have hr_zero : Tzero.repayment = 2 := rfl
+  have hr_neg : Tneg.repayment = 1 := rfl
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
+  · change 0 < (Tpos.repayment : ℚ) / (Tpos.principal : ℚ) - 1
+    rw [hr_pos, hp_pos]
+    norm_num
+  · change (Tzero.repayment : ℚ) / (Tzero.principal : ℚ) - 1 = 0
+    rw [hr_zero, hp_zero]
+    norm_num
+  · change (Tneg.repayment : ℚ) / (Tneg.principal : ℚ) - 1 < 0
+    rw [hr_neg, hp_neg]
+    norm_num
+  · change 0 < (Tpos.repayment : ℤ) - (Tpos.principal : ℤ)
+    rw [hr_pos, hp_pos]
+    norm_num
+  · change (Tzero.repayment : ℤ) - (Tzero.principal : ℤ) = 0
+    rw [hr_zero, hp_zero]
+    norm_num
+  · change (Tneg.repayment : ℤ) - (Tneg.principal : ℤ) < 0
+    rw [hr_neg, hp_neg]
+    norm_num
+
+/-- With a nonnegative contractual repayment and positive principal, the
+simple nominal rate is at least negative one. -/
+theorem PawnLoanTerms.netRate_ge_neg_one {W : ActionFrame} (T : PawnLoanTerms W) :
+    -1 ≤ T.netRate := by
+  dsimp [netRate, grossRepaymentFactor]
+  have hp : (0 : ℚ) < (T.principal : ℚ) := by
+    exact_mod_cast T.principalPositive
+  have hr : (0 : ℚ) ≤ (T.repayment : ℚ) := by positivity
+  have hratio : (0 : ℚ) ≤ (T.repayment : ℚ) / (T.principal : ℚ) :=
+    div_nonneg hr hp.le
+  linarith
+
+/-- A strictly positive repayment gives a rate strictly above negative one. -/
+theorem PawnLoanTerms.netRate_gt_neg_one_of_positive_repayment
+    {W : ActionFrame} (T : PawnLoanTerms W) (hrep : 0 < T.repayment) :
+    -1 < T.netRate := by
+  dsimp [netRate, grossRepaymentFactor]
+  have hp : (0 : ℚ) < (T.principal : ℚ) := by
+    exact_mod_cast T.principalPositive
+  have hr : (0 : ℚ) < (T.repayment : ℚ) := by
+    exact_mod_cast hrep
+  have hratio : (0 : ℚ) < (T.repayment : ℚ) / (T.principal : ℚ) :=
+    div_pos hr hp
+  linarith
+
+/-- The nominal rate is positive exactly when promised repayment exceeds
+principal. -/
+theorem PawnLoanTerms.netRate_positive_iff_repayment_exceeds_principal
+    {W : ActionFrame} (T : PawnLoanTerms W) :
+    0 < T.netRate ↔ T.principal < T.repayment := by
+  have hp : (0 : ℚ) < (T.principal : ℚ) := by
+    exact_mod_cast T.principalPositive
+  constructor
+  · intro hrate
+    have hratio : (1 : ℚ) <
+        (T.repayment : ℚ) / (T.principal : ℚ) := by
+      dsimp [netRate, grossRepaymentFactor] at hrate
+      linarith
+    have hquantity := (lt_div_iff₀ hp).1 hratio
+    norm_num at hquantity
+    exact_mod_cast hquantity
+  · intro hquantity
+    have hquantity' : (T.principal : ℚ) < (T.repayment : ℚ) := by
+      exact_mod_cast hquantity
+    have hratio : (1 : ℚ) <
+        (T.repayment : ℚ) / (T.principal : ℚ) :=
+      (lt_div_iff₀ hp).2 (by simpa using hquantity')
+    dsimp [netRate, grossRepaymentFactor]
+    linarith
+
+/-- The nominal rate is zero exactly when promised repayment equals
+principal. -/
+theorem PawnLoanTerms.netRate_eq_zero_iff_repayment_eq_principal
+    {W : ActionFrame} (T : PawnLoanTerms W) :
+    T.netRate = 0 ↔ T.repayment = T.principal := by
+  have hp : (0 : ℚ) < (T.principal : ℚ) := by
+    exact_mod_cast T.principalPositive
+  have hpn : (T.principal : ℚ) ≠ 0 := ne_of_gt hp
+  constructor
+  · intro hrate
+    have hratio : (T.repayment : ℚ) / (T.principal : ℚ) = 1 := by
+      dsimp [netRate, grossRepaymentFactor] at hrate
+      linarith
+    have hquantity := (div_eq_iff hpn).1 hratio
+    norm_num at hquantity
+    exact_mod_cast hquantity
+  · intro hquantity
+    have hquantity' : (T.repayment : ℚ) = (T.principal : ℚ) := by
+      exact_mod_cast hquantity
+    dsimp [netRate, grossRepaymentFactor]
+    rw [hquantity', div_self hpn]
+    norm_num
+
+/-- The nominal rate is negative exactly when promised repayment is below
+principal. -/
+theorem PawnLoanTerms.netRate_negative_iff_repayment_below_principal
+    {W : ActionFrame} (T : PawnLoanTerms W) :
+    T.netRate < 0 ↔ T.repayment < T.principal := by
+  have hp : (0 : ℚ) < (T.principal : ℚ) := by
+    exact_mod_cast T.principalPositive
+  constructor
+  · intro hrate
+    have hratio : (T.repayment : ℚ) / (T.principal : ℚ) < 1 := by
+      dsimp [netRate, grossRepaymentFactor] at hrate
+      linarith
+    have hquantity := (div_lt_iff₀ hp).1 hratio
+    norm_num at hquantity
+    exact_mod_cast hquantity
+  · intro hquantity
+    have hquantity' : (T.repayment : ℚ) < (T.principal : ℚ) := by
+      exact_mod_cast hquantity
+    have hratio : (T.repayment : ℚ) / (T.principal : ℚ) < 1 :=
+      (div_lt_iff₀ hp).2 (by simpa using hquantity')
+    dsimp [netRate, grossRepaymentFactor]
+    linarith
 
 /-- Event labels for the finite lifecycle of a credit contract. -/
 inductive CreditEvent where
@@ -218,6 +358,8 @@ structure CreditAdvance {W : ActionFrame} (T : PawnLoanTerms W) where
   moment : W.Moment
   nextMoment : W.Moment
   successor : IsNextMoment W.Precedence W.mem_hist moment nextMoment history
+  /-- Contractual maturity is strictly later than settlement of the advance. -/
+  advanceBeforeMaturity : W.Precedence nextMoment T.maturity
   purposefulExchange : @BilateralExchange W T.lender T.borrower moment history
     T.principal T.money T.collateralQuantity T.collateral
 
@@ -667,6 +809,43 @@ structure CreditRepayment {W : ActionFrame} {T : PawnLoanTerms W}
   purposefulExchange : @BilateralExchange W T.borrower T.lender moment A.history
     T.repayment T.money T.collateralQuantity T.collateral
 
+namespace CreditRepayment
+
+/-- The borrower's matched repayment inventory step, derived from the
+purposeful redemption and its ActionFrame enactment. -/
+def borrowerInventoryStep {W : ActionFrame} {T : PawnLoanTerms W}
+    {A : CreditAdvance T} (R : CreditRepayment A) :
+    InventoryStep W T.borrower A.history R.moment R.nextMoment := by
+  have hactions := bilateral_exchange_enacted_actions T.borrower T.lender
+    R.moment A.history T.repayment T.money T.collateralQuantity T.collateral
+    R.purposefulExchange
+  exact .matchedOffer T.lender T.repayment T.money T.collateralQuantity
+    T.collateral T.distinctAgents.symm hactions.1 hactions.2 R.successor
+
+/-- The lender's matched acceptance inventory step for the same repayment. -/
+def lenderInventoryStep {W : ActionFrame} {T : PawnLoanTerms W}
+    {A : CreditAdvance T} (R : CreditRepayment A) :
+    InventoryStep W T.lender A.history R.moment R.nextMoment := by
+  have hactions := bilateral_exchange_enacted_actions T.borrower T.lender
+    R.moment A.history T.repayment T.money T.collateralQuantity T.collateral
+    R.purposefulExchange
+  exact .matchedAccept T.borrower T.repayment T.money T.collateralQuantity
+    T.collateral T.distinctAgents.symm hactions.2 hactions.1 R.successor
+
+/-- The matched repayment is a one-edge borrower inventory run. -/
+def borrowerInventoryRun {W : ActionFrame} {T : PawnLoanTerms W}
+    {A : CreditAdvance T} (R : CreditRepayment A) :
+    InventoryRun W T.borrower A.history R.moment R.nextMoment :=
+  .step R.borrowerInventoryStep (.done R.nextMoment)
+
+/-- The matched repayment is a one-edge lender inventory run. -/
+def lenderInventoryRun {W : ActionFrame} {T : PawnLoanTerms W}
+    {A : CreditAdvance T} (R : CreditRepayment A) :
+    InventoryRun W T.lender A.history R.moment R.nextMoment :=
+  .step R.lenderInventoryStep (.done R.nextMoment)
+
+end CreditRepayment
+
 /-- Repayment returns collateral to the borrower and transfers the repayment
 amount of cash to the lender. -/
 theorem CreditRepayment.physical_transfer {W : ActionFrame}
@@ -712,25 +891,68 @@ theorem CreditRepayment.lender_collateral_decreases {W : ActionFrame}
     h_offer h_accept
   exact hflow.2.2.2
 
-/-- A trace of lender custody from the completed advance to maturity. The
-zero-flow conditions mean the collateral remains in custody throughout this
-trace. -/
+/-- A trace of lender inventory from the completed advance to maturity. It
+records intervening matched transfers and production; the zero-use condition
+rules out the lender spending this collateral good. -/
 structure CollateralCustodyTrace {W : ActionFrame} {T : PawnLoanTerms W}
     (A : CreditAdvance T) where
   run : InventoryRun W T.lender A.history A.nextMoment T.maturity
   noCollateralUse : run.totalUse T.collateral = 0
-  noCollateralYield : run.totalYield T.collateral = 0
 
-/-- The lender still holds the collateral at maturity when no intervening
-action consumes or transfers it. -/
+/-- Contractual maturity follows the completed advance, so a custody trace
+from settlement to maturity cannot be the zero-length run. -/
+private theorem inventoryRun_length_pos_of_precedence {W : ActionFrame}
+    {i : W.Agent} {h : W.History} {t u : W.Moment}
+    (run : InventoryRun W i h t u) (htu : W.Precedence t u) :
+    0 < run.length := by
+  cases run with
+  | done t =>
+      exact False.elim (W.moment_lt_irrefl t htu)
+  | step _ _ =>
+      simp [InventoryRun.length]
+
+theorem CollateralCustodyTrace.run_length_pos {W : ActionFrame}
+    {T : PawnLoanTerms W} {A : CreditAdvance T}
+    (C : CollateralCustodyTrace A) : 0 < C.run.length :=
+  inventoryRun_length_pos_of_precedence C.run A.advanceBeforeMaturity
+
+private theorem inventoryRun_endpoint_mem_history {W : ActionFrame}
+    {i : W.Agent} {h : W.History} {t u : W.Moment}
+    (run : InventoryRun W i h t u) (hpos : 0 < run.length) :
+    W.mem_hist u h := by
+  induction run with
+  | done t =>
+      simp [InventoryRun.length] at hpos
+  | @step t mid u head tail ih =>
+      cases tail with
+      | done v =>
+          cases head with
+          | production _ _ _ hnext => exact hnext.2.1
+          | matchedOffer _ _ _ _ _ _ _ _ hnext => exact hnext.2.1
+          | matchedAccept _ _ _ _ _ _ _ _ hnext => exact hnext.2.1
+          | unmatchedOffer _ _ _ _ _ _ _ hnext => exact hnext.2.1
+          | unmatchedAccept _ _ _ _ _ _ _ hnext => exact hnext.2.1
+      | step _ _ =>
+          exact ih (by simp [InventoryRun.length])
+
+/-- A nonempty custody trace places its maturity endpoint on the loan's
+history, so the unpaid-maturity case refers to an actual history node. -/
+theorem CollateralCustodyTrace.maturity_mem_history {W : ActionFrame}
+    {T : PawnLoanTerms W} {A : CreditAdvance T}
+    (C : CollateralCustodyTrace A) : W.mem_hist T.maturity A.history :=
+  inventoryRun_endpoint_mem_history C.run C.run_length_pos
+
+/-- With no collateral use during the trace, the lender's maturity stock is
+its settlement stock plus any collateral received along the way. -/
 theorem CollateralCustodyTrace.collateral_retained {W : ActionFrame}
     {T : PawnLoanTerms W} {A : CreditAdvance T}
     (C : CollateralCustodyTrace A) :
     W.omega T.lender T.maturity A.history T.collateral =
-      W.omega T.lender A.nextMoment A.history T.collateral := by
+      W.omega T.lender A.nextMoment A.history T.collateral +
+        C.run.totalYield T.collateral := by
   have hbalance := C.run.inventory_balance T.collateral
-  rw [C.noCollateralUse, C.noCollateralYield, Nat.add_zero, Nat.add_zero] at hbalance
-  exact hbalance
+  rw [C.noCollateralUse] at hbalance
+  simpa using hbalance
 
 /-- A contract that reaches maturity with no repayment is classified as
 defaulted. The premise records non-repayment; it does not infer it from the
@@ -739,6 +961,17 @@ structure UnpaidMaturity {W : ActionFrame} {T : PawnLoanTerms W}
     (A : CreditAdvance T) where
   custody : CollateralCustodyTrace A
   noRepaymentByMaturity : ¬ Nonempty (CreditRepayment A)
+
+/-- At unpaid maturity, the lender holds at least the collateral quantity
+transferred at origination, provided the intervening trace records no use of
+that good. Any collateral received along the trace adds to the balance. -/
+theorem UnpaidMaturity.lender_retains_pledged_collateral
+    {W : ActionFrame} {T : PawnLoanTerms W} {A : CreditAdvance T}
+    (D : UnpaidMaturity A) :
+    W.omega T.lender A.moment A.history T.collateral + T.collateralQuantity ≤
+      W.omega T.lender T.maturity A.history T.collateral := by
+  rw [D.custody.collateral_retained, A.physical_transfer.2]
+  exact Nat.le_add_right _ _
 
 theorem UnpaidMaturity.status_transition {W : ActionFrame}
     {T : PawnLoanTerms W} {A : CreditAdvance T} (_D : UnpaidMaturity A) :
@@ -1222,7 +1455,7 @@ theorem standing_lolr_origination_restores_reserve_and_expands_base {W : ActionF
   rw [h_money] at h_tot
   refine ⟨h_res, h_col, h_tot⟩
 
--- Section 8: Endogenous Loan Rate Suppression from Fiduciary Expansion
+-- Section 8: Conditional Contract-Rate Comparison under Fiduciary Origination
 
 /-- Contractual rate suppression lemma: when two loan contracts have equal principal,
 a strictly lower total repayment amount implies a strictly lower gross repayment factor. -/
@@ -1231,10 +1464,16 @@ theorem loan_rate_suppression_of_repayment_lt {W : ActionFrame}
     (h_principal : T₁.principal = T₂.principal)
     (h_rep : T₂.repayment < T₁.repayment) :
     T₂.grossRepaymentFactor < T₁.grossRepaymentFactor := by
-  have h₁ : T₁.repayment = T₁.principal * T₁.grossRepaymentFactor := rfl
-  have h₂ : T₂.repayment = T₂.principal * T₂.grossRepaymentFactor := rfl
-  rw [h₁, h₂, h_principal] at h_rep
-  exact Nat.lt_of_mul_lt_mul_left h_rep
+  have hp : (0 : ℚ) < (T₁.principal : ℚ) := by
+    exact_mod_cast T₁.principalPositive
+  have hprincipal : (T₂.principal : ℚ) = (T₁.principal : ℚ) := by
+    exact_mod_cast h_principal.symm
+  have hrep : (T₂.repayment : ℚ) < (T₁.repayment : ℚ) := by
+    exact_mod_cast h_rep
+  change (T₂.repayment : ℚ) / (T₂.principal : ℚ) <
+    (T₁.repayment : ℚ) / (T₁.principal : ℚ)
+  rw [hprincipal]
+  exact div_lt_div_of_pos_right hrep hp
 
 /-- An offering of repayment of amount `repay` in money `m_money` requires the borrower to hold
 at least `repay` units of `m_money`. If cash holdings are strictly less than `repay`, the offer
@@ -1260,24 +1499,25 @@ theorem offer_repayment_infeasible_of_insufficient_cash {W : ActionFrame}
     simp only [ite_true] at h_m
     omega
 
-/-- Endogenous loan rate suppression theorem:
-When a bank issues unbacked notes (`FiduciaryNoteIssuance`) and advances principal `P`
-in a credit origination (`FiduciaryOrigination`) to a marginal borrower `b`,
-if the borrower's gross project revenue at repayment moment `R.moment` is strictly less
-than the repayment demanded under a natural-savings contract `T_nat` for that same principal,
-then:
-1. Contractual credit repayment is strictly less than natural repayment
-   (`T_cred.repayment < T_nat.repayment`),
-2. The gross loan rate is endogenously suppressed
-   (`T_cred.grossRepaymentFactor < T_nat.grossRepaymentFactor`),
-3. Total circulating/base media expands by principal `T_cred.principal`,
-4. Repaying under natural terms is physically infeasible and non-purposeful for the borrower. -/
-theorem endogenous_fiduciary_expansion_lowers_loan_rate {W : ActionFrame}
+/-- Conditional comparison of two contracts for the same borrower:
+
+A fiduciary issuance and origination are accompanied by an actual repayment
+under `T_cred`. If the borrower's cash immediately before that repayment is
+below the benchmark repayment in `T_nat`, then the actual contract has a lower
+repayment and gross factor than the benchmark, the origination has expanded
+total media by its principal, and the benchmark repayment offer is infeasible
+for that borrower at that node.
+
+The rate ordering is derived from the stated cash-shortfall premise and equal
+principal. This theorem does not derive the contract terms or the shortfall
+from a loan market, project technology, or monetary expansion. -/
+theorem fiduciary_origination_and_cash_shortfall_contract_comparison {W : ActionFrame}
     (T_nat T_cred : PawnLoanTerms W)
     (I : FiduciaryNoteIssuance (W := W))
     (A_cred : CreditAdvance T_cred)
     (O : FiduciaryOrigination T_cred I A_cred)
     (R : CreditRepayment A_cred)
+    (h_same_borrower : T_nat.borrower = T_cred.borrower)
     (h_same_principal : T_nat.principal = T_cred.principal)
     (h_same_money : T_nat.money = T_cred.money)
     (h_marginal_shortfall :
@@ -1286,11 +1526,11 @@ theorem endogenous_fiduciary_expansion_lowers_loan_rate {W : ActionFrame}
     T_cred.grossRepaymentFactor < T_nat.grossRepaymentFactor ∧
     totalMedia I.issuer I.money A_cred.nextMoment I.history =
       totalMedia I.issuer I.money I.moment I.history + T_cred.principal ∧
-    W.Offer T_cred.borrower T_nat.lender T_nat.repayment T_nat.money
+    W.Offer T_nat.borrower T_nat.lender T_nat.repayment T_nat.money
         T_nat.collateralQuantity T_nat.collateral ∉
-      W.A_feas T_cred.borrower R.moment A_cred.history ∧
-    ¬ @PurposefulAct W T_cred.borrower R.moment A_cred.history
-        (W.Offer T_cred.borrower T_nat.lender T_nat.repayment T_nat.money
+      W.A_feas T_nat.borrower R.moment A_cred.history ∧
+    ¬ @PurposefulAct W T_nat.borrower R.moment A_cred.history
+        (W.Offer T_nat.borrower T_nat.lender T_nat.repayment T_nat.money
           T_nat.collateralQuantity T_nat.collateral) := by
   have h_dec := R.borrower_money_decreases
   have h_cov : T_cred.repayment ≤ W.omega T_cred.borrower R.moment A_cred.history T_cred.money := by
@@ -1301,11 +1541,11 @@ theorem endogenous_fiduciary_expansion_lowers_loan_rate {W : ActionFrame}
     loan_rate_suppression_of_repayment_lt T_nat T_cred h_same_principal h_rep_lt
   have h_tot := O.total_media_increases
   have h_short_nat :
-      W.omega T_cred.borrower R.moment A_cred.history T_nat.money < T_nat.repayment := by
-    rw [h_same_money]
+      W.omega T_nat.borrower R.moment A_cred.history T_nat.money < T_nat.repayment := by
+    rw [h_same_borrower, h_same_money]
     exact h_marginal_shortfall
   have h_infeas := offer_repayment_infeasible_of_insufficient_cash
-    T_cred.borrower T_nat.lender R.moment A_cred.history T_nat.repayment
+    T_nat.borrower T_nat.lender R.moment A_cred.history T_nat.repayment
     T_nat.money T_nat.collateralQuantity T_nat.collateral h_short_nat
   exact ⟨h_rep_lt, h_rate_lt, h_tot, h_infeas.1, h_infeas.2⟩
 

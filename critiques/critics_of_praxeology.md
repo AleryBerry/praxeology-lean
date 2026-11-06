@@ -50,14 +50,14 @@ Because human action branches historical time, any empirical dataset $`\mathcal{
 ### Target Doctrine (Schuller, Blaug)
 Critics allege that verbal praxeological deduction conceals unstated mathematical assumptions, asserting that Diminishing Marginal Utility (DMU) and downward-sloping demand cannot be derived without assuming smooth utility manifolds $U \in C^2$ with negative definite Hessians: $\mathbf{z}^T \nabla^2 U(\mathbf{x}) \mathbf{z} < 0$.
 
-### Proposition 2 (Constructive Deduction of DMU on Discrete Posets)
-Diminishing Marginal Utility requires neither continuous utility manifolds ($U \in C^2$) nor calculus derivatives. It is a constructive mathematical theorem derived directly from the definition of economizing action on discrete posets.
+### Proposition 2 (Conditional DMU on Discrete Allocations)
+Diminishing marginal utility can be represented without continuous utility manifolds ($U \in C^2$) or calculus derivatives, but the result does not follow from purposefulness alone. In the Lean model, it depends on a finite ranked-use technology and local ordinal laws for adding an unfulfilled use, replacing a lower-ranked use, and transitivity. The ActionFrame application also supplies a complete allocation menu, exact resource requirements, and realization of fitting allocations.
 
 **Proof.**
-1. By Chapter 4 (Definition 4.2, Theorem 4.10, Theorem 4.13), let an agent possess $N$ interchangeable discrete units of a physical means $m \in \mathcal{M}$, each capable of satisfying one discrete end from a strictly ranked hierarchy: $e_1 \succ e_2 \succ \dots \succ e_N$.
-2. An economizing actor necessarily allocates available units to the most urgently ranked ends first (Theorem 4.11).
-3. Therefore, the acquisition of an additional $(N+1)$-th unit necessarily satisfies an end of lower rank ($e_{N+1} \prec e_N$), and the loss of a unit forces the surrender of the least urgent end currently satisfied ($e_N$).
-4. This deduction holds strictly on discrete posets without assuming continuous differentiability, utility manifolds, or real-valued utility functions. The claim that praxeology conceals hidden calculus assumptions is false. $\blacksquare$
+1. The allocation technology represents three ranked uses and specifies the inputs required by each allocation. Under unit requirements, stocks one and two have purposeful choices `{0}` and `{0,1}` in the concrete ActionFrame witness.
+2. The local addition, replacement, and transitivity laws make the highest-ranked feasible prefix undominated against the complete represented menu. Purposeful choice therefore selects that prefix in this specified context.
+3. The next use is strictly lower-ranked in the witness. Separate finite-allocation examples cover two-unit requirements and satiation relative to the listed uses.
+4. These are conditional, discrete results; they do not establish universal DMU across technologies or derive the local ordinal laws from purposefulness. They do show that this formalization does not need continuous differentiability for the stated conclusions. $\blacksquare$
 
 ---
 
@@ -154,14 +154,14 @@ Behavioral framing effects and dynamic inconsistency do not refute the Action Ax
 ### Target Doctrine (Sraffa, Robinson)
 In the Cambridge Capital Controversy, Piero Sraffa (1960) demonstrated "reswitching": as the rate of profit varies, an economy may switch from Technique $A$ to Technique $B$ and then back to Technique $A$. Neo-Ricardians argue that reswitching disproves the Austrian concept of roundaboutness, proving that production stages cannot be ordered by physical capital intensity.
 
-### Proposition 7 (Forward Imputation and Positive Originary Interest)
-Capital goods are heterogeneous physical antichains whose economic appraisal is imputed backward from consumer ends. Techniques are evaluated by forward-looking prospective return ratios anchored by universal positive originary time preference ($\iota > 0$), refuting aggregate mechanical capital measures without requiring monotonic physical "capital intensity" scalars.
+### Proposition 7 (Forward Imputation and Conditional Intertemporal Comparisons)
+Capital goods may be represented as heterogeneous physical antichains, and the project includes forward-looking return calculations under their stated premises. Its time-preference results are conditional choice results; they do not establish universal positive originary time preference or a universal interest floor.
 
 **Proof.**
 1. By Chapter 9 (Proposition 9.16), capital goods form heterogeneous antichains. Praxeology never posited an aggregate scalar measure of physical capital ("Jelly Capital").
 2. Sraffa's reswitching model assumes a timeless, circular production system without money where commodities reproduce themselves via simultaneous linear equations.
 3. In actual human action, production is strictly unidirectional across branching historical time ($t_0 \prec t_1 \prec \dots \prec t_n$, Chapter 2). Sunk past labor costs are economically sterile (Chapter 4, Theorem 4.32).
-4. By Chapter 7 (Theorem 7.4, Theorem 7.8), acting agents possess strictly positive originary time preference ($\iota > 0$). Entrepreneurial choice among production techniques compares forward-looking return ratios (Chapter 9, Definition 9.19, Proposition 9.20):
+4. The formal time-preference theorem obtains strict preference for a particular earlier timed end only under its open-horizon condition, when the near act strictly dominates feasible distinct-end alternatives, the later timing alternative is feasible, and the timing map is injective. The direct originary-interest theorem requires a positive represented principal, an intertemporal preference premise, an acceptance comparison, same-date quantity monotonicity, and transitivity; its purposeful-choice variant uses a purposeful loan action and a feasible preservation comparison. They conclude a larger promised future quantity, not a universal market rate. The project does not derive a positive return floor for production techniques from purposefulness alone. The critique's technique comparison is therefore conditional on its own return premises:
 
 $$
 r(\alpha, P) = \frac{R(\alpha, P) - C_P(\alpha)}{C_P(\alpha)}

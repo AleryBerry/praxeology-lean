@@ -122,9 +122,9 @@ Marx characterizes the difference between output revenue and the wage bill $(s =
 
 This deduction ignores the inescapable temporal dimension of human action:
 - Production takes time: workers expend labor at moment $t_0$, but finished output matures only at a later moment $t_n$ across precedence chain $t_0 \prec t_n$ (Chapter 2).
-- Under purposeful human action, agents exhibit positive time preference (Chapter 7): satisfying an end earlier is valued strictly above identical satisfaction at a later moment.
+- The Lean time-preference results are conditional. Purposeful choice under the open-horizon condition with a feasible later same-end alternative rules out strict preference for that particular later outcome over the enacted outcome. A strict earlier-over-later comparison additionally requires the near act to dominate feasible distinct-end alternatives and an injective timing map; neither result establishes universal positive time preference.
 - The capitalist advances **present money** (immediate wages at $t_0$ ) to workers, long before the product is completed and sold at $t_n$.
-- The spread between present wages and future product revenue is not stolen surplus value; it is the catallactic manifestation of **originary interest** $(\iota > 0)$. If workers were paid the full undiscounted future value of their output immediately at $t_0$, they would be receiving more than the present economic value of their contribution.
+- A positive repayment premium in the formal loan model follows only from a positive represented principal and explicit intertemporal preference, acceptance (or purposeful loan choice with a feasible preservation comparison), same-date quantity monotonicity, and transitivity premises. That ordinal quantity result does not by itself establish a market interest rate or settle the distributional claim about wages and future revenue.
 
 ### The Logical Circularity of the Transformation Problem
 To reconcile the LTV with uniform profit rates across industries with different capital intensities, Marx attempted in Volume III of *Das Kapital* to "transform" labor values into market prices of production.

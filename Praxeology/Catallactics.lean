@@ -65,29 +65,37 @@ theorem jointBranch_realizes_pair [W : ActionFrame] (i j : W.Agent) (t : W.Momen
   · rw [h_co_i, h_real_i.2]
   · exact h_real_j.2
 
-/-- Intended end of agent `i` under joint action pair `(α_i, α_j)` at `⟨t, h⟩`. -/
+/-- Outcome end of agent `i` under a joint action pair, evaluated at the
+action's declared maturation moment on its own counterfactual history. -/
 def jointEndI [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
     (α_i α_j : W.Action) : W.Ends :=
-  W.End_of i α_i t (jointBranch i j t h α_i α_j)
+  let branch := jointBranch i j t h α_i α_j
+  W.OutcomeOf i α_i t (W.ExpectedMaturation i α_i t branch) branch
 
-/-- Intended end of agent `j` under joint action pair `(α_i, α_j)` at `⟨t, h⟩`. -/
+/-- Outcome end of agent `j` under a joint action pair, evaluated at the
+action's declared maturation moment on its own counterfactual history. -/
 def jointEndJ [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
     (α_i α_j : W.Action) : W.Ends :=
-  W.End_of j α_j t (jointBranch i j t h α_i α_j)
+  let branch := jointBranch i j t h α_i α_j
+  W.OutcomeOf j α_j t (W.ExpectedMaturation j α_j t branch) branch
 
 /-- Action `α_j` enacted by `j` at `⟨t, h⟩` is endogenously invasive against `i` along `t → t'`
 if executing `α_j` while `i` is passive (`α₀`) contracts `i`'s physical stock of some means below
 their baseline endowment. -/
-def EndogenouslyInvasiveJ [W : ActionFrame] (i j : W.Agent) (t t' : W.Moment) (h : W.History)
+def EndogenouslyInvasiveJ [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
     (α_j : W.Action) : Prop :=
-  ∃ m : W.Means, W.omega i t' (jointBranch i j t h W.alpha_zero α_j) m < W.omega i t h m
+  let branch := jointBranch i j t h W.alpha_zero α_j
+  ∃ m : W.Means,
+    W.omega i (W.ExpectedMaturation i W.alpha_zero t branch) branch m < W.omega i t h m
 
 /-- Action `α_i` enacted by `i` at `⟨t, h⟩` is endogenously invasive against `j` along `t → t'`
 if executing `α_i` while `j` is passive (`α₀`) contracts `j`'s physical stock of some means below
 their baseline endowment. -/
-def EndogenouslyInvasiveI [W : ActionFrame] (i j : W.Agent) (t t' : W.Moment) (h : W.History)
+def EndogenouslyInvasiveI [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
     (α_i : W.Action) : Prop :=
-  ∃ m : W.Means, W.omega j t' (jointBranch i j t h α_i W.alpha_zero) m < W.omega j t h m
+  let branch := jointBranch i j t h α_i W.alpha_zero
+  ∃ m : W.Means,
+    W.omega j (W.ExpectedMaturation j W.alpha_zero t branch) branch m < W.omega j t h m
 
 /-- Purposeful response of agent `i` to `j`'s action `α_j`: `i` strictly prefers
 the outcome of executing `α_i` to remaining passive `α₀`, holding `j`'s action fixed. -/
@@ -98,62 +106,69 @@ def PurposefulResponseI [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.
 /-- Voluntary (catallactic) exchange between agents `i` and `j` at `⟨t, t', h⟩`:
 neither agent invades the other's physical stock, and both strictly prefer the
 joint exchange outcome to their autarkic/status-quo baseline. -/
-def IsVoluntaryExchange [W : ActionFrame] (i j : W.Agent) (t t' : W.Moment) (h : W.History)
+def IsVoluntaryExchange [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
     (α_i α_j : W.Action) : Prop :=
-  ¬ EndogenouslyInvasiveI i j t t' h α_i ∧
-  ¬ EndogenouslyInvasiveJ i j t t' h α_j ∧
-  W.Preference i t h (jointEndI i j t h α_i α_j) (jointEndI i j t h W.alpha_zero W.alpha_zero) ∧
-  W.Preference j t h (jointEndJ i j t h α_i α_j) (jointEndJ i j t h W.alpha_zero W.alpha_zero)
+  ¬ EndogenouslyInvasiveI i j t h α_i ∧
+  ¬ EndogenouslyInvasiveJ i j t h α_j ∧
+  W.Preference i t h (jointEndI i j t h α_i α_j)
+    (jointEndI i j t h W.alpha_zero W.alpha_zero) ∧
+  W.Preference j t h (jointEndJ i j t h α_i α_j)
+    (jointEndJ i j t h W.alpha_zero W.alpha_zero)
 
 /-- Coercive extortion (hegemonic extraction / taxation) by `j` against `i` at `⟨t, t', h⟩`:
 `j`'s threat/policy `α_threat` is physically invasive against `i`, victim `i` purposefully complies
 because compliance beats being punished under the invasion, but `i` strictly prefers the uninvaded
 baseline to the extortion outcome, while aggressor `j` strictly prefers the extortion outcome. -/
-def IsCoerciveExtortion [W : ActionFrame] (i j : W.Agent) (t t' : W.Moment) (h : W.History)
+def IsCoerciveExtortion [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
     (α_i α_threat : W.Action) : Prop :=
-  EndogenouslyInvasiveJ i j t t' h α_threat ∧
+  EndogenouslyInvasiveJ i j t h α_threat ∧
   PurposefulResponseI i j t h α_i α_threat ∧
   W.Preference i t h (jointEndI i j t h W.alpha_zero W.alpha_zero)
     (jointEndI i j t h α_i α_threat) ∧
-  W.Preference j t h (jointEndJ i j t h α_i α_threat) (jointEndJ i j t h W.alpha_zero W.alpha_zero)
+  W.Preference j t h (jointEndJ i j t h α_i α_threat)
+    (jointEndJ i j t h W.alpha_zero W.alpha_zero)
 
 /-- Market competition by `j` against `i` at `⟨t, t', h⟩`:
 neither agent invades the other's property, competitor `j` benefits from their action,
 and even if `i`'s end is worse than baseline, this loss occurs through peaceful preference shifts
 without physical invasion. -/
-def IsMarketCompetition [W : ActionFrame] (i j : W.Agent) (t t' : W.Moment) (h : W.History)
+def IsMarketCompetition [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
     (α_i α_comp : W.Action) : Prop :=
-  ¬ EndogenouslyInvasiveI i j t t' h α_i ∧
-  ¬ EndogenouslyInvasiveJ i j t t' h α_comp ∧
+  ¬ EndogenouslyInvasiveI i j t h α_i ∧
+  ¬ EndogenouslyInvasiveJ i j t h α_comp ∧
   W.Preference j t h (jointEndJ i j t h α_i α_comp) (jointEndJ i j t h α_i W.alpha_zero) ∧
-  W.Preference i t h (jointEndI i j t h W.alpha_zero W.alpha_zero) (jointEndI i j t h α_i α_comp)
+  W.Preference i t h (jointEndI i j t h W.alpha_zero W.alpha_zero)
+    (jointEndI i j t h α_i α_comp)
 
 /-- Action `α_j` strips contemplated actions from `i`'s menu along `t → t'` when some action
 feasible given `i`'s initial endowment exceeds `i`'s post-invasion stock. -/
-def MenuStrippingInvasiveJ [W : ActionFrame] (i j : W.Agent) (t t' : W.Moment) (h : W.History)
+def MenuStrippingInvasiveJ [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
     (α_j : W.Action) : Prop :=
   ∃ β, (∀ m, W.use_means β m ≤ W.omega i t h m) ∧
-    ¬ (∀ m, W.use_means β m ≤ W.omega i t' (jointBranch i j t h W.alpha_zero α_j) m)
+    ¬ (∀ m, W.use_means β m ≤
+      W.omega i
+        (W.ExpectedMaturation i W.alpha_zero t (jointBranch i j t h W.alpha_zero α_j))
+        (jointBranch i j t h W.alpha_zero α_j) m)
 
 theorem highwayman_is_purposeful_but_not_catallactic
-    [W : ActionFrame] {i j : W.Agent} {t t' : W.Moment} {h : W.History}
+    [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}
     (α_i α_threat : W.Action)
-    (h_ext : IsCoerciveExtortion i j t t' h α_i α_threat) :
+    (h_ext : IsCoerciveExtortion i j t h α_i α_threat) :
     PurposefulResponseI i j t h α_i α_threat ∧
-    ¬ IsVoluntaryExchange i j t t' h α_i α_threat := by
+    ¬ IsVoluntaryExchange i j t h α_i α_threat := by
   refine ⟨h_ext.2.1, ?_⟩
   intro h_vol
   exact h_vol.2.1 h_ext.1
 
 theorem rothbard_demonstrated_welfare_dichotomy
-    [W : ActionFrame] {i j : W.Agent} {t t' : W.Moment} {h : W.History}
+    [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}
     (α_i_star α_j_star : W.Action) :
-    (IsVoluntaryExchange i j t t' h α_i_star α_j_star →
+    (IsVoluntaryExchange i j t h α_i_star α_j_star →
       W.Preference i t h (jointEndI i j t h α_i_star α_j_star)
         (jointEndI i j t h W.alpha_zero W.alpha_zero) ∧
       W.Preference j t h (jointEndJ i j t h α_i_star α_j_star)
         (jointEndJ i j t h W.alpha_zero W.alpha_zero)) ∧
-    (IsCoerciveExtortion i j t t' h α_i_star α_j_star →
+    (IsCoerciveExtortion i j t h α_i_star α_j_star →
       W.Preference j t h (jointEndJ i j t h α_i_star α_j_star)
         (jointEndJ i j t h W.alpha_zero W.alpha_zero) ∧
       W.Preference i t h (jointEndI i j t h W.alpha_zero W.alpha_zero)
@@ -162,19 +177,19 @@ theorem rothbard_demonstrated_welfare_dichotomy
           fun h_ext => ⟨h_ext.2.2.2, h_ext.2.2.1⟩⟩
 
 theorem competition_is_not_coercion
-    [W : ActionFrame] {i j : W.Agent} {t t' : W.Moment} {h : W.History}
+    [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}
     (α_i α_comp : W.Action)
-    (h_comp : IsMarketCompetition i j t t' h α_i α_comp) :
-    ¬ IsCoerciveExtortion i j t t' h α_i α_comp := by
+    (h_comp : IsMarketCompetition i j t h α_i α_comp) :
+    ¬ IsCoerciveExtortion i j t h α_i α_comp := by
   intro h_ext
   exact h_comp.2.1 h_ext.1
 
 theorem rothbard_megger_trichotomy_mutual_exclusivity
-    [W : ActionFrame] {i j : W.Agent} {t t' : W.Moment} {h : W.History}
+    [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}
     (α_i α_j : W.Action) :
-    ¬ (IsVoluntaryExchange i j t t' h α_i α_j ∧ IsCoerciveExtortion i j t t' h α_i α_j) ∧
-    ¬ (IsVoluntaryExchange i j t t' h α_i α_j ∧ IsMarketCompetition i j t t' h α_i α_j) ∧
-    ¬ (IsCoerciveExtortion i j t t' h α_i α_j ∧ IsMarketCompetition i j t t' h α_i α_j) := by
+    ¬ (IsVoluntaryExchange i j t h α_i α_j ∧ IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsVoluntaryExchange i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsCoerciveExtortion i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) := by
   refine ⟨?_, ?_, ?_⟩
   · rintro ⟨h_vol, h_ext⟩
     exact h_vol.2.1 h_ext.1
@@ -184,11 +199,11 @@ theorem rothbard_megger_trichotomy_mutual_exclusivity
     exact h_comp.2.1 h_ext.1
 
 theorem endogenous_invasion_iff_menu_stripping
-    [W : ActionFrame] {i j : W.Agent} {t t' : W.Moment} {h : W.History}
+    [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}
     (h_rich : ∀ m : W.Means, ∃ β, (∀ m', W.use_means β m' ≤ W.omega i t h m') ∧
       W.use_means β m = W.omega i t h m)
     (α_j : W.Action) :
-    EndogenouslyInvasiveJ i j t t' h α_j ↔ MenuStrippingInvasiveJ i j t t' h α_j := by
+    EndogenouslyInvasiveJ i j t h α_j ↔ MenuStrippingInvasiveJ i j t h α_j := by
   constructor
   · rintro ⟨m_inv, h_contract⟩
     obtain ⟨β, h_title, h_tight⟩ := h_rich m_inv
@@ -202,27 +217,42 @@ theorem endogenous_invasion_iff_menu_stripping
     apply h_infeas
     intro m
     have h_not_lt :
-        ¬ W.omega i t' (jointBranch i j t h W.alpha_zero α_j) m < W.omega i t h m := by
+        ¬ W.omega i
+            (W.ExpectedMaturation i W.alpha_zero t
+              (jointBranch i j t h W.alpha_zero α_j))
+            (jointBranch i j t h W.alpha_zero α_j) m < W.omega i t h m := by
       intro h_lt
       exact h_not_inv ⟨m, h_lt⟩
-    have h_ge : W.omega i t h m ≤ W.omega i t' (jointBranch i j t h W.alpha_zero α_j) m :=
+    have h_ge : W.omega i t h m ≤ W.omega i
+        (W.ExpectedMaturation i W.alpha_zero t
+          (jointBranch i j t h W.alpha_zero α_j))
+        (jointBranch i j t h W.alpha_zero α_j) m :=
       Nat.le_of_not_lt h_not_lt
     exact le_trans (h_title m) h_ge
 
 theorem peaceful_competition_preserves_stock_and_menu
-    [W : ActionFrame] {i j : W.Agent} {t t' : W.Moment} {h : W.History}
+    [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}
     (α_i α_comp : W.Action)
-    (h_comp : IsMarketCompetition i j t t' h α_i α_comp) :
-    ¬ EndogenouslyInvasiveJ i j t t' h α_comp ∧
-    (∀ m, W.omega i t h m ≤ W.omega i t' (jointBranch i j t h W.alpha_zero α_comp) m) ∧
+    (h_comp : IsMarketCompetition i j t h α_i α_comp) :
+    ¬ EndogenouslyInvasiveJ i j t h α_comp ∧
+    (∀ m, W.omega i t h m ≤ W.omega i
+      (W.ExpectedMaturation i W.alpha_zero t
+        (jointBranch i j t h W.alpha_zero α_comp))
+      (jointBranch i j t h W.alpha_zero α_comp) m) ∧
     (∀ β, (∀ m, W.use_means β m ≤ W.omega i t h m) →
-      (∀ m, W.use_means β m ≤ W.omega i t' (jointBranch i j t h W.alpha_zero α_comp) m)) ∧
+      (∀ m, W.use_means β m ≤ W.omega i
+        (W.ExpectedMaturation i W.alpha_zero t
+          (jointBranch i j t h W.alpha_zero α_comp))
+        (jointBranch i j t h W.alpha_zero α_comp) m)) ∧
     W.Preference i t h (jointEndI i j t h W.alpha_zero W.alpha_zero)
       (jointEndI i j t h α_i α_comp) := by
   have h_not_inv := h_comp.2.1
   have h_pref := h_comp.2.2.2
   have h_pres :
-      ∀ m, W.omega i t h m ≤ W.omega i t' (jointBranch i j t h W.alpha_zero α_comp) m := by
+      ∀ m, W.omega i t h m ≤ W.omega i
+        (W.ExpectedMaturation i W.alpha_zero t
+          (jointBranch i j t h W.alpha_zero α_comp))
+        (jointBranch i j t h W.alpha_zero α_comp) m := by
     intro m
     by_contra h_lt
     exact h_not_inv ⟨m, Nat.lt_of_not_ge h_lt⟩
@@ -1973,6 +2003,74 @@ theorem coupled_network_universal_money_emergence
   exact hk h_in_phi
 
 end NetworkMoneyEmergence
+
+/-- A complete two-agent trading network used to exhibit coexistence of
+universally accepted media. -/
+def TwoAgentCompleteTradingNetwork : TradingNetwork (Fin 2) where
+  adjacent := fun i j => i ≠ j
+  adj_symm := by
+    intro i j h
+    exact h.symm
+
+/-- The existing marketable adoption operator specialized to the two-agent
+model and its explicit supply and demand functions. -/
+def twoAgentNetworkMarketableUpdate
+    (Γ : Fin 2 → Finset (Fin 2)) : Fin 2 → Finset (Fin 2) := by
+  letI : ∀ Γ' : Fin 2 → Finset (Fin 2), ∀ i m,
+      Decidable (NetworkMarketableAdopt TwoAgentCompleteTradingNetwork
+        (fun _ : Fin 2 => (0 : Fin 2))
+        (fun (_ : Fin 2) (_ : Fin 2) => True) Γ' i m) := by
+    intro Γ' i m
+    unfold NetworkMarketableAdopt
+    letI : Decidable (NetworkIsMaxMarketable Γ' m) := by
+      unfold NetworkIsMaxMarketable
+      exact Fintype.decidableForallFintype
+    letI : Decidable (NetworkFeasIndirect TwoAgentCompleteTradingNetwork
+        (fun _ : Fin 2 => (0 : Fin 2))
+        (fun (_ : Fin 2) (_ : Fin 2) => True) Γ' i m) := by
+      change Decidable (∃ j : Fin 2, i ≠ j ∧ True ∧ j ∈ Γ' m)
+      exact Fintype.decidableExistsFintype
+    infer_instance
+  exact PhiNetworkMarketable TwoAgentCompleteTradingNetwork
+    (fun _ : Fin 2 => (0 : Fin 2))
+    (fun (_ : Fin 2) (_ : Fin 2) => True) Γ
+
+/-- Starting with one agent accepting two equally marketable media, the
+existing coupled adoption operator extends both to the other agent and then
+stabilizes. Thus this operator alone does not imply a unique universal medium.
+The witness uses the explicit demand predicate `True` and constant supply
+already passed to the operator above. -/
+theorem two_universal_media_can_coexist_at_network_fixed_point :
+    ∃ Γ₀ Γ₁ : Fin 2 → Finset (Fin 2),
+      Γ₀ ≠ Γ₁ ∧
+      IsNetworkUniversalMoney Γ₁ 0 ∧
+      IsNetworkUniversalMoney Γ₁ 1 ∧
+      twoAgentNetworkMarketableUpdate Γ₀ = Γ₁ ∧
+      twoAgentNetworkMarketableUpdate Γ₁ = Γ₁ := by
+  let Γ₀ : Fin 2 → Finset (Fin 2) := fun _ => {0}
+  let Γ₁ : Fin 2 → Finset (Fin 2) := fun _ => Finset.univ
+  refine ⟨Γ₀, Γ₁, ?_, ?_, ?_, ?_, ?_⟩
+  · intro h
+    have h_eval := congrFun h 0
+    simp [Γ₀, Γ₁] at h_eval
+  · change Γ₁ 0 = Finset.univ
+    rfl
+  · change Γ₁ 1 = Finset.univ
+    rfl
+  · funext m
+    apply Finset.ext
+    intro i
+    cases i using Fin.cases with
+    | zero => simp [twoAgentNetworkMarketableUpdate, PhiNetworkMarketable,
+        PhiNet, Γ₀, Γ₁]
+    | succ i =>
+        have hi : i = 0 := by omega
+        subst i
+        simp [twoAgentNetworkMarketableUpdate, PhiNetworkMarketable,
+          PhiNet, Γ₀, Γ₁, NetworkMarketableAdopt, NetworkIsMaxMarketable,
+          NetworkFeasIndirect, TwoAgentCompleteTradingNetwork]
+  · funext m
+    simp [twoAgentNetworkMarketableUpdate, PhiNetworkMarketable, PhiNet, Γ₁]
 
 
 def EndogenousPhiNet {V M : Type} [Fintype V] [DecidableEq V]

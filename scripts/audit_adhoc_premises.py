@@ -2,10 +2,10 @@
 """
 scripts/audit_adhoc_premises.py
 
-Automated heuristic audit script to verify that macroeconomic results,
-business-cycle theorems, and catallactic interactions are derived endogenously
-from core ActionFrame and PurposefulAct foundations, rather than relying on
-ad-hoc external premise wrappers, shock structures, or detached payoff matrices.
+Heuristic source-pattern report for manual review of economic premises and
+model structure. Findings are pattern matches, not violations: source text
+cannot establish whether a premise is semantically appropriate or whether a
+theorem is economically well grounded.
 
 Audited categories:
 1. Deprecated Premise Structures:
@@ -308,7 +308,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Audit Lean codebase for ad-hoc premises, shock wrappers, and external bypass structures."
     )
-    parser.add_argument("--check", action="store_true", help="Exit with code 1 if any violations are found.")
+    parser.add_argument("--check", action="store_true", help="Deprecated compatibility flag; findings remain advisory.")
     parser.add_argument("--verbose", action="store_true", help="Print detailed findings.")
     parser.add_argument("--json", action="store_true", help="Output results in JSON format.")
     args = parser.parse_args()
@@ -321,31 +321,29 @@ def main():
     if args.json:
         payload = {
             "total_findings": total_findings,
-            "passed": total_findings == 0,
+            "advisory_only": True,
             "results": results
         }
         print(json.dumps(payload, indent=2))
-        if args.check and total_findings > 0:
-            sys.exit(1)
         return
 
     print("=" * 80)
-    print("PRAXEOLOGY LEAN — AD-HOC PREMISES & MACROECONOMIC SHOCK AUDIT")
+    print("PRAXEOLOGY LEAN — ADVISORY SOURCE-PATTERN REPORT")
     print("=" * 80)
     print()
-    print("AUDIT SCORECARD:")
-    print(f"  1. Eradicated Wrapper Structures:     {len(results['eradicated_structures']):4d}  (Target: 0)")
-    print(f"  2. Ad-Hoc Shock & Squeeze Structs:     {len(results['adhoc_declarations']):4d}  (Target: 0)")
-    print(f"  3. Detached Game Payoff Matrices:     {len(results['detached_payoffs']):4d}  (Target: 0)")
-    print(f"  4. Ungrounded Subjective Flips:       {len(results['ungrounded_subjective_flips']):4d}  (Target: 0)")
-    print(f"  5. Detached Ontology Type Params:     {len(results['detached_ontology_types']):4d}  (Target: 0)")
-    print(f"  6. Preference Bridges (→ / ↔):        {len(results['preference_bridges']):4d}  (Target: 0)")
-    print(f"  7. Uninterpreted Prop Fields:         {len(results['uninterpreted_prop_fields']):4d}  (Target: 0)")
+    print("Pattern counts (review each hit in context):")
+    print(f"  1. Former structure names:            {len(results['eradicated_structures']):4d}")
+    print(f"  2. Shock / squeeze names:             {len(results['adhoc_declarations']):4d}")
+    print(f"  3. Detached payoff-shaped declarations:{len(results['detached_payoffs']):4d}")
+    print(f"  4. Arithmetic-to-preference patterns: {len(results['ungrounded_subjective_flips']):4d}")
+    print(f"  5. Detached ontology-shaped types:    {len(results['detached_ontology_types']):4d}")
+    print(f"  6. Preference bridge patterns:        {len(results['preference_bridges']):4d}")
+    print(f"  7. Prop field-name patterns:           {len(results['uninterpreted_prop_fields']):4d}")
     print()
 
     if total_findings > 0:
-        print(f">> STATUS: [FAILED] {total_findings} ad-hoc premise violation(s) detected.")
-        if args.verbose or args.check:
+        print(f">> {total_findings} pattern hit(s); inspect source and theorem hypotheses manually.")
+        if args.verbose:
             print("\nDetailed Findings:")
             for category, findings in results.items():
                 if findings:
@@ -353,13 +351,10 @@ def main():
                     for f in findings:
                         print(f"  {f['file']}:{f['line']} [{f['type']}]")
                         print(f"    {f['text']}")
-        print("=" * 80)
-        if args.check:
-            sys.exit(1)
     else:
-        print(">> STATUS: [PASSED] Zero ad-hoc rules, wrapper shocks, or matrix bypasses detected.")
-        print(">> All macroeconomic and bilateral results are derived natively from ActionFrame.")
-        print("=" * 80)
+        print(">> No configured patterns found. This does not establish semantic validity or completeness.")
+    print("This report is advisory and never assigns semantic pass/fail status.")
+    print("=" * 80)
 
 
 if __name__ == "__main__":

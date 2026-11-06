@@ -1,12 +1,12 @@
 # Praxeological Critiques and Conceptual Refutations
 
-This directory contains systematic philosophical, economic, and mathematical critiques of external economic doctrines, neoclassical paradoxes, and physicalist models of decision-making that conflict with the constructive foundations of praxeology.
+This directory contains philosophical, economic, and mathematical critique essays. Their propositions are not all formalized in the Lean project; the verified theorem statements, assumptions, witnesses, and limits are inventoried in [`spec/claims_and_assumptions.md`](../spec/claims_and_assumptions.md).
 
-Rather than relying on literary polemics or ungrounded rhetoric, every critique in this volume assumes familiarity with the axiomatic foundations in `natural_language/` and adheres to a systematic constructive architecture:
+The essays use a common argumentative outline. References to `natural_language/` describe the current draft exposition, which is awaiting reconciliation with the Lean sources; they do not establish that a claim is machine-verified:
 
 1. **Original Argument and Theoretical Explanation:** Formally state the thesis, primary definitions, mathematical equations, and historical motivations of the targeted doctrine.
 2. **Formal Definitions of the Target Doctrine:** Formulate the target doctrine's specific equations and hypotheses mathematically using the primitives established in this treatise, isolating the exact formal premises under scrutiny.
-3. **Substantive Constructive Refutations:** Combine the target doctrine's definitions with the general laws of human action and physical conservation from `natural_language/` as primary, freestanding derived theorems (noting where our results resemble or generalize classical counter-arguments, such as Okishio's theorem) to prove the exact mathematical breakdown of the doctrine.
+3. **Substantive Arguments and Formal Results:** Present the essay's economic argument and distinguish it from any Lean theorem that supports only a narrower, explicitly stated conclusion.
 4. **Doctrinal Critique and Theoretical Implications:** Analyze the epistemological errors, catallactic fallacies, and broader economic consequences of the doctrine.
 
 ---
@@ -23,15 +23,15 @@ Rather than relying on literary polemics or ungrounded rhetoric, every critique 
 
 3. [`modern_monetary_theory.md`](modern_monetary_theory.md): **Praxeological Critique of Modern Monetary Theory (MMT)**
    - **Target**: Georg Friedrich Knapp (1905), Abba Lerner (1943), Stephanie Kelton (2020), L. Randall Wray (2012).
-   - **Summary**: Exposes the Cantillon neutrality fallacy in MMT's macroeconomic accounting. Proves that printing fiat tokens cannot conjure scarce physical capital goods, permanent zero-interest policies (ZIRP) violate universal positive originary interest $(\iota > 0)$ and induce multi-stage malinvestment, and inflation cannot be fine-tuned via aggregate taxation without encountering the socialist calculation incommensurability barrier across heterogeneous capital antichains.
+   - **Summary**: Critiques MMT's macroeconomic accounting and discusses physical resource constraints, credit, and calculation. The Lean project does not derive a universal positive interest floor or prove that zero nominal rates necessarily cause malinvestment; its ordinal loan-premium result is conditional and does not determine nominal market rates.
 
 4. [`labor_theory_of_value.md`](labor_theory_of_value.md): **Praxeological Critique of the Labor Theory of Value (LTV)**
    - **Target**: Adam Smith (1776), David Ricardo (1817), Karl Marx (1867, *Das Kapital*, Vol. I).
-   - **Summary**: Refutes the classical premise that voluntary exchange expresses an equality of embodied labor time $(x A = y B)$, proving that trade is motivated by a double inequality of subjective preferences. Proves that past sunk labor is economically sterile, factor values derive backward from consumer ends via Mengerian imputation, "surplus value" is the intertemporal price discount mandated by positive time preference, and the transformation problem traps the LTV in vicious circularity.
+   - **Summary**: Critiques the classical premise that voluntary exchange expresses an equality of embodied labor time $(x A = y B)$ and discusses subjective preferences, sunk costs, imputation, and the transformation problem. The Lean time-preference and loan-premium results are conditional; they do not by themselves establish that wages and future revenue differ by a universally positive interest discount.
 
 5. [`falling_rate_of_profit.md`](falling_rate_of_profit.md): **Praxeological Critique of Marx's Tendency of the Rate of Profit to Fall (TRPF)**
    - **Target**: Karl Marx (1894, *Das Kapital*, Vol. III, Ch. 13–15).
-   - **Summary**: Analyzes the mathematical and economic breakdown of Marx's secular decline thesis $(r = \frac{s'}{\theta + 1})$. Highlights Okishio's Theorem (1961), proving that viable cost-reducing technical innovations mathematically increase or preserve the rate of profit at constant real wages. Refutes the dogma that capital goods are "sterile dead labor," anchors returns in strictly positive originary interest $(\iota > 0)$, and traces industrial crises to fiduciary credit expansion rather than falling profit.
+   - **Summary**: Analyzes Marx's secular decline thesis $(r = \frac{s'}{\theta + 1})$ and discusses Okishio's theorem, capital goods, time, and credit. The Lean time-preference results are local and conditional; they do not establish a universal positive return floor or derive industrial crises from fiduciary expansion.
 
 6. [`lange_model.md`](lange_model.md): **Praxeological Critique of the Lange Model of Market Socialism**
    - **Target**: Oskar Lange (1936–1937), Abba Lerner (1934), Fred M. Taylor (1929).
@@ -47,7 +47,7 @@ Rather than relying on literary polemics or ungrounded rhetoric, every critique 
 
 9. [`critics_of_praxeology.md`](critics_of_praxeology.md): **Praxeological Refutation of Anti-Praxeological Methodologies and Critiques**
    - **Target**: Logical Positivism (Hutchison), Popperian Falsificationism (Blaug), Econometric Identification (Angrist & Imbens), Mathematical Formalism (Schuller), Buridan Ties & Indifference (Nozick, Caplan), Real-Valued Utility Representations (Debreu, Samuelson), Kaldor-Hicks Efficiency (Kaldor, Hicks), Behavioral Economics (Kahneman & Tversky, Thaler), Sraffian Capital Theory (Sraffa), Rational Expectations (Lucas, Muth), and Critical Rationalism (Albert).
-   - **Summary**: Systematically dismantles the nine foundational anti-praxeological challenges organized in self-contained sections per critique. Proves the Master Non-Identifiability Theorem of econometrics under branching time, establishes the constructive deduction of Diminishing Marginal Utility on discrete posets without continuous calculus, resolves Buridan ties via undominated choice, refutes the continuous utility gradient on discrete capital antichains, exposes Kaldor-Hicks hypothetical compensation as an interpersonal utility category error, formalizes behavioral framing as context-indexed posets, refutes Sraffian reswitching via forward intertemporal imputation under positive originary interest, proves the failure of rational expectations macro neutrality under Cantillon injection waves, and refutes the Münchhausen Trilemma via performative self-falsification.
+   - **Summary**: Discusses anti-praxeological arguments about econometrics, DMU, Buridan ties, utility representation, welfare comparisons, behavioral framing, capital theory, rational expectations, and epistemology. The Lean DMU result is conditional on finite ranked-use technology, local ordinal allocation laws, and (for its ActionFrame witness) a complete menu with exact costs and realization; other claims in the essay should not be read as Lean results unless listed in the theorem inventory.
 
 10. [`historical_materialism.md`](historical_materialism.md): **Praxeological Critique of Historical Materialism**
     - **Target**: Karl Marx (1859, *A Contribution to the Critique of Political Economy*; 1845, *The German Ideology*), Friedrich Engels (1878, *Anti-Dühring*).
@@ -55,7 +55,7 @@ Rather than relying on literary polemics or ungrounded rhetoric, every critique 
 
 11. [`rentier_black_hole.md`](rentier_black_hole.md): **Praxeological Critique of the Rentier Black Hole**
     - **Target**: Henry Fudge (2024–2026), The Rentier Black Hole Theory.
-    - **Summary**: Evaluates the thesis that capital inflows into supply-inelastic residential land reverse portfolio returns ($\partial r_R / \partial K_R > 0$), pin the currency exchange rate, and externalize domestic subsistence crises onto developing nations. Proves that the singularity holds as a theorem of institutional interventionism (statutory zoning monopolies, privileged fiduciary mortgage credit, and anti-productive taxation) masked by national income rental imputation. Refutes the claim that secondary land purchases swallow money in an unhampered market, establishes that bidding up fixed land strictly compresses yields ($\rho / P_R \downarrow$) under positive originary interest, and proves that foreign "Agrarian Arrest" results from domestic institutional predation and capital flight rather than voluntary food trade.
+   - **Summary**: Evaluates a thesis about capital inflows into supply-inelastic residential land and discusses credit, taxation, rental imputation, and foreign trade. For fixed positive rental receipts, the ratio $\rho/P_R$ falls as the purchase price rises; that arithmetic alone does not prove a universal interest floor, an equilibrium bidding limit, or the impossibility of an upward-sloping return schedule.
 
 12. [`gross_domestic_product.md`](gross_domestic_product.md): **Praxeological Critique of Gross Domestic Product (GDP) and National Income Accounting**
     - **Target**: Simon Kuznets (1934), Richard Stone & James Meade (1941), UN System of National Accounts (SNA).
@@ -63,7 +63,7 @@ Rather than relying on literary polemics or ungrounded rhetoric, every critique 
 
 13. [`gini_coefficient.md`](gini_coefficient.md): **Praxeological Critique of the Gini Coefficient and Egalitarian Income Metrics**
     - **Target**: Corrado Gini (1912), Max O. Lorenz (1905).
-    - **Summary**: Deconstructs the standard mathematical measure of income inequality ($G \in [0, 1]$). Proves the life-cycle temporal aggregation fallacy (demonstrating that a completely egalitarian society across lifespans exhibits $G \in [0.30, 0.42]$ in cross-sectional measurement), establishes the incommensurability of scalar monetary receipts with multidimensional subjective welfare, refutes the category error of interpersonal utility summation, and demonstrates that coercive equalization suppresses returns below positive originary interest ($\iota > 0$), inducing systemic capital consumption and universal destitution.
+    - **Summary**: Critiques the Gini coefficient and discusses life-cycle aggregation, interpersonal welfare comparisons, and redistribution. Claims about returns falling below originary interest or resulting in universal destitution are arguments in the essay, not conclusions established by the Lean interest results.
 
 14. [`multiplier_effect.md`](multiplier_effect.md): **Praxeological Critique of the Keynesian Multiplier Effect**
     - **Target**: Richard F. Kahn (1931), John Maynard Keynes (1936, *The General Theory*).

@@ -1524,6 +1524,511 @@ def creditLifecycleActionFrame : ActionFrame := by
     quantity_end_inj := by intro _ _ _ _ h; exact CreditLifecycleEnd.quantity.inj h
   }
 
+/-- A concrete one-unit collateralized loan in the finite lifecycle frame.
+The loan terms are read from the already enacted advance and repayment events. -/
+def entrepreneurLoanTerms : PawnLoanTerms creditLifecycleActionFrame where
+  lender := .operator
+  borrower := .entrepreneur
+  money := creditLifecycleMoney
+  collateral := creditLifecycleCollateral
+  principal := 1
+  promisedRepayment := 2
+  collateralQuantity := 1
+  maturity := maturityMoment
+  distinctAgents := by decide
+  distinctGoods := by decide
+  principalPositive := by decide
+  collateralPositive := by decide
+
+local instance : ActionFrame := creditLifecycleActionFrame
+
+def entrepreneurAdvanceOutsideOption : WorkshopMeans → ℕ :=
+  lifecycleOmega .entrepreneur (lifecycleLeaf (historyByIndex 3)) (historyByIndex 3)
+
+def operatorAdvanceOutsideOption : WorkshopMeans → ℕ :=
+  lifecycleOmega .operator (lifecycleLeaf (historyByIndex 2)) (historyByIndex 2)
+
+/-- The operator's enacted advance outcome is the post-transfer inventory on
+the main history. -/
+theorem entrepreneur_advance_operator_end :
+    creditLifecycleEnd .operator firstAdvanceOffer firstAdvanceMoment mainHistory =
+      .bundle (lifecycleOmega .operator secondAdvanceMoment mainHistory) := by
+  have hsigma : lifecycleSigma .operator firstAdvanceMoment firstAdvanceOffer
+      (lifecycleWitness firstAdvanceMoment) = mainHistory := by decide
+  unfold creditLifecycleEnd
+  rw [hsigma]
+  simp [creditLifecycleOutcome, creditLifecycleMaturation,
+    lifecycleNextMoment, mainHistory, historyByIndex,
+    firstAdvanceMoment, secondAdvanceMoment, mainMoment]
+
+/-- The operator's no-offer outcome leaves the actual entrepreneur's
+acceptance unmatched on the corresponding finite history. -/
+theorem entrepreneur_advance_operator_idle_end :
+    creditLifecycleEnd .operator .idle firstAdvanceMoment mainHistory =
+      .bundle operatorAdvanceOutsideOption := by
+  have hsigma : lifecycleSigma .operator firstAdvanceMoment .idle
+      (lifecycleWitness firstAdvanceMoment) = historyByIndex 2 := by decide
+  unfold creditLifecycleEnd
+  rw [hsigma]
+  simp [creditLifecycleOutcome, creditLifecycleMaturation,
+    operatorAdvanceOutsideOption, lifecycleNextMoment, lifecycleLeaf,
+    historyByIndex, firstAdvanceMoment, mainMoment]
+
+/-- The entrepreneur's accepted advance outcome is the post-transfer
+inventory on the main history. -/
+theorem entrepreneur_advance_borrower_end :
+    creditLifecycleEnd .entrepreneur firstAdvanceAccept firstAdvanceMoment mainHistory =
+      .bundle (lifecycleOmega .entrepreneur secondAdvanceMoment mainHistory) := by
+  have hsigma : lifecycleSigma .entrepreneur firstAdvanceMoment firstAdvanceAccept
+      (lifecycleWitness firstAdvanceMoment) = mainHistory := by decide
+  unfold creditLifecycleEnd
+  rw [hsigma]
+  simp [creditLifecycleOutcome, creditLifecycleMaturation,
+    lifecycleNextMoment, mainHistory, historyByIndex,
+    firstAdvanceMoment, secondAdvanceMoment, mainMoment]
+
+/-- The entrepreneur's no-acceptance outcome leaves the operator's advance
+offer unmatched on the corresponding finite history. -/
+theorem entrepreneur_advance_borrower_idle_end :
+    creditLifecycleEnd .entrepreneur .idle firstAdvanceMoment mainHistory =
+      .bundle entrepreneurAdvanceOutsideOption := by
+  have hsigma : lifecycleSigma .entrepreneur firstAdvanceMoment .idle
+      (lifecycleWitness firstAdvanceMoment) = historyByIndex 3 := by decide
+  unfold creditLifecycleEnd
+  rw [hsigma]
+  simp [creditLifecycleOutcome, creditLifecycleMaturation,
+    entrepreneurAdvanceOutsideOption, lifecycleNextMoment, lifecycleLeaf,
+    historyByIndex, firstAdvanceMoment, mainMoment]
+
+/-- Under the frame's stated preference relation, the operator prefers the
+actual advance because it attains the valued collateral end absent at idling. -/
+theorem operator_prefers_collateralized_advance :
+    creditLifecyclePreference .operator firstAdvanceMoment mainHistory
+      (creditLifecycleEnd .operator firstAdvanceOffer firstAdvanceMoment mainHistory)
+      (creditLifecycleEnd .operator .idle firstAdvanceMoment mainHistory) := by
+  rw [entrepreneur_advance_operator_end, entrepreneur_advance_operator_idle_end]
+  change SubjectiveTeleologicalDominates creditLifecycleRequirement
+    (creditLifecycleValuedEnd .operator firstAdvanceMoment mainHistory)
+    (lifecycleOmega .operator secondAdvanceMoment mainHistory)
+    operatorAdvanceOutsideOption
+  apply subjective_teleological_dominates_of_unique_valued_end
+    creditLifecycleRequirement
+    (creditLifecycleValuedEnd .operator firstAdvanceMoment mainHistory)
+    (.quantity creditLifecycleCollateral 1)
+    (lifecycleOmega .operator secondAdvanceMoment mainHistory)
+    operatorAdvanceOutsideOption
+  · intro e' he'
+    cases e' with
+    | bundle b => simp [creditLifecycleValuedEnd] at he'
+    | timed e t => simp [creditLifecycleValuedEnd] at he'
+    | quantity good q =>
+        have hvalues : good = creditLifecycleCollateral ∧ q = 1 := by
+          simpa [creditLifecycleValuedEnd, firstAdvanceMoment, mainMoment,
+            creditLifecycleMoney, creditLifecycleCollateral] using he'
+        rcases hvalues with ⟨rfl, rfl⟩
+        rfl
+  · simp [creditLifecycleValuedEnd, firstAdvanceMoment, mainMoment,
+      creditLifecycleCollateral]
+  · intro m
+    by_cases hm : m = creditLifecycleCollateral
+    · subst m
+      norm_num [JointlyAttains, creditLifecycleRequirement, lifecycleOmega,
+        lifecycleBalance, lifecycleBaseStage, secondAdvanceMoment, mainMoment]
+    · have hmc : creditLifecycleCollateral ≠ m := fun he => hm he.symm
+      simp [creditLifecycleRequirement, hmc]
+  · intro h
+    have hc := h creditLifecycleCollateral
+    norm_num [JointlyAttains, creditLifecycleRequirement, operatorAdvanceOutsideOption,
+      lifecycleOmega, lifecycleBalance, lifecycleBaseStage, lifecycleLeaf,
+      historyByIndex, creditLifecycleCollateral] at hc
+    norm_num [creditLifecycleMoney, creditLifecycleCollateral,
+      tokenMeans, rawMeans] at hc
+
+/-- Under the same preference relation, the entrepreneur accepts because the
+advance attains the valued three-unit money end absent at idling. -/
+theorem entrepreneur_prefers_advance :
+    creditLifecyclePreference .entrepreneur firstAdvanceMoment mainHistory
+      (creditLifecycleEnd .entrepreneur firstAdvanceAccept firstAdvanceMoment mainHistory)
+      (creditLifecycleEnd .entrepreneur .idle firstAdvanceMoment mainHistory) := by
+  rw [entrepreneur_advance_borrower_end, entrepreneur_advance_borrower_idle_end]
+  change SubjectiveTeleologicalDominates creditLifecycleRequirement
+    (creditLifecycleValuedEnd .entrepreneur firstAdvanceMoment mainHistory)
+    (lifecycleOmega .entrepreneur secondAdvanceMoment mainHistory)
+    entrepreneurAdvanceOutsideOption
+  apply subjective_teleological_dominates_of_unique_valued_end
+    creditLifecycleRequirement
+    (creditLifecycleValuedEnd .entrepreneur firstAdvanceMoment mainHistory)
+    (.quantity creditLifecycleMoney 3)
+    (lifecycleOmega .entrepreneur secondAdvanceMoment mainHistory)
+    entrepreneurAdvanceOutsideOption
+  · intro e' he'
+    cases e' with
+    | bundle b => simp [creditLifecycleValuedEnd] at he'
+    | timed e t => simp [creditLifecycleValuedEnd] at he'
+    | quantity good q =>
+        have hvalues : good = creditLifecycleMoney ∧ q = 3 := by
+          simpa [creditLifecycleValuedEnd, firstAdvanceMoment, mainMoment,
+            creditLifecycleMoney, creditLifecycleCollateral] using he'
+        rcases hvalues with ⟨rfl, rfl⟩
+        rfl
+  · simp [creditLifecycleValuedEnd, firstAdvanceMoment, mainMoment,
+      creditLifecycleMoney]
+  · intro m
+    by_cases hm : m = creditLifecycleMoney
+    · subst m
+      norm_num [JointlyAttains, creditLifecycleRequirement, lifecycleOmega,
+        lifecycleBalance, lifecycleBaseStage, secondAdvanceMoment, mainMoment]
+    · have hmc : creditLifecycleMoney ≠ m := fun he => hm he.symm
+      simp [creditLifecycleRequirement, hmc]
+  · intro h
+    have hc := h creditLifecycleMoney
+    norm_num [JointlyAttains, creditLifecycleRequirement, entrepreneurAdvanceOutsideOption,
+      lifecycleOmega, lifecycleBalance, lifecycleBaseStage, lifecycleLeaf,
+      historyByIndex, creditLifecycleMoney] at hc
+
+/-- The finite ActionFrame menus contain only inaction and the specified
+advance for each participant at this decision node. -/
+theorem operator_advance_menu (β : WorkshopAction)
+    (hβ : β ∈ A_feas .operator firstAdvanceMoment mainHistory) :
+    β = alpha_zero ∨ β = firstAdvanceOffer := by
+  have hcont : β ∈ A_cont .operator firstAdvanceMoment mainHistory :=
+    (creditLifecycleActionFrame.A_feas_coupling
+      WorkshopAgent.operator firstAdvanceMoment mainHistory β).mp hβ |>.1
+  change β ∈ creditLifecycleActionsAt .operator firstAdvanceMoment at hcont
+  rcases eventMenu_mem_cases hcont with hIdle | hOffer
+  · exact Or.inl hIdle
+  · right
+    simpa [creditLifecycleChoice, firstAdvanceMoment, mainMoment,
+      firstAdvanceOffer, creditLifecycleMoney, creditLifecycleCollateral] using hOffer
+
+theorem entrepreneur_advance_menu (β : WorkshopAction)
+    (hβ : β ∈ A_feas .entrepreneur firstAdvanceMoment mainHistory) :
+    β = alpha_zero ∨ β = firstAdvanceAccept := by
+  have hcont : β ∈ A_cont .entrepreneur firstAdvanceMoment mainHistory :=
+    (creditLifecycleActionFrame.A_feas_coupling
+      WorkshopAgent.entrepreneur firstAdvanceMoment mainHistory β).mp hβ |>.1
+  change β ∈ creditLifecycleActionsAt .entrepreneur firstAdvanceMoment at hcont
+  rcases eventMenu_mem_cases hcont with hIdle | hAccept
+  · exact Or.inl hIdle
+  · right
+    simpa [creditLifecycleChoice, firstAdvanceMoment, mainMoment,
+      firstAdvanceAccept, creditLifecycleMoney, creditLifecycleCollateral] using hAccept
+
+theorem operator_advance_purposeful :
+    PurposefulAct .operator firstAdvanceMoment mainHistory firstAdvanceOffer := by
+  have hpref := operator_prefers_collateralized_advance
+  have hfeasible : firstAdvanceOffer ∈ A_feas .operator firstAdvanceMoment mainHistory := by
+    decide
+  have hexec : Exec WorkshopAgent.operator firstAdvanceMoment
+      firstAdvanceOffer mainHistory := by
+    unfold Exec ChoicePartition
+    change creditLifecycleActionFrame.mem_hist firstAdvanceMoment mainHistory ∧
+      lifecycleEnacted WorkshopAgent.operator firstAdvanceMoment mainHistory = firstAdvanceOffer
+    constructor
+    · change lifecycleMemHist firstAdvanceMoment mainHistory
+      decide
+    · decide
+  refine ⟨hfeasible, hexec, Or.inr hpref, ?_⟩
+  intro β hβ hreverse
+  rcases operator_advance_menu β hβ with hidle | hoff
+  · rw [hidle] at hreverse
+    exact (pref_asymm WorkshopAgent.operator firstAdvanceMoment mainHistory hpref hreverse).elim
+  · subst β
+    exact (pref_irrefl WorkshopAgent.operator firstAdvanceMoment mainHistory _ hreverse).elim
+
+theorem entrepreneur_accept_purposeful :
+    PurposefulAct .entrepreneur firstAdvanceMoment mainHistory firstAdvanceAccept := by
+  have hpref := entrepreneur_prefers_advance
+  have hfeasible : firstAdvanceAccept ∈ A_feas .entrepreneur firstAdvanceMoment mainHistory := by
+    decide
+  have hexec : Exec WorkshopAgent.entrepreneur firstAdvanceMoment
+      firstAdvanceAccept mainHistory := by
+    unfold Exec ChoicePartition
+    change creditLifecycleActionFrame.mem_hist firstAdvanceMoment mainHistory ∧
+      lifecycleEnacted WorkshopAgent.entrepreneur
+        firstAdvanceMoment mainHistory = firstAdvanceAccept
+    constructor
+    · change lifecycleMemHist firstAdvanceMoment mainHistory
+      decide
+    · decide
+  refine ⟨hfeasible, hexec, Or.inr hpref, ?_⟩
+  intro β hβ hreverse
+  rcases entrepreneur_advance_menu β hβ with hidle | haccept
+  · rw [hidle] at hreverse
+    exact (pref_asymm WorkshopAgent.entrepreneur firstAdvanceMoment mainHistory hpref hreverse).elim
+  · subst β
+    exact (pref_irrefl WorkshopAgent.entrepreneur firstAdvanceMoment mainHistory _ hreverse).elim
+
+/-- The concrete advance is the generic purposeful bilateral exchange already
+present in the frame's event table. -/
+theorem entrepreneurAdvance_is_bilateral_exchange :
+    BilateralExchange .operator .entrepreneur firstAdvanceMoment mainHistory
+      1 creditLifecycleMoney 1 creditLifecycleCollateral := by
+  exact ricardian_bilateral_exchange_purposeful WorkshopAgent.operator WorkshopAgent.entrepreneur
+    firstAdvanceMoment mainHistory creditLifecycleMoney creditLifecycleCollateral
+    1 1 (by decide) (by decide) operator_advance_purposeful (by decide)
+    entrepreneur_accept_purposeful (by decide)
+
+/-- The frame's actual first advance satisfies the generic loan-advance
+interface, including strict ordering before the frame's maturity node. -/
+def entrepreneurCreditAdvance : CreditAdvance entrepreneurLoanTerms where
+  history := mainHistory
+  moment := firstAdvanceMoment
+  nextMoment := secondAdvanceMoment
+  successor := by
+    change IsNextMoment lifecyclePrecedence lifecycleMemHist
+      firstAdvanceMoment secondAdvanceMoment mainHistory
+    exact lifecycleNextMoment_is_next firstAdvanceMoment mainHistory (by decide) (by decide)
+  advanceBeforeMaturity := by
+    change lifecyclePrecedence secondAdvanceMoment maturityMoment
+    decide
+  purposefulExchange := entrepreneurAdvance_is_bilateral_exchange
+
+def operatorRepaymentOutsideOption : WorkshopMeans → ℕ :=
+  lifecycleOmega .operator (lifecycleLeaf (historyByIndex 9)) (historyByIndex 9)
+
+def entrepreneurRepaymentOutsideOption : WorkshopMeans → ℕ :=
+  lifecycleOmega .entrepreneur (lifecycleLeaf (historyByIndex 8)) (historyByIndex 8)
+
+/-- The entrepreneur's matched repayment outcome is the post-transfer
+inventory on the main history. -/
+theorem entrepreneur_repayment_end :
+    creditLifecycleEnd .entrepreneur firstRepaymentOffer firstRepaymentMoment mainHistory =
+      .bundle (lifecycleOmega .entrepreneur secondRepaymentMoment mainHistory) := by
+  have hsigma : lifecycleSigma .entrepreneur firstRepaymentMoment firstRepaymentOffer
+      (lifecycleWitness firstRepaymentMoment) = mainHistory := by decide
+  unfold creditLifecycleEnd
+  rw [hsigma]
+  simp [creditLifecycleOutcome, creditLifecycleMaturation, lifecycleNextMoment,
+    firstRepaymentMoment, secondRepaymentMoment, mainHistory, historyByIndex, mainMoment]
+
+/-- The lender's matched repayment outcome is the post-transfer inventory on
+the main history. -/
+theorem operator_repayment_end :
+    creditLifecycleEnd .operator firstRepaymentAccept firstRepaymentMoment mainHistory =
+      .bundle (lifecycleOmega .operator secondRepaymentMoment mainHistory) := by
+  have hsigma : lifecycleSigma .operator firstRepaymentMoment firstRepaymentAccept
+      (lifecycleWitness firstRepaymentMoment) = mainHistory := by decide
+  unfold creditLifecycleEnd
+  rw [hsigma]
+  simp [creditLifecycleOutcome, creditLifecycleMaturation, lifecycleNextMoment,
+    firstRepaymentMoment, secondRepaymentMoment, mainHistory, historyByIndex, mainMoment]
+
+/-- Without the entrepreneur's offer, the operator's acceptance is unmatched. -/
+theorem entrepreneur_repayment_idle_end :
+    creditLifecycleEnd .entrepreneur .idle firstRepaymentMoment mainHistory =
+      .bundle entrepreneurRepaymentOutsideOption := by
+  have hsigma : lifecycleSigma .entrepreneur firstRepaymentMoment .idle
+      (lifecycleWitness firstRepaymentMoment) = historyByIndex 8 := by decide
+  unfold creditLifecycleEnd
+  rw [hsigma]
+  simp [creditLifecycleOutcome, creditLifecycleMaturation,
+    entrepreneurRepaymentOutsideOption, lifecycleNextMoment, lifecycleLeaf,
+    historyByIndex, firstRepaymentMoment, mainMoment]
+
+/-- Without the lender's acceptance, the entrepreneur's offer is unmatched. -/
+theorem operator_repayment_idle_end :
+    creditLifecycleEnd .operator .idle firstRepaymentMoment mainHistory =
+      .bundle operatorRepaymentOutsideOption := by
+  have hsigma : lifecycleSigma .operator firstRepaymentMoment .idle
+      (lifecycleWitness firstRepaymentMoment) = historyByIndex 9 := by decide
+  unfold creditLifecycleEnd
+  rw [hsigma]
+  simp [creditLifecycleOutcome, creditLifecycleMaturation,
+    operatorRepaymentOutsideOption, lifecycleNextMoment, lifecycleLeaf,
+    historyByIndex, firstRepaymentMoment, mainMoment]
+
+/-- The entrepreneur offers the repayment to regain the valued collateral end;
+the unmatched-offer outcome does not attain it. -/
+theorem borrower_prefers_repayment :
+    creditLifecyclePreference .entrepreneur firstRepaymentMoment mainHistory
+      (creditLifecycleEnd .entrepreneur firstRepaymentOffer firstRepaymentMoment mainHistory)
+      (creditLifecycleEnd .entrepreneur .idle firstRepaymentMoment mainHistory) := by
+  rw [entrepreneur_repayment_end, entrepreneur_repayment_idle_end]
+  change SubjectiveTeleologicalDominates creditLifecycleRequirement
+    (creditLifecycleValuedEnd .entrepreneur firstRepaymentMoment mainHistory)
+    (lifecycleOmega .entrepreneur secondRepaymentMoment mainHistory)
+    entrepreneurRepaymentOutsideOption
+  apply subjective_teleological_dominates_of_unique_valued_end
+    creditLifecycleRequirement
+    (creditLifecycleValuedEnd .entrepreneur firstRepaymentMoment mainHistory)
+    (.quantity creditLifecycleCollateral 1)
+    (lifecycleOmega .entrepreneur secondRepaymentMoment mainHistory)
+    entrepreneurRepaymentOutsideOption
+  · intro e' he'
+    cases e' with
+    | bundle b => simp [creditLifecycleValuedEnd] at he'
+    | timed e t => simp [creditLifecycleValuedEnd] at he'
+    | quantity good q =>
+        have hvalues : good = creditLifecycleCollateral ∧ q = 1 := by
+          simpa [creditLifecycleValuedEnd, firstRepaymentMoment, mainMoment,
+            creditLifecycleMoney, creditLifecycleCollateral] using he'
+        rcases hvalues with ⟨rfl, rfl⟩
+        rfl
+  · simp [creditLifecycleValuedEnd, firstRepaymentMoment, mainMoment,
+      creditLifecycleCollateral]
+  · intro m
+    by_cases hm : m = creditLifecycleCollateral
+    · subst m
+      norm_num [JointlyAttains, creditLifecycleRequirement, lifecycleOmega,
+        lifecycleBalance, lifecycleBaseStage, secondRepaymentMoment, mainMoment]
+    · have hmc : creditLifecycleCollateral ≠ m := fun he => hm he.symm
+      simp [creditLifecycleRequirement, hmc]
+  · intro h
+    have hc := h creditLifecycleCollateral
+    norm_num [JointlyAttains, creditLifecycleRequirement, entrepreneurRepaymentOutsideOption,
+      lifecycleOmega, lifecycleBalance, lifecycleBaseStage, lifecycleLeaf,
+      historyByIndex, creditLifecycleCollateral] at hc
+    norm_num [creditLifecycleMoney, creditLifecycleCollateral,
+      tokenMeans, rawMeans] at hc
+
+/-- The operator accepts repayment because the transfer attains the valued
+two-unit money end, which is absent under an unmatched acceptance. -/
+theorem operator_prefers_repayment :
+    creditLifecyclePreference .operator firstRepaymentMoment mainHistory
+      (creditLifecycleEnd .operator firstRepaymentAccept firstRepaymentMoment mainHistory)
+      (creditLifecycleEnd .operator .idle firstRepaymentMoment mainHistory) := by
+  rw [operator_repayment_end, operator_repayment_idle_end]
+  change SubjectiveTeleologicalDominates creditLifecycleRequirement
+    (creditLifecycleValuedEnd .operator firstRepaymentMoment mainHistory)
+    (lifecycleOmega .operator secondRepaymentMoment mainHistory)
+    operatorRepaymentOutsideOption
+  apply subjective_teleological_dominates_of_unique_valued_end
+    creditLifecycleRequirement
+    (creditLifecycleValuedEnd .operator firstRepaymentMoment mainHistory)
+    (.quantity creditLifecycleMoney 2)
+    (lifecycleOmega .operator secondRepaymentMoment mainHistory)
+    operatorRepaymentOutsideOption
+  · intro e' he'
+    cases e' with
+    | bundle b => simp [creditLifecycleValuedEnd] at he'
+    | timed e t => simp [creditLifecycleValuedEnd] at he'
+    | quantity good q =>
+        have hvalues : good = creditLifecycleMoney ∧ q = 2 := by
+          simpa [creditLifecycleValuedEnd, firstRepaymentMoment, mainMoment,
+            creditLifecycleMoney, creditLifecycleCollateral] using he'
+        rcases hvalues with ⟨rfl, rfl⟩
+        rfl
+  · simp [creditLifecycleValuedEnd, firstRepaymentMoment, mainMoment,
+      creditLifecycleMoney]
+  · intro m
+    by_cases hm : m = creditLifecycleMoney
+    · subst m
+      norm_num [JointlyAttains, creditLifecycleRequirement, lifecycleOmega,
+        lifecycleBalance, lifecycleBaseStage, secondRepaymentMoment, mainMoment]
+    · have hmc : creditLifecycleMoney ≠ m := fun he => hm he.symm
+      simp [creditLifecycleRequirement, hmc]
+  · intro h
+    have hc := h creditLifecycleMoney
+    norm_num [JointlyAttains, creditLifecycleRequirement, operatorRepaymentOutsideOption,
+      lifecycleOmega, lifecycleBalance, lifecycleBaseStage, lifecycleLeaf,
+      historyByIndex, creditLifecycleMoney] at hc
+
+/-- Each participant's feasible repayment menu contains only inaction and its
+specified repayment action. -/
+theorem entrepreneur_repayment_menu (β : WorkshopAction)
+    (hβ : β ∈ A_feas .entrepreneur firstRepaymentMoment mainHistory) :
+    β = alpha_zero ∨ β = firstRepaymentOffer := by
+  have hcont : β ∈ A_cont .entrepreneur firstRepaymentMoment mainHistory :=
+    (creditLifecycleActionFrame.A_feas_coupling
+      WorkshopAgent.entrepreneur firstRepaymentMoment mainHistory β).mp hβ |>.1
+  change β ∈ creditLifecycleActionsAt .entrepreneur firstRepaymentMoment at hcont
+  rcases eventMenu_mem_cases hcont with hIdle | hOffer
+  · exact Or.inl hIdle
+  · right
+    simpa [creditLifecycleChoice, firstRepaymentMoment, mainMoment,
+      firstRepaymentOffer, firstAdvanceOffer, creditLifecycleMoney,
+      creditLifecycleCollateral] using hOffer
+
+theorem operator_repayment_menu (β : WorkshopAction)
+    (hβ : β ∈ A_feas .operator firstRepaymentMoment mainHistory) :
+    β = alpha_zero ∨ β = firstRepaymentAccept := by
+  have hcont : β ∈ A_cont .operator firstRepaymentMoment mainHistory :=
+    (creditLifecycleActionFrame.A_feas_coupling
+      WorkshopAgent.operator firstRepaymentMoment mainHistory β).mp hβ |>.1
+  change β ∈ creditLifecycleActionsAt .operator firstRepaymentMoment at hcont
+  rcases eventMenu_mem_cases hcont with hIdle | hAccept
+  · exact Or.inl hIdle
+  · right
+    simpa [creditLifecycleChoice, firstRepaymentMoment, mainMoment,
+      firstRepaymentAccept, firstAdvanceAccept, creditLifecycleMoney,
+      creditLifecycleCollateral] using hAccept
+
+theorem entrepreneur_repayment_purposeful :
+    PurposefulAct .entrepreneur firstRepaymentMoment mainHistory firstRepaymentOffer := by
+  have hpref := borrower_prefers_repayment
+  have hfeasible : firstRepaymentOffer ∈
+      A_feas .entrepreneur firstRepaymentMoment mainHistory := by decide
+  have hexec : Exec WorkshopAgent.entrepreneur firstRepaymentMoment
+      firstRepaymentOffer mainHistory := by
+    unfold Exec ChoicePartition
+    change creditLifecycleActionFrame.mem_hist firstRepaymentMoment mainHistory ∧
+      lifecycleEnacted WorkshopAgent.entrepreneur
+        firstRepaymentMoment mainHistory = firstRepaymentOffer
+    constructor
+    · change lifecycleMemHist firstRepaymentMoment mainHistory
+      decide
+    · decide
+  refine ⟨hfeasible, hexec, Or.inr hpref, ?_⟩
+  intro β hβ hreverse
+  rcases entrepreneur_repayment_menu β hβ with hidle | hoff
+  · rw [hidle] at hreverse
+    exact (pref_asymm WorkshopAgent.entrepreneur firstRepaymentMoment mainHistory
+      hpref hreverse).elim
+  · subst β
+    exact (pref_irrefl WorkshopAgent.entrepreneur firstRepaymentMoment mainHistory _
+      hreverse).elim
+
+theorem operator_repayment_purposeful :
+    PurposefulAct .operator firstRepaymentMoment mainHistory firstRepaymentAccept := by
+  have hpref := operator_prefers_repayment
+  have hfeasible : firstRepaymentAccept ∈
+      A_feas .operator firstRepaymentMoment mainHistory := by decide
+  have hexec : Exec WorkshopAgent.operator firstRepaymentMoment
+      firstRepaymentAccept mainHistory := by
+    unfold Exec ChoicePartition
+    change creditLifecycleActionFrame.mem_hist firstRepaymentMoment mainHistory ∧
+      lifecycleEnacted WorkshopAgent.operator
+        firstRepaymentMoment mainHistory = firstRepaymentAccept
+    constructor
+    · change lifecycleMemHist firstRepaymentMoment mainHistory
+      decide
+    · decide
+  refine ⟨hfeasible, hexec, Or.inr hpref, ?_⟩
+  intro β hβ hreverse
+  rcases operator_repayment_menu β hβ with hidle | haccept
+  · rw [hidle] at hreverse
+    exact (pref_asymm WorkshopAgent.operator firstRepaymentMoment mainHistory
+      hpref hreverse).elim
+  · subst β
+    exact (pref_irrefl WorkshopAgent.operator firstRepaymentMoment mainHistory _
+      hreverse).elim
+
+theorem entrepreneur_repayment_is_bilateral_exchange :
+    BilateralExchange .entrepreneur .operator firstRepaymentMoment mainHistory
+      2 creditLifecycleMoney 1 creditLifecycleCollateral := by
+  exact ricardian_bilateral_exchange_purposeful WorkshopAgent.entrepreneur
+    WorkshopAgent.operator firstRepaymentMoment mainHistory creditLifecycleMoney
+    creditLifecycleCollateral 2 1 (by decide) (by decide)
+    entrepreneur_repayment_purposeful (by decide) operator_repayment_purposeful (by decide)
+
+/-- The finite frame's actual first repayment fills the generic contract's
+repayment interface after advance and strictly before maturity. -/
+def entrepreneurCreditRepayment : CreditRepayment entrepreneurCreditAdvance where
+  moment := firstRepaymentMoment
+  nextMoment := secondRepaymentMoment
+  successor := by
+    change IsNextMoment lifecyclePrecedence lifecycleMemHist
+      firstRepaymentMoment secondRepaymentMoment mainHistory
+    exact lifecycleNextMoment_is_next firstRepaymentMoment mainHistory (by decide) (by decide)
+  afterAdvance := by
+    change lifecyclePrecedence secondAdvanceMoment firstRepaymentMoment
+    decide
+  beforeMaturity := by
+    change lifecyclePrecedence firstRepaymentMoment maturityMoment
+    decide
+  purposefulExchange := entrepreneur_repayment_is_bilateral_exchange
+
 end CreditLifecycleTree
 
 end Praxeology

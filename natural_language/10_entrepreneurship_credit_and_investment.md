@@ -100,29 +100,29 @@ Suppose the chosen action is ex-ante purposeful, the actual history is the sole 
 Availability, awareness, and know-how are separate conditions: membership in a contemplated menu neither proves robust feasibility nor supplies a uniformly successful action across epistemic alternatives. The paired result makes two sources of error visible. A contemplated alternative that becomes better may reflect surprise or a risk across plausible histories. An overlooked action may become salient through alertness even when the actual history was expected. These are different failures: one concerns forecasts, the other the set of alternatives considered.
 
 ### Definition 10.8 (Bounded Contemplation and Kirznerian Alertness Operator)
-In an Action Frame $\mathcal{W}$, a **bounded contemplation context** $B = \langle \mathcal{A}_{\text{phys}}, \mathcal{A}_{\text{cont}}, \text{End\_of}, \succ \rangle$ models the agent's finite cognitive awareness:
-1. $\mathcal{A}_{\text{phys}} \subseteq \mathcal{A}$ is the finite set of physically available actions whose input requirements do not exceed current physical endowment.
-2. $\mathcal{A}_{\text{cont}} \subseteq \mathcal{A}$ is the finite set of actions actively contemplated by the actor.
-3. The effective choice menu $\mathcal{A}_{\text{eff}}$ is their intersection:
+In an Action Frame $\mathcal{W}$, a **bounded contemplation context** $`B = \langle \mathcal{A}_{\text{phys}}, \mathcal{A}_{\text{cont}}, \text{End\_of}, \succ \rangle`$ models the agent's finite cognitive awareness:
+1. $`\mathcal{A}_{\text{phys}} \subseteq \mathcal{A}`$ is the finite set of physically available actions whose input requirements do not exceed current physical endowment.
+2. $`\mathcal{A}_{\text{cont}} \subseteq \mathcal{A}`$ is the finite set of actions actively contemplated by the actor.
+3. The effective choice menu $`\mathcal{A}_{\text{eff}}`$ is their intersection:
 
 $$
 \mathcal{A}_{\text{eff}} = \mathcal{A}_{\text{phys}} \cap \mathcal{A}_{\text{cont}}
 $$
 
-The **Kirznerian Alertness Operator** records the pure discovery of an unconsidered opportunity $\alpha^{\ast} \notin \mathcal{A}_{\text{cont}}$, expanding the contemplated set without altering the physical endowment:
+The **Kirznerian Alertness Operator** records the pure discovery of an unconsidered opportunity $`\alpha^{\ast} \notin \mathcal{A}_{\text{cont}}`$, expanding the contemplated set without altering the physical endowment:
 
 $$
 \text{KirznerAlertnessOperator}(B, \alpha^{\ast}) = \mathcal{A}_{\text{cont}} \cup \{ \alpha^{\ast} \}
 $$
 
-The resulting expanded effective menu is $\mathcal{A}_{\text{eff}}^{+} = \mathcal{A}_{\text{phys}} \cap (\mathcal{A}_{\text{cont}} \cup \{ \alpha^{\ast} \})$. Pure entrepreneurial alertness expands the realm of purposeful human action without requiring prior physical expenditure or alterations of technological constraints.
+The resulting expanded effective menu is $`\mathcal{A}_{\text{eff}}^{+} = \mathcal{A}_{\text{phys}} \cap (\mathcal{A}_{\text{cont}} \cup \{ \alpha^{\ast} \})`$. Pure entrepreneurial alertness expands the realm of purposeful human action without requiring prior physical expenditure or alterations of technological constraints.
 
 ### Theorem 10.9 (Kirznerian Alertness Discovery Expansion)
-Suppose $\alpha^{\ast}$ is physically available ($\alpha^{\ast} \in \mathcal{A}_{\text{phys}}$) but unconsidered ($\alpha^{\ast} \notin \mathcal{A}_{\text{cont}}$). If its realized end is strictly preferred to the end of every previously contemplated action ($\forall \beta \in \mathcal{A}_{\text{cont}}, \text{End\_of}(\alpha^{\ast}) \succ \text{End\_of}(\beta)$) and distinct from them, then under the Kirznerian alertness operator:
-1. The effective choice menu strictly expands: $\mathcal{A}_{\text{eff}} \subsetneq \mathcal{A}_{\text{eff}}^{+}$.
-2. The contemplated menu strictly expands: $\mathcal{A}_{\text{cont}} \subsetneq \mathcal{A}_{\text{cont}} \cup \{ \alpha^{\ast} \}$.
-3. $\alpha^{\ast}$ belongs to the expanded effective menu: $\alpha^{\ast} \in \mathcal{A}_{\text{eff}}^{+}$.
-4. Every old action in $\mathcal{A}_{\text{cont}}$ is strictly dominated by $\alpha^{\ast}$.
+Suppose $\alpha^{\ast}$ is physically available ( $`\alpha^{\ast} \in \mathcal{A}_{\text{phys}}`$ ) but unconsidered ( $`\alpha^{\ast} \notin \mathcal{A}_{\text{cont}}`$ ). If its realized end is strictly preferred to the end of every previously contemplated action ( $`\forall \beta \in \mathcal{A}_{\text{cont}}, \text{End\_of}(\alpha^{\ast}) \succ \text{End\_of}(\beta)`$ ) and distinct from them, then under the Kirznerian alertness operator:
+1. The effective choice menu strictly expands: $`\mathcal{A}_{\text{eff}} \subsetneq \mathcal{A}_{\text{eff}}^{+}`$.
+2. The contemplated menu strictly expands: $`\mathcal{A}_{\text{cont}} \subsetneq \mathcal{A}_{\text{cont}} \cup \{ \alpha^{\ast} \}`$.
+3. $\alpha^{\ast}$ belongs to the expanded effective menu: $`\alpha^{\ast} \in \mathcal{A}_{\text{eff}}^{+}`$.
+4. Every old action in $`\mathcal{A}_{\text{cont}}`$ is strictly dominated by $\alpha^{\ast}$.
 5. No action in the expanded menu is strictly preferred to $\alpha^{\ast}$:
 
 $$
@@ -135,7 +135,7 @@ $$
 \forall \gamma \in \mathcal{A}_{\text{cont}} \cup \{ \alpha^{\ast} \}, \quad (\forall \beta, \neg(\text{End\_of}(\beta) \succ \text{End\_of}(\gamma))) \implies \gamma = \alpha^{\ast}
 $$
 
-**Proof.** Because $\alpha^{\ast} \in \mathcal{A}_{\text{phys}}$ and $\alpha^{\ast} \notin \mathcal{A}_{\text{cont}}$, $\alpha^{\ast} \notin \mathcal{A}_{\text{eff}}$. Thus $\mathcal{A}_{\text{eff}}^{+} = \mathcal{A}_{\text{eff}} \cup \{ \alpha^{\ast} \}$ is a strict superset of $\mathcal{A}_{\text{eff}}$, and $\mathcal{A}_{\text{cont}} \cup \{ \alpha^{\ast} \}$ is a strict superset of $\mathcal{A}_{\text{cont}}$. By hypothesis, $\alpha^{\ast}$ strictly dominates every $\beta \in \mathcal{A}_{\text{cont}}$. Asymmetry of preference rules out the reverse comparison $\text{End\_of}(\beta) \succ \text{End\_of}(\alpha^{\ast})$, and irreflexivity rules out self-preference. Hence $\alpha^{\ast}$ is undominated in $\mathcal{A}_{\text{cont}} \cup \{ \alpha^{\ast} \}$. If any $\gamma$ is undominated, it cannot be an element of $\mathcal{A}_{\text{cont}}$ (since $\alpha^{\ast}$ dominates it), forcing $\gamma = \alpha^{\ast}$. $\blacksquare$
+**Proof.** Because $`\alpha^{\ast} \in \mathcal{A}_{\text{phys}}`$ and $`\alpha^{\ast} \notin \mathcal{A}_{\text{cont}}`$, $`\alpha^{\ast} \notin \mathcal{A}_{\text{eff}}`$. Thus $`\mathcal{A}_{\text{eff}}^{+} = \mathcal{A}_{\text{eff}} \cup \{ \alpha^{\ast} \}`$ is a strict superset of $`\mathcal{A}_{\text{eff}}`$, and $`\mathcal{A}_{\text{cont}} \cup \{ \alpha^{\ast} \}`$ is a strict superset of $`\mathcal{A}_{\text{cont}}`$. By hypothesis, $\alpha^{\ast}$ strictly dominates every $`\beta \in \mathcal{A}_{\text{cont}}`$. Asymmetry of preference rules out the reverse comparison $`\text{End\_of}(\beta) \succ \text{End\_of}(\alpha^{\ast})`$, and irreflexivity rules out self-preference. Hence $\alpha^{\ast}$ is undominated in $`\mathcal{A}_{\text{cont}} \cup \{ \alpha^{\ast} \}`$. If any $\gamma$ is undominated, it cannot be an element of $`\mathcal{A}_{\text{cont}}`$ (since $\alpha^{\ast}$ dominates it), forcing $\gamma = \alpha^{\ast}$. $\blacksquare$
 
 ## Purposeful Fiduciary Issuance and Loan Origination
 
@@ -241,6 +241,8 @@ For positive $P$ and nonnegative $r$, the promised repayment is at least the pri
 **Proof.** From $g=1+r$ and $r\ge0$, we have $g\ge1$, so $P\le Pg=R$. Also $P+I=P+Pr=P(1+r)=R$. Since $P>0$, $Pr=0$ exactly when $r=0$, which is also exactly when $R=P(1+r)=P$. $\square$
 
 The loan's contractual status is separate from its physical inventory. The status records whether the obligation is outstanding, repaid, or defaulted; the inventory equations record where money and collateral are held.
+
+The formal distinction is also reflected in the evidence types. An **enacted loan quote** consists of the contract terms and a matched, enacted advance. It does not contain a repayment event. A later repayment conclusion takes separate `CreditRepayment` evidence for that advance; an unpaid-maturity conclusion instead takes separate `UnpaidMaturity` evidence. Thus the promised amount in a contract is not itself evidence that the borrower paid it. Rate comparisons derived from origination and market-clearing evidence remain distinct from comparisons of actually observed repayments.
 
 ### Definition 10.15 (Loan Status Transitions)
 
@@ -473,7 +475,7 @@ By tracking the monetary vector $\mathbf{M}(t, h)$, economic observers can rigor
 
 This separation allows monetary analysts to evaluate credit expansion directly from balance-sheet transactions without confusing capital accumulation with fiduciary inflation.
 
-### Proposition 10.21a (Endogenous Loan Rate Suppression from Fiduciary Expansion)
+### Proposition 10.21a (Conditional Repayment-Rate Comparison under Fiduciary Origination)
 
 Consider two loan contracts $T_{\mathrm{nat}}$ and $T_{\mathrm{cred}}$ sharing identical principal $T_{\mathrm{nat}}.\mathrm{principal} = T_{\mathrm{cred}}.\mathrm{principal}$ and currency $T_{\mathrm{nat}}.\mathrm{money} = T_{\mathrm{cred}}.\mathrm{money}$. If a fractional-reserve bank creates unbacked fiduciary notes via fiduciary origination ( $I, A_{\mathrm{cred}}, O$ ) to fund a marginal borrower whose project cash endowment at repayment moment $R.\mathrm{moment}$ strictly falls short of natural repayment ( $`\omega(T_{\mathrm{cred}}.\mathrm{borrower}, R.\mathrm{moment}, A_{\mathrm{cred}}.\mathrm{history}, T_{\mathrm{cred}}.\mathrm{money}) < T_{\mathrm{nat}}.\mathrm{repayment}`$ ), then:
 
@@ -485,6 +487,8 @@ Consider two loan contracts $T_{\mathrm{nat}}$ and $T_{\mathrm{cred}}$ sharing i
    $`\mathrm{Offer}(T_{\mathrm{cred}}.\mathrm{borrower}, T_{\mathrm{nat}}.\mathrm{lender}, T_{\mathrm{nat}}.\mathrm{repayment}, \dots) \notin \mathcal{A}_{\mathrm{feas}} \ \wedge\ \neg \mathsf{P}(\mathrm{Offer}(\dots))`$.
 
 **Proof.** Because the borrower executes repayment under $T_{\mathrm{cred}}$, the borrower's cash balance covers $T_{\mathrm{cred}}.\mathrm{repayment}$. Since that same cash balance is strictly less than $T_{\mathrm{nat}}.\mathrm{repayment}$, transitivity of order over $\mathbb{N}$ establishes $T_{\mathrm{cred}}.\mathrm{repayment} < T_{\mathrm{nat}}.\mathrm{repayment}$. With identical principals, dividing the repayment equation yields $T_{\mathrm{cred}}.\mathrm{grossRepaymentFactor} < T_{\mathrm{nat}}.\mathrm{grossRepaymentFactor}$. Fiduciary note issuance expands total media by $T_{\mathrm{cred}}.\mathrm{principal}$ by Proposition 10.10. Finally, because available cash is strictly less than natural repayment, offering natural repayment violates the resource feasibility coupling $`\mathcal{A}_{\mathrm{feas\_coupling}}`$, rendering the action infeasible and non-purposeful. $\blacksquare$
+
+This is a conditional comparison of two repayment outcomes. The result uses evidence that the credit borrower actually repays and has less money at that repayment moment than the natural contract would require. It does not derive successful repayment, purposeful investment, or a general market-rate response from note issuance alone.
 
 ### Sectoral Liquidity Stress Testing: Cash-Backed Solvency
 
@@ -516,7 +520,7 @@ $$
 
 **Proof.** The first two statements follow directly from Proposition 9.14d. For the third statement, the strict increase in the upper bound yields $`C^+(\mathcal{B}_1, x_i) < C^+(\mathcal{B}_2, x_i)`$. Since $`\omega_i(m) < C^+(\mathcal{B}_2, x_i)`$, Proposition 9.14b proves that the completion action requires more cash than the enterprise possesses, rendering it resource-infeasible. $\blacksquare$
 
-Theorem 10.23 establishes the direct transmission mechanism connecting fiduciary expansion to entrepreneurial malinvestment: the expansion bids up factor prices, squeezing the cash buffers of downstream producers whose endowments have not expanded, contracting the solvent cohort, and precipitating the cluster of production failures analyzed in Chapter 13.
+Theorem 10.23 is conditional on the stated widening of the price box and on the affected firm's cash endowment remaining fixed. Its arithmetic derives a weak contraction of the modeled cash-solvent set, and a strict affordability failure when the balance lies between the old and new costs. It does not derive the price-box change from credit origination, nor does it establish that projected eligibility is physical affordability, that investment was purposeful, or that a crisis cluster follows without the additional cohort and choice evidence stated in Chapter 13.
 
 ### The Econometric Boundary of Monetary Measurement
 
@@ -539,25 +543,24 @@ This boundary establishes that while the physical coordinates of the monetary st
 
 ## The Complete Credit Lifecycle Action Frame Witness
 
-To establish that the stages of credit—fiduciary issuance, matched loan origination, collateral custody, intermediate production, debt distress, refinancing, and default—can hold together without internal contradiction, we construct an explicit, finite model-theoretic witness: the **Credit Lifecycle Action Frame**.
+To check a finite arrangement of issuance, matched loan advances, collateral custody, project completion, repayment, and unpaid maturity, we construct the **Credit Lifecycle Action Frame**. Repayment and unpaid maturity are separate continuations after origination.
 
 ### Model Structure and Branching Architecture
 
 The lifecycle model is defined over a branching temporal frame consisting of:
-1. **Moments and Histories:** A finite poset of twenty discrete moments ( $`\mathcal{T} = \{0, 1, \dots, 19\}`$ ) organized into a tree with twelve maximal histories ( $`\mathcal{H} = \{0, 1, \dots, 11\}`$ ).
-2. **Economic Agents:** Three distinct economic actors ( $`\mathcal{I} = \{\text{entrepreneur}, \text{operator}, \text{customer}\}`$ ).
-3. **Physical Means:** Two discrete goods ( $`\mathcal{M} = \{\text{money}, \text{collateral}\}`$ ).
+1. **Moments and Histories:** Twenty discrete moments ( $`\mathcal{T} = \{0, 1, \dots, 19\}`$ ) and fourteen histories ( $`\mathcal{H} = \{0, 1, \dots, 13\}`$ ).
+2. **Economic Agents:** Three actors: the operator as lender, the entrepreneur and customer as borrowers in separate advances.
+3. **Physical Means:** Eight enumerated means; money, collateral, and reserve goods are the coordinates used in the credit accounting.
 4. **Actions:** A finite action menu including the passive baseline $\alpha_0$, money issuance, bilateral trade actions ($\text{Offer}$ and $\text{Accept}$ parameterized by quantity and commodity), and production tasks.
 
 ### Contractual and Physical Transitions
 
-The tree realizes the complete sequential progression of a credit relationship:
-- **Moment 0 (Fiduciary Issuance):** The lending agent enacts a note-issuance action. In accordance with Proposition 10.10, the issuer's money balance increases by the principal quantity, while collateral and the balances of other agents remain strictly conserved.
-- **Moment 1 (Matched Collateralized Advance):** The lender and borrower enact matching bilateral exchange actions ($\text{Offer}$ and $\text{Accept}$). By the bilateral transfer law, the principal in money is transferred from the lender to the borrower, while the stipulated collateral is transferred from the borrower into the lender's custody.
-- **Subsequent Branching (Production vs. Distress):** The timeline branches into mutually incompatible continuations:
-  - *Solvent Completion Branches:* The borrower carries out successful production, producing goods that enable full repayment of principal plus interest, thereby redeeming the pledged collateral.
-  - *Distressed Refinancing Branches:* Unanticipated delays leave the borrower unable to discharge the debt at initial maturity. The tree branches at a restructuring node: the parties contemplate an amended agreement. If matching restructuring actions are enacted, the loan continues under altered terms; if either party withholds consent (unilateral refusal), the restructuring fails to execute.
-  - *Unpaid Default and Collateral Liquidation:* On histories where the restructuring is refused or repayment is withheld, the loan matures unpaid. By Proposition 10.18, the status transitions to default, and the lender retains physical possession of the collateral.
+The tree represents origination and later repayment or nonpayment as separate events. Its main history includes issuance, two advances, project completion, two matched repayments, and maturity. Side histories represent selected refusals or unmatched bilateral transfers. The existing unpaid-maturity branch is used to construct `entrepreneurUnpaidEnactedLoanQuote`, and a theorem proves that its advance has no successful-repayment certificate. This tests the quote boundary on the represented default outcome; it adds no new economic scenario. The quote at origination requires neither later outcome:
+- **Moment 0 (Fiduciary Issuance):** The lending agent enacts a note-issuance action. In accordance with Proposition 10.10, the issuer's money balance increases by the principal quantity, while collateral and the balances of other agents remain unchanged.
+- **Moments 1 and 2 (Matched Collateralized Advances):** The lender and each borrower enact matching bilateral exchange actions ($\text{Offer}$ and $\text{Accept}$). By the bilateral transfer law, principal in money moves from the lender to the borrower, while the stipulated collateral moves from the borrower into the lender's custody.
+- **Subsequent Branching (Completion and Transfer Outcomes):** The timeline branches into continuations that differ in whether the bilateral transfers match:
+  - *Successful Repayment Branch:* The borrower carries out the represented production and a matched repayment of the promised amount, returning the stipulated collateral quantity.
+  - *Unpaid Maturity:* On the represented history where repayment is absent, the unpaid-maturity evidence classifies the outstanding loan as defaulted. The lender retains the collateral stock recorded after the advance under the stated custody conditions. This is not a foreclosure or collateral-liquidation event: the model does not track particular collateral units, a foreclosure judgment, or their sale.
 
 ### Constructive Verification of the Frame Axioms
 
@@ -566,7 +569,7 @@ The Credit Lifecycle Action Frame satisfies every axiom of the praxeological act
 - **Conservation and Bilateral Execution:** Physical transitions obey exact integer conservation. Unilateral offers or acceptances that lack a matching counterparty execute zero transfers ( $\omega(t') = \omega(t)$ ), while matched pairs execute exact simultaneous transfers.
 - **Evaluative Coherence:** Agents' preferences over final consumption bundles satisfy asymmetry, transitivity, and teleological bundle dominance.
 
-This constructive witness proves that multi-period credit contracts with contingent refinancing and default are fully realizable within the axiomatic foundations of praxeology, providing a sound, closed environment for the study of capital and crisis.
+This witness establishes that the represented issuance, advances, repayment, and unpaid-maturity branches satisfy the stated frame and transfer laws. It does not make repayment part of origination, infer nonpayment solely from a missing repayment certificate, or add a refinancing or foreclosure rule. The specific default witness is separate from the five-project business-cycle program.
 
 ---
 

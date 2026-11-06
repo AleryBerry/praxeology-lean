@@ -32,7 +32,7 @@ open ActionFrame
 node. The loan must precede the decision, and its cash is not spent along the
 observed inventory run between origination and that node. -/
 structure EntrepreneurialCreditFunding
-    {W : ActionFrame} (i : W.Agent) (x : W.DecisionIndex) (grossRate : ℕ) where
+    {W : ActionFrame} (i : W.Agent) (x : W.DecisionIndex) (grossRate : ℚ) where
   terms : PawnLoanTerms W
   advance : CreditAdvance terms
   borrowerIsEntrepreneur : terms.borrower = i
@@ -47,7 +47,7 @@ namespace EntrepreneurialCreditFunding
 /-- The borrower has at least the advanced principal in cash at the decision
 node, derived from the matched advance and the intervening inventory balance. -/
 theorem principal_available_at_decision {W : ActionFrame} {i : W.Agent}
-    {x : W.DecisionIndex} {grossRate : ℕ}
+    {x : W.DecisionIndex} {grossRate : ℚ}
     (F : EntrepreneurialCreditFunding i x grossRate) :
     F.terms.principal ≤ W.omega i x.moment x.history F.terms.money := by
   have h_advance := F.advance.physical_transfer.1
@@ -66,7 +66,7 @@ theorem principal_available_at_decision {W : ActionFrame} {i : W.Agent}
 /-- Cash from the observed advance makes a project feasible when it covers
 the project's money input and all other inputs are independently covered. -/
 theorem action_feasible_from_advance {W : ActionFrame} {i : W.Agent}
-    {x : W.DecisionIndex} {grossRate : ℕ}
+    {x : W.DecisionIndex} {grossRate : ℚ}
     (F : EntrepreneurialCreditFunding i x grossRate) (α : W.Action)
     (h_contemplated : α ∈ W.A_cont i x.moment x.history)
     (h_money_input : W.use_means α F.terms.money ≤ F.terms.principal)
@@ -92,7 +92,7 @@ repayment bundle, investment is rejected as non-purposeful. -/
 theorem teleological_bundle_dominance_flips_investment
     [W : ActionFrame]
     (i : W.Agent) (naturalDecision creditDecision : W.DecisionIndex)
-    (investment : W.Action) (grossRate : ℕ)
+    (investment : W.Action) (grossRate : ℚ)
     (funding : EntrepreneurialCreditFunding i creditDecision grossRate)
     (h_investment_active : investment ≠ W.alpha_zero)
     (b_zero b_nat b_cred : W.Means → ℕ)
@@ -148,7 +148,7 @@ maximal preference over the idle baseline. -/
 theorem credit_funding_induces_purposeful_investment
     [W : ActionFrame]
     (i : W.Agent) (x : W.DecisionIndex)
-    (investment : W.Action) (grossRate : ℕ)
+    (investment : W.Action) (grossRate : ℚ)
     (funding : EntrepreneurialCreditFunding i x grossRate)
     (_h_investment_active : investment ≠ W.alpha_zero)
     (h_pref : W.Preference i x.moment x.history

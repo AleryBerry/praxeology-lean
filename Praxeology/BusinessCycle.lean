@@ -10,6 +10,11 @@ public import Praxeology.BusinessCycle.Information
 public import Praxeology.BusinessCycle.Clusters
 public import Praxeology.BusinessCycle.Firms
 public import Praxeology.BusinessCycle.Grounded
+public import Praxeology.BusinessCycle.Auctions
+public import Praxeology.BusinessCycle.Regimes
+public import Praxeology.BusinessCycle.FactorExecution
+public import Praxeology.BusinessCycle.ProfileProgram
+public import Praxeology.BusinessCycle.DefaultWitness
 
 /-!
 # Business Cycle
@@ -24,6 +29,38 @@ factor-price responses, composing blockage with the existing contextual
 regret theorem when each project's counterfactual evidence is supplied. These
 results range over the existing `ActionFrame`; they do not introduce a
 separate finite history model.
+`BusinessCycle.Auctions` supplies deterministic finite loan and factor price
+mechanisms and the five-project reservation/price calculations; a complete
+causal lifecycle also requires preference-grounded choices and earlier
+production stages.
+`BusinessCycle.Regimes` computes the fixed baseline, credit, and saving
+scenario outcomes from explicitly accounted money and completion-factor
+sources, and exposes a named policy from rate observations to expected factor
+supply. The policy is an explicit behavioral premise; equal rate observations
+do not determine it. `BusinessCycle.FactorExecution` applies the eligible
+completion-factor purchases through matched physical transfers, including
+the household's stated factor consumption and sales of offered factors. It
+executes note issuance, the household cash transfer, funded principal advances,
+completion operations, customer output sales, and auction-quoted repayments
+for projects that complete. The earlier input and capital-production stage,
+preference-grounded household and entrepreneur choices, default adjudication,
+and legal foreclosure remain unmodeled.
+`BusinessCycle.ProfileProgram` compiles the stated funding, factor, production,
+sale, and repayment schedule into the recursive physical program and its
+existing ActionFrame adapter. Loan capacity is cleared from bank money after
+the executed issuance and household-transfer branches. Factor clearing uses
+the advances that actually matched and the currently offered factor stock,
+while preserving the model's initial-buffer participation rule and checking
+physical affordability at each transfer. Later market rounds are computed
+from the state reached on that branch; terms already assigned by a clearing
+round are not revised automatically. Beliefs and preferences remain explicit
+inputs to the adapter, and the named cycle does not derive purposeful
+household saving or investment.
+`BusinessCycle.DefaultWitness` adds a concrete unpaid-maturity branch to the
+existing finite credit lifecycle. It derives the purposeful advance,
+unmatched later acceptance, absence of an intervening repayment, and continued
+physical collateral custody. The frame does not represent legal title, so this
+result does not assert foreclosure.
 -/
 
 @[expose] public section
@@ -133,18 +170,16 @@ theorem workshop_credit_cohort_cannot_expose_two_borrowers
     A₁ A₂ (h₁_lender.trans h₂_lender.symm)
   exact h_borrowers_differ h_same_borrower
 
-/-- The existing workshop cannot host even a single-member credit cohort:
-cohort quotes require an actual repayment, while every purposeful advance in
-this frame lacks a later repayment event. -/
-theorem workshop_cannot_host_credit_shock_cohort
+/-- Conditional on repayment evidence, the workshop's available chronology
+has no compatible later purposeful exchange. Cohort membership and origination
+remain independent of repayment. -/
+theorem workshop_repayment_evidence_is_incompatible_with_credit_shock_member
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
-    [Nonempty Entrepreneur]
-    (C : CreditShockCohort WorkshopActionFrame Context Entrepreneur) : False := by
-  obtain ⟨e⟩ := ‹Nonempty Entrepreneur›
-  exact workshop_no_credit_repayment
-    (C.project e).funding.terms
-    (C.project e).funding.advance
-    ⟨(C.rateQuotes e).creditRepayment⟩
+    (C : CreditShockCohort WorkshopActionFrame Context Entrepreneur)
+    {e : Entrepreneur} (_he : e ∈ C.entrepreneurs)
+    (R : CreditRepayment (C.project e).funding.advance) : False := by
+  exact workshop_repayment_evidence_incompatible
+    (C.project e).funding.terms (C.project e).funding.advance R
 
 /-- A shared-input cluster with at least two regretful projects requires two
 distinct borrowers and their common lender in the underlying ActionFrame. -/

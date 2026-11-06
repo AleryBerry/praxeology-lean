@@ -91,7 +91,13 @@ $$
 \text{enacted}(i, t, h(\alpha_i, \alpha_j)) = \alpha_i, \quad \text{enacted}(j, t, h(\alpha_i, \alpha_j)) = \alpha_j
 $$
 
-The resulting branch ends for $i$ and $j$ are denoted $`O_i(\alpha_i, \alpha_j) \equiv \text{End\_of}(i, \alpha_i, t, h(\alpha_i, \alpha_j))`$ and $`O_j(\alpha_i, \alpha_j) \equiv \text{End\_of}(j, \alpha_j, t, h(\alpha_i, \alpha_j))`$, evaluated by each agent's ordinal preference relations $`\succ_{i,t,h}`$ and $`\succ_{j,t,h}`$ on their respective end spaces $`\mathcal{E}_i`$, $`\mathcal{E}_j`$. Each outcome can depend on both actions, but each agent evaluates only its own end. We need no common numerical scale to state the two separate comparisons.
+While each agent's single-node intended end at $t$ is bundle-invariant across $H(t)$, bilateral interactions materialize their physical and contractual consequences across an interaction maturation interval $t \to t'$ ($t \prec t'$). The resulting bilateral interaction ends for $i$ and $j$ at maturation moment $t'$ are denoted:
+
+$$
+O_i(\alpha_i, \alpha_j) \equiv \text{OutcomeOf}(i, \alpha_i, t, t', h(\alpha_i, \alpha_j)), \quad O_j(\alpha_i, \alpha_j) \equiv \text{OutcomeOf}(j, \alpha_j, t, t', h(\alpha_i, \alpha_j))
+$$
+
+evaluated by each agent's ordinal preference relations $`\succ_{i,t,h}`$ and $`\succ_{j,t,h}`$ on their respective end spaces $`\mathcal{E}_i`$, $`\mathcal{E}_j`$. Each outcome can depend on both actions through the resulting maturation state on $h(\alpha_i, \alpha_j)$, but each agent orders only its own end. We need no common numerical scale to state the two separate comparisons.
 
 ### Definition 8.7 (Conditional and Autonomous Baselines)
 For a proposed action pair $(\alpha_i, \alpha_j)$, there are two distinct comparative baselines:

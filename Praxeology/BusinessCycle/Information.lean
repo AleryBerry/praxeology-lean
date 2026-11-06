@@ -32,14 +32,14 @@ inductive CreditRegime where
 inductive CreditObservation where
   | unchangedRate
   | lowerRate
-  | savingVerified
+  | householdFundsVerified
   | creditVerified
   deriving DecidableEq
 
 /-- A signal read from Catallactics data. The tags keep contractual credit
 rates, transaction prices, and anticipated factor-price bounds distinct. -/
 inductive CatallacticMarketSignal (C : Type) where
-  | grossRepaymentFactor (money : C) (factor : ℕ)
+  | grossRepaymentFactor (money : C) (factor : ℚ)
   | transactionPrice (good money : C) (quantity price : ℕ)
   | factorPriceBounds (factor : C) (lower upper : ℕ)
 
@@ -158,12 +158,12 @@ theorem CreditAdvance.parties_share_rate_signal {W : ActionFrame}
     {T : PawnLoanTerms W} (A : CreditAdvance T) :
     A.borrowerMarketSignal.2.2 = A.lenderMarketSignal.2.2 := rfl
 
-/-- A loan quote backed by an actually enacted advance and repayment on an
-ActionFrame history. -/
+/-- A loan quote backed by an actually enacted advance on an ActionFrame
+history. Repayment is a later lifecycle outcome and is not part of origination
+evidence. -/
 structure EnactedLoanQuote (W : ActionFrame) where
   terms : PawnLoanTerms W
   advance : CreditAdvance terms
-  repayment : CreditRepayment advance
 
 namespace EnactedLoanQuote
 
@@ -377,26 +377,24 @@ theorem CreditRepayment.same_rate_signal_of_same_observed_contract
       R₁ R₂ h_advance_offer h_repayment_offer)
 
 /-- Evidence for comparing a saving-side loan quote with a
-fiduciary-credit-funded loan. Both contracts are recorded as enacted
+fiduciary-credit-funded loan. Both advances are recorded as enacted
 ActionFrame exchanges. The saving-side evidence records a purposeful refrain
 and retained balance, while leaving the initial source of that balance
-untraced. When both situations enact the same loan offers and repayments,
-Catallactics contract accounting derives equal rates. -/
+untraced. The common Catallactics market comparison derives equal quoted
+rates; later repayment outcomes are separate evidence. -/
 structure SavingCreditLoanQuotes {W : ActionFrame}
     {T_credit : PawnLoanTerms W} (A_credit : CreditAdvance T_credit) where
   savingTerms : PawnLoanTerms W
   savingAdvance : CreditAdvance savingTerms
-  savingRepayment : CreditRepayment savingAdvance
   savingEvidence : PurposefulSavingEvidence savingAdvance
-  creditRepayment : CreditRepayment A_credit
   marketComparison : CatallacticCreditRateComparison savingTerms T_credit
 
 namespace SavingCreditLoanQuotes
 
 /-- The common Catallactic market's unique clearing price derives equal
 contractual gross repayment factors for saving-funded and credit-funded loans.
-The actual advances and repayments remain recorded separately in the
-ActionFrame evidence above. -/
+The advances remain recorded in the ActionFrame evidence above; repayment is
+not assumed. -/
 theorem same_gross_repayment_factor {W : ActionFrame}
     {T_credit : PawnLoanTerms W} {A_credit : CreditAdvance T_credit}
     (Q : SavingCreditLoanQuotes A_credit) :

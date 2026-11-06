@@ -6,9 +6,9 @@
 
 > **“Human action is an attempt to ease discomfort by making things better. It reflects subjective values under uncertainty: an available option is chosen when its intended result is preferred to doing nothing and no available alternative seems better, while inaction follows when no option seems better. When the options remain available in every situation the actor considers possible, preferring one requires a better result in at least one, while an option that does no worse in any and better in one must be preferred. Even then, the intended result may not be achieved.”**
 
-A machine-checked mathematical development of purposeful action, subjective valuation, intertemporal choice, exchange, monetary coordination, entrepreneurial error, and institutional constraints. The library connects Austrian economic theory with branching-time semantics, ordinal order theory, epistemic models, and explicit causal resource accounting.
+A machine-checked mathematical development of formal models motivated by Austrian praxeology. It covers purposeful choice, subjective valuation, intertemporal choice, exchange, monetary coordination, entrepreneurial error, and institutional constraints. Individual results are conditional on the definitions, model structures, and hypotheses stated in Lean.
 
-The project develops an integrated formal framework connecting purposeful choice to physical feasibility, exchange, information, and institutional organization. Its results state the resource constraints, feasible alternatives, and subjective valuations needed for each conclusion.
+The project develops a formal framework connecting modeled purposeful choice to physical feasibility, exchange, information, and institutional organization. The exact scope and assumptions of headline results are recorded in [`spec/claims_and_assumptions.md`](spec/claims_and_assumptions.md). Formal validity and fidelity to Mises, Menger, Rothbard, or other economic writing are separate questions.
 
 > [!NOTE]
 > **Notice & Disclaimer:** This project is an independent, AI-assisted formalization based on the broader literature cited in [References](#references). After initial development was underway, the project was informally refined against the paper *"A Formalization of Austrian Economics"* (Komendarczyk, Rafał, Block, Walter E., Levendis, John, & Tipler, Frank) and their repository [`rafkom72/praxeology-lean`](https://github.com/rafkom72/praxeology-lean).
@@ -74,6 +74,7 @@ flowchart TB
     CycleInfo["BusinessCycle.Information"]
     CycleClusters["BusinessCycle.Clusters"]
     CycleFirms["BusinessCycle.Firms"]
+    CycleDefault["BusinessCycle.DefaultWitness"]
     BusinessCycle["BusinessCycle"]
     EconometricLimits["EconometricLimits"]
     BehavioralPoset["BehavioralPoset"]
@@ -98,6 +99,7 @@ flowchart TB
     Entrepreneurship --> CycleInfo
     CycleInfo --> CycleClusters
     CycleClusters --> BusinessCycle
+    CycleDefault --> BusinessCycle
 
     FirmBoundary --> CycleFirms
     CycleFirms --> BusinessCycle
@@ -112,17 +114,17 @@ The chart shows selected module dependencies; each module is linked in the cover
 
 ### Axioms and assumptions
 
-The project declares no custom Lean [`axiom`](https://lean-lang.org/doc/reference/latest/Axioms/) and has no unfinished [`sorry`](https://lean-lang.org/doc/reference/latest/Axioms/) proofs. Its transitive axiom audit does report dependencies on Lean and Mathlib axioms, including [`Classical.choice`](https://lean-lang.org/doc/reference/latest/Axioms/), [`Quot.sound`](https://lean-lang.org/doc/reference/latest/Axioms/), and [`propext`](https://lean-lang.org/doc/reference/latest/Axioms/); the [constructive axiom audit](scripts/audit_constructive_axioms.py) reports these by declaration, file, and axiom. Economic premises remain explicit in model fields, scenario data, and theorem hypotheses.
+The project declares no custom Lean [`axiom`](https://lean-lang.org/doc/reference/latest/Axioms/) and has no unfinished [`sorry`](https://lean-lang.org/doc/reference/latest/Axioms/) proofs. Its transitive axiom audit reports standard Lean dependencies such as [`Classical.choice`](https://lean-lang.org/doc/reference/latest/Axioms/), [`Quot.sound`](https://lean-lang.org/doc/reference/latest/Axioms/), and [`propext`](https://lean-lang.org/doc/reference/latest/Axioms/). These dependencies are distinct from importing Mathlib; neither the use nor avoidance of Mathlib determines soundness. The accepted axiom set and economic premises are documented in the [claim and assumption register](spec/claims_and_assumptions.md).
 
 ## Epistemic action and feasibility
 
 The library separates physical feasibility, subjective deliberation, and epistemic know-how:
 
-- **Purposeful Choice & Preference:** [`Action.lean`](Praxeology/Action.lean) grounds choice in strict partial orders, characterizing purposeful action, opportunity costs, and contextual regret.
+- **Purposeful Choice & Preference:** [`Action.lean`](Praxeology/Action.lean) defines purposeful choice using an asymmetric preference relation and a finite modeled feasible menu. Transitivity or completeness is added only where a result explicitly requires it.
 - **Epistemic Guarantees & Know-How:** [`EpistemicAbility.lean`](Praxeology/EpistemicAbility.lean) formalizes deliberative ability, indistinguishability, and causal execution over choice cells.
 - **Physical Inventory & Transitions:** [`Production.lean`](Praxeology/Production.lean) models stock-flow conservation, inventory runs, and service yields along branching histories.
 - **Firms & Delegation:** [`Organization.lean`](Praxeology/Organization.lean) and [`FirmWitness.lean`](Praxeology/FirmWitness.lean) model contractual task assignment, internal authority, and market boundaries.
-- **Catallactics, Credit & Cycles:** [`Catallactics/Credit.lean`](Praxeology/Catallactics/Credit.lean), [`Entrepreneurship.lean`](Praxeology/Entrepreneurship.lean), and [`BusinessCycle.lean`](Praxeology/BusinessCycle.lean) formalize interest-rate determination, fiduciary vs. pure credit expansion, factor-price squeezes, and entrepreneurial malinvestment.
+- **Catallactics, Credit & Cycles:** [`Catallactics/Credit.lean`](Praxeology/Catallactics/Credit.lean), [`Entrepreneurship.lean`](Praxeology/Entrepreneurship.lean), and [`BusinessCycle.lean`](Praxeology/BusinessCycle.lean) formalize conditional exchange, loan-accounting, investment, and completion-shortage results. The named five-project schedules compile to recursive physical ActionFrame histories. The household-transfer illustration assumes two initial household money units and transfers two to the bank; neither cash endowment is specified in the fixed example. `fiveProjectRegimeDataWithHouseholdMoney` exposes these inputs. The physical ledger models only the cash transfer, with no deposit claim or bank repayment obligation. Its household consumption alternative is in the choice menu, but the selected transfer is not proved purposeful. Branches recompute downstream markets from actual matched advances and currently offered factors, while preserving assigned terms and the initial-buffer participation rule. The full endogenous cycle remains future work because early production, behaviorally derived choices, integration with default adjudication, and foreclosure are not modeled.
 
 ## Formal coverage
 
@@ -135,18 +137,27 @@ The root module [`Praxeology.lean`](Praxeology.lean) imports the public library 
 | [Production](Praxeology/Production.lean) | Inventory steps and runs, additive stock balances, and external service accounting |
 | [ExactNat](Praxeology/ExactNat.lean) | Exact natural-number remainders and additive certificates |
 | [FiniteSupport](Praxeology/FiniteSupport.lean) | Reusable finite-set support results |
-| [Marginal](Praxeology/Marginal.lean) | Finite allocation, imputation, complementarity, and intertemporal choice |
+| [Marginal](Praxeology/Marginal.lean) | Legacy allocation interfaces, intertemporal preference results, and imports for the revised allocation and complementarity developments |
+| [Marginal.AllocationChoice](Praxeology/Marginal/AllocationChoice.lean) | Stock-independent ranked-use technology, local ordinal laws, derived ranked-prefix choice, capacity tables, satiation, and countermodels for incomplete menus or missing replacement laws |
+| [Marginal.AllocationActionFrame](Praxeology/Marginal/AllocationActionFrame.lean) | Complete finite allocation menus and purposeful ranked-prefix actions at distinct one-unit and two-unit stocks in one ActionFrame |
+| [Marginal.ComplementarityWitness](Praxeology/Marginal/ComplementarityWitness.lean) | Explicit left/right shoe requirements, the walking attainment boundary, and bounded-menu satiation |
 | [EpistemicAbility](Praxeology/EpistemicAbility.lean) | Choice-cell guarantees, causal ability, knowledge, and know-how |
 | [Catallactics](Praxeology/Catallactics.lean) | Exchange, comparative advantage, monetary adoption, prices, and calculation |
-| [Catallactics.Credit](Praxeology/Catallactics/Credit.lean) | Intertemporal loans, fiduciary issuance, cash-backed solvency, and interest rate spreads |
+| [Catallactics.Credit](Praxeology/Catallactics/Credit.lean) | Loan lifecycle and fiduciary issuance accounting; contractual repayment is stored directly and the derived rational nominal rate can be positive, zero, or negative |
 | [Organization](Praxeology/Organization.lean) | Delegation, instructions, internal transfers, and independent market interfaces |
 | [Entrepreneurship](Praxeology/Entrepreneurship.lean) | Credit, investment, capital formation, completion bottlenecks, and regret |
 | [FirmBoundary](Praxeology/FirmBoundary.lean) | Price boxes, information, production traces, and organizational choice |
 | [FirmWitness](Praxeology/FirmWitness.lean) | A finite workshop and its action, production, transfer, and sale sequence |
-| [BusinessCycle](Praxeology/BusinessCycle.lean) | Public synthesis of the cycle, information, cohort, firm, and grounded modules |
+| [BusinessCycle](Praxeology/BusinessCycle.lean) | Public synthesis of conditional cycle, information, cohort, firm, one-project, and unpaid-maturity results; imports the scheduled multi-entrepreneur physical program |
 | [BusinessCycle.Information](Praxeology/BusinessCycle/Information.lean) | ActionFrame-indexed Catallactics signals, observation-based knowledge, and policy response |
 | [BusinessCycle.Clusters](Praxeology/BusinessCycle/Clusters.lean) | Conditional ActionFrame cohort results for shared-input and price squeezes, with regret composition |
 | [BusinessCycle.CreditLifecycleFrame](Praxeology/BusinessCycle/CreditLifecycleFrame.lean) | Multi-stage credit lifecycle events, advances, repayments, and finite tree branches |
+| [BusinessCycle.DefaultWitness](Praxeology/BusinessCycle/DefaultWitness.lean) | Unpaid-maturity path through an unmatched repayment acceptance; aggregate collateral inventory includes an intervening matched advance, with legal title and foreclosure outside the frame |
+| [BusinessCycle.Auctions](Praxeology/BusinessCycle/Auctions.lean) | Deterministic loan bids and factor-price clock; projected reservation preferences and price-affordability calculations |
+| [BusinessCycle.Regimes](Praxeology/BusinessCycle/Regimes.lean) | Three five-project source-and-use scenarios, projected and forecast-price calculations, and a sufficient-input boundary calculation; the household amount is a cash transfer, not a modeled deposit liability |
+| [BusinessCycle.FactorExecution](Praxeology/BusinessCycle/FactorExecution.lean) | Physical note issuance, household-to-bank cash transfer, loan advances, factor purchases, project completion, output sales, and repayments by completed projects |
+| [BusinessCycle.ProfileProgram](Praxeology/BusinessCycle/ProfileProgram.lean) | Recursive ActionFrame adapter that recomputes downstream markets from branch state and records only matched transfers; household factor-consumption alternatives are available, while purposeful saving and default remain unproved |
+| [FiniteEconomy.ProfileSchedule](Praxeology/FiniteEconomy/ProfileSchedule.lean) | Generic compiler from well-formed proposed profiles plus explicitly listed alternatives to a branching physical program with pre-state affordability, idle actions, unilateral branches, and an executed-history witness |
 | [BusinessCycle.Firms](Praxeology/BusinessCycle/Firms.lean) | Organized-firm specialization of the single-project entrepreneurial cycle |
 | [BusinessCycle.Grounded](Praxeology/BusinessCycle/Grounded.lean) | Finite two-agent ActionFrame witness for one entrepreneur's investment and contextual regret |
 | [FiniteEconomy](Praxeology/FiniteEconomy.lean) | Finite histories, physical states, execution, markets, and supply-chain examples |
@@ -154,25 +165,26 @@ The root module [`Praxeology.lean`](Praxeology.lean) imports the public library 
 | [EconometricLimits](Praxeology/EconometricLimits.lean) | Observational equivalence and limits of causal identification |
 | [BehavioralPoset](Praxeology/BehavioralPoset.lean) | Context-dependent ordinal choice, framing, and behavioral representation |
 
-The modules combine general conditional results with finite witnesses and countermodels. The business-cycle cluster results are generic over existing `ActionFrame` instances; they add no separate finite economy.
+The modules combine general conditional results with some finite witnesses and countermodels. Many business-cycle cluster theorems are generic over supplied `ActionFrame` instances and evidence structures; these are not, by themselves, a concrete finite business-cycle witness. Each theorem's hypotheses bound its conclusion.
 
 ## Models, countermodels, and methodological scope
 
-The library combines general axiomatic deductions with explicit finite models and impossibility proofs:
+The library combines consequences of its formal definitions with conditional mechanisms, selected finite models, and countermodels:
 
-- **Constructive Inhabitation:** Concrete witnesses (such as the workshop model in [`FirmWitness.lean`](Praxeology/FirmWitness.lean) and multi-stage supply chains in [`FiniteEconomy.lean`](Praxeology/FiniteEconomy.lean)) establish that abstract axiomatic structures (`ActionFrame`, multi-stage production, bilateral trade) are non-vacuous and inhabited.
-- **Structural Bounds & Impossibility Theorems:** Formal proofs establish exact lower bounds and impossibilities—such as proving that a multi-project credit cycle requires at least three distinct actors ([`CreditShockCohort.requires_three_agents`](Praxeology/BusinessCycle.lean)), that bilateral frames cannot host multi-borrower cohorts, and that identical clearing rates cannot identify whether credit originated from prior savings or fiduciary expansion without additional source disclosure.
-- **Physical & Epistemic Grounding:** All catallactic outcomes are strictly grounded in physical conservation laws (goods cannot be created from nothing) and subjective choice (actions must be contemplated and undominated under the agent's feasible menu).
+- **Concrete instances:** The workshop and finite-economy modules exhibit particular models. They establish non-vacuity only for the structures and properties actually instantiated in those files.
+- **Conditional bounds and impossibility results:** For example, a cohort with two distinct borrowers and a separate common lender needs at least three agents. The conclusion is about the stated cohort structure; it does not establish that a credit-cycle mechanism exists in every such frame.
+- **Economic interpretations:** Some modules connect physical accounting, preferences, and institutions. Read the hypotheses of the cited theorem and the [claim and assumption register](spec/claims_and_assumptions.md) before treating a formal result as a general economic claim.
 
 ## Documentation and repository organization
 
-- [`natural_language/`](natural_language/README.md) develops fourteen chapters in prerequisite order, with definitions and proof explanations.
+- [`natural_language/`](natural_language/README.md) contains fourteen draft chapters. They are pending reconciliation with the current formalization and are not yet authoritative translations of the Lean development.
 - [`spec/`](spec/README.md) organizes the mathematical specifications and their Lean correspondence by topic.
+- [`spec/claims_and_assumptions.md`](spec/claims_and_assumptions.md) records the scope and assumptions of headline claims.
 - [`Praxeology/`](Praxeology/) contains the formal library; [`Praxeology.lean`](Praxeology.lean) is its root module.
 - [`critiques/`](critiques/) contains methodological essays and comparisons with alternative economic formulations.
 - [`scripts/`](scripts/) contains documentation, link, and axiomatic-floor checks.
 
-The Lean declarations are authoritative for exact hypotheses and conclusions. The prose documents explain their interpretation and mathematical dependencies.
+The Lean declarations are authoritative for exact formal hypotheses and conclusions. Prose specifications are being corrected to track them; economic fidelity remains a separate interpretive question.
 
 ## Building and verification
 
@@ -188,7 +200,7 @@ python3 scripts/audit_axiomatic_floor.py
 python3 scripts/audit_constructive_axioms.py --by-axiom --limit 20
 ```
 
-The build checks formal declarations and configured linters. The [declaration-link checker](scripts/update_theorem_links.py), [math fixer](scripts/fix_markdown_math.py), [math checker](scripts/check_markdown_math.py), [axiomatic-floor audit](scripts/audit_axiomatic_floor.py), and [constructive axiom audit](scripts/audit_constructive_axioms.py) handle declaration links, mathematical Markdown conventions, the repository's axiomatic-floor policy, and transitive axiom dependencies of all Praxeology declarations. The constructive audit's [`--by-axiom`](scripts/audit_constructive_axioms.py) option gives the current dependency breakdown; add [`--strict`](scripts/audit_constructive_axioms.py) to make the audit fail while any such dependency remains. Economic applications instantiate the stated mechanisms with the relevant institutions, resource constraints, observations, and valuations; numeric parameters can be calibrated when a historical or contemporary case is studied.
+The build checks formal declarations and configured linters. The declaration-link checker, Markdown math checks, and constructive axiom report are verification tools. The source-pattern premise and axiomatic-floor scripts are advisory only: a textual pattern cannot decide semantic validity or fidelity. The constructive audit's [`--by-axiom`](scripts/audit_constructive_axioms.py) option reports transitive dependencies; `--strict` is for projects that specifically require an axiom-free result, not the default validity criterion. No current finite business-cycle calibration should be read as a historical case study.
 
 ## References
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit transitive axiom dependencies and report results per Lean source file."""
+"""Audit transitive axiom dependencies across the Lean library modules."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
+ALLOWED_AXIOMS = {"propext", "Classical.choice", "Quot.sound"}
 
 
 def build_lean_audit(prefix: str | None = None, exact: str | None = None) -> str:
@@ -27,7 +28,12 @@ def build_lean_audit(prefix: str | None = None, exact: str | None = None) -> str
             'n.toString.contains "_private.Praxeology."'
         )
 
-    return f'''import Praxeology
+    modules = sorted(
+        ".".join(path.relative_to(ROOT).with_suffix("").parts)
+        for path in (ROOT / "Praxeology").rglob("*.lean")
+    )
+    imports = "\n".join(f"import {module}" for module in ["Praxeology", *modules])
+    return f'''{imports}
 open Lean Elab Command
 run_elab do
   let env ← getEnv
@@ -49,6 +55,11 @@ def main() -> int:
         "--strict",
         action="store_true",
         help="return failure if any audited declaration has an axiom dependency",
+    )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="fail on transitive axioms outside propext, Classical.choice, and Quot.sound",
     )
     parser.add_argument(
         "--prefix",
@@ -151,10 +162,18 @@ def main() -> int:
             remaining = len(dependent_records) - len(examples)
             print(f"  ... {remaining} more in this file; use --all to list them")
 
-    has_dependencies = any(
-        axioms for records in records_by_file.values() for _, axioms in records
-    )
+    observed_axioms = {
+        axiom for records in records_by_file.values() for _, axioms in records for axiom in axioms
+    }
+    unexpected_axioms = observed_axioms - ALLOWED_AXIOMS
+    if args.check and unexpected_axioms:
+        print("Unexpected transitive axiom dependencies:")
+        for axiom in sorted(unexpected_axioms):
+            print(f"  {axiom}")
+    has_dependencies = bool(observed_axioms)
     if args.strict and has_dependencies:
+        return 1
+    if args.check and unexpected_axioms:
         return 1
     return 0
 

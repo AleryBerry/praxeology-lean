@@ -32,22 +32,22 @@ structure TerritorialMonopoly [W : ActionFrame] where
 -- Section 1: Taxation and Voluntary Exchange
 
 
-def IsEconomicMeans [W : ActionFrame] (i j : W.Agent) (t t' : W.Moment) (h : W.History)
+def IsEconomicMeans [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
     (α_i α_j : W.Action) : Prop :=
-  IsVoluntaryExchange i j t t' h α_i α_j
+  IsVoluntaryExchange i j t h α_i α_j
 
-def IsPoliticalMeans [W : ActionFrame] (i j : W.Agent) (t t' : W.Moment) (h : W.History)
+def IsPoliticalMeans [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
     (α_i α_state : W.Action) : Prop :=
-  IsCoerciveExtortion i j t t' h α_i α_state
+  IsCoerciveExtortion i j t h α_i α_state
 
 /-- Classifies a physically invasive tax interaction under the stated
 preference and public-good assumptions. -/
 theorem physically_invasive_tax_with_public_good_classification
-    [W : ActionFrame] (i j : W.Agent) (t t' : W.Moment) (h : W.History)
+    [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
     (α_comply α_tax : W.Action)
     (public_good : W.Action → W.Action → ℕ)
     (h_service : 0 < public_good α_comply α_tax)
-    (h_invasive : EndogenouslyInvasiveJ i j t t' h α_tax)
+    (h_invasive : EndogenouslyInvasiveJ i j t h α_tax)
     (h_comply_beats_prison :
       W.Preference i t h (jointEndI i j t h α_comply α_tax)
         (jointEndI i j t h W.alpha_zero α_tax))
@@ -57,8 +57,8 @@ theorem physically_invasive_tax_with_public_good_classification
     (h_state_gains :
       W.Preference j t h (jointEndJ i j t h α_comply α_tax)
         (jointEndJ i j t h W.alpha_zero W.alpha_zero)) :
-    IsPoliticalMeans i j t t' h α_comply α_tax ∧
-    ¬ IsEconomicMeans i j t t' h α_comply α_tax ∧
+    IsPoliticalMeans i j t h α_comply α_tax ∧
+    ¬ IsEconomicMeans i j t h α_comply α_tax ∧
     PurposefulResponseI i j t h α_comply α_tax ∧
     0 < public_good α_comply α_tax := by
   refine ⟨⟨h_invasive, h_comply_beats_prison, h_dissent, h_state_gains⟩,
@@ -70,9 +70,9 @@ even if an extraction policy is enacted by a winning coalition j, if it is physi
 of taxpayer i's endowment, it is classified strictly as political means (coercive extortion)
 and strictly fails to be voluntary exchange (economic means). -/
 theorem majoritarian_coalition_tax_is_political_means
-    [W : ActionFrame] (i j : W.Agent) (t t' : W.Moment) (h : W.History)
+    [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
     (α_comply α_tax : W.Action)
-    (h_invasive : EndogenouslyInvasiveJ i j t t' h α_tax)
+    (h_invasive : EndogenouslyInvasiveJ i j t h α_tax)
     (h_comply_beats_punishment :
       W.Preference i t h (jointEndI i j t h α_comply α_tax)
         (jointEndI i j t h W.alpha_zero α_tax))
@@ -82,8 +82,8 @@ theorem majoritarian_coalition_tax_is_political_means
     (h_coalition_gains :
       W.Preference j t h (jointEndJ i j t h α_comply α_tax)
         (jointEndJ i j t h W.alpha_zero W.alpha_zero)) :
-    IsPoliticalMeans i j t t' h α_comply α_tax ∧
-    ¬ IsEconomicMeans i j t t' h α_comply α_tax := by
+    IsPoliticalMeans i j t h α_comply α_tax ∧
+    ¬ IsEconomicMeans i j t h α_comply α_tax := by
   refine ⟨⟨h_invasive, h_comply_beats_punishment, h_taxpayer_dissent, h_coalition_gains⟩, ?_⟩
   exact fun h_econ => h_econ.2.1 h_invasive
 
@@ -646,13 +646,13 @@ theorem statutory_monopoly_run_blindness_and_fiscal_incidence [W : ActionFrame]
   exact ⟨hcalc, ⟨b, hb_mem, hb_loss⟩⟩
 
 
-structure PublicGoodsTaxationEvidence [W : ActionFrame] {i j : W.Agent} {t t' : W.Moment}
+structure PublicGoodsTaxationEvidence [W : ActionFrame] {i j : W.Agent} {t : W.Moment}
     {h : W.History} where
   comply : W.Action
   tax : W.Action
   publicGood : W.Action → W.Action → ℕ
   servicePositive : 0 < publicGood comply tax
-  taxPhysicallyInvasive : EndogenouslyInvasiveJ i j t t' h tax
+  taxPhysicallyInvasive : EndogenouslyInvasiveJ i j t h tax
   complianceBeatsPrison :
     W.Preference i t h (jointEndI i j t h comply tax)
       (jointEndI i j t h W.alpha_zero tax)
@@ -679,30 +679,30 @@ structure JudicialMonopolyRulingEvidence [W : ActionFrame] where
 
 /-- A single input package connects coercive taxation and the judicial
 monopoly evidence without flattening their unrelated hypotheses. -/
-structure StateMonopolyMasterEvidence [W : ActionFrame] {i j : W.Agent} {t t' : W.Moment}
+structure StateMonopolyMasterEvidence [W : ActionFrame] {i j : W.Agent} {t : W.Moment}
     {h : W.History} where
-  taxation : PublicGoodsTaxationEvidence (W := W) (i := i) (j := j) (t := t) (t' := t') (h := h)
+  taxation : PublicGoodsTaxationEvidence (W := W) (i := i) (j := j) (t := t) (h := h)
   ruling : JudicialMonopolyRulingEvidence
 
 /-- Named conclusion for both the economic classification of taxation and the
 arbiter's purposeful-action failure. -/
-structure StateMonopolyMasterConclusion [W : ActionFrame] {i j : W.Agent} {t t' : W.Moment}
+structure StateMonopolyMasterConclusion [W : ActionFrame] {i j : W.Agent} {t : W.Moment}
     {h : W.History}
-    (S : StateMonopolyMasterEvidence (W := W) (i := i) (j := j) (t := t) (t' := t') (h := h)) :
+    (S : StateMonopolyMasterEvidence (W := W) (i := i) (j := j) (t := t) (h := h)) :
     Prop where
   politicalNotEconomic :
-    IsPoliticalMeans i j t t' h S.taxation.comply S.taxation.tax ∧
-    ¬ IsEconomicMeans i j t t' h S.taxation.comply S.taxation.tax
+    IsPoliticalMeans i j t h S.taxation.comply S.taxation.tax ∧
+    ¬ IsEconomicMeans i j t h S.taxation.comply S.taxation.tax
   arbiterCannotPurposefullyLimit :
     ¬ PurposefulAct (S.ruling.monopoly.arbiter S.ruling.subject
       S.ruling.monopoly.ruler) S.ruling.moment S.ruling.history S.ruling.limitingAction
 
 theorem state_monopoly_political_economy_master_synthesis [W : ActionFrame] {i j : W.Agent}
-    {t t' : W.Moment} {h : W.History}
-    (S : StateMonopolyMasterEvidence (W := W) (i := i) (j := j) (t := t) (t' := t') (h := h)) :
+    {t : W.Moment} {h : W.History}
+    (S : StateMonopolyMasterEvidence (W := W) (i := i) (j := j) (t := t) (h := h)) :
     StateMonopolyMasterConclusion S := by
   have h_tax := physically_invasive_tax_with_public_good_classification
-    i j t t' h S.taxation.comply S.taxation.tax S.taxation.publicGood
+    i j t h S.taxation.comply S.taxation.tax S.taxation.publicGood
     S.taxation.servicePositive S.taxation.taxPhysicallyInvasive
     S.taxation.complianceBeatsPrison S.taxation.dissentBeatsCompliance
     S.taxation.stateGains
@@ -716,16 +716,18 @@ theorem state_monopoly_political_economy_master_synthesis [W : ActionFrame] {i j
 -- Section 6: Non-Vacuity Classification
 
 
-/-- A valid taxation configuration demonstrates political means and purposeful response. -/
-theorem taxation_with_public_goods_non_vacuous [W : ActionFrame] {i j : W.Agent}
-    {t t' : W.Moment} {h : W.History}
-    (E : PublicGoodsTaxationEvidence (W := W) (i := i) (j := j) (t := t) (t' := t') (h := h)) :
-    IsPoliticalMeans i j t t' h E.comply E.tax ∧
-    ¬ IsEconomicMeans i j t t' h E.comply E.tax ∧
+/-- Given supplied tax, service, and preference evidence, the interaction is
+classified as political means and yields purposeful compliance. This theorem
+does not construct an inhabited evidence package. -/
+theorem taxation_with_public_goods_from_supplied_evidence [W : ActionFrame] {i j : W.Agent}
+    {t : W.Moment} {h : W.History}
+    (E : PublicGoodsTaxationEvidence (W := W) (i := i) (j := j) (t := t) (h := h)) :
+    IsPoliticalMeans i j t h E.comply E.tax ∧
+    ¬ IsEconomicMeans i j t h E.comply E.tax ∧
     PurposefulResponseI i j t h E.comply E.tax ∧
     0 < E.publicGood E.comply E.tax :=
   physically_invasive_tax_with_public_good_classification
-    i j t t' h E.comply E.tax E.publicGood E.servicePositive E.taxPhysicallyInvasive
+    i j t h E.comply E.tax E.publicGood E.servicePositive E.taxPhysicallyInvasive
     E.complianceBeatsPrison E.dissentBeatsCompliance E.stateGains
 
 section

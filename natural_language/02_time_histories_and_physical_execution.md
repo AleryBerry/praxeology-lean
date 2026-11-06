@@ -284,6 +284,12 @@ If two runs are concatenated, their total uses and total yields add. Thus the ba
 
 The same accounting applies to projected outcomes in ex-ante deliberation. A **projected inventory trace** follows a feasible action from the projected decision node along the history selected for that action until its expected maturation moment. For two feasible actions considered at the same projected node, the starting stock is identical. Each trace's additive balance uniquely determines its terminal stock from that common starting stock, total use, and total yield. The projected end is therefore grounded in the physical stock path, while preferences over those ends remain a separate premise.
 
+### Selecting an Evaluation Horizon in a Finite Program
+
+The finite program adapter makes the evaluation horizon an explicit input to the behavioral specification. At each decision, the caller selects either the immediate successor on the evaluated history or that history's terminal settlement moment. The selected moment is proved to lie on the same history and to be at or after the decision. The adapter uses the same selected history and horizon for expected maturation and for the inventory bundle called the intended end. Idling is evaluated by that rule as well.
+
+When evaluating a changed action, the behavior supplies its continuation history from the reference history; the adapter checks that the action is enacted there and that the history preserves the shared past and other agents' simultaneous actions. If the requested action is already enacted on the reference history, the adapter keeps that history. These conditions construct a physical comparison. The horizon choice alone does not establish that the action is preferred, purposeful, or regrettable; those remain separate preference and choice claims.
+
 ## Conclusion
 
 We have used histories to represent alternative continuations, choice cells to describe which histories an action selects, and an inventory equation to track physical change. This account specifies what is enacted and what follows materially, but it does not explain why an agent selects one feasible action rather than another. We now introduce preference and the conditions under which an enacted action counts as purposeful.

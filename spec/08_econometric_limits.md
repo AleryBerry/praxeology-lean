@@ -1,93 +1,65 @@
-# Specification 08: Causal Econometric Non-Identifiability and Epistemic Boundaries
+# Specification 08: Non-identifiability in a specified model class
 
-Formal mathematical specification for [`Praxeology/EconometricLimits.lean`](../Praxeology/EconometricLimits.lean).
+This page describes [`Praxeology/EconometricLimits.lean`](../Praxeology/EconometricLimits.lean).
+The results are mathematical statements about the module's `EconometricInterpretation`,
+observation map, and model classes. They do not establish a blanket impossibility
+for empirical economics.
 
----
+## 1. The observation and estimator theorem
 
-## 1. The Master Non-Identifiability Principle
+An [`EconometricInterpretation`](../Praxeology/EconometricLimits.lean#L26) supplies
+an outcome function and an asymmetric preference relation over an existing
+ActionFrame. A [`HistoricalObservation`](../Praxeology/EconometricLimits.lean#L55)
+contains only the enacted action and the interpreted end at one agent, moment,
+and history. [`ObsEquiv`](../Praxeology/EconometricLimits.lean#L66) is equality of
+those records at that observation point.
 
-Positivist and econometric methodologies attempt to derive causal laws solely from historical time-series data. Praxeology demonstrates that under forward-looking teleological expectations, structural economic parameters are mathematically non-identifiable without unprovable a priori assumptions:
+[`non_identifiability_of_divergent_models`](../Praxeology/EconometricLimits.lean#L84)
+proves: if two interpretations belong to the stated model class, give equal
+observations at the selected point, and have different values of the parameter
+function, then no estimator taking only that observation can identify the
+parameter over that class at that point. The result depends on the chosen model
+class, observation map, parameter, and pair of interpretations.
 
-* **Observational Equivalence:** Two economic models $`C_1, C_2`$ are observationally equivalent along realized history $`h`$ if they generate identical historical data traces:
-```math
-  \text{observe}(C_1, i, t, h) = \text{observe}(C_2, i, t, h)
-```
-  ([`ObsEquiv`](../Praxeology/EconometricLimits.lean#L66)).
-* **Master Theorem:** If there exist two models $`C_1, C_2 \in \mathcal{M}`$ that are observationally equivalent along history $`h`$, but possess strictly divergent structural parameters ( $`f(C_1) \neq f(C_2)`$ ), then **no** econometric estimator can identify $`f`$ on $`\mathcal{M}`$ from historical data:
-```math
-  \neg \exists \text{est}, \quad \text{Identifies}(\mathcal{M}, f, \text{est}, i, t, h)
-```
-  ([`non_identifiability_of_divergent_models`](../Praxeology/EconometricLimits.lean#L84)).
+## 2. Constructed countermodels and their limits
 
----
+[`causal_econometric_non_identifiability`](../Praxeology/EconometricLimits.lean#L102)
+changes the outcome assigned to an idle action on a different history while
+preserving the observation on the realized history. Its argument does not use
+the supplied purposeful-action hypothesis, and the constructed second
+interpretation is not required to preserve a full set of ActionFrame outcome
+laws or to make the observed action purposeful under that interpretation. The
+theorem therefore witnesses freedom in this interpretation class; it does not
+show that purposeful action itself entails a substantive causal
+non-identifiability result.
 
-## 2. Causal Non-Identifiability under Branching Time
+[`lucas_critique_policy_invariance_failure`](../Praxeology/EconometricLimits.lean#L137)
+rewrites the interpreted outcome of one feasible, unchosen action to an end
+that dominates the enacted action. This makes the enacted action fail the
+module's `PurposefulUnder` predicate in the modified interpretation. It is a
+countermodel to invariance under unrestricted outcome-function changes, not a
+general empirical theorem about estimated policy coefficients.
 
-Because human action implies an open, branching universe where counterfactual options remain unchosen:
+[`iv_exclusion_restriction_unverifiable`](../Praxeology/EconometricLimits.lean#L168)
+constructs two functions whose outputs agree at the selected action and whose
+alternative-action outputs differ across instrument values. There is no
+separate statistical data structure, sampling process, or causal-instrument
+model in this result. [`duhem_quine_underdetermination`](../Praxeology/EconometricLimits.lean#L208)
+likewise constructs two outcome maps agreeing on one selected action and
+disagreeing on one alternative action at one node.
 
-* Let an agent purposefully execute $`\alpha^{\ast}             \langle t, h \rangle`$.
-* Along the realized path $`h`$, the outcome of the unchosen counterfactual alternative $`\alpha_0`$ along counterfactual branch $`h_0`$ is never observed.
-* If the universe of ends contains at least two distinct elements, there exists an alternative model $`C_2`$ that produces identical observed data on $`h`$ and constitutes a valid purposeful action model, yet predicts a contradictory outcome on branch $`h_0`$:
-```math
-  \text{BranchCausalParam}(C_1, h_0, \alpha_0) \neq \text{BranchCausalParam}(C_2, h_0, \alpha_0)
-```
-  ([`causal_econometric_non_identifiability`](../Praxeology/EconometricLimits.lean#L102)).
-* Causal parameters on unchosen counterfactual paths cannot be estimated from historical data without arbitrary non-empirical restrictions.
+## 3. ABCT-labelled regime witness
 
----
+[`abct_macro_aggregate_regime_non_identifiability`](../Praxeology/EconometricLimits.lean#L260)
+is the generic two-model estimator theorem applied to the inductive labels
+`Absorption` and `Liquidation`. The finite
+[`abct_regime_non_identifiability_witness`](../Praxeology/EconometricLimits.lean#L276)
+assigns those labels to two interpretations over `FiniteBranchingModel` that
+have the same selected observation. The label function is constructed for the
+witness; the result does not model capital goods, household saving, credit
+creation, factor markets, or an actual business-cycle process.
 
-## 3. Generalized Lucas Critique: Policy Invariance Failure
-
-Econometric policy simulations assume that statistical regression equations estimated from past regimes remain invariant when policy rules change. Praxeological teleology refutes this:
-
-* Suppose a policy intervention alters the anticipated payoff of a hitherto rejected option $`\beta          e_{\text{bad}}        e_{\text{great}}                e_{\text{great}}                                       \alpha^{\ast}`$.
-* The agent's teleological choice mathematically shifts away from $`\alpha^{\ast}            \beta`$.
-* Historical behavioral coefficients break down precisely because acting human beings possess purposeful forward-looking agency ([`lucas_critique_policy_invariance_failure`](../Praxeology/EconometricLimits.lean#L137)).
-
----
-
-## 4. Instrumental Variable Exclusion Restriction Unverifiability
-
-Modern empirical econometrics relies heavily on Instrumental Variables (IV) to infer causality, requiring that instrument $`Z`$ affects the outcome *only* through treatment $`\alpha`$ (the Exclusion Restriction):
-
-* When only treatment $`\alpha^{\ast}                                                                                                  \alpha_{\text{alt}}`$) cannot be empirically verified.
-* There exist two observationally identical structural models—one satisfying the exclusion restriction globally, and one violating it on unchosen actions:
-```math
-  \text{IV}_{\text{invalid}}(z_1, \alpha_{\text{alt}}) \neq \text{IV}_{\text{invalid}}(z_2, \alpha_{\text{alt}})
-```
-  ([`iv_exclusion_restriction_unverifiable`](../Praxeology/EconometricLimits.lean#L168)).
-* IV identification rests on an untestable metaphysical leap.
-
----
-
-## 5. Duhem-Quine Econometric Underdetermination
-
-Given any observed historical trace $`\langle \alpha^{\ast}, e^{\ast} \rangle`$, there always exist at least two distinct structural models that perfectly fit the historical observations while embodying contradictory causal laws across counterfactual scenarios:
-```math
-\text{Outcome}_1(i, \alpha_{\text{cf}}, t, h) \neq \text{Outcome}_2(i, \alpha_{\text{cf}}, t, h)
-```
-([`duhem_quine_underdetermination`](../Praxeology/EconometricLimits.lean#L208)).
-
-This formally establishes the Misesian epistemological thesis: economic history can illustrate praxeological theorems, but cannot inductively discover or refute fundamental economic laws.
-
----
-
-## 6. Macro-Aggregate Observational Equivalence & Regime Non-Identifiability
-
-A key challenge in macroeconomic identification is distinguishing a sustainable expansion from an artificial credit boom. In our formalization:
-
-* **Structural Capital Regimes:** An economy's true state is partitioned into two regimes ([`CapitalRegime`](file:///home/aleryberry/Projects/praxeology_lean/Praxeology/EconometricLimits.lean#L253)):
-  * `Absorption`: Capital projects are backed by sufficient voluntary deferred consumption or physical buffer inventory.
-  * `Liquidation`: Early-stage projects exceed physical completion capacity, mandating midstream abandonment.
-* **Theorem 9.6 (Macro Observational Equivalence):**
-  At boom origination moment $`t_0`$, both regimes generate identical observable macroeconomic traces (identical early-stage investment choices $`\alpha_{\text{stage1}}`$ and identical realized output):
-```math
-  \text{ObsEquiv}(C_{\text{absorb}}, C_{\text{liquidate}}, i, t_0, h)
-```
-  By the Master Non-Identifiability Principle, **no** econometric estimator operating on macroeconomic time series can identify whether the system occupies the Absorption or Liquidation regime:
-```math
-  \neg \exists \text{est}, \quad \text{Identifies}(\mathcal{M}, \text{regimeOf}, \text{est}, i, t_0, h)
-```
-  ([`abct_macro_aggregate_regime_non_identifiability`](file:///home/aleryberry/Projects/praxeology_lean/Praxeology/EconometricLimits.lean#L260), [`observable_data_generating_regime_non_identifiability`](file:///home/aleryberry/Projects/praxeology_lean/Praxeology/EconometricLimits.lean#L370)).
-* **Witness:** The non-identifiability theorem is constructively witnessed over finite types ([`abct_regime_non_identifiability_witness`](file:///home/aleryberry/Projects/praxeology_lean/Praxeology/EconometricLimits.lean#L276), [`macro_crisis_observation_equivalence_witness`](../Praxeology/BusinessCycle.lean)) with strictly zero axioms (`[]`).
-* **Epistemological Consequence:** Discerning sustainable investment from monetary malinvestment cannot be achieved by aggregate regression models alone; it requires microeconomic capital accounting, time-to-build specificity, and physical factor endowment tracking (*Laws in Re*).
+Accordingly, the current witness supports only this limited claim: in the
+specified interpretation class, one selected observation does not determine
+an externally assigned two-valued regime label. It is not a calibrated or
+causally grounded Austrian business-cycle model.

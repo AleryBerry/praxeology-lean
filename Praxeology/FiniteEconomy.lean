@@ -9,7 +9,11 @@ public import Praxeology.FiniteEconomy.Tree
 public import Praxeology.FiniteEconomy.Physical
 public import Praxeology.FiniteEconomy.Policy
 public import Praxeology.FiniteEconomy.Compiler
+public import Praxeology.FiniteEconomy.ActionFrameCompiler
 public import Praxeology.FiniteEconomy.Program
+public import Praxeology.FiniteEconomy.ProfileSchedule
+public import Praxeology.FiniteEconomy.ProgramActionFrame
+public import Praxeology.FiniteEconomy.ProgramActionFrameWitness
 public import Praxeology.FiniteEconomy.ScaleBenchmarks
 public import Praxeology.FiniteEconomy.FiveStageSupplyChain
 public import Praxeology.FiniteEconomy.Execution

@@ -340,6 +340,16 @@ theorem purposeful_act_choice_cell_invariant (i : Agent) (t : Moment) (h1 h2 : H
     simp only [h1_in, h2_in, true_and]
   rw [h_exec]
 
+/-- Purposefulness is invariant across histories containing the same decision
+when the enacted action at that node is the same. The result follows from the
+frame's history-invariance laws for menus, preferences, and action ends. -/
+theorem PurposefulAct.bundle_invariant (i : Agent) (t : Moment)
+    (h₁ h₂ : History) (α : Action)
+    (h₁_mem : F.mem_hist t h₁) (h₂_mem : F.mem_hist t h₂)
+    (h_enacted : F.enacted i t h₁ = F.enacted i t h₂) :
+    PurposefulAct i t h₁ α ↔ PurposefulAct i t h₂ α := by
+  exact purposeful_act_choice_cell_invariant i t h₁ h₂ h₁_mem h₂_mem α h_enacted
+
 /-- Purposeful action whose end is preferred to the baseline end. -/
 def ActivePurposefulAct (i : Agent) (t : Moment) (h : History) (α_star : Action) : Prop :=
   PurposefulAct i t h α_star ∧ Preference i t h (End_of i α_star t h) (End_of i α₀ t h)

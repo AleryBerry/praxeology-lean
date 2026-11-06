@@ -358,6 +358,63 @@ theorem advanceIfAffordable_sound [Fintype Agent] [Fintype Means]
       (SolventProfile.ofAffordable operations state profile
         (profileAffordable_of_true operations state profile ha)) actor m
 
+/-- A successful profile with exactly matched offer and acceptance actions
+obeys the bilateral inventory equations. If both sides trade the same good,
+the equations record both flows on that coordinate. -/
+theorem advanceIfAffordable_matchedTransfer_balance
+    [Fintype Agent] [Fintype Means] [DecidableEq Agent]
+    [DecidableEq Means] [DecidableEq Operation]
+    (operations : OperationSemantics Operation Means Service)
+    (state next : PhysicalState Agent Means Service)
+    (profile : ActionProfile (Agent := Agent) (Means := Means)
+      (Operation := Operation))
+    (seller buyer : Agent) (soldQuantity : ℕ) (soldGood : Means)
+    (paidQuantity : ℕ) (paidGood : Means)
+    (hstep : advanceIfAffordable operations state profile = some next)
+    (hoff : profile seller =
+      EconomyAction.offer seller buyer soldQuantity soldGood paidQuantity paidGood)
+    (haccept : profile buyer =
+      EconomyAction.accept buyer seller soldQuantity soldGood paidQuantity paidGood) :
+    (∀ m, next.stock seller m + (if m = soldGood then soldQuantity else 0) =
+      state.stock seller m + (if m = paidGood then paidQuantity else 0)) ∧
+    (∀ m, next.stock buyer m + (if m = paidGood then paidQuantity else 0) =
+      state.stock buyer m + (if m = soldGood then soldQuantity else 0)) := by
+  have hbalances := advanceIfAffordable_sound operations state next profile hstep
+  constructor
+  · intro m
+    simpa [effectiveUse, effectiveYield, hoff, haccept] using
+      hbalances seller m
+  · intro m
+    simpa [effectiveUse, effectiveYield, hoff, haccept] using
+      hbalances buyer m
+
+/-- A successful matched bilateral transfer preserves the two parties'
+combined stock of every good. This holds when the sold and paid goods are the
+same as well as when they differ. -/
+theorem advanceIfAffordable_matchedTransfer_pair_conservation
+    [Fintype Agent] [Fintype Means] [DecidableEq Agent]
+    [DecidableEq Means] [DecidableEq Operation]
+    (operations : OperationSemantics Operation Means Service)
+    (state next : PhysicalState Agent Means Service)
+    (profile : ActionProfile (Agent := Agent) (Means := Means)
+      (Operation := Operation))
+    (seller buyer : Agent) (soldQuantity : ℕ) (soldGood : Means)
+    (paidQuantity : ℕ) (paidGood : Means)
+    (hstep : advanceIfAffordable operations state profile = some next)
+    (hoff : profile seller =
+      EconomyAction.offer seller buyer soldQuantity soldGood paidQuantity paidGood)
+    (haccept : profile buyer =
+      EconomyAction.accept buyer seller soldQuantity soldGood paidQuantity paidGood) :
+    ∀ m, next.stock seller m + next.stock buyer m =
+      state.stock seller m + state.stock buyer m := by
+  intro m
+  obtain ⟨hseller, hbuyer⟩ := advanceIfAffordable_matchedTransfer_balance
+    operations state next profile seller buyer soldQuantity soldGood paidQuantity
+    paidGood hstep hoff haccept
+  have hseller := hseller m
+  have hbuyer := hbuyer m
+  omega
+
 /-- Declarative finite physical execution data. The specification records only
 the root state and the complete enacted profile at each node and history;
 later stocks are computed by the recursive parent fold below. -/
@@ -455,6 +512,171 @@ theorem runAt_edge_balance (P : FinitePhysicalProgram T Agent Means Operation Se
     (P.actionProfile h (T.parent t)) hrun
 
 end FinitePhysicalProgram
+
+namespace FinitePhysicalProgram
+
+variable {T : FiniteTreeSpec} {Agent Means Operation Service : Type}
+variable [Fintype Agent] [Fintype Means] [DecidableEq Agent]
+  [DecidableEq Means] [DecidableEq Operation]
+
+/-- If the parent and child runs both succeed, the enacted profile passed the
+interpreter's affordability check. -/
+theorem edge_affordable_of_successful_child
+    (P : FinitePhysicalProgram T Agent Means Operation Service)
+    (h : T.History) {t : T.Node} (ht0 : t ≠ 0)
+    {before after : PhysicalState Agent Means Service}
+    (hbefore : P.runAt h (T.parent t) = some before)
+    (hafter : P.runAt h t = some after) :
+    profileAffordable? P.operations before
+      (P.actionProfile h (T.parent t)) = true := by
+  rw [FinitePhysicalProgram.runAt.eq_1, dite_eq_right ht0, hbefore] at hafter
+  unfold advanceIfAffordable at hafter
+  by_cases ha : profileAffordable? P.operations before
+      (P.actionProfile h (T.parent t)) = true
+  · exact ha
+  · simp [ha] at hafter
+
+end FinitePhysicalProgram
+
+/-- A solvent finite physical execution. Its local edge-affordability
+certificate lets the existing interpreter generate a state at every node of
+every history; it adds no transition rule or economic assumption. -/
+structure SolventFinitePhysicalProgram (T : FiniteTreeSpec)
+    (Agent Means Operation Service : Type)
+    [Fintype Agent] [Fintype Means] [DecidableEq Agent]
+    [DecidableEq Means] [DecidableEq Operation] where
+  execution : FinitePhysicalProgram T Agent Means Operation Service
+  /-- Every enacted parent-to-child profile is affordable from the state
+  already generated at its parent. -/
+  edge_affordable : ∀ h t (_ht : T.MemHist t h) (_ht0 : t ≠ 0) state,
+    execution.runAt h (T.parent t) = some state →
+    profileAffordable? execution.operations state
+      (execution.actionProfile h (T.parent t)) = true
+
+namespace SolventFinitePhysicalProgram
+
+variable {T : FiniteTreeSpec} {Agent Means Operation Service : Type}
+variable [Fintype Agent] [Fintype Means] [DecidableEq Agent]
+  [DecidableEq Means] [DecidableEq Operation]
+
+/-- Package an all-history successful run. Local affordability then follows
+from the interpreter's rule for accepting a parent-to-child transition. -/
+def ofSuccessfulAt
+    (execution : FinitePhysicalProgram T Agent Means Operation Service)
+    (successful_at : ∀ h t, T.MemHist t h →
+      ∃ state, execution.runAt h t = some state) :
+    SolventFinitePhysicalProgram T Agent Means Operation Service where
+  execution := execution
+  edge_affordable := by
+    intro h t _ht ht0 state hbefore
+    obtain ⟨after, hafter⟩ := successful_at h t _ht
+    exact execution.edge_affordable_of_successful_child h ht0 hbefore hafter
+
+/-- The edge-affordability certificate recursively guarantees a physical
+state along every history prefix. -/
+theorem successful_at
+    (P : SolventFinitePhysicalProgram T Agent Means Operation Service)
+    (h : T.History) (t : T.Node) (ht : T.MemHist t h) :
+    ∃ state, P.execution.runAt h t = some state := by
+  have haux : ∀ n, ∀ (t : T.Node), t.val = n → ∀ h : T.History,
+      T.MemHist t h → ∃ state, P.execution.runAt h t = some state := by
+    intro n
+    induction n using Nat.strong_induction_on with
+    | h n ih =>
+        intro t htval h hmem
+        by_cases ht0 : t = 0
+        · subst t
+          exact ⟨P.execution.initialState, P.execution.runAt_root h⟩
+        · have hparent_lt : (T.parent t).val < n := by
+            rw [← htval]
+            exact T.parent_decreases t ht0
+          have hparent_mem : T.MemHist (T.parent t) h := by
+            exact T.ancestor_trans
+              (T.ancestor_of_parent ht0 (T.ancestor_refl (T.parent t))) hmem
+          obtain ⟨parentState, hparent_run⟩ :=
+            ih (T.parent t).val hparent_lt (T.parent t) rfl h hparent_mem
+          have hprofile := P.edge_affordable h t hmem ht0 parentState hparent_run
+          have hchild_run : P.execution.runAt h t = some
+              (advanceState P.execution.operations parentState
+                (P.execution.actionProfile h (T.parent t))
+                (SolventProfile.ofAffordable P.execution.operations parentState
+                  (P.execution.actionProfile h (T.parent t))
+                  (profileAffordable_of_true P.execution.operations parentState
+                    (P.execution.actionProfile h (T.parent t)) hprofile))) := by
+            simp only [FinitePhysicalProgram.runAt, dite_eq_right ht0,
+              hparent_run, advanceIfAffordable, hprofile, dite_true]
+          exact ⟨_, hchild_run⟩
+  exact haux t.val t rfl h ht
+
+/-- Read the generated physical state after edge affordability has established
+that the interpreter returns one. -/
+def stateAt
+    (P : SolventFinitePhysicalProgram T Agent Means Operation Service)
+    (h : T.History) (t : T.Node) (ht : T.MemHist t h) :
+    PhysicalState Agent Means Service :=
+  (P.execution.runAt h t).get (by
+    cases hrun : P.execution.runAt h t with
+    | none =>
+        obtain ⟨state, hstate⟩ := P.successful_at h t ht
+        simp [hrun] at hstate
+    | some _ => rfl)
+
+/-- The total state view is exactly the state returned by the original
+affordability-checked interpreter. -/
+theorem runAt_stateAt
+    (P : SolventFinitePhysicalProgram T Agent Means Operation Service)
+    (h : T.History) (t : T.Node) (ht : T.MemHist t h) :
+    P.execution.runAt h t = some (P.stateAt h t ht) := by
+  cases hrun : P.execution.runAt h t with
+  | none =>
+      obtain ⟨state, hstate⟩ := P.successful_at h t ht
+      simp [hrun] at hstate
+  | some state => simp [stateAt, hrun]
+
+/-- The generated root state is the declared initial state. -/
+theorem stateAt_root
+    (P : SolventFinitePhysicalProgram T Agent Means Operation Service)
+    (h : T.History) (hroot : T.MemHist 0 h) :
+    P.stateAt h 0 hroot = P.execution.initialState := by
+  have hrun := P.runAt_stateAt h 0 hroot
+  rw [P.execution.runAt_root] at hrun
+  exact Option.some.inj hrun.symm
+
+/-- Histories that share a node have the same generated physical state there.
+This is inherited from prefix-consistent action profiles in the interpreter.
+-/
+theorem stateAt_bundle_invariant
+    (P : SolventFinitePhysicalProgram T Agent Means Operation Service)
+    {t : T.Node} {h₁ h₂ : T.History}
+    (hmem₁ : T.MemHist t h₁) (hmem₂ : T.MemHist t h₂) :
+    P.stateAt h₁ t hmem₁ = P.stateAt h₂ t hmem₂ := by
+  have h₁run := P.runAt_stateAt h₁ t hmem₁
+  have h₂run := P.runAt_stateAt h₂ t hmem₂
+  have hsame := P.execution.runAt_bundle_invariant hmem₁ hmem₂
+  exact Option.some.inj (h₁run.symm.trans (hsame.trans h₂run))
+
+/-- Every generated parent-child transition has the interpreter's exact
+inventory balance for each agent and means coordinate. -/
+theorem stateAt_edge_balance
+    (P : SolventFinitePhysicalProgram T Agent Means Operation Service)
+    (h : T.History) {t : T.Node} (ht : T.MemHist t h) (ht0 : t ≠ 0) :
+    ∀ actor m,
+      (P.stateAt h t ht).stock actor m +
+          effectiveUse P.execution.operations
+            (P.execution.actionProfile h (T.parent t)) actor m =
+        (P.stateAt h (T.parent t) (by
+          exact T.ancestor_trans
+            (T.ancestor_of_parent ht0 (T.ancestor_refl (T.parent t))) ht)).stock actor m +
+          effectiveYield P.execution.operations
+            (P.execution.actionProfile h (T.parent t)) actor m := by
+  have hparent_mem : T.MemHist (T.parent t) h := by
+    exact T.ancestor_trans
+      (T.ancestor_of_parent ht0 (T.ancestor_refl (T.parent t))) ht
+  apply P.execution.runAt_edge_balance h ht0
+  · exact P.runAt_stateAt h (T.parent t) hparent_mem
+  · exact P.runAt_stateAt h t ht
+
+end SolventFinitePhysicalProgram
 
 /-- A profile is correctly owned and contains no self-trade. -/
 def WellFormedProfile [DecidableEq Agent]

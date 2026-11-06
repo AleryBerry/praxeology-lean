@@ -57,30 +57,30 @@ $$
 
 ### Valuation of Feasible Ends
 
-Chapter 1 defined a comparison between bundles by the ends they can attain. We now state how that comparison constrains preference: a bundle that supports every attainable end set of another, and at least one additional set, is ranked strictly higher when bundles are represented as ends.
+Chapter 1 defined a comparison between bundles by the ends they can attain. We now state how that comparison constrains preference: a bundle that supports every attainable combination of valued ends of another, and at least one additional set, is ranked strictly higher when bundles are represented as ends.
 
-### Assumption 3.6 (Preference for a Bundle That Attains More Ends)
+### Assumption 3.6 (Preference for a Bundle That Attains More Valued Ends)
 We represent bundles by ends through a map
 
 $$
 \text{bundle} : (\mathcal{M} \to \mathbb{N}) \to \mathcal{E}
 $$
 
-and require attainability-based dominance to imply strict preference:
+Write $`\mathcal{E}_{i,t,h} \subseteq \mathcal{E}`$ for the subset of ends valued by agent $i$ at decision situation $\langle t, h \rangle$. We require attainability-based dominance over the agent's valued ends to imply strict preference:
 
 $$
-\forall i \in \mathcal{I}, \forall t \in \mathcal{T}, \forall h \in \mathcal{H}, \forall b_1, b_2 \in \mathcal{M} \to \mathbb{N}, \quad \triangleright_{\mathrm{T}}(\rho, b_1, b_2) \implies \succ_{i,t,h}(\text{bundle}(b_1), \text{bundle}(b_2))
+\forall i \in \mathcal{I}, \forall t \in \mathcal{T}, \forall h \in \mathcal{H}, \forall b_1, b_2 \in \mathcal{M} \to \mathbb{N}, \quad \triangleright_{\mathrm{T}}(\rho, \mathcal{E}_{i,t,h}, b_1, b_2) \implies \succ_{i,t,h}(\text{bundle}(b_1), \text{bundle}(b_2))
 $$
 
-This condition connects physical possibilities to valuation. We will use it only where the model includes the stated bundle representation and implication; it does not follow from quantity comparisons alone.
+This condition connects physical possibilities to subjective valuation: an agent strictly prefers a bundle that expands the attainable combinations of ends they personally value. We will use it only where the model includes the stated bundle representation and implication; it does not follow from quantity comparisons alone.
 
 ---
 
 ### Theorem 3.7 (Direct Bundle Representation)
-*When a model represents each bundle directly by an end whose requirements equal that bundle, raw physical vector dominance strictly implies teleological bundle dominance:*
+*When a model represents each bundle directly by an end whose requirements equal that bundle, raw physical vector dominance strictly implies teleological bundle dominance over any domain containing those ends:*
 
 $$
-\forall b_1, b_2, \quad \triangleright_{\mathrm{P}}(b_1, b_2) \implies \triangleright_{\mathrm{T}}(\rho, b_1, b_2)
+\forall b_1, b_2, \quad \triangleright_{\mathrm{P}}(b_1, b_2) \implies \triangleright_{\mathrm{T}}(\rho, \mathcal{E}_{\mathrm{val}}, b_1, b_2)
 $$
 
 **Proof.** Let $`\triangleright_{\mathrm{P}}(b_1, b_2)`$, so $`\forall m, b_2(m) \le b_1(m)`$ and $`b_2(m^{\ast}) < b_1(m^{\ast})`$ for some $m^{\ast}$. By Lemma 1.10 (Part 1), any $S$ attainable under $`b_2`$ is attainable under $`b_1`$. Consider the singleton witness $`S = \{ \text{bundle}(b_1) \}`$. Since $`\sum_{e \in S} \rho(e, m) = b_1(m) \le b_1(m)`$, $S$ is attainable under $`b_1`$. But at $m^{\ast}$, $`b_1(m^{\ast}) \le b_2(m^{\ast})`$ fails because $`b_2(m^{\ast}) < b_1(m^{\ast})`$. Hence $S$ is not attainable under $`b_2`$, witnessing $`\triangleright_{\mathrm{T}}(\rho, b_1, b_2)`$. $\blacksquare$
@@ -577,7 +577,7 @@ Because majority voting cycles over transitive individual posets, voting outcome
 
 ### Proposition 3.39 (Autonomous Self-Precommitment vs. External Menu Stripping)
 In an Action Frame, there is a fundamental praxeological distinction between autonomous self-precommitment and external coercive menu stripping:
-1. **Autonomous Self-Precommitment:** At moment $t_1$, an agent purposefully executes an action $\alpha_{\text{commit}}$ that steers their own future state into a branch $h_{\text{commit}}$ where a tempting action $\alpha_{\text{consume}}$ is pruned from $\mathcal{A}_{\text{feas}}(i, t_2, h_{\text{commit}})$. Both choices ($\alpha_{\text{commit}}$ at $t_1$ and $\alpha_{\text{save}}$ at $t_2$) are voluntary and purposeful, economizing scarce resources across the agent's own timeline.
+1. **Autonomous Self-Precommitment:** At moment $t_1$, an agent purposefully executes an action $\alpha_{\text{commit}}$ that steers their own future state into a branch $h_{\text{commit}}$ where a tempting action $\alpha_{\text{consume}}$ is pruned from $`\mathcal{A}_{\text{feas}}(i, t_2, h_{\text{commit}})`$. Both choices ($\alpha_{\text{commit}}$ at $t_1$ and $\alpha_{\text{save}}$ at $t_2$) are voluntary and purposeful, economizing scarce resources across the agent's own timeline.
 2. **External Coercive Menu Stripping:** An external actor $j$ enacts an invasive action $\alpha_j$ that physically contracts $i$'s endowment $\omega(i, t', \text{jointBranch}(i, j, t, h, \alpha_0, \alpha_j), m) < \omega(i, t, h, m)$ without $i$'s consent (`EndogenouslyInvasiveJ`), forcibly stripping previously feasible actions from $i$'s choice menu (`self_precommitment_vs_external_menu_stripping`, Theorem 8.13b).
 
 Paternalistic nudges or state regulations that coercively strip feasible actions cannot be justified as an externalized "precommitment device," because they replace the acting agent's own purposeful valuation with external physical compulsion (political means / coercive extortion). $\blacksquare$

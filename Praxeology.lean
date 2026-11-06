@@ -15,124 +15,40 @@ public import Praxeology.EpistemicAbility
 public import Praxeology.Marginal
 public import Praxeology.Catallactics
 public import Praxeology.Catallactics.Credit
+public import Praxeology.Catallactics.ProgramExchangeWitness
 public import Praxeology.Production
 public import Praxeology.Organization
 public import Praxeology.FirmBoundary
 public import Praxeology.FirmWitness
 public import Praxeology.BusinessCycle
+public import Praxeology.BusinessCycle.CreditLifecycleFrame
 public import Praxeology.EconometricLimits
 public import Praxeology.BehavioralPoset
 public import Praxeology.StateMonopoly
 
 
 /-!
-# Praxeology — Formalized Austrian Praxeology
+# Praxeology Lean library
 
-A fully verified Lean 4 formalization of human action, subjective value,
-market exchange, socialist calculation, firm boundaries, and business-cycle
-dynamics. The project introduces no custom axioms; its audited declarations
-depend on Lean's standard `propext`, `Classical.choice`, and `Quot.sound`:
+A Lean 4 formalization of selected praxeological, catallactic, entrepreneurial,
+and business-cycle claims. The library combines a general `ActionFrame` model
+interface with finite and abstract witnesses; the precise assumptions and
+proved scope of individual results are documented in `spec/claims_and_assumptions.md`.
 
-- **Theorems 0.1 & 0.2: Model-Theoretic Consistency & Non-Vacuity** (`Praxeology.Frame`)
-  Zero-axiom `ActionFrame` typeclass (`FiniteBranchingModel`, `action_frame_consistent`)
-  and spatiotemporal branching-tree & Bourbaki-Witt marketability witness
-  (`BranchingMarketabilityModel`, `branching_marketability_model_consistent`).
+The main imports cover action and preference, finite economy and marginal
+allocation, exchange and credit, production and firm boundaries, business-cycle
+mechanisms, econometric limitations, behavioral choice, and state monopoly.
+The modules establish conditional results under explicit model assumptions.
+They do not by themselves derive every Austrian economic conclusion from a
+single minimal axiom system. The named five-project regimes have a recursive
+physical ActionFrame schedule; early capital production, behaviorally derived
+choices, market recalculation after deviations, and integrated default
+adjudication remain incomplete.
 
-- **Theorem 1: The Praxeological Action Axiom & Revealed Teleology** (`Praxeology.Action`)
-  Purposeful action (`PurposefulAct`, `DoxasticPurposefulAct`), pragmatic self-falsification
-  (`pragmatic_self_falsification_of_action_denial`), set-valued opportunity cost
-  (`ActionOCSet`, `StrictOCSet`), and performative self-consistency without neoclassical patches.
-  *Theorems 1.1–1.7*.
-
-- **Theorem 2: Diminishing Marginal Utility & Value Imputation** (`Praxeology.Marginal`)
-  Choice-free ordinal diminishing marginal utility, least-urgent end economizing,
-  teleological quanta subsumption of complementarity, odd-shoe sub-quantum remainder sterility,
-  praxeological refutation of sunk costs & labor theory of value,
-  Menger's law of backward value imputation, intertemporal capital imputation via causal frames,
-  and factor specificity value collapse vs. versatility cushioning.
-  *Theorems 2.1–2.3 (Theorems 2.1a–2.1f, 2.3a–2.3d)*.
-
-- **Theorem 3: Universal Positive Time Preference & Originary Interest** (`Praxeology.Marginal`)
-  Action horizon impossibility under negative time preference
-  (`causal_not_purposeful_immediate_consumption_of_negative_time_pref`), action-derived
-  positive time preference, strictly positive originary interest ι > 0, Böhm-Bawerk's law of
-  roundabout production productivity necessity, capital accumulation as action-menu unlocking
-  epochs, and the Autumn-Winter Food Security & DMU End-Individuation theorem.
-  *Theorems 3.1–3.6 (Theorems 3.5a–3.5d)*.
-
-- **Theorem 4: Catallactic Bilateral Exchange & Money Emergence** (`Praxeology.Catallactics`)
-  Double inequality of exchange, Mises's Law of Association under universal absolute advantage,
-  Rothbard-Megger welfare trichotomy pairwise mutual exclusivity
-  (`rothbard_megger_trichotomy_mutual_exclusivity`),
-  refutation of Knaster-Tarski monotonicity (`concrete_phi_non_monotone_witness`),
-  Bourbaki-Witt inflationary fixed-point money emergence,
-  price-box precautionary cash demand narrowing and solvency expansion loop,
-  discrete marginal pairs pricing bounds, and constructive cardinal-free Gresham's law collapse.
-  *Theorems 4.1–4.5 (Theorems 4.1a–4.1c, 4.3a–4.3j)*.
-
-- **Theorem 5: The Mises-Hayek Economic Calculation Problem (ECP)** (`Praxeology.Catallactics`)
-  Automorphism non-invariance over physical antichains, semantic incommensurability barrier
-  vs. algorithmic complexity, and universal epistemic measurability impossibility across planners.
-  *Theorems 5.1–5.3*.
-
-- **Theorem 6: Counterfactual Action & Epistemic Second-Best** (`Praxeology.Counterfactuals`)
-  Ex-ante/ex-post divergence, cross-branch regret, mandatory regret in heterodoxastic speculation,
-  Misesian entrepreneurial profit and loss dichotomy, purposeful speculation with ex-ante gain
-  and ex-post selection, impossibility of speculative trade under shared plausibility,
-  Lawson's epistemic second-best non-monotonicity, and regulatory cascades.
-  *Theorems 6.1–6.6 (Theorems 6.4b–6.4c, 6.6a)*.
-
-- **Context-Matched Counterfactuals** (`Praxeology.CausalCounterfactuals`)
-  Explicit causal contexts and admissible outcome correspondences, robust appraisal,
-  possible and guaranteed matched regret, and conditional bridges to selected-branch results.
-
-- **Theorem 7: The Boundary of the Firm & Signal Quantization** (`Praxeology.FirmBoundary`)
-  Catallactic price-box indeterminacy cones, Hayekian epistemic compression,
-  Kirznerian arbitrage cone contraction, multi-stage signal attenuation, master coalescence
-  inequality, purposeful firm coalescence with load-bearing calculational rationality,
-  refutation of the arithmetic stage-count integration fallacy
-  (`vertical_integration_stage_count_fallacy_refuted`),
-  operationally interpreted delegation and market interfaces (`Praxeology.Organization`),
-  kernel-checked finite policy and trade witnesses, conditional firm-boundary choice,
-  and credit-induced artificial conglomeration with bust regret.
-  *Theorems 7.1–7.9 (Theorems 7.6a–7.6d, 7.8b–7.8c)*.
-
-- **Theorem 8: Austrian Business Cycle Theory (ABCT)** (`Praxeology.BusinessCycle`)
-  Credit-rate appraisal and purposeful investment, complementary-factor starvation, price-box
-  completion squeeze, and contextual regret for a single entrepreneurial scenario. The
-  information and cohort extensions model saving/credit signal ambiguity, shared response
-  policies, aggregate unit-input shortages, price-buffer crossings, and conditional regret for
-  each affected project. A finite two-agent witness grounds one entrepreneur's cycle; a fully
-  instantiated multi-entrepreneur credit-and-regret witness remains future work.
-
-- **Theorem 9: Causal Econometric Non-Identifiability** (`Praxeology.EconometricLimits`)
-  Master non-identifiability principle (`non_identifiability_of_divergent_models`),
-  causal econometric non-identifiability under branching time
-  (`causal_econometric_non_identifiability`), generalized Lucas critique policy invariance failure
-  (`lucas_critique_policy_invariance_failure`), instrumental variable exclusion restriction
-  unverifiability (`iv_exclusion_restriction_unverifiable`), and Duhem-Quine econometric
-  underdetermination (`duhem_quine_underdetermination`).
-  *Theorems 9.1–9.5*.
-
-- **Theorem 10: Poset-Theoretic Behavioral Equivalence** (`Praxeology.BehavioralPoset`)
-  Poset-theoretic behavioral embedding (`contextual_to_poset`),
-  cross-frame preference reversals consistent with asymmetry
-  (`framing_reversal_consistent_with_asymmetry`), purposeful action invariant under framing shifts
-  (`purposeful_act_invariant_under_framing`), hyperbolic discounting and intertemporal preference
-  reversals (`hyperbolic_reversal_consistent_with_action_axiom`),
-  loss aversion / reference-dependent choice invariance
-  (`loss_aversion_instantiates_purposeful_act`), and refutation of the behavioral anomaly dilemma
-  (`contextual_frame_induces_strict_poset`).
-  *Theorems 10.1–10.6*.
-
-- **Theorem 11: State Monopoly & Fiscal Extraction** (`Praxeology.StateMonopoly`)
-  Territorial licensing and judicial authority, coercive taxation as extortion, fiscal conservation,
-  Calhoun multi-moment inventory run fiscal partition (`calhoun_action_frame_run_class_partition`),
-  Hoppean endogenous ruler time-preference extraction, judicial monopoly self-exoneration,
-  statutory immunity protecting calculation blindness, and political economy master synthesis
-  (`state_monopoly_political_economy_master_synthesis`).
-  Behavioral conclusions are conditional on explicit preferences, menus, and execution.
-  *Theorems 11.1–11.6*.
+Axiom dependencies are audited separately. Mathlib is used as a theorem library;
+its use is not an additional axiom. The audit allows Lean's standard
+`propext`, `Classical.choice`, and `Quot.sound` dependencies and reports any
+other transitive axiom dependency.
 -/
 
 @[expose] public section
@@ -307,7 +223,7 @@ theorem ground_mises_law_of_association :
   mises_law_of_association_non_vacuous
 
 /-- Ground instantiation of Theorem 7.6d: Non-vacuity of purposeful firm coalescence. -/
-theorem ground_purposeful_firm_coalescence :
+theorem ground_firm_coalescence_separate_choice_and_signal_witness :
     ∃ (i : FiniteBranchingModel.Agent)
       (t : FiniteBranchingModel.Moment)
       (h : FiniteBranchingModel.History) (L K _K_min grid_step : ℕ)
@@ -322,7 +238,7 @@ theorem ground_purposeful_firm_coalescence :
        CoalescedQuantizationNoise geom.external grid_step <
          TotalQuantizationNoise L grid_step ∧
        0 < geom.external.remaining) :=
-  purposeful_firm_coalescence_non_vacuous
+  purposeful_firm_coalescence_separate_choice_and_signal_witness
 
 /-- Ground instantiation of Theorem 3.5c: Böhm-Bawerk's roundabout productivity necessity. -/
 theorem ground_bohm_bawerk_roundabout_necessity
@@ -631,11 +547,11 @@ theorem ground_calhoun_action_frame_run_class_partition
 
 /-- Ground instantiation of Theorem 4.1c: Exclusivity of Rothbard-Megger welfare trichotomy. -/
 theorem ground_rothbard_megger_trichotomy
-    [W : ActionFrame] {i j : W.Agent} {t t' : W.Moment} {h : W.History}
+    [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}
     (α_i α_j : W.Action) :
-    ¬ (IsVoluntaryExchange i j t t' h α_i α_j ∧ IsCoerciveExtortion i j t t' h α_i α_j) ∧
-    ¬ (IsVoluntaryExchange i j t t' h α_i α_j ∧ IsMarketCompetition i j t t' h α_i α_j) ∧
-    ¬ (IsCoerciveExtortion i j t t' h α_i α_j ∧ IsMarketCompetition i j t t' h α_i α_j) :=
+    ¬ (IsVoluntaryExchange i j t h α_i α_j ∧ IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsVoluntaryExchange i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsCoerciveExtortion i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) :=
   rothbard_megger_trichotomy_mutual_exclusivity α_i α_j
 
 /-- Ground instantiation of Knaster-Tarski non-monotonicity countermodel (Finset). -/
@@ -663,8 +579,8 @@ theorem ground_vertical_integration_stage_count_fallacy_refuted
 
 /-- Ground instantiation of Theorem 11.6: State Monopoly Political Economy Master Synthesis. -/
 theorem ground_state_monopoly_master_synthesis [W : ActionFrame] {i j : W.Agent}
-    {t t' : W.Moment} {h : W.History}
-    (S : StateMonopolyMasterEvidence (W := W) (i := i) (j := j) (t := t) (t' := t') (h := h)) :
+    {t : W.Moment} {h : W.History}
+    (S : StateMonopolyMasterEvidence (W := W) (i := i) (j := j) (t := t) (h := h)) :
     StateMonopolyMasterConclusion S :=
   state_monopoly_political_economy_master_synthesis S
 
@@ -784,11 +700,11 @@ theorem ground_purposeful_lockean_homesteading_non_invasive
 /-- Ground instantiation of the Action-Axiom equivalence between endogenous invasion
 and feasible-menu stripping under tight-action richness. -/
 theorem ground_endogenous_invasion_iff_menu_stripping
-    [W : ActionFrame] {i j : W.Agent} {t t' : W.Moment} {h : W.History}
+    [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}
     (h_rich : ∀ m : W.Means, ∃ β, (∀ m', W.use_means β m' ≤ W.omega i t h m') ∧
       W.use_means β m = W.omega i t h m)
     (α_j : W.Action) :
-    EndogenouslyInvasiveJ i j t t' h α_j ↔ MenuStrippingInvasiveJ i j t t' h α_j :=
+    EndogenouslyInvasiveJ i j t h α_j ↔ MenuStrippingInvasiveJ i j t h α_j :=
   endogenous_invasion_iff_menu_stripping h_rich α_j
 
 /-- Ground instantiation of ActionFrame physical invasion menu stripping:

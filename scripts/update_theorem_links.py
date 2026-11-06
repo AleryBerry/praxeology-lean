@@ -21,6 +21,7 @@ import argparse
 import os
 import re
 import sys
+from urllib.parse import unquote, urlsplit
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
@@ -106,15 +107,21 @@ class LeanIndexer:
         self.by_name.setdefault(name, []).append(decl)
 
     def find_declaration(self, symbol: str, target_file_hint: Optional[str] = None) -> Optional[LeanDeclaration]:
+        candidates = self.find_declarations(symbol)
         if target_file_hint:
-            hint_name = Path(target_file_hint).name
-            if (hint_name, symbol) in self.by_file_and_name:
-                return self.by_file_and_name[(hint_name, symbol)]
-        if symbol in self.by_name:
-            candidates = self.by_name[symbol]
-            if candidates:
-                return candidates[0]
-        return None
+            hint = Path(target_file_hint).as_posix()
+            matches = [d for d in candidates if d.file_path.resolve().as_posix().endswith(hint)]
+            if len(matches) == 1:
+                return matches[0]
+        return candidates[0] if len(candidates) == 1 else None
+
+    def find_declarations(self, symbol: str) -> List[LeanDeclaration]:
+        """Return unique source declarations for a short or qualified name."""
+        found = self.by_name.get(symbol, [])
+        unique: Dict[Tuple[str, int], LeanDeclaration] = {}
+        for decl in found:
+            unique[(decl.file_path.resolve().as_posix(), decl.line_number)] = decl
+        return list(unique.values())
 
 
 @dataclass
@@ -132,9 +139,7 @@ class MarkdownLinkAuditor:
 
     # Matches Markdown links to .lean files: [text](target)
     # Group 1: text, Group 2: full url/path, Group 3: file path, Group 4: optional line #L123
-    LINK_RE = re.compile(
-        r"\[([^\]]+)\]\(([^)]*?(?:Praxeology[/\\])?([A-Za-z0-9_]+\.lean)(?:#L(\d+))?)\)"
-    )
+    LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]*?\.lean(?:#L\d+)?[^)]*)\)")
 
     def __init__(self, indexer: LeanIndexer, root_dir: Path, add_missing: bool = False):
         self.indexer = indexer
@@ -152,48 +157,85 @@ class MarkdownLinkAuditor:
 
         for line_no, line in enumerate(lines, 1):
             for m in self.LINK_RE.finditer(line):
-                link_text, full_url, lean_file, cited_line_str = m.groups()
+                link_text, full_url = m.groups()
+                target = self._resolve_local_lean_path(md_path, full_url)
+                if target is None:
+                    continue
+                old_link = m.group(0)
                 symbol = self._extract_symbol(link_text, line)
+                explicit = bool(re.search(r"`([A-Za-z0-9_\'\.]+)`", link_text))
+                target_exists = target.exists()
+                if symbol == target.stem and target_exists:
+                    symbol = None
+                    explicit = False
+
+                if not target_exists and not symbol:
+                    issues.append(LinkIssue(md_path, line_no, target.name, old_link, "",
+                        f"ERROR: Lean file does not exist: {self._display_target(target)}"))
+                    continue
+
                 if not symbol:
+                    if not target_exists:
+                        issues.append(LinkIssue(md_path, line_no, target.name, old_link, "",
+                            f"ERROR: Lean file does not exist: {self._display_target(target)}"))
+                    elif self._is_absolute_file_link(full_url):
+                        rel = self._display_target(target)
+                        new_url = os.path.relpath(target, md_path.parent).replace(os.sep, "/")
+                        issues.append(LinkIssue(md_path, line_no, target.name, old_link,
+                            f"[{link_text}]({new_url})", f"Absolute local file link; use {rel}"))
                     continue
 
-                decl = self.indexer.find_declaration(symbol, target_file_hint=lean_file)
-                if not decl:
+                decls = self.indexer.find_declarations(symbol)
+                exact = [d for d in decls if d.file_path.resolve() == target.resolve()]
+                if len(exact) == 1:
+                    decl = exact[0]
+                elif len(exact) > 1:
+                    issues.append(LinkIssue(md_path, line_no, symbol, old_link, "",
+                        f"ERROR: ambiguous declaration {symbol} in {self._display_target(target)}"))
                     continue
-
-                actual_line = decl.line_number
-                actual_file = decl.file_path.name
-
-                needs_update = False
-                reason = ""
-
-                # Check if target file changed
-                if actual_file != lean_file:
-                    needs_update = True
-                    reason = f"Moved: {lean_file} -> {actual_file}"
-                elif cited_line_str:
-                    cited_line = int(cited_line_str)
-                    if cited_line != actual_line:
-                        needs_update = True
-                        reason = f"Line shift: #L{cited_line} -> #L{actual_line}"
-                elif self.add_missing:
-                    needs_update = True
-                    reason = f"Missing line number: added #L{actual_line}"
-
-                if needs_update:
-                    new_url = self._compute_new_url(full_url, lean_file, actual_file, actual_line)
-                    old_link = m.group(0)
-                    new_link = f"[{link_text}]({new_url})"
-                    issues.append(
-                        LinkIssue(
-                            file_path=md_path,
-                            line_number=line_no,
-                            symbol=symbol,
-                            old_link=old_link,
-                            new_link=new_link,
-                            reason=reason,
-                        )
+                elif len(decls) == 1:
+                    decl = decls[0]
+                elif len(decls) > 1:
+                    missing = (
+                        f"ERROR: Lean file does not exist: {self._display_target(target)}; "
+                        if not target_exists else ""
                     )
+                    issues.append(LinkIssue(md_path, line_no, symbol, old_link, "",
+                        f"{missing}ERROR: ambiguous declaration {symbol}; target path does not disambiguate it"))
+                    continue
+                elif explicit or Path(link_text.strip()).stem != target.stem:
+                    missing = (
+                        f"ERROR: Lean file does not exist: {self._display_target(target)}; "
+                        if not target_exists else ""
+                    )
+                    issues.append(LinkIssue(md_path, line_no, symbol, old_link, "",
+                        f"{missing}ERROR: declaration {symbol} was not found in the indexed Lean sources"))
+                    continue
+                else:
+                    if not target_exists:
+                        issues.append(LinkIssue(md_path, line_no, target.name, old_link, "",
+                            f"ERROR: Lean file does not exist: {self._display_target(target)}"))
+                    continue
+
+                actual_file = decl.file_path.resolve()
+                cited_match = re.search(r"#L(\d+)", full_url)
+                cited_line = int(cited_match.group(1)) if cited_match else None
+                moved = actual_file != target.resolve()
+                line_shifted = cited_line is not None and cited_line != decl.line_number
+                needs_line = self.add_missing and cited_line is None
+                if moved or line_shifted or needs_line or self._is_absolute_file_link(full_url):
+                    new_url = self._compute_new_url(full_url, md_path, actual_file, decl.line_number)
+                    reasons = []
+                    if moved:
+                        reasons.append(f"Moved: {self._display_target(target)} -> {self._display_target(actual_file)}")
+                    if line_shifted:
+                        reasons.append(f"Line shift: #L{cited_line} -> #L{decl.line_number}")
+                    if needs_line:
+                        reasons.append(f"Missing line number: added #L{decl.line_number}")
+                    if self._is_absolute_file_link(full_url):
+                        reasons.append("Absolute local file link")
+                    issues.append(LinkIssue(md_path, line_no, symbol, old_link,
+                        f"[{link_text}]({new_url})", "; ".join(reasons)))
 
         return issues
 
@@ -222,13 +264,59 @@ class MarkdownLinkAuditor:
 
         return None
 
-    def _compute_new_url(self, full_url: str, old_file: str, new_file: str, new_line: int) -> str:
-        # Strip existing anchor #L...
-        base_url = full_url.split("#")[0]
-        # Replace file name if it moved
-        if old_file != new_file and old_file in base_url:
-            base_url = base_url.replace(old_file, new_file)
-        return f"{base_url}#L{new_line}"
+    def _resolve_local_lean_path(self, md_path: Path, target: str) -> Optional[Path]:
+        clean = target.strip().strip("<>")
+        parsed = urlsplit(clean)
+        if parsed.scheme in {"http", "https"}:
+            if parsed.netloc.lower() not in {"github.com", "www.github.com"}:
+                return None
+            parts = [unquote(part) for part in parsed.path.split("/") if part]
+            if len(parts) < 5 or parts[2] != "blob":
+                return None
+            owner_repo = "/".join(parts[:2]).lower()
+            if owner_repo != "aleryberry/praxeology_lean":
+                return None
+            clean_path = "/".join(parts[4:])
+        elif parsed.scheme == "file":
+            clean_path = unquote(parsed.path)
+        elif parsed.scheme:
+            return None
+        else:
+            clean_path = unquote(parsed.path or clean.split("#", 1)[0].split("?", 1)[0])
+        if not clean_path.endswith(".lean"):
+            return None
+
+        candidate = Path(clean_path)
+        if candidate.is_absolute():
+            return candidate.resolve()
+        if clean_path.startswith("Praxeology/") or clean_path == "Praxeology.lean":
+            return (self.root_dir / candidate).resolve()
+        relative = (md_path.parent / candidate).resolve()
+        if relative.exists():
+            return relative
+        return (self.root_dir / candidate).resolve()
+
+    def _display_target(self, target: Path) -> str:
+        try:
+            return target.resolve().relative_to(self.root_dir).as_posix()
+        except ValueError:
+            return str(target.resolve())
+
+    @staticmethod
+    def _is_absolute_file_link(url: str) -> bool:
+        parsed = urlsplit(url.strip().strip("<>"))
+        return Path(unquote(parsed.path)).is_absolute() and parsed.scheme in {"", "file"}
+
+    def _compute_new_url(self, full_url: str, md_path: Path, new_file: Path, new_line: int) -> str:
+        relative = os.path.relpath(new_file, md_path.parent).replace(os.sep, "/")
+        parsed = urlsplit(full_url.strip().strip("<>"))
+        if parsed.scheme in {"http", "https"} and parsed.netloc.lower() in {"github.com", "www.github.com"}:
+            prefix, marker, rest = parsed.path.partition("/blob/")
+            if marker:
+                ref, _, _old_path = rest.partition("/")
+                relative = f"{prefix}/blob/{ref}/{self._display_target(new_file)}"
+                return f"https://{parsed.netloc}{relative}#L{new_line}"
+        return f"{relative}#L{new_line}"
 
     def fix_file(self, md_path: Path, issues: List[LinkIssue]) -> None:
         if not issues:
@@ -237,6 +325,8 @@ class MarkdownLinkAuditor:
             content = f.read()
 
         for issue in issues:
+            if not issue.new_link:
+                continue
             content = content.replace(issue.old_link, issue.new_link)
 
         with open(md_path, "w", encoding="utf-8") as f:

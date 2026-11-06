@@ -1,32 +1,51 @@
-# Formal Mathematical Specifications (`spec/`)
+# Mathematical specifications
 
-This directory contains the complete, up-to-date mathematical specifications for the **Formalized Austrian Praxeology** codebase in Lean 4 (`praxeology_lean`).
+The files in this directory describe selected Lean declarations and their
+formal scope. The Lean code is authoritative when prose and a declaration
+differ. A proved theorem establishes its proposition from its hypotheses; it
+does not establish that those premises are universally true or that the
+formalization is a complete account of an economic theory. See the
+[claim and assumption register](claims_and_assumptions.md).
 
-Each specification corresponds to declarations in [`Praxeology/`](../Praxeology), whose proofs are checked by Lean's kernel. The repository declares no project-level `axiom` constants or `sorry` proofs, but some declarations still depend transitively on Lean or Mathlib axioms; see the constructive audit in the [root README](../README.md). These specifications distinguish structural and arithmetic results from conditional economic interpretations.
+## Specifications
 
----
+| Page | Main Lean modules | Scope |
+|---|---|---|
+| [01 Ontology and frames](01_ontology_and_frames.md) | [`Frame`](../Praxeology/Frame.lean), [`Frame/Core`](../Praxeology/Frame/Core.lean), [`Frame/Witnesses`](../Praxeology/Frame/Witnesses.lean) | Agents, time, histories, action menus, and frame instances |
+| [02 Action and preference](02_action_and_preference.md) | [`Action`](../Praxeology/Action.lean) | Purposeful action, demonstrated preference, and modeled feasible menus |
+| [03 Intertemporal marginal](03_intertemporal_marginal.md) | [`Marginal`](../Praxeology/Marginal.lean), [`Marginal/AllocationChoice`](../Praxeology/Marginal/AllocationChoice.lean), [`Marginal/AllocationActionFrame`](../Praxeology/Marginal/AllocationActionFrame.lean), [`Marginal/ComplementarityWitness`](../Praxeology/Marginal/ComplementarityWitness.lean) | Legacy allocation assumptions, derived ranked-prefix results and witnesses, complementary attainment, time preference, and interest conditions |
+| [04 Catallactics and ECP](04_catallactics_ecp.md) | [`Catallactics`](../Praxeology/Catallactics.lean), [`Catallactics/Credit`](../Praxeology/Catallactics/Credit.lean) | Exchange, monetary processes, prices, calculation, and credit contracts |
+| [05 Counterfactuals and regret](05_counterfactuals_regret.md) | [`Action`](../Praxeology/Action.lean), [`Entrepreneurship`](../Praxeology/Entrepreneurship.lean) | Context-matched regret and conditional entrepreneurial-cycle synthesis |
+| [06 Firm boundary](06_firm_boundary.md) | [`Organization`](../Praxeology/Organization.lean), [`FirmBoundary`](../Praxeology/FirmBoundary.lean), [`FirmWitness`](../Praxeology/FirmWitness.lean) | Delegation, firm boundaries, information, and a finite workshop witness |
+| [07 Business cycle](07_business_cycle.md) | [`Entrepreneurship`](../Praxeology/Entrepreneurship.lean), [`BusinessCycle`](../Praxeology/BusinessCycle.lean) and its submodules | Conditional cycle, cohort, information, and lifecycle results; concrete multi-borrower construction remains outstanding |
+| [08 Econometric limits](08_econometric_limits.md) | [`EconometricLimits`](../Praxeology/EconometricLimits.lean) | Non-identifiability within specified interpretation classes and observations |
+| [09 Behavioral poset](09_behavioral_poset.md) | [`BehavioralPoset`](../Praxeology/BehavioralPoset.lean) | Asymmetric preferences, conditional transitivity, menu examples, and a Condorcet witness |
+| [10 State monopoly](10_state_monopoly.md) | [`StateMonopoly`](../Praxeology/StateMonopoly.lean) | Conditional institutional classifications and finite accounting results |
+| [Comparison with Komendarczyk et al.](komendarczyk_contrast.md) | External companion and this repository | Formal scope, DMU assumptions, witness types, and library dependencies |
 
-## Specification Roadmap
+## Reading the specifications
 
-| Specification Document | Formal Domain | Lean 4 Implementation | Core Theorems & Invariants |
-| :--- | :--- | :--- | :--- |
-| [**`01_ontology_and_frames.md`**](01_ontology_and_frames.md) | Multi-Sorted Ontology & Branching Frames | [`Praxeology/Frame.lean`](../Praxeology/Frame.lean) | Zero-axiom [`ActionFrame`](../Praxeology/Frame/Core.lean#L276), trajectory primitive [`enacted`](../Praxeology/Credit.lean#L340), derived [`ChoicePartition`](../Praxeology/Frame/Core.lean#L1460), [`DynamicBox`](../Praxeology/Frame/Core.lean#L1504), finite model witness [`FiniteBranchingModel`](../Praxeology/Frame/Witnesses.lean#L277) (Theorems 0.1–0.2). |
-| [**`02_action_and_preference.md`**](02_action_and_preference.md) | Purposeful Action & Demonstrated Preference | [`Praxeology/Action.lean`](../Praxeology/Action.lean) | Undominated choice [`PurposefulAct`](../Praxeology/Action.lean#L222), prenex-repaired [`DemonstratedPref`](../Praxeology/Action.lean#L279), poset-frontier [`StrictOCSet`](../Praxeology/Action.lean#L709), and performative self-falsification [`pragmatic_self_falsification_of_action_denial`](../Praxeology/Action.lean#L1031) (Theorems 1.1–1.7). |
-| [**`03_intertemporal_marginal.md`**](03_intertemporal_marginal.md) | Marginal Utility, Imputation & Originary Interest | [`Praxeology/Marginal.lean`](../Praxeology/Marginal.lean) | Choice-free ordinal DMU, teleological quanta complementarity, Mengerian backward value imputation, factor specificity dichotomy, action-derived time preference, originary interest $`\iota > 0`$, and Autumn-Winter saving (Theorems 2.1–3.6). |
-| [**`04_catallactics_ecp.md`**](04_catallactics_ecp.md) | Bilateral Exchange, Money & ECP | [`Praxeology/Catallactics.lean`](../Praxeology/Catallactics.lean) | Double inequality of exchange, Megger coercion separation, Bourbaki-Witt inflationary money emergence ([`universal_money_emergence`](../Praxeology/Catallactics.lean#L1504)), Knaster-Tarski non-monotonicity countermodel, price-box solvency loop, Gresham list circulation collapse, discrete pricing grid $`\mathbb{M}_D`$, and ECP antichain undefinedness (Theorems 4.1–5.3). |
-| **Organization Semantics** | Accepted Delegation & Market Interfaces | [`Praxeology/Organization.lean`](../Praxeology/Organization.lean) | Purposeful assignment, acceptance, and task execution; internal transfer terms authorized by delegation; independent market boundaries backed by purposeful bilateral exchange and fresh-bargaining evidence; finite policy obstruction via `KnowledgeRelation`. |
-| [**`05_counterfactuals_regret.md`**](05_counterfactuals_regret.md) | Counterfactuals, Regret & Epistemic Second-Best | [`Praxeology/Counterfactuals.lean`](../Praxeology/Counterfactuals.lean) | Ex-ante/ex-post divergence, cross-branch regret, entrepreneurial profit/loss dichotomy, no-trade under shared plausibility, Lawson second-best non-monotonicity, and regulatory cascades (Theorems 6.1–6.6). |
-| [**`06_firm_boundary.md`**](06_firm_boundary.md) | Firm Boundary, Price Boxes & Signal Attenuation | [`Praxeology/FirmBoundary.lean`](../Praxeology/FirmBoundary.lean) | Price boxes $`\mathcal{B}_t`$, Indeterminacy Cones $`\mathcal{Z}_t`$, Hayekian compression, refutation of arithmetic chain-integration fallacy, finite information-policy conflict, ActionFrame-grounded conditional purposeful coalescence, and credit conglomeration. |
-| [**`07_business_cycle.md`**](07_business_cycle.md) | Business-Cycle Mechanisms and Remaining Construction | [`Praxeology/BusinessCycle.lean`](../Praxeology/BusinessCycle.lean) | Single-project credit appraisal and contextual regret; Catallactics-derived and contract-derived saving/credit rate equality; observation-based indistinguishability; conditional shared-input and price-squeeze cohort results; explicit note that a concrete multi-entrepreneur ActionFrame witness remains unbuilt. |
-| [**`08_econometric_limits.md`**](08_econometric_limits.md) | Causal Econometric Non-Identifiability | [`Praxeology/EconometricLimits.lean`](../Praxeology/EconometricLimits.lean) | Master non-identifiability theorem ([`non_identifiability_of_divergent_models`](../Praxeology/EconometricLimits.lean#L84)), causal non-identifiability under branching time, Lucas critique policy invariance failure, IV exclusion unverifiability, macro aggregate regime non-identifiability, and Duhem-Quine underdetermination (Theorems 9.1–9.7). |
-| [**`09_behavioral_poset.md`**](09_behavioral_poset.md) | Poset Behavioral Equivalence & Anomaly Invariance | [`Praxeology/BehavioralPoset.lean`](../Praxeology/BehavioralPoset.lean) | Poset-theoretic behavioral embedding, framing reversals consistent with asymmetry, purposeful action invariance, hyperbolic discounting, loss aversion, and behavioral anomaly fallacy refuted (Theorems 10.1–10.6). |
-| [**`10_state_monopoly.md`**](10_state_monopoly.md) | State Monopoly & Fiscal Extraction | [`Praxeology/StateMonopoly.lean`](../Praxeology/StateMonopoly.lean) | Territorial authority, taxation with public goods, Calhoun multi-moment physical run class partition, production shutdown, ruler time preference, protected calculation blindness, and political economy master synthesis (Theorems 11.1–11.6). |
-| [**`komendarczyk_contrast.md`**](komendarczyk_contrast.md) | Comparative Architectural Analysis vs. $`T_{\text{prx}}`$ | [arXiv:2606.18292](https://arxiv.org/abs/2606.18292) | Comprehensive comparison of `praxeology_lean` against *A Formalization of Austrian Economics — Praxeological Foundations: The Base System and Its Derived Theorems* ($`T_{\text{prx}}`$), detailing constructive zero-axiom typeclasses, poset-generalized action/cost definitions, and multi-agent catallactic/macroeconomic scaling. |
+Three distinctions are important throughout:
 
----
+1. **A theorem versus an instantiated witness.** A theorem quantified over
+   every `ActionFrame` is conditional on a supplied frame. A separate concrete
+   instance is needed to witness the relevant economic scenario.
+2. **A premise versus a derived result.** If a structure stores an optimality,
+   preference, funding, or regret condition, a theorem using that structure
+   does not derive the stored condition unless a separate result constructs it.
+3. **Kernel validity versus economic fidelity.** Lean checks completed proofs
+   against their formal premises. Interpreting those premises as a faithful
+   economic theory remains a separate task.
 
-## Architectural Principles
+## Library and foundational assumptions
 
-1. **Zero Custom Axioms:** Unlike earlier drafting iterations or baseline literature that stipulated behavior via uninterpreted axioms (`axiom demonstrated_preference`), our codebase contains **zero custom axioms**. All mathematical structures are parameterized via typeclasses ([`ActionFrame`](../Praxeology/Frame/Core.lean#L276)) and certified consistent via concrete, kernel-checked finite model witnesses.
-2. **Constructive Agency:** Agency is rooted in the physical trajectory primitive [`enacted`](../Praxeology/Credit.lean#L340), from which STIT choice partitions, modal dynamic boxes, and deliberative agency are derived as propositional theorems.
-3. **Rigorous KaTeX Notation:** All mathematical formulas in the specifications adhere strictly to standard KaTeX backtick-dollar syntax (``$`...`$`` and ``$$`...`$$``) for seamless rendering across all markdown viewers and documentation generators.
+This project uses Mathlib. Its use does not add axioms automatically, and
+avoiding Mathlib would not by itself remove `Classical.choice` or other
+dependencies. The accepted standard axiom dependencies and the declaration
+audit are documented in the [root README](../README.md) and
+[`claims_and_assumptions.md`](claims_and_assumptions.md). Project-specific
+axioms and unfinished proofs are not accepted.
+
+`natural_language/` is deliberately deferred pending reconciliation with the
+formal development. Those chapters are not currently faithful translations of
+the Lean specifications.

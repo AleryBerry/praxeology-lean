@@ -129,7 +129,7 @@ Okishio analyzed the general equilibrium response of relative prices when a viab
 **Praxeological Limitations of Okishio's Model:**
 While Okishio successfully refuted Marx within Marxian/Sraffian terms, his own mathematical model suffers from neoclassical shortcomings:
 - Okishio assumes a static, timeless system of simultaneous equations without money, where goods reproduce themselves instantaneously.
-- In actual human action, production is an intertemporal process spanning branching historical time ( $t_0 \prec t_1 \prec \dots \prec t_n$, Chapter 2). The spread between factor purchase prices at $t_0$ and product sale prices at $t_n$ is anchored not by mechanical input-output matrices, but by **originary interest**, with $\iota > 0$ (Chapter 7). Because purposeful human action under open temporal horizons strictly values earlier satisfaction over later satisfaction, the return on capital is bounded away from zero by universal positive time preference.
+- The Lean model includes intertemporal choices over a branching history, but its time-preference result is local: strict preference for a particular earlier outcome requires the open-horizon condition, a purposeful act that dominates feasible distinct-end alternatives, a feasible later alternative, and an injective timing map. Its conditional loan-premium result does not establish a universal positive return floor. Any positive-interest premise used in this critique must therefore be stated separately; it is not a consequence of purposeful action alone.
 
 ---
 

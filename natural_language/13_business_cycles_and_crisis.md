@@ -2,12 +2,14 @@
 
 Chapters 4 and 7 introduced tools for analyzing complementary requirements, capital, and intertemporal choice. Chapters 10 and 11 incorporated credit advances, price uncertainty, and organizational production. We now combine these elements into a formal model of investment and crisis.
 
-The Austrian Business Cycle Theory traces five interrelated phases across an Action Frame:
-1. **Fiduciary Credit Origination:** Unbacked note issuance expands loanable media, suppressing the contractual loan rate below the rate supported by voluntary savings.
-2. **Purposeful Investment Decision:** Under the suppressed loan rate, the post-repayment physical endowment bundle teleologically dominates inaction, leading the entrepreneur to purposefully undertake roundabout investment.
-3. **Physical Capital Formation:** Intermediate capital goods are produced along the transition run using the advanced credit.
-4. **Complementary Factor Exhaustion:** Because credit expansion was unbacked by real saving, the complementary factors required to complete the lengthened production structure are physically absent, rendering completion infeasible.
-5. **Contextual Regret and Capital Stranding:** The incomplete capital goods remain stranded, and the entrepreneur experiences contextual regret relative to the foregone safe liquidity baseline.
+This chapter collects conditional results about credit signals, purposeful choice, inventory transitions, completion constraints, and regret. These components can be composed when their premises are supplied, but the formalization does not derive the entire Austrian Business Cycle from fiduciary issuance alone. In particular, a lower quoted rate does not establish purposeful investment; a cash-buffer eligibility test is not a physical inventory check; and a missing complementary input must be shown in the relevant branch before completion is ruled out. The five-project physical program clears its later markets from each branch's actual state, but it does not derive household saving, purposeful investment, or the early production that converts inputs into capital.
+
+The conditional chain studied here has five possible components:
+1. **Origination and rate evidence:** An enacted advance and a loan quote can be established independently of whether the loan is later repaid. Rate comparisons require the stated market or repayment evidence.
+2. **Purposeful investment:** This requires explicit feasibility, enactment, and preference evidence at the declared evaluation horizon.
+3. **Physical transition:** Inventory balances determine what capital goods and complementary factors are present after the represented operations.
+4. **Completion obstruction:** Completion fails only when the required physical input or monetary input is absent under the model's feasibility rule.
+5. **Contextual regret:** Regret additionally requires a safe alternative, a shared compatible context, physically grounded outcomes, and the relevant preference comparison.
 
 ## Discrete Return Comparisons and Rate Signals
 
@@ -33,23 +35,23 @@ $$
 
 The first inequality places the spread at or below the benchmark under the natural-rate comparison; the second places it above the benchmark under the credit-rate comparison.
 
-In the endogenous credit framework established in Chapter 10 (Proposition 10.21a), the spread between $r_n$ and $r_c$ is derived directly from the banking system's balance sheet. When a bank issues unbacked fiduciary notes to clear a marginal loan whose gross revenue cannot cover the natural repayment demanded by genuine savers, fiduciary origination endogenously suppresses the gross repayment factor ($r_c < r_n$) while expanding circulating media by the loan principal.
+The inequalities in this definition are a supplied signal pair. They do not by themselves derive either rate from fiduciary issuance, identify the source of loanable funds, or establish what borrowers and savers chose. Chapter 10 contains separate conditional results: issuance changes the issuer's recorded money stock, while a repayment-rate comparison uses evidence about an actually enacted repayment and the borrower's balance at that repayment moment.
 
 ## Purposeful Investment Grounded in Credit and Bundle Dominance
 
-An arithmetic rate comparison translates into purposeful action through the entrepreneur's preference ordering over physical bundles. Under natural savings terms, the required debt repayment leaves a residual physical bundle that fails to improve upon inaction, rendering the investment non-purposeful ( $\neg \mathsf{P}$ ). Under fiduciary credit terms, the suppressed repayment factor leaves a strictly superior residual bundle. In the Action Frame, teleological bundle dominance natively induces strict ordinal preference (`teleological_bundle_dominance_induces_preference`), transforming the investment into a purposeful act ( $\mathsf{P}$ ).
+An arithmetic rate comparison alone does not establish purposeful action. The conditional result below uses projected bundles calculated from the contract's promised repayment terms; this projection is not evidence that repayment later occurs. Feasibility, enactment, and preferences remain separate inputs to the Action Frame. The finite program adapter also makes the evaluation horizon explicit; a longer horizon can change the inventory bundle being compared, but does not by itself show that an agent prefers or chooses the investment.
 
-### Theorem 13.2 (Endogenous Credit-Induced Investment Flip)
+### Theorem 13.2 (Conditional Credit-Rate Investment Comparison)
 
 Suppose a fiduciary credit origination supplies principal $P$ at suppressed gross repayment factor $r_c < r_n$, funding an investment action $\alpha$:
-1. At the natural rate $r_n$, the post-repayment outcome does not improve upon inaction, so $\alpha$ is rejected as non-purposeful ( $\neg \mathsf{P}$ );
-2. At the credit rate $r_c$, the loan advance provides sufficient spendable media, and the post-repayment bundle strictly teleologically dominates inaction;
+1. At the natural rate $r_n$, the projected bundle after the promised repayment does not improve upon inaction, so $\alpha$ is not a purposeful active choice ( $\neg \mathsf{P}$ );
+2. At the credit rate $r_c$, the loan advance provides the stated money input, other required inputs are available, and the projected bundle after promised repayment strictly teleologically dominates inaction;
 3. By `teleological_bundle_dominance_induces_preference`, $\alpha$ is strictly preferred to inaction and undominated among feasible alternatives;
 4. The entrepreneur enacts $\alpha$.
 
-Then $\alpha$ is non-purposeful at the natural rate and purposeful at the credit rate.
+Then, under the stated appraisal, feasibility, and enactment conditions, $\alpha$ is non-purposeful at the natural rate and purposeful at the credit rate. This conclusion concerns projected appraisal and does not assert that either contract is later repaid.
 
-**Proof.** At the natural rate, purposeful active choice is excluded because $\alpha \neq \alpha_0$ and the outcome fails to improve upon inaction. At the credit rate, the matched advance fulfills the physical cash requirement for feasibility. Enactment is supplied, bundle dominance natively induces strict improvement over inaction via `teleological_bundle_dominance_induces_preference`, and undominatedness holds among feasible alternatives. These are the exact requirements of `PurposefulAct`. $\square$
+**Proof.** At the natural rate, the stated appraisal condition fails the improvement-over-inaction requirement for an active purposeful act. At the credit rate, the matched advance supplies the stated money input, while the other physical inputs must also meet the feasibility condition. Enactment, preference for the projected bundle over inaction, and undominatedness among feasible alternatives are separate premises or derived from the stated bundle-dominance result. Together these are the requirements of `PurposefulAct`; the rate comparison alone proves none of them. $\square$
 
 ## Capital Formation and a Missing Complementary Factor
 
@@ -185,96 +187,77 @@ Suppose a lender transfers principal $P$ to a borrower at a moment on history $h
 
 The no-use condition matters. A loan's principal need not remain available merely because it was received earlier; the inventory trace supplies the needed link between receipt and present feasibility.
 
-## The Full Endogenous Cycle
+## Composing the Conditional Cycle Components
 
-The complete praxeological business cycle synthesizes these layers without requiring external wrapper structures or arbitrary shock parameters. Instead of injecting external rate shock numbers, the model derives every causal step natively from the core categories of the Action Frame:
+The formalization does not derive one end-to-end cycle from bank issuance. It supplies conditional components that can be composed when their interfaces are met: loan-market evidence for a quote or advance; explicit preferences and action evidence for purposeful investment; inventory-run evidence for capital and other stocks; a physical or cash constraint for blocked completion; and common-context preference evidence for regret. The five-project program recalculates the loan and factor markets at their scheduled cursor positions from each branch's actual money, recorded advances, and offered factor stocks. It executes only the listed operations and does not model the earlier use that would convert funds into capital or establish a purposeful investment decision.
 
-1. **Endogenous Loan Rate Suppression:** Unbacked fiduciary note issuance expands bank loanable funds, allowing the banking system to clear a marginal loan whose gross repayment factor $R_{\text{credit}}$ is strictly below the minimum rate $R_{\text{natural}}$ acceptable under genuine voluntary saving.
-2. **Teleological Flip of Purposeful Investment:** When evaluating post-repayment physical bundles, the lower credit rate leaves the entrepreneur with a bundle that strictly teleologically dominates inaction. By `teleological_bundle_dominance_induces_preference`, this bundle dominance natively induces a strict preference that flips the entrepreneur from rejecting the project at the natural rate ( $\neg \text{PurposefulAct}$ ) to choosing it at the credit rate ( $\text{PurposefulAct}$ ).
-3. **Physical Capital Formation:** The entrepreneur receives the loan advance, commits the funds to early-stage roundabout inputs, and forms intermediate capital goods along the production run.
-4. **Native Stage-Two Blockage:** Because the credit expansion was unbacked by real saving, the complementary factors required to bring the capital good to final consumer completion remain physically absent in the economy ( $\omega(i, t_{\text{next}}, h, \text{comp}) = 0$ ). By the native feasibility coupling, this factor shortfall immediately proves completion infeasible ( $\text{completion} \notin \mathcal{A}_{\text{feas}}$ ) and hence non-purposeful.
-5. **Contextual Regret:** Evaluated in a common context against the foregone safe liquidity alternative, the stranded capital delivers an inferior outcome, establishing strict contextual regret.
+Accordingly, the result below is a conditional composition. The rate, purposeful-choice, physical-shortage, and regret premises must each be supplied or separately proved. Neither fiduciary issuance nor a longer evaluation horizon supplies the missing premises.
 
-### Theorem 13.11 (An Endogenous Credit-Financed Starvation Cycle)
+### Theorem 13.11 (A Conditional Credit-Financed Starvation Cycle)
 
 Consider an entrepreneur, an investment action, a completion action, a capital good, and a complementary factor in an Action Frame. Suppose:
 
 1. the loan advance provides credit funding at gross repayment factor $R_{\text{credit}}$;
-2. under post-repayment bundle dominance at rate $R_{\text{credit}}$, roundabout investment is purposeful ( $\text{PurposefulAct}$ ), whereas at the natural rate it is rejected ( $\neg \text{PurposefulAct}$ );
+2. under the stated projected bundle comparisons using the promised terms, roundabout investment is purposeful ( $\text{PurposefulAct}$ ) at rate $R_{\text{credit}}$, whereas it is not purposeful at the natural rate ( $\neg \text{PurposefulAct}$ );
 3. the investment is enacted, forming intermediate capital stock while leaving complementary factor stock at zero ( $\omega(i, t_{\text{next}}, h, \text{comp}) = 0$ );
 4. the completion action requires a strictly positive quantity of the complementary factor; and
 5. a safe liquidity alternative is feasible and admitted in a compatible evaluation context, with physically grounded outcomes where the safe bundle teleologically dominates the stranded actual bundle.
 
 Then:
 1. the entrepreneur purposefully undertakes the roundabout investment at the credit rate, but would have refrained at the natural rate;
-2. at the next stage, completion is strictly infeasible ( $\text{completion} \notin \mathcal{A}_{\text{feas}}$ ) and cannot be purposefully enacted;
+2. at the next stage, completion is strictly infeasible ( $`\text{completion} \notin \mathcal{A}_{\text{feas}}`$ ) and cannot be purposefully enacted;
 3. the capital stock remains stranded; and
 4. evaluated in the shared context, the entrepreneur experiences strict contextual regret relative to the safe alternative.
 
-**Proof.** The credit funding and teleological bundle dominance (`teleological_bundle_dominance_induces_preference`) establish purposeful investment at the subsidized rate and its absence at the natural rate. The inventory transition certifies that intermediate capital is formed while complementary stock is zero. Since completion requires positive complementary means, the native feasibility coupling $\mathcal{A}_{\text{feas\_coupling}}$ forces $\text{completion} \notin \mathcal{A}_{\text{feas}}$. Physical outcome grounding and teleological bundle dominance then yield strict preference for the safe outcome, establishing contextual regret. $\square$
+**Proof.** Premise 2 supplies the purposeful-choice comparison at the stated appraisal and horizon. The inventory transition in premise 3 records intermediate capital while complementary stock is zero. Since the completion action requires a positive quantity of that absent factor, feasibility fails. Premise 5 supplies the common-context, physical-grounding, and preference evidence for regret relative to the safe alternative. The result composes these conditions; it does not derive them from the loan rate or advance alone. $\square$
 
-### Theorem 13.12 (An Endogenous Credit-Financed Cash Squeeze Cycle)
+### Proposition 13.12 (A Cash Shortfall Blocks a Required Spot-Factor Purchase)
 
-When completion requires spot factor purchases rather than pre-existing inventory, the same cycle holds via monetary outpricing:
-1. credit expansion bids up factor prices, creating a cash shortfall ( $`\omega(i, t_{\text{next}}, h, \text{money}) < P_{\text{bid}}`$ );
-2. spot factor acceptance is infeasible by insufficient cash balance;
-3. completion is blocked, stranding capital and inducing contextual regret.
+Suppose completion requires a factor that the entrepreneur does not hold, the factor is offered only through a spot purchase at price $P$, and the entrepreneur's available balance of the specified money good is less than $P$. Then the spot acceptance is infeasible; if that factor is a necessary completion input, completion is physically infeasible as well.
 
-**Proof.** By the spot-trade feasibility equivalence, an agent lacking money cannot accept factor offers. Infeasibility of factor acquisition forces completion infeasibility, yielding stranded-capital regret as in Theorem 13.11. $\square$
+**Proof.** Spot acceptance requires at least $P$ units of the specified money good. The stipulated balance is smaller, so the feasibility condition fails. If the factor is required for completion and is not otherwise available, the completion action also fails its input condition. This establishes neither that credit caused the price or cash shortfall nor that the investment was purposeful or regrettable. Those conclusions require the separate premises in Theorem 13.8. $\square$
 
 ## Organized Production and Finite Illustrations
 
 The cycle can also occur inside an organization. In a three-person construction, a principal directs an operator to produce an intermediate good. The operator accepts the assignment and later transfers one unit of the intermediate good to the principal under an authorized internal exchange. The principal then sells an output to an independently governed customer. The model places the production task, internal transfer, and external sale on one history and orders the sale after the work. If the transfer supplies the principal's capital good while the required complementary input remains absent, the same completion obstruction applies. A shared evaluation context and a valued safe bundle supply the regret comparison.
 
-This organized firm specialization ties internal delegation and external market sale directly to the general cycle theorem: even within an organized firm, credit-induced roundabout expansion without complementary physical factors terminates in factor starvation, stranded capital, and contextual regret.
+This organized-production example composes a represented task, transfer, and sale with a separately specified missing-input condition. Its completion obstruction follows from the absent factor; any purposeful investment or regret conclusion still requires the preference and contextual premises stated for those claims.
 
 ---
 
 ## Model-Theoretic Witnesses for the Business Cycle
 
-The formal architecture provides concrete, verified action frame witnesses that demonstrate the consistency and non-vacuity of the business-cycle theorems. Each witness addresses a distinct analytical question:
+The formalization uses distinct finite witnesses for distinct claims. These examples check that the stated configurations can be represented; they do not combine all of the chapter's assumptions into one derived economic mechanism.
 
 ### 1. The Grounded ABCT Action Frame Witness
 
-The core praxeological account of the Austrian Business Cycle Theory is certified by an explicit, finite model witness: the Grounded ABCT Action Frame. This closed model instantiates the full signature $\Sigma_{\text{prx}}$ across four moments, four branching histories, and three distinct agents:
-- *Bank:* Executes fiduciary credit creation and offers loan advances at an artificially reduced interest rate.
-- *Entrepreneur:* Conducts intertemporal appraisals, accepts the credit advance, and commits resources to long-term capital formation.
-- *Worker / Counterparty:* Engages in factor transfers and production tasks.
-
-The grounded frame unifies all five causal phases in a single constructive structure:
-1. *Credit Expansion:* The bank enacts note issuance, expanding loanable funds without prior voluntary saving.
-2. *Distorted Appraisal:* The entrepreneur evaluates the lower credit rate against the natural rate, finding roundabout capital investment purposeful where inaction was previously preferred.
-3. *Physical Malinvestment:* The loan is advanced, and the entrepreneur commits goods to intermediate capital goods.
-4. *Complementary Factor Starvation:* Because the credit expansion was not accompanied by real physical saving, the complementary goods needed to complete the project are physically exhausted, rendering completion infeasible.
-5. *Contextual Regret:* Evaluated in a shared deliberative context against the foregone safe liquidity alternative, the entrepreneur experiences strict ordinal regret over the aborted project.
+The **Grounded ABCT Action Frame** is a small explicit witness for a matched investment, a missing complementary input, blocked completion, and the supplied purposeful-choice and contextual-regret comparisons. Its finite construction establishes consistency of that instance. It does not establish that fiduciary issuance generally causes the missing input, or that voluntary saving, a rate response, and early production follow from the same causal rule.
 
 ### 2. The Complete Credit Lifecycle Witness
 
-To witness the entire temporal progression of credit contracts—from origination through distress, refinancing, and liquidation—the formalization provides the Credit Lifecycle Action Frame. As established in Chapter 10, this twenty-node branching tree with twelve maximal histories proves that fiduciary issuance, collateral custody, productive restructuring, and default foreclosure can coexist in a single, closed action frame obeying all physical conservation and bilateral transfer laws.
+The **Credit Lifecycle Action Frame** represents issuance, matched advance, later repayment and unpaid-maturity branches. As described in Chapter 10, its unpaid branch classifies the outstanding loan as defaulted and retains the collateral stock under the stated custody conditions. It does not model foreclosure or collateral liquidation, and it is separate from the five-project program.
 
-### 3. Clustered Malinvestment: Shared Shortages and Price Squeezes
+### 3. Conditional Cluster Results: Shared Shortages and Price Squeezes
 
-A central question in business-cycle theory is why entrepreneurial errors are systemically clustered rather than randomly distributed. The formalization provides two distinct cluster theorems over action frame cohorts:
-- *Shared Input Shortage:* When a cohort of multiple distinct entrepreneurs is exposed to a common credit expansion, they simultaneously expand roundabout production. If these projects require a shared, non-expandable complementary factor, aggregate factor demand outstrips accessible physical supply. When accessible supply falls $k$ units below aggregate demand ($k \ge 2$), at least $k$ distinct projects are mathematically guaranteed to be starved of inputs and fail. This derives a synchronized cluster of at least two distinct regretful entrepreneurs.
-- *Factor Price Squeezes:* When multiple projects compete for a common bottleneck factor, factor prices rise. As the factor-price bound crosses entrepreneurs' cash buffers, project completion becomes financially infeasible, precipitating an economy-wide cluster of project abandonments.
+A shared-input cluster theorem takes a finite cohort, common completion node, unit input requirements, and an explicit bound relating accessible stock to demand. Under its shortage bound, it derives a minimum number of blocked projects and composes each with separately supplied purposeful-choice and regret evidence. A one-unit shortfall for two unit-demand projects blocks only one, so at least a two-unit shortfall is needed for two failures. The price-squeeze result likewise takes a stated price response and cash-buffer crossing; it does not derive either from credit issuance alone. In both cases the cohort size and minimum failure count are explicit conditions, not conclusions from a credit shock by itself.
+
+The **five-project physical program** is a separate stateful witness. Each scheduled loan or factor market clears from the actual branch state when its cursor position is reached. The program records matched advances, limits household offers to stated remaining stock, derives completion and sales from acquired inputs and actual output, and records repayment attempts from assigned terms. Refused transfers do not alter inventories and are not retried. This witness checks physical schedules and balances; it does not turn forecast eligibility into physical affordability or prove the scheduled investment purposeful.
 
 ### 4. Epistemic Indistinguishability and Observation Equivalence
 
-Why do entrepreneurs not simply discount fiduciary credit expansions in advance? An epistemic indistinguishability theorem shows that:
+An epistemic indistinguishability result has a narrower scope:
 - In a market setting where bank credit and genuine voluntary saving quote identical gross repayment factors, the derived observation at the decision node is identical across both regimes.
-- An entrepreneur acting under a fixed observational decision policy rationally chooses the identical investment action under either regime.
+- Under a fixed policy whose input is the stated market observation, the same action is selected under either regime.
 - Only an explicit, external source disclosure can distinguish the two regimes; market rate signals alone cannot do so.
 
-This establishes that malinvestment is not an artifact of psychological irrationality or erratic animal spirits, but the mathematically necessary response of rational agents to distorted market signals.
+This is an observation-equivalence result under the specified information and policy. It does not show that the common action is purposeful, that the policy is rational, or that malinvestment is a necessary response to every credit expansion.
 
 ---
 
 ## Scope of the Crisis Results
 
-The chapter unifies the complete causal chain of the Austrian Business Cycle Theory: bank fiduciary expansion endogenously suppresses loan rates; post-repayment bundle dominance induces purposeful investment; physical inventory transitions form early-stage capital; complementary factor absence enforces stage-two completion infeasibility; and contextual regret emerges against the safe liquidity alternative.
-
-The finite action frame witnesses establish that these stages hold together consistently within a unified, closed axiomatic model.
+The chapter places several conditional modules side by side: supplied or market-derived loan signals, preference evidence for purposeful action, interpreter-derived inventory outcomes, explicit completion constraints, and contextual regret. The finite witnesses establish particular instances and branch calculations. A full derivation from note issuance through saving, investment, capital formation, crisis, and foreclosure remains outside the represented model.
 
 ## Conclusion
 
-We have traced the Austrian Business Cycle from fiduciary credit origination through appraisal, roundabout capital formation, physical factor exhaustion, and crisis liquidation. Both individual cycle theorems and multi-entrepreneur cluster mechanisms are verified by constructive model-theoretic witnesses. The next chapter examines what observational records can identify about preferences, counterfactuals, and macroeconomic crises.
+We have separated loan origination from repayment and distinguished rate signals, planned eligibility, physical affordability, purposeful choice, and regret. The branch-dependent program verifies the stated physical schedule, while cluster conclusions require their explicit resource, cash, and preference premises. The next chapter examines what observational records can identify about preferences, counterfactuals, and macroeconomic crises.

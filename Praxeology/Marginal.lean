@@ -9,6 +9,9 @@ public import Praxeology.Frame
 public import Praxeology.Action
 public import Praxeology.Production
 public import Praxeology.ExactNat
+public import Praxeology.Marginal.AllocationChoice
+public import Praxeology.Marginal.AllocationActionFrame
+public import Praxeology.Marginal.ComplementarityWitness
 public import Mathlib.Data.Finset.Basic
 public import Mathlib.Data.Finset.Card
 public import Mathlib.Data.Finset.Image
@@ -25,8 +28,11 @@ public import Mathlib.Tactic.NormNum
 /-!
 # Marginal Utility and Intertemporal Choice
 
-Law of diminishing marginal utility, Mengerian marginal sacrifice, roundabout production,
-and pure time preference grounded in purposeful action.
+Local ordinal allocation results, finite ranked-schedule consequences,
+Mengerian marginal sacrifice, roundabout production, and conditional
+intertemporal preference results. The legacy schedule theorems below only
+derive preference from an assumed ranking; they do not derive the ranking
+from purposeful choice.
 -/
 
 @[expose] public section
@@ -151,7 +157,12 @@ def JointlyFeasible (i : Agent) (t : Moment) (h : History) (S : Finset Ends) : P
   ∀ m : Means, (S.sum (fun e => requirement e m)) ≤ endowment i t h m
 
 
-structure UnitRequirementSchedule (i : Agent) (t : Moment) (h : History) (m : Means) (N : ℕ) where
+/- This legacy record combines technology, stock equality, agent preference, and
+  ranking in one hypothesis. The finite ActionFrame witness now instantiates
+  HomogeneousUseTechnology, StockedAllocationContext, and
+  LocalOrdinalAllocationLaws separately. -/
+structure LegacyUnitRequirementSchedule (i : Agent) (t : Moment) (h : History)
+    (m : Means) (N : ℕ) where
   k : ℕ
   h_endow : endowment i t h m = k
   h_k_lt_N : k < N
@@ -161,16 +172,17 @@ structure UnitRequirementSchedule (i : Agent) (t : Moment) (h : History) (m : Me
   strictly_ranked : ∀ (r s : Fin N), r < s → Preference i t h (e_seq r) (e_seq s)
 
 /-- All ends in the unit-requirement schedule. -/
-def UnitRequirementSchedule.all_ends {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) : Finset Ends :=
+def LegacyUnitRequirementSchedule.all_ends {i : Agent} {t : Moment} {h : History}
+    {m : Means} {N : ℕ}
+    (reg : LegacyUnitRequirementSchedule i t h m N) : Finset Ends :=
   Finset.univ.image reg.e_seq
 
 /-- The schedule contains `N` ends. -/
-theorem UnitRequirementSchedule.card_all_ends
+theorem LegacyUnitRequirementSchedule.card_all_ends
     {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) :
+    (reg : LegacyUnitRequirementSchedule i t h m N) :
     reg.all_ends.card = N := by
-  dsimp [UnitRequirementSchedule.all_ends]
+  dsimp [LegacyUnitRequirementSchedule.all_ends]
   rw [Finset.card_image_of_injective Finset.univ reg.e_seq_inj]
   rw [Finset.card_univ, Fintype.card_fin]
 
@@ -180,14 +192,14 @@ theorem UnitRequirementSchedule.card_all_ends
 
 /-- The first `k` ranked ends. -/
 def S_opt {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (k : ℕ) (_hk : k ≤ N) : Finset Ends :=
+    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (_hk : k ≤ N) : Finset Ends :=
   (Finset.filter (fun (r : Fin N) => r.val < k) Finset.univ).image reg.e_seq
 
 /-- The selected ends belong to the schedule. -/
 theorem S_opt_subset {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N) :
+    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N) :
     S_opt reg k hk ⊆ reg.all_ends := by
-  dsimp [S_opt, UnitRequirementSchedule.all_ends]
+  dsimp [S_opt, LegacyUnitRequirementSchedule.all_ends]
   apply Finset.image_subset_image
   intro x _
   exact Finset.mem_univ x
@@ -195,7 +207,7 @@ theorem S_opt_subset {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ
 
 /-- The selected set has `k` members. -/
 theorem card_S_opt {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N) :
+    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N) :
     (S_opt reg k hk).card = k := by
   dsimp [S_opt]
   rw [Finset.card_image_of_injective _ reg.e_seq_inj]
@@ -203,12 +215,12 @@ theorem card_S_opt {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
 
 /-- Each subset of the schedule requires one unit per end. -/
 theorem atomic_bundle_requirement_eq_card {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (S : Finset Ends) (hS : S ⊆ reg.all_ends) :
+    (reg : LegacyUnitRequirementSchedule i t h m N) (S : Finset Ends) (hS : S ⊆ reg.all_ends) :
     (S.sum (fun e => requirement e m)) = S.card := by
   have h_const : ∀ e ∈ S, requirement e m = 1 := by
     intro e he
     have he_all : e ∈ reg.all_ends := hS he
-    dsimp [UnitRequirementSchedule.all_ends] at he_all
+    dsimp [LegacyUnitRequirementSchedule.all_ends] at he_all
     rcases Finset.mem_image.mp he_all with ⟨r, _, rfl⟩
     exact reg.unit_requirement r
   have h_sum := Finset.sum_congr rfl h_const
@@ -216,14 +228,14 @@ theorem atomic_bundle_requirement_eq_card {i : Agent} {t : Moment} {h : History}
 
 /-- The first `k` ends require `k` units of `m`. -/
 theorem S_opt_requirement_eq_k {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N) :
+    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N) :
     ((S_opt reg k hk).sum (fun e => requirement e m)) = k := by
   rw [atomic_bundle_requirement_eq_card reg (S_opt reg k hk) (S_opt_subset reg k hk)]
   exact card_S_opt reg k hk
 
 /-- The first `k` ends fit within the endowment of `m`. -/
 theorem S_opt_is_jointly_feasible_on_m {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N)
+    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N)
     (h_le_endow : k ≤ endowment i t h m) :
     ((S_opt reg k hk).sum (fun e => requirement e m)) ≤ endowment i t h m := by
   rw [S_opt_requirement_eq_k reg k hk]
@@ -231,7 +243,7 @@ theorem S_opt_is_jointly_feasible_on_m {i : Agent} {t : Moment} {h : History} {m
 
 /-- Any feasible subset has at most `reg.k` ends. -/
 theorem jointly_feasible_card_le_k {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (S : Finset Ends) (hS : S ⊆ reg.all_ends)
+    (reg : LegacyUnitRequirementSchedule i t h m N) (S : Finset Ends) (hS : S ⊆ reg.all_ends)
     (h_feas : (S.sum (fun e => requirement e m)) ≤ endowment i t h m) :
     S.card ≤ reg.k := by
   rw [atomic_bundle_requirement_eq_card reg S hS] at h_feas
@@ -240,7 +252,7 @@ theorem jointly_feasible_card_le_k {i : Agent} {t : Moment} {h : History} {m : M
 
 
 theorem S_opt_dominates_suboptimal_bundle {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N)
+    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N)
     (S : Finset Ends) (hS_sub : S ⊆ reg.all_ends)
     (hS_card : S.card ≤ k) (hS_ne : S ≠ S_opt reg k hk) :
     (S_opt reg k hk \ S).Nonempty ∧
@@ -266,7 +278,7 @@ theorem S_opt_dominates_suboptimal_bundle {i : Agent} {t : Moment} {h : History}
   rcases Finset.mem_image.mp he_in_opt with ⟨r, hr_filt, rfl⟩
   have hr_lt : r.val < k := (Finset.mem_filter.mp hr_filt).2
   have he_out_all : e_out ∈ reg.all_ends := hS_sub he_out_s
-  dsimp [UnitRequirementSchedule.all_ends] at he_out_all
+  dsimp [LegacyUnitRequirementSchedule.all_ends] at he_out_all
   rcases Finset.mem_image.mp he_out_all with ⟨s, _, rfl⟩
   have hs_not_opt := he_out.2
   have hs_ge : k ≤ s.val := by
@@ -283,8 +295,12 @@ theorem S_opt_dominates_suboptimal_bundle {i : Agent} {t : Moment} {h : History}
   exact reg.strictly_ranked r s h_r_lt_s
 
 
-structure BundleAllocationMenu (i : Agent) (t : Moment) (h : History) {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N) where
+/- This internal legacy menu assumes h_opt_dominates, which contains the key
+  choice conclusion as a premise. It is not part of the public API and is not
+  evidence that purposeful choice derives optimal allocation. -/
+private structure LegacyBundleAllocationMenu
+    (i : Agent) (t : Moment) (h : History) {m : Means} {N : ℕ}
+    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N) where
   bundle_of : Action → Finset Ends
   bundle_all : ∀ α ∈ A_feas i t h, α ≠ α₀ →
     bundle_of α ⊆ reg.all_ends ∧ ((bundle_of α).sum (fun e => requirement e m)) ≤ k
@@ -296,10 +312,10 @@ structure BundleAllocationMenu (i : Agent) (t : Moment) (h : History) {m : Means
   h_opt_dominates : ∀ α ∈ A_feas i t h, bundle_of α ≠ S_opt reg k hk →
     W.SubjectiveTeleologicalDominates i t h (bundle_stock α_opt) (bundle_stock α)
 
-theorem BundleAllocationMenu.mengerian_preference
+private theorem LegacyBundleAllocationMenu.mengerian_preference
     {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    {reg : UnitRequirementSchedule i t h m N} {k : ℕ} {hk : k ≤ N}
-    (sys : BundleAllocationMenu i t h reg k hk)
+    {reg : LegacyUnitRequirementSchedule i t h m N} {k : ℕ} {hk : k ≤ N}
+    (sys : LegacyBundleAllocationMenu i t h reg k hk)
     (α : Action) (h_feas : α ∈ A_feas i t h) (h_sub : sys.bundle_of α ≠ S_opt reg k hk) :
     Preference i t h (End_of i sys.α_opt t h) (End_of i α t h) := by
   rw [sys.h_end_eq_bundle sys.α_opt, sys.h_end_eq_bundle α]
@@ -307,17 +323,19 @@ theorem BundleAllocationMenu.mengerian_preference
     (sys.bundle_stock sys.α_opt) (sys.bundle_stock α) (sys.h_opt_dominates α h_feas h_sub)
 
 /-- A bundle requiring at most `k` units has at most `k` ends. -/
-theorem atomic_bundle_card_le_of_req_le {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (S : Finset Ends) (hS : S ⊆ reg.all_ends) (k : ℕ)
+theorem atomic_bundle_card_le_of_req_le {i : Agent} {t : Moment} {h : History}
+    {m : Means} {N : ℕ} (reg : LegacyUnitRequirementSchedule i t h m N)
+    (S : Finset Ends) (hS : S ⊆ reg.all_ends) (k : ℕ)
     (h_feas : (S.sum (fun e => requirement e m)) ≤ k) :
     S.card ≤ k := by
   rw [atomic_bundle_requirement_eq_card reg S hS] at h_feas
   exact h_feas
 
 
-theorem purposeful_act_forces_S_opt {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N)
-    (sys : BundleAllocationMenu i t h reg k hk)
+private theorem legacy_purposeful_act_forces_prefix_from_assumed_optimal_bundle
+    {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
+    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N)
+    (sys : LegacyBundleAllocationMenu i t h reg k hk)
     (α_star : Action)
     (h_purp : PurposefulAct i t h α_star)
     (_h_active : α_star ≠ α₀) :
@@ -329,10 +347,10 @@ theorem purposeful_act_forces_S_opt {i : Agent} {t : Moment} {h : History} {m : 
   exact h_undom h_pref
 
 
-theorem purposeful_act_forces_S_opt_from_physical_endowment
+private theorem legacy_purposeful_act_forces_endowment_prefix_from_assumed_optimal_bundle
     {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (hk : reg.k ≤ N)
-    (sys : BundleAllocationMenu i t h reg reg.k hk)
+    (reg : LegacyUnitRequirementSchedule i t h m N) (hk : reg.k ≤ N)
+    (sys : LegacyBundleAllocationMenu i t h reg reg.k hk)
     (α_star : Action)
     (h_purp : PurposefulAct i t h α_star)
     (_h_active : α_star ≠ α₀) :
@@ -345,7 +363,7 @@ theorem purposeful_act_forces_S_opt_from_physical_endowment
 
 /-- The difference set contains only the end at index `k - 1`. -/
 theorem diff_S_opt_eq_singleton {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N) :
+    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N) :
     S_opt reg k hk \ S_opt reg (k - 1) (by omega) = {reg.e_seq ⟨k - 1, by omega⟩} := by
   ext x
   rw [Finset.mem_singleton]
@@ -382,7 +400,7 @@ theorem diff_S_opt_eq_singleton {i : Agent} {t : Moment} {h : History} {m : Mean
 
 /-- There is a unique end in the difference set. -/
 theorem diff_S_opt_exists_unique {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N) :
+    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N) :
     ∃! e : Ends, e ∈ S_opt reg k hk \ S_opt reg (k - 1) (by omega) := by
   rw [diff_S_opt_eq_singleton reg k hk_pos hk]
   exact ⟨reg.e_seq ⟨k - 1, by omega⟩, Finset.mem_singleton_self _, fun y hy =>
@@ -390,25 +408,30 @@ theorem diff_S_opt_exists_unique {i : Agent} {t : Moment} {h : History} {m : Mea
 
 
 def MarginalUtility {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N) : Ends :=
+    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N) : Ends :=
   reg.e_seq ⟨k - 1, by omega⟩
 
 /-- The marginal utility end belongs to the difference set. -/
 theorem marginal_utility_spec {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N) :
+    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N) :
     MarginalUtility reg k hk_pos hk ∈ S_opt reg k hk \ S_opt reg (k - 1) (by omega) := by
   rw [diff_S_opt_eq_singleton reg k hk_pos hk]
   exact Finset.mem_singleton_self _
 
 /-- The marginal utility end is the `(k - 1)` indexed schedule entry. -/
 theorem marginal_utility_eval {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N) :
+    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N) :
     MarginalUtility reg k hk_pos hk = reg.e_seq ⟨k - 1, by omega⟩ :=
   rfl
 
 
-theorem diminishing_marginal_utility {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N)
+/-- Legacy schedule consequence: the lower-indexed marginal end is preferred
+to the higher-indexed one because `strictly_ranked` is a premise of the
+schedule. The choice-based result is `ranked_prefix_marginal_preference` in
+`Praxeology.Marginal.AllocationChoice`. -/
+theorem legacy_ranked_schedule_marginal_preference
+    {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
+    (reg : LegacyUnitRequirementSchedule i t h m N)
     (k1 k2 : ℕ) (hk1_pos : 1 ≤ k1) (hk2_le : k2 ≤ N) (hk_lt : k1 < k2) :
     Preference i t h
       (MarginalUtility reg k1 hk1_pos (by omega))
@@ -421,12 +444,12 @@ theorem diminishing_marginal_utility {i : Agent} {t : Moment} {h : History} {m :
   exact reg.strictly_ranked ⟨k1 - 1, by omega⟩ ⟨k2 - 1, by omega⟩ hr_lt
 
 
-theorem purposeful_diminishing_marginal_utility
+private theorem legacy_purposeful_diminishing_marginal_utility
     {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N)
+    (reg : LegacyUnitRequirementSchedule i t h m N)
     (k1 k2 : ℕ) (hk1_pos : 1 ≤ k1) (hk2_le : k2 ≤ N) (hk_lt : k1 < k2)
-    (sys1 : BundleAllocationMenu i t h reg k1 (by omega))
-    (sys2 : BundleAllocationMenu i t h reg k2 hk2_le)
+    (sys1 : LegacyBundleAllocationMenu i t h reg k1 (by omega))
+    (sys2 : LegacyBundleAllocationMenu i t h reg k2 hk2_le)
     (α1 α2 : Action)
     (h_purp1 : PurposefulAct i t h α1)
     (h_purp2 : PurposefulAct i t h α2)
@@ -437,9 +460,12 @@ theorem purposeful_diminishing_marginal_utility
     Preference i t h
       (MarginalUtility reg k1 hk1_pos (by omega))
       (MarginalUtility reg k2 (by omega) hk2_le) := by
-  have h_eq1 := purposeful_act_forces_S_opt reg k1 (by omega) sys1 α1 h_purp1 h_active1
-  have h_eq2 := purposeful_act_forces_S_opt reg k2 hk2_le sys2 α2 h_purp2 h_active2
-  have h_dmu := diminishing_marginal_utility reg k1 k2 hk1_pos hk2_le hk_lt
+  have h_eq1 := legacy_purposeful_act_forces_prefix_from_assumed_optimal_bundle
+    reg k1 (by omega) sys1 α1 h_purp1 h_active1
+  have h_eq2 := legacy_purposeful_act_forces_prefix_from_assumed_optimal_bundle
+    reg k2 hk2_le sys2 α2 h_purp2 h_active2
+  have h_dmu := legacy_ranked_schedule_marginal_preference
+    reg k1 k2 hk1_pos hk2_le hk_lt
   exact ⟨h_eq1, h_eq2, h_dmu⟩
 
 
@@ -455,10 +481,10 @@ theorem sunk_cost_irrelevant_to_purposeful_act
   · exact h_no_unease h_pref
 
 
-theorem mengerian_backward_value_imputation
+private theorem legacy_mengerian_backward_value_imputation
     {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N)
-    (sys : BundleAllocationMenu i t h reg k hk)
+    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N)
+    (sys : LegacyBundleAllocationMenu i t h reg k hk)
     (α_lose_factor : Action)
     (h_lose_feas : α_lose_factor ∈ A_feas i t h)
     (h_lose_bundle : sys.bundle_of α_lose_factor = S_opt reg (k - 1) (by omega)) :
@@ -479,10 +505,10 @@ theorem mengerian_backward_value_imputation
   exact sys.mengerian_preference α_lose_factor h_lose_feas h_ne
 
 
-theorem intertemporal_capital_value_imputation
+private theorem legacy_intertemporal_capital_value_imputation
     {i : Agent} {t0 t1 t2 : Moment} {h_build h_cons : History} {m : Means} {N : ℕ}
-    (reg : UnitRequirementSchedule i t1 h_build m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N)
-    (sys : BundleAllocationMenu i t1 h_build reg k hk)
+    (reg : LegacyUnitRequirementSchedule i t1 h_build m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N)
+    (sys : LegacyBundleAllocationMenu i t1 h_build reg k hk)
     (α_build α_nonbuild α_lose_factor : Action)
     (h_next_build : IsNextMoment Precedence W.mem_hist t0 t1 h_build)
     (h_next_cons : IsNextMoment Precedence W.mem_hist t0 t2 h_cons)
@@ -527,7 +553,8 @@ theorem intertemporal_capital_value_imputation
     rw [h_tr_c, h_opt_req]
     omega
   have ⟨h_diff, h_pref⟩ :=
-    mengerian_backward_value_imputation reg k hk_pos hk sys α_lose_factor h_lose_feas h_lose_bundle
+    legacy_mengerian_backward_value_imputation
+      reg k hk_pos hk sys α_lose_factor h_lose_feas h_lose_bundle
   exact ⟨ht_distinct, h_om_b, h_om_c, h_infeas, h_diff, h_pref⟩
 
 
@@ -753,7 +780,7 @@ variable [W : ActionFrame]
 -- Section 2b: Fixed Unit Requirements
 
 
-structure TeleologicalQuantumRegime
+structure LegacyTeleologicalQuantumRegime
     (i : Agent) (t : Moment) (h : History) (m : Means) (N : ℕ) (q_min : ℕ) where
   hq : 1 ≤ q_min
   k : ℕ
@@ -765,28 +792,28 @@ structure TeleologicalQuantumRegime
   strictly_ranked : ∀ (r s : Fin N), r < s → Preference i t h (e_seq r) (e_seq s)
 
 /-- The set of ends indexed by `Fin N`. -/
-def TeleologicalQuantumRegime.all_ends
+def LegacyTeleologicalQuantumRegime.all_ends
     {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : TeleologicalQuantumRegime i t h m N q_min) : Finset Ends :=
+    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) : Finset Ends :=
   Finset.univ.image reg.e_seq
 
 /-- Ends in the schedule whose indices are below `k`. -/
 def S_opt_teleo {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : TeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (_hk : k ≤ N) : Finset Ends :=
+    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (_hk : k ≤ N) : Finset Ends :=
   (Finset.filter (fun (r : Fin N) => r.val < k) Finset.univ).image reg.e_seq
 
 /-- The selected ends belong to `all_ends`. -/
 theorem S_opt_teleo_subset {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : TeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (hk : k ≤ N) :
+    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (hk : k ≤ N) :
     S_opt_teleo reg k hk ⊆ reg.all_ends := by
-  dsimp [S_opt_teleo, TeleologicalQuantumRegime.all_ends]
+  dsimp [S_opt_teleo, LegacyTeleologicalQuantumRegime.all_ends]
   apply Finset.image_subset_image
   intro x _
   exact Finset.mem_univ x
 
 /-- Cardinality of S*(k) is exactly k. -/
 theorem card_S_opt_teleo {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : TeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (hk : k ≤ N) :
+    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (hk : k ≤ N) :
     (S_opt_teleo reg k hk).card = k := by
   dsimp [S_opt_teleo]
   rw [Finset.card_image_of_injective _ reg.e_seq_inj]
@@ -795,12 +822,13 @@ theorem card_S_opt_teleo {i : Agent} {t : Moment} {h : History} {m : Means} {N q
 /-- Total means requirement of any bundle S ⊆ all_ends equals |S| * q_min. -/
 theorem teleological_bundle_requirement_eq_card_mul_q
     {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : TeleologicalQuantumRegime i t h m N q_min) (S : Finset Ends) (hS : S ⊆ reg.all_ends) :
+    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min)
+    (S : Finset Ends) (hS : S ⊆ reg.all_ends) :
     (S.sum (fun e => requirement e m)) = S.card * q_min := by
   have h_const : ∀ e ∈ S, requirement e m = q_min := by
     intro e he
     have he_all : e ∈ reg.all_ends := hS he
-    dsimp [TeleologicalQuantumRegime.all_ends] at he_all
+    dsimp [LegacyTeleologicalQuantumRegime.all_ends] at he_all
     rcases Finset.mem_image.mp he_all with ⟨r, _, rfl⟩
     exact reg.quantum_requirement r
   have h_sum := Finset.sum_congr rfl h_const
@@ -810,7 +838,7 @@ theorem teleological_bundle_requirement_eq_card_mul_q
 /-- Bounding the total physical means requirement by k * q_min forces cardinality |S| ≤ k. -/
 theorem teleological_quantum_bundle_card_le
     {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : TeleologicalQuantumRegime i t h m N q_min) (S : Finset Ends)
+    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) (S : Finset Ends)
     (hS : S ⊆ reg.all_ends) (k : ℕ)
     (h_feas : (S.sum (fun e => requirement e m)) ≤ k * q_min) :
     S.card ≤ k := by
@@ -821,7 +849,7 @@ theorem teleological_quantum_bundle_card_le
 
 theorem S_opt_teleo_dominates_suboptimal_bundle
     {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : TeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (hk : k ≤ N)
+    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (hk : k ≤ N)
     (S : Finset Ends) (hS_sub : S ⊆ reg.all_ends)
     (hS_card : S.card ≤ k) (hS_ne : S ≠ S_opt_teleo reg k hk) :
     (S_opt_teleo reg k hk \ S).Nonempty ∧
@@ -848,7 +876,7 @@ theorem S_opt_teleo_dominates_suboptimal_bundle
   rcases Finset.mem_image.mp he_in_opt with ⟨r, hr_filt, rfl⟩
   have hr_lt : r.val < k := (Finset.mem_filter.mp hr_filt).2
   have he_out_all : e_out ∈ reg.all_ends := hS_sub he_out_s
-  dsimp [TeleologicalQuantumRegime.all_ends] at he_out_all
+  dsimp [LegacyTeleologicalQuantumRegime.all_ends] at he_out_all
   rcases Finset.mem_image.mp he_out_all with ⟨s, _, rfl⟩
   have hs_not_opt := he_out.2
   have hs_ge : k ≤ s.val := by
@@ -866,8 +894,9 @@ theorem S_opt_teleo_dominates_suboptimal_bundle
 
 /-- Feasible actions have bundles in `all_ends` with total requirement ≤ `k * q_min`;
     `α_opt` realizes `S_opt_teleo`. -/
-structure TeleologicalBundleSystem (i : Agent) (t : Moment) (h : History) {m : Means} {N q_min : ℕ}
-    (reg : TeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (hk : k ≤ N) where
+private structure LegacyTeleologicalBundleSystem (i : Agent) (t : Moment) (h : History)
+    {m : Means} {N q_min : ℕ}
+    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (hk : k ≤ N) where
   bundle_of : Action → Finset Ends
   bundle_all : ∀ α ∈ A_feas i t h, α ≠ α₀ →
     bundle_of α ⊆ reg.all_ends ∧ ((bundle_of α).sum (fun e => requirement e m)) ≤ k * q_min
@@ -879,10 +908,10 @@ structure TeleologicalBundleSystem (i : Agent) (t : Moment) (h : History) {m : M
   h_opt_dominates : ∀ α ∈ A_feas i t h, bundle_of α ≠ S_opt_teleo reg k hk →
     W.SubjectiveTeleologicalDominates i t h (bundle_stock α_opt) (bundle_stock α)
 
-theorem TeleologicalBundleSystem.mengerian_preference
+private theorem LegacyTeleologicalBundleSystem.mengerian_preference
     {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    {reg : TeleologicalQuantumRegime i t h m N q_min} {k : ℕ} {hk : k ≤ N}
-    (sys : TeleologicalBundleSystem i t h reg k hk)
+    {reg : LegacyTeleologicalQuantumRegime i t h m N q_min} {k : ℕ} {hk : k ≤ N}
+    (sys : LegacyTeleologicalBundleSystem i t h reg k hk)
     (α : Action) (h_feas : α ∈ A_feas i t h) (h_sub : sys.bundle_of α ≠ S_opt_teleo reg k hk) :
     Preference i t h (End_of i sys.α_opt t h) (End_of i α t h) := by
   rw [sys.h_end_eq_bundle sys.α_opt, sys.h_end_eq_bundle α]
@@ -890,10 +919,10 @@ theorem TeleologicalBundleSystem.mengerian_preference
     (sys.bundle_stock sys.α_opt) (sys.bundle_stock α) (sys.h_opt_dominates α h_feas h_sub)
 
 
-theorem purposeful_act_forces_teleological_S_opt
+private theorem legacy_purposeful_act_forces_quantum_prefix_from_assumed_optimal_bundle
     {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : TeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (hk : k ≤ N)
-    (sys : TeleologicalBundleSystem i t h reg k hk)
+    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (hk : k ≤ N)
+    (sys : LegacyTeleologicalBundleSystem i t h reg k hk)
     (α_star : Action)
     (h_purp : PurposefulAct i t h α_star)
     (_h_active : α_star ≠ α₀) :
@@ -906,14 +935,16 @@ theorem purposeful_act_forces_teleological_S_opt
 
 /-- The end at index `k - 1` in `reg.e_seq`. -/
 def TeleologicalMarginalUtility {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : TeleologicalQuantumRegime i t h m N q_min) (k : ℕ)
+    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) (k : ℕ)
     (_hk_pos : 1 ≤ k) (_hk : k ≤ N) : Ends :=
   reg.e_seq ⟨k - 1, by omega⟩
 
 
-theorem teleological_diminishing_marginal_utility
+/-- Legacy quantum-schedule consequence: the marginal-end preference follows
+from the schedule's assumed `strictly_ranked` field. -/
+theorem legacy_quantum_schedule_marginal_preference
     {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : TeleologicalQuantumRegime i t h m N q_min)
+    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min)
     (k1 k2 : ℕ) (hk1_pos : 1 ≤ k1) (hk2_le : k2 ≤ N) (hk_lt : k1 < k2) :
     Preference i t h
       (TeleologicalMarginalUtility reg k1 hk1_pos (by omega))
@@ -925,12 +956,12 @@ theorem teleological_diminishing_marginal_utility
   exact reg.strictly_ranked ⟨k1 - 1, by omega⟩ ⟨k2 - 1, by omega⟩ hr_lt
 
 
-theorem purposeful_teleological_diminishing_marginal_utility
+private theorem legacy_purposeful_quantum_diminishing_marginal_utility
     {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : TeleologicalQuantumRegime i t h m N q_min)
+    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min)
     (k1 k2 : ℕ) (hk1_pos : 1 ≤ k1) (hk2_le : k2 ≤ N) (hk_lt : k1 < k2)
-    (sys1 : TeleologicalBundleSystem i t h reg k1 (by omega))
-    (sys2 : TeleologicalBundleSystem i t h reg k2 hk2_le)
+    (sys1 : LegacyTeleologicalBundleSystem i t h reg k1 (by omega))
+    (sys2 : LegacyTeleologicalBundleSystem i t h reg k2 hk2_le)
     (α1 α2 : Action)
     (h_purp1 : PurposefulAct i t h α1)
     (h_purp2 : PurposefulAct i t h α2)
@@ -941,15 +972,18 @@ theorem purposeful_teleological_diminishing_marginal_utility
     Preference i t h
       (TeleologicalMarginalUtility reg k1 hk1_pos (by omega))
       (TeleologicalMarginalUtility reg k2 (by omega) hk2_le) := by
-  have h_eq1 := purposeful_act_forces_teleological_S_opt reg k1 (by omega) sys1 α1 h_purp1 h_active1
-  have h_eq2 := purposeful_act_forces_teleological_S_opt reg k2 hk2_le sys2 α2 h_purp2 h_active2
-  have h_dmu := teleological_diminishing_marginal_utility reg k1 k2 hk1_pos hk2_le hk_lt
+  have h_eq1 := legacy_purposeful_act_forces_quantum_prefix_from_assumed_optimal_bundle
+    reg k1 (by omega) sys1 α1 h_purp1 h_active1
+  have h_eq2 := legacy_purposeful_act_forces_quantum_prefix_from_assumed_optimal_bundle
+    reg k2 hk2_le sys2 α2 h_purp2 h_active2
+  have h_dmu := legacy_quantum_schedule_marginal_preference
+    reg k1 k2 hk1_pos hk2_le hk_lt
   exact ⟨h_eq1, h_eq2, h_dmu⟩
 
 
-theorem teleological_sub_quantum_remainder_sterile
+theorem quantum_capacity_bound_for_subquantum_remainder
     {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : TeleologicalQuantumRegime i t h m N q_min)
+    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min)
     (S : Finset Ends) (hS : S ⊆ reg.all_ends) (k r : ℕ)
     (hr_lt : r < q_min)
     (h_feas : (S.sum (fun e => requirement e m)) ≤ k * q_min + r) :
@@ -989,7 +1023,7 @@ theorem mengerian_least_urgent_end_exists
   exact ⟨m, hm_in, ⟨hm_in, hm_min⟩⟩
 
 
-theorem mengerian_marginal_sacrifice_exists
+theorem finite_preference_relation_has_least_element
     (i : Agent) (t : Moment) (h : History)
     (S : Finset Ends) (hS : S.Nonempty)
     (h_trans : ∀ e1 ∈ S, ∀ e2 ∈ S, ∀ e3 ∈ S,
@@ -1010,6 +1044,9 @@ abbrev TimedEnd : Ends → Moment → Ends :=
   W.TimedEnd
 
 
+/-! `CausalNegativeTimePreference` is a universal condition over the specified
+timed end and feasible dates. It is stronger than a demonstrated preference
+between one particular pair of timing alternatives. -/
 def CausalNegativeTimePreference (i : Agent) (t : Moment) (h : History) (e : Ends) : Prop :=
   ∀ τ1 τ2 : Moment, (t = τ1 ∨ t < τ1) → τ1 < τ2 → Preference i t h (TimedEnd e τ2) (TimedEnd e τ1)
 
@@ -1079,6 +1116,10 @@ theorem post_horizon_no_active_action
   exact h_np.1 h_eq
 
 
+/-! An enacted purposeful near-timing choice, together with a feasible later
+alternative for the same underlying end, rules out strict preference for that
+particular later outcome. This is a local revealed-choice result; it does not
+establish a universal time-preference ordering. -/
 theorem causal_enacted_consumption_demonstrates_nonneg_time_pref
     (i : Agent) (t : Moment) (h : History) (e : Ends) (α_near : Action) (τ1 : Moment)
     (h_end : End_of i α_near t h = TimedEnd e τ1)
@@ -1129,7 +1170,12 @@ theorem purposeful_act_and_comparable_iff_distinct_dominant
       exact Or.inl (h_dom.2.2.2 β hβ h_ne)
 
 
-theorem causal_enacted_consumption_demonstrates_strict_time_pref
+/-! If a purposeful act strictly dominates every feasible action with a
+distinct end, and a later timing alternative is feasible with a distinct
+timed end, the choice reveals preference for the nearer date in that pair.
+Injectivity of the timing map is explicit; the result does not assert a
+universal preference over all dates or ends. -/
+theorem strict_time_preference_from_distinct_end_dominance
     (i : Agent) (t : Moment) (h : History) (e : Ends) (α_near : Action) (τ1 : Moment)
     (h_end : End_of i α_near t h = TimedEnd e τ1)
     (h_oeh : CausalDoxasticOpenHorizon i t h e α_near τ1)
@@ -1167,7 +1213,7 @@ theorem causal_enacted_unit_for_unit_exchange_rejected (i : Agent) (t : Moment) 
     (h_timed_inj : ∀ t1 t2 : Moment, t1 ≠ t2 →
       TimedEnd (QuantityEnd m q) t1 ≠ TimedEnd (QuantityEnd m q) t2) :
     ∃ τ2 : Moment, τ1 < τ2 ∧ Preference i t h (timedQuantityEnd m q τ1) (timedQuantityEnd m q τ2) :=
-  causal_enacted_consumption_demonstrates_strict_time_pref i t h (QuantityEnd m q)
+  strict_time_preference_from_distinct_end_dominance i t h (QuantityEnd m q)
     α_cons τ1 h_end h_oeh h_act h_timed_inj
 
 
@@ -1185,6 +1231,12 @@ theorem purposeful_unit_for_unit_exchange_rejected (i : Agent) (t : Moment) (h :
   exact h_undom h_pos_tp
 
 
+/-! The positive repayment-premium conclusion follows from the stated
+intertemporal preference, acceptance comparison, same-date quantity
+monotonicity, and transitivity. `_hq` marks that the represented principal is
+positive for the loan interpretation; the arithmetic inequality itself does
+not use this domain condition. This theorem concerns ordinal quantity and
+timing comparisons, not a nominal loan rate. -/
 theorem positive_originary_interest (i : Agent) (t : Moment) (h : History)
     (m : Means) (q q' : ℕ) (_hq : 0 < q)
     (τ1 τ2 : Moment)
@@ -1213,6 +1265,10 @@ theorem positive_originary_interest (i : Agent) (t : Moment) (h : History)
   exact ⟨h_lt, h_prem⟩
 
 
+/-! This version additionally requires the loan action to be purposeful and a
+feasible comparison action preserving the original quantity at the earlier
+date. It derives the quantity premium under the same explicit preference laws;
+it is not a theorem about every contract or a nominal interest rate. -/
 theorem purposeful_positive_originary_interest (i : Agent) (t : Moment) (h : History)
     (m : Means) (q q' : ℕ) (_hq : 0 < q) (τ1 τ2 : Moment)
     (h_pos_tp : Preference i t h (timedQuantityEnd m q τ1) (timedQuantityEnd m q τ2))
@@ -1245,6 +1301,10 @@ theorem purposeful_positive_originary_interest (i : Agent) (t : Moment) (h : His
   exact ⟨h_lt, h_prem⟩
 
 
+/-! The formal conclusion is a quantity inequality for this roundabout action
+under the intertemporal preference, purposeful-choice, monotonicity, and
+transitivity premises. It does not establish physical productivity as a
+general cause of interest. -/
 theorem bohm_bawerk_roundabout_productivity_necessity (i : Agent) (t : Moment) (h : History)
     (m : Means) (q_direct q_roundabout : ℕ) (hq : 0 < q_direct) (τ_direct τ_later : Moment)
     (h_pos_tp :
@@ -1307,7 +1367,115 @@ theorem capital_accumulation_unlocks_action_menu_epoch
   exact ⟨h_cap_t1, h_infeas_t0, h_ssub, h_phys_surplus, h_pref_ends⟩
 
 
-theorem saving_for_winter_is_positive_time_pref_for_security
+/-! ## Security, Storage, and Explicit Choice Premises
+
+Storage alone preserves later options; it does not prove a strict preference
+for earlier dates. An extra valued service, actually attainable only under
+earlier control, supplies the strict part of teleological dominance. The
+following records keep those physical and ordinal premises explicit. -/
+
+/-- Evidence that an earlier control bundle can reproduce every valued plan
+available from a later bundle, and can attain one additional valued security
+service. The represented actions are feasible and executed, and their intended
+ends are tied to the corresponding physical bundles. -/
+structure EarlierControlSecurityEvidence (i : Agent) (t : Moment) (h : History) where
+  earlierBundle : Means → ℕ
+  laterBundle : Means → ℕ
+  earlierAction : Action
+  laterAction : Action
+  earlierAction_feasible : earlierAction ∈ A_feas i t h
+  laterAction_feasible : laterAction ∈ A_feas i t h
+  earlierAction_executed : Exec i t earlierAction h
+  laterAction_executed : Exec i t laterAction h
+  earlierAction_end : End_of i earlierAction t h = W.BundleEnd earlierBundle
+  laterAction_end : End_of i laterAction t h = W.BundleEnd laterBundle
+  storage_reproduces_valued_plans : ∀ S,
+    (∀ e ∈ S, W.ValuedEnd i t h e) →
+    JointlyAttains W.requirement laterBundle S →
+    JointlyAttains W.requirement earlierBundle S
+  earlySecurityService : Ends
+  security_is_valued : W.ValuedEnd i t h earlySecurityService
+  security_attainable_early : AttainsEnd W.requirement earlierBundle
+    earlySecurityService
+  security_unattainable_late : ¬ AttainsEnd W.requirement laterBundle
+    earlySecurityService
+
+/-- Storage plus an additional valued service derives preference for the
+earlier control bundle. No universal strict time-preference law is assumed. -/
+theorem earlier_control_preferred_from_storage_and_security
+    (E : EarlierControlSecurityEvidence i t h) :
+    Preference i t h (End_of i E.earlierAction t h)
+      (End_of i E.laterAction t h) := by
+  have hdominates :
+      SubjectiveTeleologicalDominates W.requirement (W.ValuedEnd i t h)
+        E.earlierBundle E.laterBundle := by
+    refine ⟨E.storage_reproduces_valued_plans, ?_⟩
+    refine ⟨{E.earlySecurityService}, ?_, ?_, ?_⟩
+    · intro e he
+      have heq : e = E.earlySecurityService := Finset.mem_singleton.mp he
+      subst e
+      exact E.security_is_valued
+    · exact (jointly_attains_singleton W.requirement E.earlierBundle
+        E.earlySecurityService).2 E.security_attainable_early
+    · intro hattains
+      apply E.security_unattainable_late
+      exact (jointly_attains_singleton W.requirement E.laterBundle
+        E.earlySecurityService).1 hattains
+  rw [E.earlierAction_end, E.laterAction_end]
+  exact W.teleological_bundle_dominance_induces_preference
+    i t h E.earlierBundle E.laterBundle hdominates
+
+/-- Evidence for a saving or insurance action whose executed outcome supplies
+a valued current-security service. The fixed preference ranks it above the
+forgone current-spending action. Preference asymmetry rules out that spending
+action as a strict improvement; the remaining feasible alternatives are
+checked explicitly for the same property. -/
+structure CurrentSecurityChoiceEvidence (i : Agent) (t : Moment) (h : History) where
+  savingAction : Action
+  spendingAction : Action
+  currentSecurity : Ends
+  saving_feasible : savingAction ∈ A_feas i t h
+  spending_feasible : spendingAction ∈ A_feas i t h
+  saving_history_passes_through : t ∈ h
+  saving_action_executed : W.enacted i t h = savingAction
+  security_matures_now : W.ExpectedMaturation i savingAction t h = t
+  security_outcome :
+    W.OutcomeOf i savingAction t
+      (W.ExpectedMaturation i savingAction t h) h = currentSecurity
+  security_is_valued : W.ValuedEnd i t h currentSecurity
+  saving_end_is_security : End_of i savingAction t h = currentSecurity
+  spending_end : Ends
+  spending_action_end : End_of i spendingAction t h = spending_end
+  security_preferred_to_forgone_spending :
+    Preference i t h currentSecurity spending_end
+  security_preferred_to_idle :
+    Preference i t h currentSecurity (End_of i alpha_zero t h)
+  /-- No feasible alternative other than the stated spending action strictly
+  dominates the saving outcome. -/
+  saving_undominated_except_spending : ∀ β, β ∈ A_feas i t h →
+    β ≠ spendingAction →
+    ¬ Preference i t h (End_of i β t h) currentSecurity
+
+/-- Under the explicit execution, valuation, preference, and undominated-choice
+evidence, the security-providing saving action is purposeful. -/
+theorem current_security_choice_is_purposeful
+    (E : CurrentSecurityChoiceEvidence i t h) :
+    PurposefulAct i t h E.savingAction := by
+  refine ⟨E.saving_feasible, ?_, ?_, ?_⟩
+  · exact ⟨E.saving_history_passes_through, E.saving_action_executed⟩
+  · exact Or.inr (by rw [E.saving_end_is_security]; exact E.security_preferred_to_idle)
+  · intro β hβ
+    rw [E.saving_end_is_security]
+    by_cases hspending : β = E.spendingAction
+    · subst β
+      rw [E.spending_action_end]
+      exact pref_asymm i t h E.security_preferred_to_forgone_spending
+    · exact E.saving_undominated_except_spending β hβ hspending
+
+/-- These preference conclusions follow from the listed positive timing and
+security premises. The theorem does not derive a universal ranking of earlier
+realization. -/
+theorem winter_security_preference_consequences_of_explicit_premises
     (i : Agent) (t_aut t_win : Moment) (h : History)
     (e_survival e_security e_feast : Ends)
     (h_pos_tp_survival : Preference i t_aut h
@@ -1366,6 +1534,7 @@ theorem causal_intertemporal_chain_non_vacuous :
         @Preference FiniteBranchingModel i t h
           (@timedQuantityEnd FiniteBranchingModel m q τ1)
           (@timedQuantityEnd FiniteBranchingModel m q τ2)) := by
+  let : ActionFrame := FiniteBranchingModel
   let i : Fin 2 := 0
   let t : Fin 4 := 0
   let h : Fin 3 := 1
@@ -1446,7 +1615,7 @@ theorem causal_intertemporal_chain_non_vacuous :
     have : t1 = t2 := ModelEnd.timed.inj heq |>.2
     exact hne this
   obtain ⟨τ2, h_lt, h_pos_tp⟩ :=
-    @causal_enacted_consumption_demonstrates_strict_time_pref FiniteBranchingModel i t h
+    @strict_time_preference_from_distinct_end_dominance FiniteBranchingModel i t h
       (@QuantityEnd FiniteBranchingModel m q) α_cons τ1 h_end h_causal_oeh h_dom h_timed_inj
   have h_u4u : @Preference FiniteBranchingModel i t h
       (@timedQuantityEnd FiniteBranchingModel m q τ1)
@@ -1481,49 +1650,19 @@ theorem causal_intertemporal_chain_non_vacuous :
          ⟨τ2, δ, Nat.zero_lt_one, h_lt, hq_lt, hδ_ge, hq'_eq, h_pos_tp, h_u4u⟩⟩
 
 
-section TeleologicalComplementarity
+section AttainmentCountermodels
 
 variable [W : ActionFrame]
 
 
-theorem teleological_quantum_subsumes_complementarity
-    {i : Agent} {t : Moment} {h : History} {m : Means}
-    (reg : TeleologicalQuantumRegime i t h m 2 2) :
-    Preference i t h
-      (TeleologicalMarginalUtility reg 1 (by omega) (by omega))
-      (TeleologicalMarginalUtility reg 2 (by omega) (by omega)) :=
-  teleological_diminishing_marginal_utility reg 1 2 (by omega) (by omega) (by omega)
-
-
-theorem dmu_fails_under_complementarity
-    (m_left m_right : Means) (h_diff : m_left ≠ m_right) :
-    let b_zero : Means → ℕ := fun _ => 0
-    let b_left : Means → ℕ := fun m => if m = m_left then 1 else 0
-    let b_pair : Means → ℕ := fun m => if m = m_left ∨ m = m_right then 1 else 0
-    PhysicalBundleDominates b_left b_zero ∧
-    PhysicalBundleDominates b_pair b_left ∧
-    b_left m_right = 0 ∧ b_pair m_right = 1 := by
-  dsimp [PhysicalBundleDominates]
-  refine ⟨⟨?_, ?_⟩, ⟨?_, ?_⟩, ?_, ?_⟩
-  · intro m; split_ifs <;> omega
-  · use m_left; simp
-  · intro m
-    by_cases hm : m = m_left
-    · subst hm; simp
-    · simp [hm]
-  · use m_right; simp [h_diff.symm]
-  · simp [h_diff.symm]
-  · simp
-
-
-theorem teleological_complementarity_resolves_dmu_anomaly
+theorem attainment_transfer_blocks_teleological_dominance
     (b_left b_zero : Means → ℕ)
     (h_sterile : ∀ S : Finset Ends,
       JointlyAttains W.requirement b_left S → JointlyAttains W.requirement b_zero S) :
     ¬ TeleologicalBundleDominates W.requirement b_left b_zero :=
   teleological_sub_quantum_remainder_not_teleological_dominates b_left b_zero h_sterile
 
-end TeleologicalComplementarity
+end AttainmentCountermodels
 
 end Praxeology
 
