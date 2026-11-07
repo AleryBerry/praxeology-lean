@@ -7,11 +7,8 @@ on:
   pull_request:
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: read # Read access to repository contents
-  pages: write # Write access to GitHub Pages
-  id-token: write # Write access to ID tokens
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,8 +19,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: leanprover/lean-action@v1
-      - uses: leanprover-community/docgen-action@v1
+      - name: Audit transitive theorem axioms
+        run: python3 scripts/audit_constructive_axioms.py --check --by-file
+      - name: Check theorem links in maintained documentation
+        run: |
+          python3 scripts/update_theorem_links.py --check --add-missing --path README.md
+          python3 scripts/update_theorem_links.py --check --add-missing --path spec
+          python3 scripts/update_theorem_links.py --check --add-missing --path critiques
+      - name: Check maintained Markdown math markup
+        run: |
+          python3 scripts/fix_markdown_math.py --check --path README.md
+          python3 scripts/fix_markdown_math.py --check --path spec
+          python3 scripts/fix_markdown_math.py --check --path critiques
+          python3 scripts/check_markdown_math.py --path README.md
+          python3 scripts/check_markdown_math.py --path spec
+          python3 scripts/check_markdown_math.py --path critiques
+      - name: Check natural language links
+        run: python3 scripts/update_natural_language_links.py --check
+      - name: Run tooling tests
+        run: python3 -m unittest discover -s scripts/tests -p 'test_*.py'
+      - name: Print advisory modeling-pattern reports
+        run: |
+          python3 scripts/audit_axiomatic_floor.py
+          python3 scripts/audit_adhoc_premises.py
+
