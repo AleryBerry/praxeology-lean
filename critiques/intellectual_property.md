@@ -51,7 +51,7 @@ $$
 
 ## 3. Simultaneous Recipe Execution and Non-Invasive Competition
 
-**Proposition.** Because causal recipes are non-scarce (Definition 1), competitor $j$'s simultaneous execution of a recipe using $j$'s own physical property leaves innovator $i$'s physical stock completely untouched. Consequently, emulation is peaceful market competition, not theft; statutory patents do not protect property, but coercively invade the real physical property of competitors.
+**Proposition.** Because causal recipes are non-scarce (Definition 1), competitor $j$'s simultaneous execution of a recipe using $j$'s own physical property leaves innovator $i$'s physical stock completely untouched. Consequently, emulation constitutes peaceful market competition that preserves physical endowments, whereas statutory patents coercively restrict competitors from deploying their legitimately acquired physical property.
 
 **Proof.**
 1. By Chapter 2 and Chapter 4, physical transitions satisfy conservation: $\omega(k, t', h, m) + u(\alpha, m) = \omega(k, t, h, m) + y(\alpha, m)$. When competitor $j$ enacts $\alpha_{\text{prod}}$, only $j$'s personal inventory is consumed and transformed.
@@ -66,10 +66,10 @@ $$
 
 ## 4. Sunk-Cost Irrelevance in Prospective Allocation
 
-**Proposition.** By Theorem 4.32 (Present-Endowment Choice Invariance), undominated choice at moment $t$ depends strictly on present physical stocks $\omega$ and prospective valuations of future ends; past factor expenditures $F_{\text{RD}}$ incurred at past moments $t_{\text{past}} \prec t$ are sunk and economically sterile. Demanding state-enforced monopoly rents to "amortize" past R&D expenditures is a catallactic fallacy.
+**Proposition.** By [Theorem 4.32 (Present-Endowment Choice Invariance)](../natural_language/04_marginal_allocation_and_imputation.md#theorem-432-present-endowment-choice-invariance), undominated choice at moment $t$ depends strictly on present physical stocks $\omega$ and prospective valuations of future ends; past factor expenditures $F_{\text{RD}}$ incurred at past moments $t_{\text{past}} \prec t$ are sunk and economically sterile. Demanding state-enforced monopoly rents to "amortize" past R&D expenditures is a catallactic fallacy.
 
 **Proof.**
-1. By Theorem 4.32, feasible action menus $`\mathcal{A}_{\text{feas}}(i, t, h)`$ and undominated choice $\mathsf{P}(i, t, h, \alpha^{\ast})$ are determined entirely by present stock endowments $\omega(i, t, h)$ and prospective preference rankings over anticipated ends.
+1. By [Theorem 4.32](../natural_language/04_marginal_allocation_and_imputation.md#theorem-432-present-endowment-choice-invariance), feasible action menus $`\mathcal{A}_{\text{feas}}(i, t, h)`$ and undominated choice $\mathsf{P}(i, t, h, \alpha^{\ast})$ are determined entirely by present stock endowments $\omega(i, t, h)$ and prospective preference rankings over anticipated ends.
 2. Any past resource expenditure $F_{\text{RD}}$ occurred at historical moments $t_{\text{past}} \prec t$ along history $h$. In praxeological reality, past inputs are physically transformed and irreversible; they cannot exert causal pull over present consumer valuation.
 3. In a free market, prospective prices are imputed backward from consumer appraisals (Chapter 4). No producer is guaranteed a return on past outlays: an entrepreneur who spends millions developing an unwanted product incurs a capital loss.
 4. First-mover advantage, lead time, physical embodiment scarcity, and trade secrets provide natural market returns to innovation without requiring coercive insulation from consumer sovereignty. $\blacksquare$

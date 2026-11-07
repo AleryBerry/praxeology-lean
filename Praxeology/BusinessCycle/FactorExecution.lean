@@ -1460,16 +1460,10 @@ def fiveProjectClearFactorMarketAtState
     (actualAdvances : List LoanReservationBid) (quotedRepayment supply : ℕ)
     (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :
     Option (ℕ × List LoanReservationBid) :=
-  let currentCash : LoanReservationBid → ℕ := fun bid => state.stock
-    (fiveProjectPhysicalBorrower bid.borrower) fiveProjectMoneyGood
-  let projectedOutput : LoanReservationBid → ℕ :=
-    fun bid => fiveProjectOutput bid.borrower
-  let greatestCash := actualAdvances.foldl
-    (fun greatest bid => max greatest (currentCash bid)) 0
-  (ascendingCompletionFactorPriceAtCurrentCash? actualAdvances quotedRepayment 1 supply
-    greatestCash currentCash projectedOutput).map fun price =>
-      (price, factorDemandingProjectsAtCurrentCash actualAdvances quotedRepayment price
-        currentCash projectedOutput)
+  clearCompletionFactorMarketAtCurrentCash? actualAdvances quotedRepayment 1 supply
+    (fun bid => state.stock (fiveProjectPhysicalBorrower bid.borrower)
+      fiveProjectMoneyGood)
+    (fun bid => fiveProjectOutput bid.borrower)
 
 /-- Any result returned by the current-state factor clock respects its
 offered-stock constraint, regardless of the cash balances that determine its
@@ -1494,8 +1488,7 @@ theorem fiveProjectClearFactorMarketAtState_projects_le_supply
           (selectedPrice, factorDemandingProjectsAtCurrentCash actualAdvances
             quotedRepayment selectedPrice currentCash projectedOutput)) =
         some (price, projects) := by
-    simpa [fiveProjectClearFactorMarketAtState, currentCash, projectedOutput,
-      greatestCash] using hclear
+    exact hclear
   rcases Option.map_eq_some_iff.mp hclear' with
     ⟨selectedPrice, hprice, hresult⟩
   have hprojects :

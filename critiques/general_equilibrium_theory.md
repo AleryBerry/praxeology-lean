@@ -78,7 +78,7 @@ $$
 \omega(i, t', h, m) \neq \omega(i, t, h, m)
 $$
 
-2. By Theorem 4.32 (Chapter 4), an agent's feasible action menu $`\mathcal{A}_{\text{feas}}(i, t', h)`$ and subjective marginal valuations of additional units depend directly on present physical inventory $\omega(i, t', h, m)$.
+2. By [Theorem 4.32](../natural_language/04_marginal_allocation_and_imputation.md#theorem-432-present-endowment-choice-invariance) (Chapter 4), an agent's feasible action menu $`\mathcal{A}_{\text{feas}}(i, t', h)`$ and subjective marginal valuations of additional units depend directly on present physical inventory $\omega(i, t', h, m)$.
 3. Because every transaction alters the physical stocks held by the participants, the reservation prices $v_{\text{buyer}}$ and $v_{\text{seller}}$ for subsequent rounds of exchange are permanently altered.
 4. The hypothetical equilibrium price vector $\mathbf{P}^{\ast}$ does not remain stationary while traders search; it shifts as a direct causal consequence of every trade.
 An economic theory that prohibits trading at disequilibrium prices assumes that prices coordinate human activity without anyone actually trading at those prices—a direct contradiction. $\blacksquare$
@@ -102,7 +102,7 @@ An economic theory that prohibits trading at disequilibrium prices assumes that 
 ### The Epistemic Barrier and Capital Antichains
 The Walrasian auctioneer assumes that all preference rankings and production functions across an entire society can be centralized into a single system of simultaneous equations.
 
-As demonstrated in Chapter 9 (Theorem 9.21), heterogeneous capital goods form physical **antichains**:
+As demonstrated in Chapter 9 ([Definition 9.15](../natural_language/09_money_prices_and_calculation.md#definition-915-physical-input-order-and-antichains) and [Proposition 9.16](../natural_language/09_money_prices_and_calculation.md#proposition-916-physical-incomparability)), heterogeneous capital goods form physical **antichains**:
 
 $$
 x_A \not\le x_B \quad \wedge \quad x_B \not\le x_A

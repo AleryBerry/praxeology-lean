@@ -564,6 +564,14 @@ def factorDemandingProjectsAtCurrentCash (funded : List LoanReservationBid)
     (projectPassesCurrentCashAndReturnTest (currentCash bid)
       (projectedOutput bid) quotedRepayment price)
 
+/-- Funded projects excluded by the same node-specific cash and return test. -/
+def factorExcludedProjectsAtCurrentCash (funded : List LoanReservationBid)
+    (quotedRepayment price : ℕ) (currentCash projectedOutput :
+      LoanReservationBid → ℕ) : List LoanReservationBid :=
+  funded.filter fun bid => !(decide
+    (projectPassesCurrentCashAndReturnTest (currentCash bid)
+      (projectedOutput bid) quotedRepayment price))
+
 /-- Ascending price clock using the same current-cash and projected-return
 eligibility rule as `factorDemandingProjectsAtCurrentCash`. -/
 def ascendingCompletionFactorPriceAtCurrentCash? (funded : List LoanReservationBid)
@@ -573,6 +581,20 @@ def ascendingCompletionFactorPriceAtCurrentCash? (funded : List LoanReservationB
     (fun price => decide
       ((factorDemandingProjectsAtCurrentCash funded quotedRepayment price
         currentCash projectedOutput).length ≤ supply))
+
+/-- Shared factor-market clearing for both projected scenarios and executed
+states. Callers provide the advances available to this round, current cash at
+the market node, and the existing projected-output values. -/
+def clearCompletionFactorMarketAtCurrentCash? (funded : List LoanReservationBid)
+    (quotedRepayment reservePrice supply : ℕ)
+    (currentCash projectedOutput : LoanReservationBid → ℕ) :
+    Option (ℕ × List LoanReservationBid) :=
+  let greatestCash := funded.foldl
+    (fun greatest bid => max greatest (currentCash bid)) 0
+  (ascendingCompletionFactorPriceAtCurrentCash? funded quotedRepayment reservePrice
+    supply greatestCash currentCash projectedOutput).map fun price =>
+      (price, factorDemandingProjectsAtCurrentCash funded quotedRepayment price
+        currentCash projectedOutput)
 
 /-- Every returned current-cash clearing price satisfies the same quantity
 constraint used by the ascending clock. -/

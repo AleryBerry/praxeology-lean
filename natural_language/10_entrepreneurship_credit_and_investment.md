@@ -21,7 +21,7 @@ R_{\mathrm{post}}(i,t,\alpha,\tau,h)\iff
 \neg\text{G}(i,t,\alpha,\tau,h).
 $$
 
-With an incomplete preference relation, failure to strictly prefer the trade outcome does not imply strict preference for inaction. The stronger, purely ordinal regret predicate is
+Under incomplete preference relations, the absence of strict gain is distinguished from positive strict preference for the alternative. The stronger, purely ordinal regret predicate is
 
 $$
 \text{OrdinalRegret}(i,t,\tau,h,\alpha)\iff
@@ -37,10 +37,10 @@ Let $E\subseteq\mathcal{H}$ describe a future event. Agent $i$ believes $E$ at $
 2. agent $i$ believes $E$ and agent $j$ believes $\neg E$ at $t$; and
 3. on every realized history, $E$ rules out realized gain for $j$, while $\neg E$ rules out realized gain for $i$.
 
-The third condition is a payoff assumption of this model. It encodes the opposing speculative positions; it is not derived merely from the agents holding different beliefs.
+The third condition formally models zero-sum speculative payoff structures: the payoff configuration directly reflects the opposing economic stakes of the counterparties across alternative future states.
 
 ### Theorem 10.3 (At Least One Trader Fails to Realize Gain)
-In any speculative exchange satisfying Definition 10.2, for every realized history $h$,
+In any speculative exchange satisfying [Definition 10.2](#definition-102-speculative-exchange-under-opposing-beliefs), for every realized history $h$,
 
 $$
 R_{\mathrm{post}}(i,t,\alpha_i,\tau,h)
@@ -48,7 +48,7 @@ R_{\mathrm{post}}(i,t,\alpha_i,\tau,h)
 R_{\mathrm{post}}(j,t,\alpha_j,\tau,h).
 $$
 
-**Proof.** Either $E(h)$ or $\neg E(h)$. In the first case the model's payoff condition rules out $j$'s realized gain; in the second it rules out $i$'s realized gain. This is exactly the stated disjunction by Definition 10.1. $\blacksquare$
+**Proof.** Either $E(h)$ or $\neg E(h)$. In the first case the model's payoff condition rules out $j$'s realized gain; in the second it rules out $i$'s realized gain. This is exactly the stated disjunction by [Definition 10.1](#definition-101-realized-gain-and-ex-post-regret). $\blacksquare$
 
 The theorem establishes failure of mutual realized gain under the specified opposing-payoff structure. Belief disagreement alone does not assert that both trades were purposeful or expected to yield a gain. To derive ex-ante gains, add purposeful non-inertial actions; to identify one trader as the accurate forecaster and the other as a strict loser, we also need a further decisiveness premise.
 
@@ -60,7 +60,7 @@ If the agents share even one minimally plausible history, they cannot respective
 Thus speculative exchange in this model requires divergent plausibility judgments on the contested event. The proposition concerns these belief definitions; it does not say that every transaction requires disagreement about every feature of the future.
 
 ### Theorem 10.5 (Conditional Entrepreneurial Profit-and-Loss Dichotomy)
-Suppose the actual event determines which participant gains: $E(h)$ implies realized gain for $i$, and $\neg E(h)$ implies realized gain for $j$. Together with Definition 10.2, the realized outcome has exactly the following form:
+Suppose the actual event determines which participant gains: $E(h)$ implies realized gain for $i$, and $\neg E(h)$ implies realized gain for $j$. Together with [Definition 10.2](#definition-102-speculative-exchange-under-opposing-beliefs), the realized outcome has exactly the following form:
 
 $$
 \bigl(E(h)\wedge \text{Gain}_i\wedge\text{Loss}_j\bigr)
@@ -68,9 +68,9 @@ $$
 \bigl(\neg E(h)\wedge\text{Gain}_j\wedge\text{Loss}_i\bigr).
 $$
 
-**Proof.** Either $E(h)$ or $\neg E(h)$. In the first case the decisiveness premise gives gain to $i$, while Definition 10.2 rules out gain to $j$. In the second case the premise gives gain to $j$, while Definition 10.2 rules out gain to $i$. By Definition 10.1, failure of realized gain is exactly the stated weak loss predicate. $\square$
+**Proof.** Either $E(h)$ or $\neg E(h)$. In the first case the decisiveness premise gives gain to $i$, while [Definition 10.2](#definition-102-speculative-exchange-under-opposing-beliefs) rules out gain to $j$. In the second case the premise gives gain to $j$, while [Definition 10.2](#definition-102-speculative-exchange-under-opposing-beliefs) rules out gain to $i$. By [Definition 10.1](#definition-101-realized-gain-and-ex-post-regret), failure of realized gain is exactly the stated weak loss predicate. $\square$
 
-Here $`\text{Loss}_k`$ means failure of $k$'s realized-gain predicate. Theorem 10.5 supplies the single-period realized-outcome partition once the decisive event condition is fixed. Proposition 10.4 supplies a distinct belief-side result: shared plausibility rules out opposing beliefs about that event. If each non-inertial trade action was purposeful, Chapter 3's preference conditions add an ex-ante gain over inaction for each trader. A multi-period capital-reallocation model can compose these results with an explicit stock-transition schedule across repeated exchanges.
+Here $`\text{Loss}_k`$ means failure of $k$'s realized-gain predicate. [Theorem 10.5](#theorem-105-conditional-entrepreneurial-profit-and-loss-dichotomy) supplies the single-period realized-outcome partition once the decisive event condition is fixed. [Proposition 10.4](#proposition-104-shared-plausibility-excludes-opposing-beliefs) supplies a distinct belief-side result: shared plausibility rules out opposing beliefs about that event. If each non-inertial trade action was purposeful, Chapter 3's preference conditions add an ex-ante gain over inaction for each trader. A multi-period capital-reallocation model can compose these results with an explicit stock-transition schedule across repeated exchanges.
 
 ## Kirzner: Discovery beyond the Contemplated Menu
 
@@ -93,11 +93,11 @@ $$
 The first action is contemplated, while the second is in the separately supplied physical set but absent from the actor's considered set. Because the maturation model requires feasible actions to be contemplated, this external physical set must not be identified with its internal feasible menu. The last inequality records a later comparison. The context does not by itself assert that the chosen action was ex-ante purposeful; that can be added as a premise.
 
 ### Theorem 10.7 (Prediction Error and Discovery Regret Are Distinct)
-Suppose the chosen action is ex-ante purposeful, the actual history is the sole minimally plausible history, preferences are stationary, and an overlooked physical opportunity satisfies Definition 10.6. Then no uniformly available feasible action is strictly preferred to the chosen action when evaluated through the projected ex-ante outcomes at maturation, while the overlooked action is preferred to the chosen action on the realized history.
+Suppose the chosen action is ex-ante purposeful, the actual history is the sole minimally plausible history, preferences are stationary, and an overlooked physical opportunity satisfies [Definition 10.6](#definition-106-overlooked-physical-opportunity). Then no uniformly available feasible action is strictly preferred to the chosen action when evaluated through the projected ex-ante outcomes at maturation, while the overlooked action is preferred to the chosen action on the realized history.
 
-**Proof.** If a uniformly available feasible action were strictly preferred to the chosen action at the sole plausible history, stationarity would make it strictly preferred in the ex-ante comparison as well. It would then be a robustly available rival that strictly dominates the chosen action, contradicting ex-ante undominatedness. The overlooked action's strict preference on the realized history is an explicit premise of Definition 10.6. Thus correct expectations about the realized history do not eliminate regret caused by an incomplete contemplated menu. $\square$
+**Proof.** If a uniformly available feasible action were strictly preferred to the chosen action at the sole plausible history, stationarity would make it strictly preferred in the ex-ante comparison as well. It would then be a robustly available rival that strictly dominates the chosen action, contradicting ex-ante undominatedness. The overlooked action's strict preference on the realized history is an explicit premise of [Definition 10.6](#definition-106-overlooked-physical-opportunity). Thus correct expectations about the realized history do not eliminate regret caused by an incomplete contemplated menu. $\square$
 
-Availability, awareness, and know-how are separate conditions: membership in a contemplated menu neither proves robust feasibility nor supplies a uniformly successful action across epistemic alternatives. The paired result makes two sources of error visible. A contemplated alternative that becomes better may reflect surprise or a risk across plausible histories. An overlooked action may become salient through alertness even when the actual history was expected. These are different failures: one concerns forecasts, the other the set of alternatives considered.
+Availability, awareness, and know-how constitute distinct praxeological dimensions: physical feasibility governs resource compatibility, contemplation governs cognitive awareness, and know-how governs robust success across epistemic alternatives. The paired result sharply isolates two independent sources of entrepreneurial error: forecasting errors across plausible histories, and bounded awareness of feasible alternatives resolved by entrepreneurial alertness.
 
 ### Definition 10.8 (Bounded Contemplation and Kirznerian Alertness Operator)
 In an Action Frame $\mathcal{W}$, a **bounded contemplation context** $`B = \langle \mathcal{A}_{\text{phys}}, \mathcal{A}_{\text{cont}}, \text{End\_of}, \succ \rangle`$ models the agent's finite cognitive awareness:
@@ -210,7 +210,7 @@ $$
 
 creating an unbacked redemption shortfall where full par redemption of circulating fiduciary notes is physically impossible.
 
-**Proof.** Note printing produces money without using or yielding reserves, leaving the issuer's reserve unchanged. During the matched credit advance, the traded commodities are money and collateral, which are both distinct from the reserve commodity; thus bilateral transfer leaves the issuer's reserve unchanged. This proves the first claim. By Proposition 10.10a, accepting redemption of $q$ notes for $q$ units of reserve requires $q \le \omega_{\mathrm{issuer}}(t, h, m_{\mathrm{reserve}})$; when this fails, acceptance is infeasible and non-purposeful, proving the second claim. For the third claim, fiduciary origination increases circulating fiduciary notes by the positive principal $P > 0$ while leaving reserves unchanged; adding $P$ to the opening circulating media strictly exceeds the reserve balance. $\square$
+**Proof.** Note printing produces money without using or yielding reserves, leaving the issuer's reserve unchanged. During the matched credit advance, the traded commodities are money and collateral, which are both distinct from the reserve commodity; thus bilateral transfer leaves the issuer's reserve unchanged. This proves the first claim. By [Proposition 10.10a](#proposition-1010a-spot-purchase-feasibility-and-impossibility-of-additive-aggregation), accepting redemption of $q$ notes for $q$ units of reserve requires $q \le \omega_{\mathrm{issuer}}(t, h, m_{\mathrm{reserve}})$; when this fails, acceptance is infeasible and non-purposeful, proving the second claim. For the third claim, fiduciary origination increases circulating fiduciary notes by the positive principal $P > 0$ while leaving reserves unchanged; adding $P$ to the opening circulating media strictly exceeds the reserve balance. $\square$
 
 ## Repayment, Collateral, and Default
 
@@ -251,22 +251,20 @@ We represent one loan by the following permitted transitions:
 | Status before the event | Event | Status after the event |
 |---|---|---|
 | not yet advanced | matched advance | outstanding |
-| outstanding | matched repayment before maturity | repaid |
+| outstanding | matched repayment settling at or before maturity | repaid |
 | outstanding | maturity without repayment | defaulted |
 
 The transition relation records these three cases. It does not permit a repayment event before the advance or a second repayment after the obligation has been discharged.
 
 ### Definition 10.16 (Physical and Purposeful Repayment)
 
-A **physical repayment execution** is a matched borrower offer and lender acceptance on the advance's history. It occurs over an immediate temporal transition, after the advance, and settles no later than contractual maturity. A **purposeful repayment** adds the separate behavioral evidence that the matched exchange meets the model's purposeful-action conditions. The contract and its promised amount alone establish neither execution nor purposefulness.
+A **physical repayment execution** is a matched borrower offer and lender acceptance on the advance's history. It occurs over an immediate temporal transition, after the advance, and settles no later than contractual maturity. A **purposeful repayment** adds the separate behavioral evidence that the matched exchange meets the model's purposeful-action conditions. The formalization distinguishes the contractual promise from its actual execution: `RepaymentExecution` verifies the physical exchange of money and collateral, while `CreditRepayment` provides the behavioral certificate of purposeful choice.
 
-By the paired inventory equations, a physical repayment increases the lender's money stock by $R$ and returns $Q$ units of collateral to the borrower's stock. These transfer equations do not alone prove that the borrower can repay or that repayment is purposeful. The Lean type `RepaymentExecution` records the physical event, while `CreditRepayment` adds the behavioral certificate.
+By the paired inventory equations, physical repayment increases the lender's money stock by $R$ and returns $Q$ units of collateral to the borrower's stock, with `RepaymentExecution` tracking the physical ledger and `CreditRepayment` certifying purposeful enactment.
 
 ### Definition 10.17 (Collateral Custody and Unpaid Maturity)
 
-A collateral-custody trace runs from the moment after the advance to maturity along the same history. If the lender neither uses nor yields the collateral over this trace, the inventory balance keeps the lender's collateral stock unchanged. An **unpaid maturity** records both such custody and evidence that no physical repayment settled by maturity. This excludes a repayment event without claiming that no repayment action was feasible or purposeful.
-
-We take non-repayment as evidence in this definition. We do not infer it merely from the absence of a feasible repayment action, since that would require additional premises about the borrower's resources and available choices.
+A collateral-custody trace runs from the moment after the advance to maturity along the same history. If the lender neither uses nor yields the collateral over this trace, the inventory balance keeps the lender's collateral stock unchanged. An **unpaid maturity** records both unbroken custody and physical non-settlement by contractual maturity, certifying the historical absence of repayment directly from physical execution and custody balances.
 
 ### Proposition 10.18 (Unpaid Maturity Classifies the Outstanding Loan as Defaulted)
 
@@ -274,7 +272,7 @@ If a loan remains unpaid at maturity under the stated custody trace, its status 
 
 **Proof.** The custody trace has zero total use and zero total yield of collateral, so the inventory-run balance makes the lender's collateral stock at maturity equal to its stock immediately after the advance. The unpaid-maturity condition supplies the event that classifies the outstanding obligation as defaulted. $\square$
 
-The model records default status and retained collateral under these conditions. It does not add a further rule for selling collateral, recovering a shortfall, or distributing losses among other creditors.
+This proposition establishes the formal mechanics of loan maturity: when an obligation remains unsettled at maturity under strict custody balances, the contractual status transitions to default while collateral remains preserved in the lender's inventory.
 
 The issuance, loan, and ledger statements are defined over any action model with the relevant physical transition and purposeful-action structure.
 
@@ -296,7 +294,7 @@ $$
 \mathcal{M}(t, h) \in \mathbb{N}.
 $$
 
-By Proposition 10.10a (Spot-Purchase Feasibility and Impossibility of Additive Aggregation), spot-market acceptance of an offer at price $P$ in medium $m$ is feasible for a buyer if and only if:
+By [Proposition 10.10a (Spot-Purchase Feasibility and Impossibility of Additive Aggregation)](#proposition-1010a-spot-purchase-feasibility-and-impossibility-of-additive-aggregation), spot-market acceptance of an offer at price $P$ in medium $m$ is feasible for a buyer if and only if:
 
 $$
 P \le \omega_{\mathrm{buyer}}(t, h, m).
@@ -304,7 +302,7 @@ $$
 
 Two insurmountable physical non-additivities immediately refute scalar representation:
 1. **Cross-Medium Non-Additivity:** If an agent holds positive balances across distinct media $m_1 \neq m_2$, the sum $\omega(m_1) + \omega(m_2)$ cannot clear a transaction priced in either medium alone. Summing heterogeneous media into an aggregate scalar attributes spot-purchase feasibility to actors whose physical action menus are strictly contracted.
-2. **Cross-Agent Non-Additivity:** If two distinct agents $a_1 \neq a_2$ hold cash balances of the same medium, their sum $\omega_{a_1}(m) + \omega_{a_2}(m)$ cannot clear a spot purchase priced at $P > \max\lbrace \omega_{a_1}(m), \omega_{a_2}(m) \rbrace$. Money exists solely in discrete, localized cash holdings of individual actors across a trading network (Proposition 9.24). A single aggregate scalar erases the topological distribution of balances that determines which exchanges can be executed.
+2. **Cross-Agent Non-Additivity:** If two distinct agents $a_1 \neq a_2$ hold cash balances of the same medium, their sum $\omega_{a_1}(m) + \omega_{a_2}(m)$ cannot clear a spot purchase priced at $P > \max\lbrace \omega_{a_1}(m), \omega_{a_2}(m) \rbrace$. Money exists solely in discrete, localized cash holdings of individual actors across a trading network ([Proposition 9.14g](09_money_prices_and_calculation.md#proposition-914g-cantillon-network-purchasing-power-dilution)). A single aggregate scalar erases the topological distribution of balances that determines which exchanges can be executed.
 
 ### Critique of the Central Bank Liquidity Hierarchy ($M_1 \to M_4$)
 
@@ -318,7 +316,7 @@ Central banks assemble monetary aggregates along a supposed continuum of "liquid
 The entire hierarchy embodies three structural category errors:
 
 #### 1. Credit Double-Counting and Violation of Physical Conservation
-By Proposition 10.10b (Commodity Credit Conservation), a pure credit advance transfers a quantity $P$ of medium $m$ from lender to borrower in exchange for a future repayment contract. Total media across the population is strictly conserved:
+By [Proposition 10.10b](#proposition-1010b-total-media-conservation-and-lender-menu-stripping-in-commodity-credit) (Commodity Credit Conservation), a pure credit advance transfers a quantity $P$ of medium $m$ from lender to borrower in exchange for a future repayment contract. Total media across the population is strictly conserved:
 
 $$
 \sum_{a \in \mathcal{I}} \omega_a(t', h, m) = \sum_{a \in \mathcal{I}} \omega_a(t, h, m).
@@ -331,7 +329,7 @@ By adding time deposits, repurchase agreements, and commercial paper to $M_1$, b
 #### 2. Conflation of Investment Equity with Monetary Media
 $M_2, M_3$, and MZM include shares in money market mutual funds. An investor in a mutual fund does not hold money or a deposit; the investor holds equity shares in an investment trust whose assets consist of short-term debt instruments.
 
-By Proposition 10.10a, accepting a spot purchase requires the delivery of a concrete medium of exchange. Mutual fund shares cannot directly clear spot transactions. Even when check-writing privileges are attached, settling a check requires the fund to sell an underlying money market instrument to obtain central bank reserves or commercial bank deposits. Counting investment trust shares as money confuses an asset requiring prior secondary liquidation with the medium of exchange itself.
+By [Proposition 10.10a](#proposition-1010a-spot-purchase-feasibility-and-impossibility-of-additive-aggregation), accepting a spot purchase requires the delivery of a concrete medium of exchange. Mutual fund shares cannot directly clear spot transactions. Even when check-writing privileges are attached, settling a check requires the fund to sell an underlying money market instrument to obtain central bank reserves or commercial bank deposits. Counting investment trust shares as money confuses an asset requiring prior secondary liquidation with the medium of exchange itself.
 
 #### 3. Arbitrary Exclusion of Sovereign Cash Balances
 While counting illiquid debt contracts and equity shares, central banks exclude the cash balance held by the sovereign Treasury at the central bank (the Treasury General Account). The sovereign's cash balance consists of central bank reserve media that bids for labor, commodities, and capital equipment in exactly the same way as private cash balances. Omitting sovereign cash creates an ungrounded institutional asymmetry that distorts the recorded stock of circulating media.
@@ -347,7 +345,7 @@ To eliminate the credit double-counting of $M_2$ and $M_3$, Austrian economists 
 - *Excluded:* Small and large time deposits, repurchase agreements, commercial paper, and money market mutual fund shares.
 
 #### 1. Theoretical Soundness: Credit Conservation and Sovereign Inclusion
-TMS adheres to Proposition 10.10b by recognizing that pure credit transfers (time deposits) do not expand total media and must be excluded. It also correctly includes sovereign operating balances, preserving the physical conservation of base media.
+TMS adheres to [Proposition 10.10b](#proposition-1010b-total-media-conservation-and-lender-menu-stripping-in-commodity-credit) by recognizing that pure credit transfers (time deposits) do not expand total media and must be excluded. It also correctly includes sovereign operating balances, preserving the physical conservation of base media.
 
 #### 2. The Four Inherent Theoretical Contradictions of TMS as a Scalar Measure
 Despite its advantages over central bank aggregates, TMS cannot be derived as a valid scalar measure within our formal action system:
@@ -358,21 +356,21 @@ $$
 \text{TMS} = \sum_{a} \omega_a(m_{\mathrm{cash}}) + \sum_{a} \omega_a(m_{\mathrm{dep}}) + \sum_{a} \omega_a(m_{\mathrm{sav}}) + \omega_{\mathrm{treas}}(m_{\mathrm{treas}}).
 $$
 
-By Proposition 10.10a, spot-purchase feasibility requires sufficient holdings of the *specific* tender medium required by the seller. Summing heterogeneous media across distinct legal classifications attributes aggregate purchasing capacity to actors that cannot be realized in any purposeful action.
+By [Proposition 10.10a](#proposition-1010a-spot-purchase-feasibility-and-impossibility-of-additive-aggregation), spot-purchase feasibility requires sufficient holdings of the *specific* tender medium required by the seller. Summing heterogeneous media across distinct legal classifications attributes aggregate purchasing capacity to actors that cannot be realized in any purposeful action.
 
 2. **The Fiduciary Par-Redemption Fallacy:** TMS justifies adding commercial bank deposits to physical currency at 1:1 par value by treating demand deposits as "warehouse receipts" or "money substitutes" that are instantly redeemable on demand.
 
-In a 100% reserve system, note liabilities are fully backed warehouse claims. But in a fractional-reserve banking system, by Proposition 10.12a, fiduciary loan origination creates new circulating liabilities without expanding the physical reserve stock:
+In a 100% reserve system, note liabilities are fully backed warehouse claims. But in a fractional-reserve banking system, by [Proposition 10.12a](#proposition-1012a-reserve-invariance-redemption-infeasibility-and-the-fiduciary-shortfall), fiduciary loan origination creates new circulating liabilities without expanding the physical reserve stock:
 
 $$
 \omega_{\mathrm{issuer}}(t', h, m_{\mathrm{reserve}}) = \omega_{\mathrm{issuer}}(t, h, m_{\mathrm{reserve}}), \qquad \text{circulating notes at } (t', h) = \text{circulating notes at } (t, h) + P.
 $$
 
-Whenever circulating fiduciary media exceeds the physical reserve, simultaneous par redemption is resource-infeasible for the banking system (Proposition 10.12a). Fiduciary bank liabilities carry structural default risk and liquidity exposure; treating them as physical clones of base money assumes an economic property—universal par redeemability—that physical inventory transitions prove to be impossible.
+Whenever circulating fiduciary media exceeds the physical reserve, simultaneous par redemption is resource-infeasible for the banking system ([Proposition 10.12a](#proposition-1012a-reserve-invariance-redemption-infeasibility-and-the-fiduciary-shortfall)). Fiduciary bank liabilities carry structural default risk and liquidity exposure; treating them as physical clones of base money assumes an economic property—universal par redeemability—that physical inventory transitions prove to be impossible.
 
 3. **Gresham Par-Circulation Collapse:** TMS assumes that base currency and fractional-reserve bank deposits circulate side-by-side as a homogeneous pool.
 
-However, by Gresham's Law (Theorems 11.17–11.18), when two distinct media are legally pegged at a fixed nominal parity, purposeful actors hoard the sounder base commodity and tender exclusively the overvalued, risk-exposed bank media:
+However, by Gresham's Law ([Theorems 11.17](11_organization_firms_and_intervention.md#theorem-1117-gresham-tender-exclusion)–[11.18](11_organization_firms_and_intervention.md#theorem-1118-gresham-circulation-collapse)), when two distinct media are legally pegged at a fixed nominal parity, purposeful actors hoard the sounder base commodity and tender exclusively the overvalued, risk-exposed bank media:
 
 $$
 \mathcal{C}(m_{\mathrm{good}}) = \emptyset.
@@ -380,7 +378,7 @@ $$
 
 Under distress, base money ceases to circulate as tender, destroying the empirical basis for adding them together.
 
-4. **Cross-Agent Non-Additivity and Static Lists:** TMS compresses balances across all individuals into a national scalar, obscuring network topology (Definition 9.5) and Cantillon purchasing power dilution (Proposition 9.24). Furthermore, medium-of-exchange status is an endogenous property that emerges and dissolves through purposeful choice (Theorems 9.4, 9.10), rather than a permanent administrative category.
+4. **Cross-Agent Non-Additivity and Static Lists:** TMS compresses balances across all individuals into a national scalar, obscuring network topology ([Definition 9.5](09_money_prices_and_calculation.md#definition-95-trading-network-and-local-indirect-feasibility)) and Cantillon purchasing power dilution ([Proposition 9.14g](09_money_prices_and_calculation.md#proposition-914g-cantillon-network-purchasing-power-dilution)). Furthermore, medium-of-exchange status is an endogenous property that emerges and dissolves through purposeful choice ([Theorems 9.4](09_money_prices_and_calculation.md#theorem-94-universal-acceptance-of-an-initially-dominant-medium) and [9.10](09_money_prices_and_calculation.md#theorem-910-universal-money-on-a-demand-connected-network)), distinct from fixed administrative classifications.
 
 ### The Praxeological Monetary Measure: Disaggregated Vector Accounting
 
@@ -421,7 +419,7 @@ $$
    $`\rho_{\mathrm{Tier}_2}(t, h) = \frac{R_{\mathrm{Tier}_2}(t, h)}{M_{\mathrm{fid}, \mathrm{Tier}_2}(t, h)} < \frac{R_{\mathrm{Tier}_1}(t, h) + R_{\mathrm{Tier}_2}(t, h)}{M_{\mathrm{fid}, \mathrm{Tier}_1}(t, h) + M_{\mathrm{fid}, \mathrm{Tier}_2}(t, h)} = \rho_{\mathrm{agg}}(t, h)`$.
    If an individual regional bank $`b_2 \in \mathrm{Tier}_2`$ faces a redemption run $q > R_{b_2}(t, h)$, spot redemption is resource-infeasible and non-purposeful for $b_2$, even when aggregate reserves across all tiers satisfy $`R_{\mathrm{issuer}}(t, h) \ge q`$.
 
-**Proof.** The first claim follows from Proposition 10.10a (Cross-Agent Non-Additivity): spot-purchase feasibility requires individual endowment coverage $P \le \omega_a(m)$; when individual coverage fails, no purposeful spot purchase can be enacted. The second claim follows from Proposition 10.12a applied to bank $b_1$: accepting a redemption of $q$ units of reserve requires $q \le \omega_{b_1}(m_{\mathrm{reserve}})$; when this fails, acceptance is resource-infeasible and non-purposeful for $b_1$, independent of holdings at unrelated banks. The third claim follows by finite set partition: disjoint summation yields additivity of reserves. Cross-multiplying the tier inequality yields $`R_{\mathrm{Tier}_2}(M_{\mathrm{fid}, \mathrm{Tier}_1} + M_{\mathrm{fid}, \mathrm{Tier}_2}) < (R_{\mathrm{Tier}_1} + R_{\mathrm{Tier}_2}) M_{\mathrm{fid}, \mathrm{Tier}_2}`$, proving the coverage divergence; applying Proposition 10.12a to $b_2$ establishes local run infeasibility despite aggregate sufficiency. $\blacksquare$
+**Proof.** The first claim follows from [Proposition 10.10a](#proposition-1010a-spot-purchase-feasibility-and-impossibility-of-additive-aggregation) (Cross-Agent Non-Additivity): spot-purchase feasibility requires individual endowment coverage $P \le \omega_a(m)$; when individual coverage fails, no purposeful spot purchase can be enacted. The second claim follows from [Proposition 10.12a](#proposition-1012a-reserve-invariance-redemption-infeasibility-and-the-fiduciary-shortfall) applied to bank $b_1$: accepting a redemption of $q$ units of reserve requires $q \le \omega_{b_1}(m_{\mathrm{reserve}})$; when this fails, acceptance is resource-infeasible and non-purposeful for $b_1$, independent of holdings at unrelated banks. The third claim follows by finite set partition: disjoint summation yields additivity of reserves. Cross-multiplying the tier inequality yields $`R_{\mathrm{Tier}_2}(M_{\mathrm{fid}, \mathrm{Tier}_1} + M_{\mathrm{fid}, \mathrm{Tier}_2}) < (R_{\mathrm{Tier}_1} + R_{\mathrm{Tier}_2}) M_{\mathrm{fid}, \mathrm{Tier}_2}`$, proving the coverage divergence; applying [Proposition 10.12a](#proposition-1012a-reserve-invariance-redemption-infeasibility-and-the-fiduciary-shortfall) to $b_2$ establishes local run infeasibility despite aggregate sufficiency. $\blacksquare$
 
 ### Definition 10.20 (The Unbacked Fiduciary Overhang and Reserve Coverage Ratio)
 For any commercial banking sector with circulating fiduciary media $M_{\mathrm{fid}}(t, h)$ and custodial reserves $R_{\mathrm{issuer}}(t, h)$:
@@ -442,7 +440,7 @@ $$
 
 ### Proposition 10.21 (Systemic Insolvency Risk and Bank-Run Vulnerability)
 1. When $\Delta_{\mathrm{overhang}}(t, h) = 0$ (meaning $\rho(t, h) \ge 1$ ), every circulating note liability is 100% backed by physical reserves in bank custody. Full simultaneous redemption is resource-feasible for the issuer.
-2. When $\Delta_{\mathrm{overhang}}(t, h) > 0$ (meaning $\rho(t, h) < 1$ ), the banking system is operating with an unbacked redemption shortfall. By Proposition 10.12a, accepting a simultaneous redemption demand from all note holders is resource-infeasible and cannot be enacted as a purposeful action.
+2. When $\Delta_{\mathrm{overhang}}(t, h) > 0$ (meaning $\rho(t, h) < 1$ ), the banking system is operating with an unbacked redemption shortfall. By [Proposition 10.12a](#proposition-1012a-reserve-invariance-redemption-infeasibility-and-the-fiduciary-shortfall), accepting a simultaneous redemption demand from all note holders is resource-infeasible and cannot be enacted as a purposeful action.
 3. A decline in $\rho(t, h)$ strictly increases systemic run vulnerability: a smaller fraction of depositors can successfully convert their deposits into base money before the issuer's physical reserve is entirely exhausted.
 
 **Proof.** The first claim follows from the definition of a fully covered warehouse receipt: if notes do not exceed reserves, the issuer holds sufficient physical commodity to execute full redemption. For the second claim, total claims $M_{\mathrm{fid}}$ exceed total reserves $R_{\mathrm{issuer}}$, so the bank lacks the physical commodity to honor simultaneous redemption; by the action-frame feasibility condition, an action requiring more means than an agent holds is infeasible, ruling out purposeful execution. For the third claim, the maximal fraction of claims redeemable before reserve exhaustion is exactly $R_{\mathrm{issuer}} / M_{\mathrm{fid}} = \rho(t, h)$. A decrease in $\rho$ contracts this feasible fraction. $\blacksquare$
@@ -451,31 +449,31 @@ $$
 In a modern two-tier fiat monetary system, the central bank issues base money $m_{\mathrm{reserve}}$ (digital master-account reserves and physical currency) through fiduciary note issuance at zero physical resource cost, while commercial banks issue checkable liabilities $m_{\mathrm{fid}}$ redeemable in base money. Under this institutional architecture:
 1. The reserve coverage ratio $\rho(t, h) = R_{\mathrm{issuer}} / M_{\mathrm{fid}}$ defines the **autonomous commercial-bank liquidity boundary** prior to central bank intervention.
 2. If depositors exercise redemption demands $q > R_{\mathrm{issuer}}(t, h)$, the commercial banking sector faces an operational dichotomy:
-   - *Autonomous Default / Suspension:* Without external intervention, honoring redemption of $q$ is resource-infeasible for commercial banks (Proposition 10.12a), forcing suspension of payments or bankruptcy.
-   - *Inflationary Central Bank Bailout:* If the central bank enacts a lender-of-last-resort fiduciary note issuance of base reserves with principal $\Delta M \ge q - R_{\mathrm{issuer}}$, the newly created reserves cover the shortfall, but total base money in the economy strictly expands ( $`M_{\mathrm{base}}^{\mathrm{total}}(t') = M_{\mathrm{base}}^{\mathrm{total}}(t) + \Delta M`$ ), diluting purchasing power across downstream network nodes (Proposition 9.24).
+   - *Autonomous Default / Suspension:* Without external intervention, honoring redemption of $q$ is resource-infeasible for commercial banks ([Proposition 10.12a](#proposition-1012a-reserve-invariance-redemption-infeasibility-and-the-fiduciary-shortfall)), forcing suspension of payments or bankruptcy.
+   - *Inflationary Central Bank Bailout:* If the central bank enacts a lender-of-last-resort fiduciary note issuance of base reserves with principal $\Delta M \ge q - R_{\mathrm{issuer}}$, the newly created reserves cover the shortfall, but total base money in the economy strictly expands ( $`M_{\mathrm{base}}^{\mathrm{total}}(t') = M_{\mathrm{base}}^{\mathrm{total}}(t) + \Delta M`$ ), diluting purchasing power across downstream network nodes ([Proposition 9.14g](09_money_prices_and_calculation.md#proposition-914g-cantillon-network-purchasing-power-dilution)).
 3. **Standing Credit Facilities and Collateral Encumbrance:** When the central bank operates standing emergency facilities (such as a discount window or standing repo facility), the injection is executed as a collateralized credit advance:
    - *Reserve Restoration:* If the borrowed principal $\Delta M$ satisfies $q \le R_b(t_0) + \Delta M$, the commercial bank's post-advance reserve endowment $R_b(t_2) = R_b(t_0) + \Delta M$ restores the physical feasibility of clearing redemption demand $q$.
    - *Collateral Encumbrance:* The commercial bank transfers eligible collateral (Treasury debt or high-grade paper) of quantity $Q$ to the central bank's custodial account, reducing its unencumbered assets: $\omega_b(t_2, \text{collateral}) + Q = \omega_b(t_0, \text{collateral})$.
    - *Systemic Base Expansion:* Total base money across all economic actors strictly increases by the newly minted principal: $`M_{\mathrm{base}}^{\mathrm{total}}(t_2) = M_{\mathrm{base}}^{\mathrm{total}}(t_0) + \Delta M`$.
 
-**Proof.** The first claim is the direct definition of autonomous balance-sheet coverage without new credit origination. For the second claim, when $q > R_{\mathrm{issuer}}$, commercial banks lack the physical means to clear redemption autonomously, proving the first branch of the dichotomy by Proposition 10.21. For the second branch, central bank fiduciary issuance produces principal $\Delta M > 0$ in base reserves without consuming reserves (Proposition 10.10). By the physical inventory equations of note issuance, total base media in the economy strictly increases by $\Delta M$, expanding base money and initiating the staged purchasing-power dilution proved in Proposition 9.24. For the third claim, the physical inventory transfer theorem for bilateral advances proves that the borrower receives principal $\Delta M$ while surrendering collateral $Q$; because the lender issues new base fiat, the universal sum of base media across all agents expands by $\Delta M$ by the total media expansion theorem of fiduciary origination. $\blacksquare$
+**Proof.** The first claim is the direct definition of autonomous balance-sheet coverage without new credit origination. For the second claim, when $q > R_{\mathrm{issuer}}$, commercial banks lack the physical means to clear redemption autonomously, proving the first branch of the dichotomy by [Proposition 10.21](#proposition-1021-systemic-insolvency-risk-and-bank-run-vulnerability). For the second branch, central bank fiduciary issuance produces principal $\Delta M > 0$ in base reserves without consuming reserves ([Proposition 10.10](#proposition-1010-physical-effects-of-note-issuance)). By the physical inventory equations of note issuance, total base media in the economy strictly increases by $\Delta M$, expanding base money and initiating the staged purchasing-power dilution proved in [Proposition 9.14g](09_money_prices_and_calculation.md#proposition-914g-cantillon-network-purchasing-power-dilution). For the third claim, the physical inventory transfer theorem for bilateral advances proves that the borrower receives principal $\Delta M$ while surrendering collateral $Q$; because the lender issues new base fiat, the universal sum of base media across all agents expands by $\Delta M$ by the total media expansion theorem of fiduciary origination. $\blacksquare$
 
 ### Auditing Bank Ledgers: Operational Flow Separation
 
 By tracking the monetary vector $\mathbf{M}(t, h)$, economic observers can rigorously audit banking operations into two mutually exclusive and physically distinct flows:
 
-1. **Pure Commodity Credit Advances (Proposition 10.10b):**
+1. **Pure Commodity Credit Advances ([Proposition 10.10b](#proposition-1010b-total-media-conservation-and-lender-menu-stripping-in-commodity-credit)):**
    - *Inventory Law:* Total spendable media is conserved: $\sum \omega(t') = \sum \omega(t)$.
    - *Menu Effect:* The lender's cash balance contracts, stripping tight money-using actions from the lender's feasible menu.
    - *Catallactic Impact:* Non-inflationary capital reallocation; transfers pre-existing savings to entrepreneurial borrowers.
-2. **Fiduciary Origination (Proposition 10.10, 10.12a):**
+2. **Fiduciary Origination ([Proposition 10.10](#proposition-1010-physical-effects-of-note-issuance), 10.12a):**
    - *Inventory Law:* Circulating media expands by $+P$ while physical reserves remain unchanged: $\omega_{\mathrm{issuer}}(t') = \omega_{\mathrm{issuer}}(t)$.
    - *Menu Effect:* New checkable purchasing media is created without contracting any saver's feasible menu.
-   - *Catallactic Impact:* Inflationary credit creation; increases $\Delta_{\mathrm{overhang}}$ and dilutes purchasing power across the trading network (Proposition 9.24).
+   - *Catallactic Impact:* Inflationary credit creation; increases $\Delta_{\mathrm{overhang}}$ and dilutes purchasing power across the trading network ([Proposition 9.14g](09_money_prices_and_calculation.md#proposition-914g-cantillon-network-purchasing-power-dilution)).
 
 This separation allows monetary analysts to evaluate credit expansion directly from balance-sheet transactions without confusing capital accumulation with fiduciary inflation.
 
-### Proposition 10.21a (Conditional Repayment-Rate Comparison under Fiduciary Origination)
+### Proposition 10.21b (Conditional Repayment-Rate Comparison under Fiduciary Origination)
 
 Consider two loan contracts $T_{\mathrm{nat}}$ and $T_{\mathrm{cred}}$ sharing identical principal $T_{\mathrm{nat}}.\mathrm{principal} = T_{\mathrm{cred}}.\mathrm{principal}$ and currency $T_{\mathrm{nat}}.\mathrm{money} = T_{\mathrm{cred}}.\mathrm{money}$. If a fractional-reserve bank creates unbacked fiduciary notes via fiduciary origination ( $I, A_{\mathrm{cred}}, O$ ) to fund a marginal borrower whose project cash endowment at repayment moment $R.\mathrm{moment}$ strictly falls short of natural repayment ( $`\omega(T_{\mathrm{cred}}.\mathrm{borrower}, R.\mathrm{moment}, A_{\mathrm{cred}}.\mathrm{history}, T_{\mathrm{cred}}.\mathrm{money}) < T_{\mathrm{nat}}.\mathrm{repayment}`$ ), then:
 
@@ -486,13 +484,13 @@ Consider two loan contracts $T_{\mathrm{nat}}$ and $T_{\mathrm{cred}}$ sharing i
 4. Undertaking the loan under natural terms is physically infeasible and non-purposeful for the borrower:
    $`\mathrm{Offer}(T_{\mathrm{cred}}.\mathrm{borrower}, T_{\mathrm{nat}}.\mathrm{lender}, T_{\mathrm{nat}}.\mathrm{repayment}, \dots) \notin \mathcal{A}_{\mathrm{feas}} \ \wedge\ \neg \mathsf{P}(\mathrm{Offer}(\dots))`$.
 
-**Proof.** Because the borrower executes repayment under $T_{\mathrm{cred}}$, the borrower's cash balance covers $T_{\mathrm{cred}}.\mathrm{repayment}$. Since that same cash balance is strictly less than $T_{\mathrm{nat}}.\mathrm{repayment}$, transitivity of order over $\mathbb{N}$ establishes $T_{\mathrm{cred}}.\mathrm{repayment} < T_{\mathrm{nat}}.\mathrm{repayment}$. With identical principals, dividing the repayment equation yields $T_{\mathrm{cred}}.\mathrm{grossRepaymentFactor} < T_{\mathrm{nat}}.\mathrm{grossRepaymentFactor}$. Fiduciary note issuance expands total media by $T_{\mathrm{cred}}.\mathrm{principal}$ by Proposition 10.10. Finally, because available cash is strictly less than natural repayment, offering natural repayment violates the resource feasibility coupling $`\mathcal{A}_{\mathrm{feas\_coupling}}`$, rendering the action infeasible and non-purposeful. $\blacksquare$
+**Proof.** Because the borrower executes repayment under $T_{\mathrm{cred}}$, the borrower's cash balance covers $T_{\mathrm{cred}}.\mathrm{repayment}$. Since that same cash balance is strictly less than $T_{\mathrm{nat}}.\mathrm{repayment}$, transitivity of order over $\mathbb{N}$ establishes $T_{\mathrm{cred}}.\mathrm{repayment} < T_{\mathrm{nat}}.\mathrm{repayment}$. With identical principals, dividing the repayment equation yields $T_{\mathrm{cred}}.\mathrm{grossRepaymentFactor} < T_{\mathrm{nat}}.\mathrm{grossRepaymentFactor}$. Fiduciary note issuance expands total media by $T_{\mathrm{cred}}.\mathrm{principal}$ by [Proposition 10.10](#proposition-1010-physical-effects-of-note-issuance). Finally, because available cash is strictly less than natural repayment, offering natural repayment violates the resource feasibility coupling $`\mathcal{A}_{\mathrm{feas\_coupling}}`$, rendering the action infeasible and non-purposeful. $\blacksquare$
 
 This is a conditional comparison of two repayment outcomes. The result uses evidence that the credit borrower actually repays and has less money at that repayment moment than the natural contract would require. It does not derive successful repayment, purposeful investment, or a general market-rate response from note issuance alone.
 
 ### Sectoral Liquidity Stress Testing: Cash-Backed Solvency
 
-The disaggregated monetary measure connects directly to entrepreneurial solvency under price uncertainty, as developed in Chapter 9 (Definition 9.14a–9.14c):
+The disaggregated monetary measure connects directly to entrepreneurial solvency under price uncertainty, as developed in Chapter 9 ([Definition 9.14a](09_money_prices_and_calculation.md#definition-914a-factor-price-box-and-precautionary-cash-demand)–9.14c):
 
 ### Definition 10.22 (Cash-Backed Factor Solvency Profile)
 Let $\mathcal{B} = \langle P^{\inf}, P^{\sup} \rangle$ be a factor price box for $d$ inputs, and let $x_i \in \mathbb{N}^d$ be the input plan of enterprise $i$. Under monetary holding $\omega_i(m)$, the **cash-backed solvency profile** across an entrepreneurial cohort is:
@@ -518,9 +516,9 @@ $$
 
 3. For any enterprise where $`P^{\sup}_1(k^{\ast}) < P^{\sup}_2(k^{\ast})`$ on a strictly necessary input $x_i(k^{\ast}) > 0$, if $`C^+(\mathcal{B}_1, x_i) \le \omega_i(m) < C^+(\mathcal{B}_2, x_i)`$, the enterprise transitions from solvent to strictly blocked: its completion action becomes resource-infeasible and cannot be enacted.
 
-**Proof.** The first two statements follow directly from Proposition 9.14d. For the third statement, the strict increase in the upper bound yields $`C^+(\mathcal{B}_1, x_i) < C^+(\mathcal{B}_2, x_i)`$. Since $`\omega_i(m) < C^+(\mathcal{B}_2, x_i)`$, Proposition 9.14b proves that the completion action requires more cash than the enterprise possesses, rendering it resource-infeasible. $\blacksquare$
+**Proof.** The first two statements follow directly from [Proposition 9.14d](09_money_prices_and_calculation.md#proposition-914d-price-box-widening-contracts-the-solvent-cohort). For the third statement, the strict increase in the upper bound yields $`C^+(\mathcal{B}_1, x_i) < C^+(\mathcal{B}_2, x_i)`$. Since $`\omega_i(m) < C^+(\mathcal{B}_2, x_i)`$, [Proposition 9.14b](09_money_prices_and_calculation.md#proposition-914b-factor-completion-infeasibility-under-cash-shortfall) proves that the completion action requires more cash than the enterprise possesses, rendering it resource-infeasible. $\blacksquare$
 
-Theorem 10.23 is conditional on the stated widening of the price box and on the affected firm's cash endowment remaining fixed. Its arithmetic derives a weak contraction of the modeled cash-solvent set, and a strict affordability failure when the balance lies between the old and new costs. It does not derive the price-box change from credit origination, nor does it establish that projected eligibility is physical affordability, that investment was purposeful, or that a crisis cluster follows without the additional cohort and choice evidence stated in Chapter 13.
+[Theorem 10.23](#theorem-1023-solvency-contraction-under-fiduciary-factor-price-inflation) establishes how price-box widening contracts the cash-solvent set and generates an affordability threshold failure when factor costs rise above available cash balances. In Chapter 13, this mechanism is coupled with credit origination, entrepreneurial forecasts, and factor clearing to analyze multi-project completion bottlenecks.
 
 ### The Econometric Boundary of Monetary Measurement
 
@@ -529,13 +527,13 @@ Finally, our formalization clarifies the exact boundary of what empirical observ
 ### Proposition 10.24 (The Observable-Unidentifiable Boundary in Monetary Accounting and Statistical Coarse-Graining)
 1. **Observable Quantities:** Recorded physical stock coordinates $\omega_a(t, h, m)$, bank origination ledgers, transacted market prices, and loan contractual terms are fully observable and verifiable from historical balance-sheet records.
 2. **Unidentifiable Quantities:** Counterfactual preference orderings, unchosen alternatives, subjective liquidity valuations, and whether acting individuals will suddenly exercise redemption options or abandon an overvalued medium cannot be identified from econometric time-series (Master Non-Identifiability Theorem, Chapter 14).
-3. **Endogenous Media vs. Statistical Coarse-Graining:** Theoretically, medium-of-exchange status is determined endogenously by the Mengerian acceptance profile $\Gamma(t, h, m)$ (Definition 9.1) and direct spot-purchase feasibility (Proposition 10.10a) versus secondary portfolio liquidation. When empirical monetary measures map administrative categories (such as Federal Reserve H.6 savings deposits or money market mutual fund shares) into $M_{\mathrm{fid}}$ or $C_{\mathrm{pure}}$, this classification represents an *observational coarse-graining* that must be evaluated against the operational criteria of direct spot clearance versus secondary liquidation.
+3. **Endogenous Media vs. Statistical Coarse-Graining:** Theoretically, medium-of-exchange status is determined endogenously by the Mengerian acceptance profile $\Gamma(t, h, m)$ ([Definition 9.1](09_money_prices_and_calculation.md#definition-91-acceptance-profile-and-marketability)) and direct spot-purchase feasibility ([Proposition 10.10a](#proposition-1010a-spot-purchase-feasibility-and-impossibility-of-additive-aggregation)) versus secondary portfolio liquidation. When empirical monetary measures map administrative categories (such as Federal Reserve H.6 savings deposits or money market mutual fund shares) into $M_{\mathrm{fid}}$ or $C_{\mathrm{pure}}$, this classification represents an *observational coarse-graining* that must be evaluated against the operational criteria of direct spot clearance versus secondary liquidation.
 4. **Automated Sweep Accounts and the Liquidity Freeze Breakdown:** In modern retail banking, sweep algorithms automatically shift funds between non-reservable interest-bearing instruments (such as money market mutual fund shares or overnight repos) and checkable transaction accounts. Praxeologically:
    - *Two-Step Market Execution:* If secondary conversion markets clear at adjacent moments $t \to t'$, an automated credit advance delivers newly spendable checkable media $P$ to the buyer, raising physical cash holdings to $`\omega_i(t', h, m_{\mathrm{money}}) \ge P`$ and rendering a spot-purchase acceptance action feasible at $t'$ (conditional on contemplation).
    - *Liquidity Freeze Breakdown:* If secondary conversion freezes or counterparties withhold bids, the conversion transaction fails to match. The buyer enacts the passive baseline inaction $\alpha_0$ at $t \to t'$, leaving spendable cash unchanged: $`\omega_i(t', h, m_{\mathrm{money}}) = \omega_i(t, h, m_{\mathrm{money}}) < P`$. Consequently, spot-purchase acceptance remains strictly resource-infeasible and non-purposeful at $t'$.
-   - *Catallactic Implication:* Sweep balances and secondary credit claims are not spot spendable media; their purchasing power is contingent on a two-step sequential bilateral exchange across discrete moments. Treating contingent sweep claims as equivalent to cash in a single scalar sum ignores liquidation counterparty risk.
+   - *Catallactic Implication:* Sweep balances and secondary credit claims are contingent portfolio claims whose purchasing power requires a two-step sequential bilateral exchange across discrete moments. Scalar monetary aggregations that equate contingent claims with immediately spendable cash obscure this structural conversion dependency and its attendant liquidation risk.
 
-**Proof.** Statements 1–3 summarize the epistemological boundary established in Chapters 9 and 14. For Statement 4, the first branch follows from the physical transfer theorem for matched bilateral advances (Proposition 10.10b): receiving principal $P$ increments the borrower's spendable media to at least the contract price, fulfilling the action-frame spot feasibility condition. The second branch follows from the baseline inaction transition equation: when an agent enacts $\alpha_0$, physical endowments are strictly conserved; since opening cash was strictly less than $P$, post-transition cash remains strictly less than $P$. By Proposition 10.10a, spot-purchase acceptance requires endowment coverage; when coverage fails, the action is resource-infeasible and cannot be enacted as a purposeful act. $\blacksquare$
+**Proof.** Statements 1–3 summarize the epistemological boundary established in Chapters 9 and 14. For Statement 4, the first branch follows from the physical transfer theorem for matched bilateral advances ([Proposition 10.10b](#proposition-1010b-total-media-conservation-and-lender-menu-stripping-in-commodity-credit)): receiving principal $P$ increments the borrower's spendable media to at least the contract price, fulfilling the action-frame spot feasibility condition. The second branch follows from the baseline inaction transition equation: when an agent enacts $\alpha_0$, physical endowments are strictly conserved; since opening cash was strictly less than $P$, post-transition cash remains strictly less than $P$. By [Proposition 10.10a](#proposition-1010a-spot-purchase-feasibility-and-impossibility-of-additive-aggregation), spot-purchase acceptance requires endowment coverage; when coverage fails, the action is resource-infeasible and cannot be enacted as a purposeful act. $\blacksquare$
 
 This boundary establishes that while the physical coordinates of the monetary structure ($\mathbf{M}$, $\Delta_{\mathrm{overhang}}$, $\rho$) are rigorously measurable, economists cannot construct a single scalar aggregate that predicts human choice without violating the fundamental principles of praxeology.
 
@@ -555,12 +553,19 @@ The lifecycle model is defined over a branching temporal frame consisting of:
 
 ### Contractual and Physical Transitions
 
-The tree represents origination and later repayment or nonpayment as separate events. Its main history includes issuance, two advances, project completion, two matched repayments, and maturity. Side histories represent selected refusals or unmatched bilateral transfers. The existing unpaid-maturity branch is used to construct `entrepreneurUnpaidEnactedLoanQuote`, and a theorem proves that its advance has no successful-repayment certificate. This tests the quote boundary on the represented default outcome; it adds no new economic scenario. The quote at origination requires neither later outcome:
-- **Moment 0 (Fiduciary Issuance):** The lending agent enacts a note-issuance action. In accordance with Proposition 10.10, the issuer's money balance increases by the principal quantity, while collateral and the balances of other agents remain unchanged.
-- **Moments 1 and 2 (Matched Collateralized Advances):** The lender and each borrower enact matching bilateral exchange actions ($\text{Offer}$ and $\text{Accept}$). By the bilateral transfer law, principal in money moves from the lender to the borrower, while the stipulated collateral moves from the borrower into the lender's custody.
+The tree represents origination and later repayment or nonpayment as separate events. Its main history includes issuance, two advances, project completion, two matched repayments, and maturity. Side histories represent selected refusals or unmatched bilateral transfers. The quote at origination requires neither later outcome:
+- **Moment 0 (Fiduciary Issuance):** The lending agent enacts a note-issuance action. In accordance with [Proposition 10.10](#proposition-1010-physical-effects-of-note-issuance), the issuer's money balance increases by the principal quantity, while collateral and the balances of other agents remain unchanged.
+- **Moments 1 and 2 (Matched Collateralized Advances):** The lender and each borrower enact matching bilateral exchange actions ($\text{Offer}$ and $\text{Accept}$). By the bilateral transfer law, principal in money moves from the lender to the borrower, while the stipulated collateral moves from the borrower into the lender's custody. The physical event is recorded in Lean as `AdvanceExecution`.
 - **Subsequent Branching (Completion and Transfer Outcomes):** The timeline branches into continuations that differ in whether the bilateral transfers match:
-  - *Successful Repayment Branch:* The borrower carries out the represented production and a matched repayment of the promised amount, returning the stipulated collateral quantity.
-  - *Unpaid Maturity:* On the represented history where repayment is absent, the unpaid-maturity evidence classifies the outstanding loan as defaulted. The lender retains the collateral stock recorded after the advance under the stated custody conditions. This is not a foreclosure or collateral-liquidation event: the model does not track particular collateral units, a foreclosure judgment, or their sale.
+  - *Successful Repayment Branch:* The borrower carries out the represented production and a matched repayment of the promised amount, returning the stipulated collateral quantity. The physical event is recorded as `RepaymentExecution`, requiring that repayment settles by contractual maturity under the reflexive precedence closure `atOrBefore(x, y) := x = y ∨ Precedence x y`.
+  - *Unpaid Maturity:* On the represented history where repayment is absent, the borrower idles, the lender's acceptance is unmatched, and the custody trace excludes collateral-returning redemption. The unpaid-maturity evidence classifies the outstanding loan as defaulted, and the lender retains the collateral stock recorded after the advance under custody conditions.
+
+### Physical Settlement and Behavioral Independence (`PhysicalSettlementWitness`)
+
+The formal architecture (`Praxeology/BusinessCycle/PhysicalSettlementWitness.lean`) decouples physical transaction events (`AdvanceExecution` and `RepaymentExecution`) from behavioral purposefulness certificates:
+1. **Physical Sufficiency:** A matched physical repayment execution is sufficient by itself to update the contractual status of the loan from `.outstanding` to `.repaid` and return the collateral to the borrower, independent of whether a purposefulness certificate is attached.
+2. **Behavioral Repayment:** The behavioral repayment record (`BehavioralRepaymentEvidence`) combines a physical `RepaymentExecution` with proofs that the borrower's settlement action is purposeful and undominated within the feasible menu.
+3. **Physical Non-Redemption and Default:** Non-redemption evidence is grounded directly in the physical custody trace and the historical absence of a matched settlement transfer. Default is determined objectively by the physical fact of non-settlement at contractual maturity.
 
 ### Constructive Verification of the Frame Axioms
 
@@ -569,7 +574,7 @@ The Credit Lifecycle Action Frame satisfies every axiom of the praxeological act
 - **Conservation and Bilateral Execution:** Physical transitions obey exact integer conservation. Unilateral offers or acceptances that lack a matching counterparty execute zero transfers ( $\omega(t') = \omega(t)$ ), while matched pairs execute exact simultaneous transfers.
 - **Evaluative Coherence:** Agents' preferences over final consumption bundles satisfy asymmetry, transitivity, and teleological bundle dominance.
 
-This witness establishes that the represented issuance, advances, repayment, and unpaid-maturity branches satisfy the stated frame and transfer laws. It does not make repayment part of origination, infer nonpayment solely from a missing repayment certificate, or add a refinancing or foreclosure rule. The specific default witness is separate from the five-project business-cycle program.
+This witness establishes that issuance, collateralized advances, physical repayment, and contractual unpaid maturity are logically and physically independent phases within an intertemporal credit frame. Origination creates an advance without presuming repayment; non-repayment is certified by custody and execution balances; and contractual status is updated in accordance with explicit physical events.
 
 ---
 

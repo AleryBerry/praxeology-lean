@@ -53,7 +53,7 @@ $$
 ### Proposition 4.4 (The List Contains $N$ Distinct Ends)
 The cardinality of the atomic end space $E_1(m)$ is exactly $N$.
 
-**Proof.** The set $`E_1(m)`$ is the image of the finite set $`\{0, \dots, N-1\}`$ under the mapping $`e_{\text{seq}}`$. Since $`e_{\text{seq}}`$ is injective by Definition 4.2, the cardinality of the image equals the cardinality of the domain: $`|E_1(m)| = |\{0, \dots, N-1\}| = N`$. $\blacksquare$
+**Proof.** The set $`E_1(m)`$ is the image of the finite set $`\{0, \dots, N-1\}`$ under the mapping $`e_{\text{seq}}`$. Since $`e_{\text{seq}}`$ is injective by [Definition 4.2](#definition-42-a-finite-one-unit-allocation), the cardinality of the image equals the cardinality of the domain: $`|E_1(m)| = |\{0, \dots, N-1\}| = N`$. $\blacksquare$
 
 ### Lemma 4.5 (Requirement Equals the Number of Selected Ends)
 For any atomic bundle $S \subseteq E_1(m)$, the total requirement of means $m$ across all ends in $S$ is exactly equal to the cardinality $|S|$:
@@ -62,7 +62,7 @@ $$
 \sum_{e \in S} \rho(e, m) = |S|
 $$
 
-**Proof.** For every $e \in S$, since $S \subseteq E_1(m)$, there exists a unique $r < N$ such that $e = e_{\text{seq}}(r)$. By Definition 4.2, $\rho(e_{\text{seq}}(r), m) = 1$. Summing the constant 1 over all elements of the finite set $S$ yields $\sum_{e \in S} 1 = |S|$. $\blacksquare$
+**Proof.** For every $e \in S$, since $S \subseteq E_1(m)$, there exists a unique $r < N$ such that $e = e_{\text{seq}}(r)$. By [Definition 4.2](#definition-42-a-finite-one-unit-allocation), $\rho(e_{\text{seq}}(r), m) = 1$. Summing the constant 1 over all elements of the finite set $S$ yields $\sum_{e \in S} 1 = |S|$. $\blacksquare$
 
 ### Corollary 4.6 (At Most $k$ Ends Are Feasible)
 For any atomic bundle $S \subseteq E_1(m)$, if $S$ satisfies the endowment feasibility constraint $\sum_{e \in S} \rho(e, m) \le \omega(i, t, h, m)$, then:
@@ -71,13 +71,13 @@ $$
 |S| \le k
 $$
 
-**Proof.** Immediate from Lemma 4.5 and the endowment equality $\omega(i, t, h, m) = k$. $\blacksquare$
+**Proof.** Immediate from [Lemma 4.5](#lemma-45-requirement-equals-the-number-of-selected-ends) and the endowment equality $\omega(i, t, h, m) = k$. $\blacksquare$
 
 ---
 
 ## Ranking the Ends Added by Successive Units
 
-Under the one-unit requirement and the stipulated strict ranking, the first $k$ ends form the unique preferred allocation according to the comparison defined below. As $k$ rises, each new unit adds the next end in that list. The resulting comparison concerns the order of ends; it does not establish a general law for technologies or preferences outside this regime.
+Under the one-unit requirement and the stipulated strict ranking, the first $k$ ends form the unique preferred allocation according to the comparison defined below, establishing how each successive unit of homogeneous stock is imputed to the next most urgently valued end.
 
 ### Definition 4.7 (The First $k$ Ends)
 Let $`\mathcal{R}_{\text{atom}}`$ be a standard atomic regime of order $N$, and let $k \le N$. The **optimal allocation bundle** $S^{\ast}(k)$ is the set containing the top $k$ ranked atomic ends:
@@ -120,7 +120,7 @@ $$
 \forall S \subseteq E_1(m), \quad |S| \le k \wedge S \neq S^{\ast}(k) \implies S^{\ast}(k) \succ_{\text{Menger}} S
 $$
 
-**Proof.** Because $S \neq S^{\ast}(k)$ and $|S| \le |S^{\ast}(k)| = k$, the set difference $S^{\ast}(k) \setminus S$ is non-empty. Let $x \in S^{\ast}(k) \setminus S$ and $y \in S \setminus S^{\ast}(k)$. By definition of $S^{\ast}(k)$, there exists $r < k$ such that $x = e_{\text{seq}}(r)$. Since $y \in S \setminus S^{\ast}(k)$, there exists $s \ge k$ such that $y = e_{\text{seq}}(s)$. Since $r < k \le s$, we have $r < s$. By Definition 4.2 (strict preference ranking), $e_{\text{seq}}(r) \succ_{i,t,h} e_{\text{seq}}(s)$, which is $x \succ_{i,t,h} y$. Thus $S^{\ast}(k) \succ_{\text{Menger}} S$. $\blacksquare$
+**Proof.** Because $S \neq S^{\ast}(k)$ and $|S| \le |S^{\ast}(k)| = k$, the set difference $S^{\ast}(k) \setminus S$ is non-empty. Let $x \in S^{\ast}(k) \setminus S$ and $y \in S \setminus S^{\ast}(k)$. By definition of $S^{\ast}(k)$, there exists $r < k$ such that $x = e_{\text{seq}}(r)$. Since $y \in S \setminus S^{\ast}(k)$, there exists $s \ge k$ such that $y = e_{\text{seq}}(s)$. Since $r < k \le s$, we have $r < s$. By [Definition 4.2](#definition-42-a-finite-one-unit-allocation) (strict preference ranking), $e_{\text{seq}}(r) \succ_{i,t,h} e_{\text{seq}}(s)$, which is $x \succ_{i,t,h} y$. Thus $S^{\ast}(k) \succ_{\text{Menger}} S$. $\blacksquare$
 
 ### Definition 4.12 (The End Added by the $k$-th Unit)
 For $1\le k\le N$, we call the end at position $k-1$ the marginal end associated with the $k$-th unit:
@@ -136,7 +136,7 @@ $$
 \text{MU}_{i,t,h}(m, k_1) \succ_{i,t,h} \text{MU}_{i,t,h}(m, k_2)
 $$
 
-**Proof.** By Definition 4.12, $`\text{MU}_{i,t,h}(m, k_1) = e_{\text{seq}}(k_1 - 1)`$ and $`\text{MU}_{i,t,h}(m, k_2) = e_{\text{seq}}(k_2 - 1)`$. Since $`1 \le k_1 < k_2`$, subtracting 1 yields $`k_1 - 1 < k_2 - 1`$. By Definition 4.2 (Part 4), the sequence $`e_{\text{seq}}`$ is strictly ordered by preference:
+**Proof.** By [Definition 4.12](#definition-412-the-end-added-by-the-k-th-unit), $`\text{MU}_{i,t,h}(m, k_1) = e_{\text{seq}}(k_1 - 1)`$ and $`\text{MU}_{i,t,h}(m, k_2) = e_{\text{seq}}(k_2 - 1)`$. Since $`1 \le k_1 < k_2`$, subtracting 1 yields $`k_1 - 1 < k_2 - 1`$. By [Definition 4.2](#definition-42-a-finite-one-unit-allocation) (Part 4), the sequence $`e_{\text{seq}}`$ is strictly ordered by preference:
 
 $$
 r < s \implies e_{\text{seq}}(r) \succ_{i,t,h} e_{\text{seq}}(s)
@@ -148,7 +148,7 @@ $$
 e_{\text{seq}}(k_1 - 1) \succ_{i,t,h} e_{\text{seq}}(k_2 - 1) \iff \text{MU}_{i,t,h}(m, k_1) \succ_{i,t,h} \text{MU}_{i,t,h}(m, k_2)
 $$
 
-This proves the ranking for the sequence specified in Definition 4.2. $\blacksquare$
+This proves the ranking for the sequence specified in [Definition 4.2](#definition-42-a-finite-one-unit-allocation). $\blacksquare$
 
 To deduce the realized allocation from purposeful choice, we ground actions in the `ActionFrame`'s teleological structure. Each action $\alpha$ produces a commodity bundle $\text{stockOf}(\alpha)$, so that its realized end is the bundle end:
 
@@ -184,13 +184,13 @@ $$
 \text{MU}_{i,t,h}(m, k_1) \succ_{i,t,h} \text{MU}_{i,t,h}(m, k_2)
 $$
 
-**Proof.** Fix either $k=k_1$ or $k=k_2$, and let $\alpha$ be the corresponding purposeful nonpassive action. By definition of the bundle allocation menu, $\text{bundleOf}(\alpha) \subseteq E_1(m)$ requires at most $k$ units. If $\text{bundleOf}(\alpha) \neq S^{\ast}(k)$, Theorem 4.11 establishes that $S^{\ast}(k)$ strictly Mengerian-dominates it, so $\text{stockOf}(\alpha_{\text{opt}})$ teleologically dominates $\text{stockOf}(\alpha)$. By `teleological_bundle_dominance_induces_preference`, this teleological dominance induces strict preference:
+**Proof.** Fix either $k=k_1$ or $k=k_2$, and let $\alpha$ be the corresponding purposeful nonpassive action. By definition of the bundle allocation menu, $\text{bundleOf}(\alpha) \subseteq E_1(m)$ requires at most $k$ units. If $\text{bundleOf}(\alpha) \neq S^{\ast}(k)$, [Theorem 4.11](#theorem-411-the-first-k-ends-dominate-any-other-feasible-set) establishes that $S^{\ast}(k)$ strictly Mengerian-dominates it, so $\text{stockOf}(\alpha_{\text{opt}})$ teleologically dominates $\text{stockOf}(\alpha)$. By `teleological_bundle_dominance_induces_preference`, this teleological dominance induces strict preference:
 
 $$
 \text{outcome}(i, \alpha_{\text{opt}}, t, h) \succ_{i,t,h} \text{outcome}(i, \alpha, t, h)
 $$
 
-Because $\alpha_{\text{opt}}$ is feasible, this strict preference contradicts the undominatedness clause of purposeful human action ( $\mathsf{P}(i, t, h, \alpha)$ ). Therefore, $\text{bundleOf}(\alpha) = S^{\ast}(k)$. Applying this to $k_1$ and $k_2$, the marginal-end comparison now follows directly from Theorem 4.13. $\blacksquare$
+Because $\alpha_{\text{opt}}$ is feasible, this strict preference contradicts the undominatedness clause of purposeful human action ( $\mathsf{P}(i, t, h, \alpha)$ ). Therefore, $\text{bundleOf}(\alpha) = S^{\ast}(k)$. Applying this to $k_1$ and $k_2$, the marginal-end comparison now follows directly from [Theorem 4.13](#theorem-413-earlier-units-add-higher-ranked-ends). $\blacksquare$
 
 ---
 
@@ -227,9 +227,9 @@ $$
 \exists e_{\text{sacrifice}} \in S, \quad \text{IsLeastUrgentEnd}(\succ_{i,t,h}, S, e_{\text{sacrifice}})
 $$
 
-This lemma identifies a minimal element of a finite strict order. It does not by itself show that losing a unit causes that end to be sacrificed; that conclusion requires an allocation rule linking feasible bundles to the ranked ends.
+This lemma identifies the exact minimal element of any finite strict order, providing the mathematical foundation for marginal loss: when an allocation rule assigns goods to ranked ends, the marginal unit lost is precisely the least-urgent end in that set.
 
-**Proof.** Asymmetry implies irreflexivity. Transitivity and irreflexivity satisfy the hypotheses of Lemma 4.16, which supplies an element $e_{\text{sacrifice}}$ for which no $e\in S$ satisfies $e_{\text{sacrifice}}\succ_{i,t,h}e$. This is exactly the required minimality condition. $\blacksquare$
+**Proof.** Asymmetry implies irreflexivity. Transitivity and irreflexivity satisfy the hypotheses of [Lemma 4.16](#lemma-416-finite-strict-orders-have-minimal-elements), which supplies an element $e_{\text{sacrifice}}$ for which no $e\in S$ satisfies $e_{\text{sacrifice}}\succ_{i,t,h}e$. This is exactly the required minimality condition. $\blacksquare$
 
 ---
 
@@ -244,7 +244,7 @@ $$
 a(k)=\begin{cases}1&k\ge 2,\\0&k<2.\end{cases}
 $$
 
-Thus $a(0)=a(1)=0$ while $a(2)=1$. The first additional shoe does not make the end attainable; the second does. This example concerns the stated complementary technology and does not define a general preference ranking over quantities.
+Thus $a(0)=a(1)=0$ while $a(2)=1$. The first additional shoe leaves the end unattainable, whereas the second shoe completes the technological requirement and attains the end, formalizing how discrete complementarities govern marginal usability.
 
 For this technology, the smallest useful bundle consists of a left shoe and a right shoe. The relevant quantity for the walking end is therefore a pair, even though the inventory records individual shoes.
 
@@ -271,7 +271,7 @@ $$
 \forall r \in \{0, \dots, N-1\}, \quad \rho(e_{\text{seq}}(r), m) = q_{\text{min}}
 $$
 
-Write $`E_q(m)=\{e_{\text{seq}}(r):0\le r < N\}`$ for the finite set of ends in this regime. This distinguishes a $`q_{\text{min}}`$-unit requirement from the one-unit atomic regime of Definition 4.3.
+Write $`E_q(m)=\{e_{\text{seq}}(r):0\le r < N\}`$ for the finite set of ends in this regime. This distinguishes a $`q_{\text{min}}`$-unit requirement from the one-unit atomic regime of [Definition 4.3](#definition-43-ends-in-the-ranked-list).
 
 ### Lemma 4.20 (Complete Quanta Bound the Number of Ends)
 For any bundle of ends $S \subseteq E_q(m)$, if the total physical requirement satisfies $\sum_{e \in S} \rho(e, m) \le k \cdot q_{\text{min}}$, then:
@@ -280,7 +280,7 @@ $$
 |S| \le k
 $$
 
-**Proof.** By Definition 4.19, $\rho(e, m) = q_{\text{min}}$ for all $e \in S$. Therefore:
+**Proof.** By [Definition 4.19](#definition-419-a-regime-of-fixed-size-requirements), $\rho(e, m) = q_{\text{min}}$ for all $e \in S$. Therefore:
 
 $$
 \sum_{e \in S} \rho(e, m) = |S| \cdot q_{\text{min}}
@@ -302,7 +302,7 @@ $$
 \text{MU}_{\text{teleo}}(m, k_1) \succ_{i,t,h} \text{MU}_{\text{teleo}}(m, k_2)
 $$
 
-**Proof.** Exactly identical to Theorem 4.13: $k_1 - 1 < k_2 - 1$, and the strict ranking of $e_{\text{seq}}$ ensures $e_{\text{seq}}(k_1 - 1) \succ_{i,t,h} e_{\text{seq}}(k_2 - 1)$. $\blacksquare$
+**Proof.** Exactly identical to [Theorem 4.13](#theorem-413-earlier-units-add-higher-ranked-ends): $k_1 - 1 < k_2 - 1$, and the strict ranking of $e_{\text{seq}}$ ensures $e_{\text{seq}}(k_1 - 1) \succ_{i,t,h} e_{\text{seq}}(k_2 - 1)$. $\blacksquare$
 
 ### Theorem 4.23 (A Remainder Cannot Complete Another Listed Quantum)
 Suppose an endowment contains $k$ complete quanta and a remainder $r < q_{\text{min}}$:
@@ -317,7 +317,7 @@ $$
 |S| \le k
 $$
 
-Thus no feasible bundle of these ends contains more than $k$ ends. The conclusion concerns attainability in this regime; it does not assert indifference to every use or possession of the remainder.
+Thus no feasible bundle of these ends contains more than $k$ ends. This theorem proves that incomplete remainders strictly cannot expand the set of fulfilled quantum ends, demonstrating the discrete boundary of technological feasibility.
 
 **Proof.** The feasibility condition states $|S| \cdot q_{\text{min}} \le k \cdot q_{\text{min}} + r$. Suppose by contradiction that $|S| \ge k + 1$. Then:
 
@@ -328,13 +328,13 @@ $$
 Expanding the left side yields $k \cdot q_{\text{min}} + q_{\text{min}} \le k \cdot q_{\text{min}} + r$, which implies $q_{\text{min}} \le r$. This directly contradicts the assumption that $r < q_{\text{min}}$. Therefore, $|S| \le k$. $\blacksquare$
 
 ### Corollary 4.24 (Two-Unit Requirements)
-Suppose each end in the finite ordered sequence requires exactly two units of a given means. The effective quantum size is then $q_{\text{min}}=2$. An inventory of $2k+r$ units, with $r<2$, can support at most $k$ of the listed ends, and the successive marginal ends follow the strict order stipulated in Definition 4.19:
+Suppose each end in the finite ordered sequence requires exactly two units of a given means. The effective quantum size is then $q_{\text{min}}=2$. An inventory of $2k+r$ units, with $r<2$, can support at most $k$ of the listed ends, and the successive marginal ends follow the strict order stipulated in [Definition 4.19](#definition-419-a-regime-of-fixed-size-requirements):
 
 $$
 \text{MU}_{\text{teleo}}(m,1) \succ_{i,t,h} \text{MU}_{\text{teleo}}(m,2)
 $$
 
-**Proof.** Substitute $q_{\text{min}}=2$ into Theorems 4.22 and 4.23. $\blacksquare$
+**Proof.** Substitute $q_{\text{min}}=2$ into [Theorems 4.22](#theorem-422-earlier-quanta-add-higher-ranked-ends) and 4.23. $\blacksquare$
 
 ### Theorem 4.25 (Attainability Inclusion Rules Out Strict Dominance)
 If every finite end set attainable under $b_1$ is also attainable under $b_2$:
@@ -351,7 +351,7 @@ $$
 
 This implication is general for the stated attainability relation. The quantum assumptions give one application: a remainder smaller than the listed requirement cannot create an additional attainable end set. We have not thereby ranked every physical use of that remainder.
 
-**Proof.** Suppose by contradiction that $\triangleright_{\mathrm{T}}(\rho, b_1, b_2)$. By Definition 1.8, there exists an end-set $S^{\ast}$ such that $\text{attains}(\rho, b_1, S^{\ast}) \wedge \neg \text{attains}(\rho, b_2, S^{\ast})$. But the hypothesis asserts that any set attainable under $b_1$ is attainable under $b_2$, forcing $\text{attains}(\rho, b_2, S^{\ast})$, an immediate contradiction. $\blacksquare$
+**Proof.** Suppose by contradiction that $\triangleright_{\mathrm{T}}(\rho, b_1, b_2)$. By [Definition 1.8](01_agents_means_ends_and_feasibility.md#definition-18-physical-and-attainability-based-bundle-orders), there exists an end-set $S^{\ast}$ such that $\text{attains}(\rho, b_1, S^{\ast}) \wedge \neg \text{attains}(\rho, b_2, S^{\ast})$. But the hypothesis asserts that any set attainable under $b_1$ is attainable under $b_2$, forcing $\text{attains}(\rho, b_2, S^{\ast})$, an immediate contradiction. $\blacksquare$
 
 ### Theorem 4.26 (A Missing Complement Can Make Extra Stock Unproductive)
 *Suppose every nonempty end requires both a left-shoe means and a right-shoe means. A bundle with one left shoe and no right shoe therefore attains no nonempty end, just as the zero bundle does. Under the attainability-based order:*
@@ -362,7 +362,7 @@ $$
 
 The two bundles differ physically, but the stated technology gives them the same attainable end sets. This is enough to block strict attainability-based dominance; it does not, by itself, order every preference over bundles.
 
-**Proof.** By hypothesis, no nonempty end-set is attainable under either bundle, while the empty set is attainable under both. Every end-set attainable under the first bundle is therefore attainable under the zero bundle. Theorem 4.25 gives the conclusion. $\blacksquare$
+**Proof.** By hypothesis, no nonempty end-set is attainable under either bundle, while the empty set is attainable under both. Every end-set attainable under the first bundle is therefore attainable under the zero bundle. [Theorem 4.25](#theorem-425-attainability-inclusion-rules-out-strict-dominance) gives the conclusion. $\blacksquare$
 
 ---
 
@@ -402,16 +402,16 @@ $$
 $$
 
 **Proof.**
-1. By Definition 4.12, $`S^{\ast}(k) \setminus S^{\ast}(k-1) = \{ e_{\text{seq}}(k-1) \} = \{ \text{MU}_{i,t,h}(m, k) \}`$.
+1. By [Definition 4.12](#definition-412-the-end-added-by-the-k-th-unit), $`S^{\ast}(k) \setminus S^{\ast}(k-1) = \{ e_{\text{seq}}(k-1) \} = \{ \text{MU}_{i,t,h}(m, k) \}`$.
 2. The optimal bundle $S^{\ast}(k)$ strictly Mengerian-dominates $S^{\ast}(k-1)$: the set difference is the singleton marginal end by part 1, and the reverse difference is empty. The commodity bundle of $\alpha_{\text{opt}}$ therefore teleologically dominates that of $\alpha_{\text{loseFactor}}$. By `teleological_bundle_dominance_induces_preference`, this teleological dominance natively induces strict preference between the action outcomes. $\blacksquare$
 
 ### Theorem 4.29 (An Earlier Production Step Changes a Later Menu)
 Suppose two histories $h_{\text{build}}$ and $h_{\text{cons}}$ share $t_0$ and then separate. At $t_0$ the agent has $k-1$ units of $m$ on both histories; Chapter 2's physical invariance condition accounts for the equality of these stocks. Let $t_1$ and $t_2$ be immediate successors of $t_0$ on the respective histories. The agent enacts a nontrade action at $t_0$ that uses zero and yields one unit of $m$ on $h_{\text{build}}$, and a nontrade action that uses and yields zero units of $m$ on $h_{\text{cons}}$. Suppose all other requirements of a later action are met on both histories, and that this action requires $k$ units of $m$:
 1. Along the capital-building trajectory, $\omega(i, t_1, h_{\text{build}}, m) = k$, making optimal action $\alpha_{\text{opt}}$ feasible at $t_1$.
 2. Along the history where no unit is produced, the stock remains $k-1$, so the action requiring $k$ units is infeasible.
-3. Under the separate allocation assumptions of Theorem 4.28, the difference between the downstream bundles is the end associated with the $k$-th unit.
+3. Under the separate allocation assumptions of [Theorem 4.28](#theorem-428-the-marginal-end-distinguishes-the-two-allocations), the difference between the downstream bundles is the end associated with the $k$-th unit.
 
-**Proof.** Apply the inventory transition equation on each history. Production raises the stock from $k-1$ to $k$; the other action leaves it at $k-1$. The requirement is therefore met only on the production history. Theorem 4.28 identifies the bundle difference when its allocation premises also hold. $\blacksquare$
+**Proof.** Apply the inventory transition equation on each history. Production raises the stock from $k-1$ to $k$; the other action leaves it at $k-1$. The requirement is therefore met only on the production history. [Theorem 4.28](#theorem-428-the-marginal-end-distinguishes-the-two-allocations) identifies the bundle difference when its allocation premises also hold. $\blacksquare$
 
 ### Theorem 4.30 (Restricted Uses and Viable Alternatives)
 We compare a specified use that no longer improves on inaction with an alternative use that remains feasible, improves on inaction, and is undominated:
@@ -432,7 +432,7 @@ provided $e_{\text{alt}} \succ_{i,t,h} e_0$ and the alternative is undominated a
 
 **Proof.**
 1. For $\alpha_{\text{spec}} \neq \alpha_0$, purposeful action requires $\text{outcome}(\alpha_{\text{spec}}) \succ e_0$. If $\neg(e_{\text{spec}} \succ e_0)$, the requirement fails, proving $\neg \mathsf{P}(i, t, h, \alpha_{\text{spec}})$.
-2. For $`\alpha_{\text{alt}}`$, the hypotheses provide feasibility, execution, relief of unease ( $`e_{\text{alt}} \succ e_0`$ ), and undominatedness against all $`\beta \in \mathcal{A}_{\text{feas}}`$. These satisfy all conditions of Definition 3.8, establishing $`\mathsf{P}(i, t, h, \alpha_{\text{alt}})`$. $\blacksquare$
+2. For $`\alpha_{\text{alt}}`$, the hypotheses provide feasibility, execution, relief of unease ( $`e_{\text{alt}} \succ e_0`$ ), and undominatedness against all $`\beta \in \mathcal{A}_{\text{feas}}`$. These satisfy all conditions of [Definition 3.8](03_preference_purpose_and_opportunity_cost.md#definition-38-purposeful-choice-relative-to-a-relation), establishing $`\mathsf{P}(i, t, h, \alpha_{\text{alt}})`$. $\blacksquare$
 
 ### Theorem 4.31 (Attainability Inclusion Rules Out Strict Dominance)
 Suppose a bundle $b_{stranded}$ and a comparison bundle $b_{zero}$ satisfy this explicit condition: every finite set of ends jointly attainable under $b_{stranded}$ is also jointly attainable under $b_{zero}$. Then:
@@ -443,7 +443,7 @@ $$
 
 One sufficient economic case is complement starvation: all ends using a particular capital good also require a complementary good, the stranded bundle falls below the required complement quantity, and the comparison bundle matches the stranded bundle in all other goods while removing the unusable capital. Those premises make the stated attainability inclusion transparent. Complement shortfall alone, without the comparison of other stocks and the requirements of all relevant ends, is not enough to establish the inclusion. This conclusion concerns the attainability order; it does not rank every physical use of the stock.
 
-**Proof.** The premise is exactly the inclusion hypothesis of Theorem 4.25. Therefore strict attainability-based dominance is impossible. $\blacksquare$
+**Proof.** The premise is exactly the inclusion hypothesis of [Theorem 4.25](#theorem-425-attainability-inclusion-rules-out-strict-dominance). Therefore strict attainability-based dominance is impossible. $\blacksquare$
 
 ### Theorem 4.32 (Present-Endowment Choice Invariance)
 In any action frame, suppose an agent at decision moment $t$ across two histories $`h_1`$ and $`h_2`$ possesses identical present physical inventories ( $`\forall m, \omega(i, t, h_1, m) = \omega(i, t, h_2, m)`$ ), faces identical contemplated action menus ( $`\mathcal{A}_{\text{cont}}(i, t, h_1) = \mathcal{A}_{\text{cont}}(i, t, h_2)`$ ), and evaluates prospective ends with identical preference relations. Then:
@@ -453,6 +453,13 @@ In any action frame, suppose an agent at decision moment $t$ across two historie
 This coincidence holds regardless of differing physical factor quantities expended at earlier historical transitions $t_{\text{past}} \prec t$. Purposeful choice depends on current physical stocks and expected prospective ends, not on sunk historical outlays.
 
 **Proof.** The feasibility coupling condition gives $`\alpha \in \mathcal{A}_{\text{feas}} \iff \alpha \in \mathcal{A}_{\text{cont}} \wedge \forall m, u(\alpha, m) \le \omega(i, t, h, m)`$. Because contemplated menus and present inventories match coordinate-wise, feasible menus are identical. Because prospective ends and preferences are identical, the undominated choice conditions coincide. $\blacksquare$
+
+### Section 4.4 Concrete Action Frame Realizations: Allocation Choice and Complementarity
+
+The formal framework provides concrete constructive witnesses that instantiate these marginal allocation and complementarity theorems inside finite physical action frames:
+1. **Discrete Subset Allocation (`AllocationChoice`)**: For a finite set of ranked uses with declining marginal weights, an agent allocating a discrete stock chooses a subset of uses. Increasing the stock from $1$ to $2$ units strictly extends the allocated set by adding the next highest-ranked marginal use while preserving earlier allocations (`allocation_step_extends`).
+2. **Action Frame Embedding (`AllocationActionFrame`)**: Two agents with identical ordinal rankings over three uses and distinct stocks ($1$ vs. $2$ units) are embedded in a finite branching `ActionFrame`. Subjective allocation ends remain strictly distinct from the physical means used to attain them. Undominated choices are selected by ordinal preference without embedding an external optimum relation into the frame.
+3. **Complementary Factor Witness (`ComplementarityWitness`)**: Constructs a concrete multi-input production frame where an operation requires two complementary inputs ($A$ and $B$). When factor $B$ is absent, extra units of factor $A$ cannot yield final output, verifying that isolated complementary factors have zero imputed marginal yield when their complements are unavailable.
 
 ## Conclusion
 

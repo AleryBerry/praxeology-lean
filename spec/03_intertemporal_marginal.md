@@ -144,7 +144,7 @@ positive nominal rate in every monetary institution.
 
 ## 5. Seasonal saving and production
 
-[`winter_security_preference_consequences_of_explicit_premises`](../Praxeology/Marginal.lean#L1359)
+[`winter_security_preference_consequences_of_explicit_premises`](../Praxeology/Marginal.lean#L1402)
 assumes the relevant dated preferences and their ordering. It packages those
 premises into a consistency result; it does not derive seasonal saving from
 the ActionFrame axioms or establish that all saving expresses positive time

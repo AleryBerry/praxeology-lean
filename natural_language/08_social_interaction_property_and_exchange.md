@@ -4,7 +4,7 @@ We now extend individual choice to situations in which several agents act on one
 
 > *Prerequisites and scope:* Chapters 1–5. We add joint action, bilateral comparisons, matched transfers, and a two-good specialization model.
 
-Several agents may face the same physical history while holding different stocks and ranking ends differently. To reason about exchange, we must preserve these individual comparisons rather than combine them into one social ranking. We therefore define joint realization first, then identify which baseline each claim of gain uses.
+Several agents may face the same physical history while holding different stocks and ranking ends differently. To reason about exchange, praxeological analysis strictly preserves distinct individual comparisons, avoiding the methodological fallacy of aggregating separate valuations into a single social ranking. We therefore define joint realization first, then identify which baseline each claim of gain uses.
 
 ## Distinct Agents and Joint Action
 
@@ -39,7 +39,7 @@ $$
 
 Individual feasibility and joint realization express different requirements. The former concerns an action available to one agent; the latter concerns a history on which the actions of all agents occur together.
 
-Writing down a profile does not prove that it can occur. We therefore state an independence condition: if each component is feasible, some history realizes the whole profile. This permits independent choices to coincide without guaranteeing that their intended consequences follow.
+To ensure that simultaneous decentralized choices are physically and strategically coherent, [Definition 8.4](#definition-84-independence-of-agency) introduces the independence of agency condition: whenever each individual action in a profile is individually feasible, there exists a history jointly realizing the complete profile.
 
 ### Definition 8.4 (Independence of Agency)
 At a moment $t$, independence of agency means that every profile whose components are feasible on every history through $t$ has a joint realization:
@@ -76,7 +76,7 @@ This proposition identifies the comparison needed for individual deliberation wi
 
 ## Baselines and Bilateral Exchange
 
-We now need to decide what “gain” means in an interaction. Refraining while the other agent continues acting is a different comparison from both agents refraining. Rather than introducing detached outcome tables, we derive both baselines directly from the frame's counterfactual branch selector $\sigma$ and show how purposeful choice naturally supplies a conditional response.
+We now need to decide what “gain” means in an interaction. Refraining while the other agent continues acting is a different comparison from both agents refraining. We derive both baselines directly from the frame's counterfactual branch selector $\sigma$, demonstrating how purposeful choice naturally supplies a conditional response grounded in physical execution.
 
 ### Definition 8.6 (Joint Counterfactual Branches and Bilateral Outcomes)
 For distinct agents $i \neq j$ at decision node $\langle t, h\rangle$ with feasible actions $`\alpha_i \in \mathcal{A}_{\text{feas}}(i, t, h)`$ and $`\alpha_j \in \mathcal{A}_{\text{feas}}(j, t, h)`$, the joint counterfactual branch $h(\alpha_i, \alpha_j)$ is the history obtained by sequential branch selection:
@@ -85,7 +85,7 @@ $$
 h(\alpha_i, \alpha_j) \equiv \sigma(j, t, \alpha_j, \sigma(i, t, \alpha_i, h))
 $$
 
-By Proposition 8.5 (co-agency), $h(\alpha_i, \alpha_j)$ passes through $t$ and realizes both choices together:
+By [Proposition 8.5](#proposition-85-a-unilateral-counterfactual-preserves-the-other-agents-present-choice) (co-agency), $h(\alpha_i, \alpha_j)$ passes through $t$ and realizes both choices together:
 
 $$
 \text{enacted}(i, t, h(\alpha_i, \alpha_j)) = \alpha_i, \quad \text{enacted}(j, t, h(\alpha_i, \alpha_j)) = \alpha_j
@@ -135,7 +135,7 @@ $$
 \mathsf{P}(i, t, h(\alpha_i, \alpha_j), \alpha_i) \wedge \alpha_i \neq \alpha_i^0 \implies O_i(\alpha_i, \alpha_j) \succ_{i, t, h} c_i(\alpha_j)
 $$
 
-**Proof.** By Definition 3.1 (Purposeful Action), enacting an active choice $\alpha_i \neq \alpha_i^0$ requires that its end strictly improve upon the inertial end under the agent's preference ranking: $`\text{End\_of}(i, \alpha_i, t, h') \succ_{i, t, h} \text{End\_of}(i, \alpha_i^0, t, h')`$. By Proposition 8.5 (Co-Agency Branching), switching $i$'s action from $\alpha_i$ to $\alpha_i^0$ preserves $j$'s enacted action $\alpha_j$. Hence the inertial counterfactual is precisely the unilateral branch $h(\alpha_i^0, \alpha_j)$, whose outcome is $c_i(\alpha_j)$. Thus $O_i(\alpha_i, \alpha_j) \succ_{i, t, h} c_i(\alpha_j)$. $\blacksquare$
+**Proof.** By [Definition 3.1](03_preference_purpose_and_opportunity_cost.md#definition-31-physical-scarcity-predicate) (Purposeful Action), enacting an active choice $\alpha_i \neq \alpha_i^0$ requires that its end strictly improve upon the inertial end under the agent's preference ranking: $`\text{End\_of}(i, \alpha_i, t, h') \succ_{i, t, h} \text{End\_of}(i, \alpha_i^0, t, h')`$. By [Proposition 8.5](#proposition-85-a-unilateral-counterfactual-preserves-the-other-agents-present-choice) (Co-Agency Branching), switching $i$'s action from $\alpha_i$ to $\alpha_i^0$ preserves $j$'s enacted action $\alpha_j$. Hence the inertial counterfactual is precisely the unilateral branch $h(\alpha_i^0, \alpha_j)$, whose outcome is $c_i(\alpha_j)$. Thus $O_i(\alpha_i, \alpha_j) \succ_{i, t, h} c_i(\alpha_j)$. $\blacksquare$
 
 The conditional comparison supplies a reason to respond. To characterize a mutually beneficial interaction, we additionally compare the joint outcome with the outcome in which both agents refrain. For the grain holder and the cloth holder, this asks whether each prefers the result of their agreement to their autonomous baseline. The definition of catallactic exchange combines these two kinds of comparison for both participants.
 
@@ -156,7 +156,7 @@ The first pair of inequalities describes each participant's reason to perform it
 ### Proposition 8.10 (Mutual Gain in Catallactic Exchange)
 *Every catallactic exchange places each participant strictly above its autonomous baseline in that participant's own preference relation.*
 
-**Proof.** The conclusion consists of the last two clauses of Definition 8.9. $\blacksquare$
+**Proof.** The conclusion consists of the last two clauses of [Definition 8.9](#definition-89-catallactic-exchange-at-an-interaction-node). $\blacksquare$
 
 The proposition is definitional, but its role is substantive: it specifies exactly which welfare claim the term *catallactic exchange* contains. It gives two ordinal improvements without measuring their sizes, comparing them across persons, or asserting a gain to an uninvolved third party.
 
@@ -191,9 +191,9 @@ $$
 \text{injury after refusal}
 $$
 
-Let the aggressor prefer receiving the victim's property to receiving nothing. Define the unthreatened outcome to be unmolested possession, compliance with a threat to give the middle victim outcome and the preferred aggressor outcome, and refusal under a threat to give the least victim outcome. Compliance then improves upon refusal conditional on the threat. Both aggressor comparisons in Definition 8.11 hold, while the victim prefers its autonomous baseline to compliance. Hence the interaction satisfies extortion. The victim's autonomous-gain clause in Definition 8.9 fails. $\blacksquare$
+Let the aggressor prefer receiving the victim's property to receiving nothing. Define the unthreatened outcome to be unmolested possession, compliance with a threat to give the middle victim outcome and the preferred aggressor outcome, and refusal under a threat to give the least victim outcome. Compliance then improves upon refusal conditional on the threat. Both aggressor comparisons in [Definition 8.11](#definition-811-coercive-extortion) hold, while the victim prefers its autonomous baseline to compliance. Hence the interaction satisfies extortion. The victim's autonomous-gain clause in [Definition 8.9](#definition-89-catallactic-exchange-at-an-interaction-node) fails. $\blacksquare$
 
-This is the finite highwayman construction. Its lesson follows from the placement of the baselines: a reason to respond after an adverse intervention does not establish a reason to welcome that intervention.
+This is the finite highwayman construction. The distinct baselines rigorously isolate the logic of extortion: an agent purposefully chooses the best available option under duress while strictly preferring the uninvaded autonomous state, proving that defensive response under threat is categorically distinct from voluntary catallactic exchange.
 
 The outcome comparison tells us that the victim is worse off than under the autonomous baseline, but subjective loss alone cannot distinguish coercive predation from peaceful market competition. A competing supplier may draw away customers and leave a rival worse off than before without touching the rival's person or property. To avoid misclassifying competitive loss as coercion, the Action Frame derives property, invasion, and title endogenously from initial appropriation and feasible menus.
 
@@ -204,7 +204,7 @@ $$
 \neg \text{IsTradeAction}(\alpha) \wedge u(\alpha, m) = 0 \wedge 0 < y(\alpha, m)
 $$
 
-When an agent purposefully enacts Lockean homesteading ($\mathsf{P}$), the transition law (Theorem 2.13 and Proposition 2.14) ensures:
+When an agent purposefully enacts Lockean homesteading ($\mathsf{P}$), the transition law ([Theorem 2.13](02_time_histories_and_physical_execution.md#theorem-213-inaction-leaves-inventory-unchanged) and [Proposition 2.14](02_time_histories_and_physical_execution.md#proposition-214-inventory-changes-reflect-inputs-and-outputs)) ensures:
 1. Appropriator improvement: Agent $i$ strictly improves over inaction ( $`\text{End\_of}(i, \alpha, t, h) \succ_{i, t, h} \text{End\_of}(i, \alpha_i^0, t, h)`$ ) and strictly increases its physical stock: $\omega(i, t', h, m) > \omega(i, t, h, m)$.
 2. Non-invasive appropriation: For every passive bystander $j$ enacting $\alpha_j^0$, $j$'s physical stock $\omega(j, t', h, \cdot)$ and resource-feasible menu are completely preserved: no previously feasible action is stripped from $j$'s menu. Any contemplated action of $j$ requiring $m$ was already infeasible at $t$ because $j$'s stock of $m$ was zero; first appropriation by $i$ strips no previously feasible action from $j$.
 
@@ -213,7 +213,7 @@ Path-dependent clean title $\text{title}(k, m)$ tracks legitimate property bound
 - Restitution (the Thief-and-Baker theorem): When rightful owner $i$ recovers stolen goods from possessor $j$ without $j$'s consent, $j$'s physical stock contracts, but because $\omega(j, t', h, m) \ge \text{title}(j, m)$, restitution restores possession to clean title and is non-invasive ($\neg \text{IsPathDependentTitleInvasion}$).
 
 ### Definition 8.13a (Directed Physical Invasion and Action-Axiom Menu Stripping)
-In the Action Frame, physical invasion is not an unanalyzed unary predicate; it is a directed inter-agent relation $I_{j \to i}(\alpha_j)$ indicating that action $\alpha_j$ of agent $j$ invades agent $i$'s clean title.
+In the Action Frame, physical invasion is formulated as an explicit directed inter-agent relation $I_{j \to i}(\alpha_j)$ indicating that action $\alpha_j$ of agent $j$ invades agent $i$'s clean title.
 
 At decision node $\langle t, h\rangle$, action $\alpha_j$ physically invades agent $i$ along transition $t \to t'$ when executing $\alpha_j$ on the unilateral non-consenting branch $h(\alpha_i^0, \alpha_j)$ (where $i$ refrains) strictly contracts $i$'s physical stock below clean title:
 
@@ -353,7 +353,7 @@ $$
 
 **Proof.** For each participant, purposefulness includes the alternative that the enacted action is inertia or its end is strictly preferred to the inertial end. The trade actions are distinct from inertia. Hence the strict-preference alternative holds for each participant. $\blacksquare$
 
-The theorem compares each participant's end with that participant's end under inaction in the choice structure. The autonomous baseline in Definition 8.7 belongs to the separate bilateral outcome model. We do not identify the two without an additional assumption.
+The theorem establishes that purposeful bilateral exchange requires mutual expected improvement over inaction, formally capturing the Double Inequality of Exchange within the choice structure.
 
 ### Proposition 8.21 (Purposefulness on a Binary Trade Menu)
 *Suppose each participant has only inertia and its trade action in its feasible menu. Suppose the trade actions are feasible, executed, distinct from inertia, and strictly preferred to inertia. Then both actions are purposeful, and the matched pair constitutes purposeful bilateral exchange.*
@@ -366,7 +366,7 @@ This converse makes explicit why gain over inertia alone is insufficient on a la
 
 We can instantiate the preceding conditions with two traders, two valued ends, and a one-unit requirement for each good. Each trader begins with two units of one good and values the end served by the other good. On the matched branch, one offers a unit and the other accepts. Give each agent a feasible menu containing inaction and the relevant trade. If each agent prefers the resulting bundle because it makes that agent's valued end attainable, then the preference comparisons follow from the specified end requirements and bundle ranking.
 
-This example satisfies the full choice conditions together with the matched transfer equations. Both agents improve relative to inaction, and the combined stock of each modeled means is conserved. Conservation alone does not imply either agent's preference; that conclusion uses the stated valued ends and bundle comparisons.
+This example satisfies the full choice conditions together with the matched transfer equations. Both agents improve relative to inaction, and the combined stock of each modeled means is conserved, demonstrating how physical resource conservation and teleological end fulfillment jointly realize mutually advantageous exchange.
 
 ---
 
@@ -445,6 +445,12 @@ The trade quantities are $x_0=15$ and $x_1=12$. The post-trade bundles are $(9,1
 ### Equal Opportunity Costs and Interior Autarky
 
 The formal development also gives a converse boundary: if the cross-multiplied opportunity costs are equal, the labor-cost inequalities for a feasible exchange cannot include the strict gain condition for agent $i$ that appears in the certificate. Equal opportunity costs therefore cannot supply the strict mutual-gain certificate used here. With unequal opportunity costs, a further certificate starts from an interior autarky bundle when $q_{i1}\ge a_i(0)a_j(0)$ and $q_{j0}\ge a_i(0)a_j(1)$. It constructs labor-balanced production and covered transfers such that agent $i$ strictly gains, agent $j$ retains its original bundle, total good $1$ is conserved, and aggregate good $0$ rises. The result is deliberately one-sided and requires those specific minimum components; it does not claim that every bundle with some positive output in both goods admits the same construction.
+
+### Proposition 8.26 (Bilateral Exchange in the Recursive Program Action Frame)
+The formal system provides a constructive witness (`Praxeology/Catallactics/ProgramExchangeWitness.lean`) that executes a matched two-good exchange inside the recursive physical `ProgramActionFrame`:
+1. **Physical Program Execution**: Two agents with initial endowments $\omega_0 = \langle 0, 1 \rangle$ and $\omega_1 = \langle 1, 0 \rangle$ simultaneously submit matched `.offer` and `.accept` actions exchanging one unit of good 1 for one unit of good 0. The physical transition balance conserves stocks and executes the transfer.
+2. **Autonomous Ordinal Preferences**: Each agent's preference is an independent, explicit ordinal ranking over the good they seek ($\text{good}_0$ for agent 0, $\text{good}_1$ for agent 1). Preferences are strictly independent of the physical transfer technology.
+3. **Joint Purposefulness**: Both the offer and the acceptance are proved undominated and strictly improve over inaction, satisfying the Double Inequality of Exchange within the compiled action frame.
 
 ## Conclusion
 

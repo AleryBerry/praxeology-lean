@@ -46,7 +46,7 @@ action by itself also permits the passive baseline.
 
 ## 2. Demonstrated Preference with Prenex Scope Guardrail
 
-Following Definition 4.3 of *A Formalization of Austrian Economics* ($`T_{\text{prx}}`$) while dropping menu completeness (O2) in favor of undominated choice, our codebase positions the quantification over rejected alternatives strictly within the relational assertion:
+Following [Definition 4.3](../natural_language/04_marginal_allocation_and_imputation.md#definition-43-ends-in-the-ranked-list) of *A Formalization of Austrian Economics* ($`T_{\text{prx}}`$) while dropping menu completeness (O2) in favor of undominated choice, our codebase positions the quantification over rejected alternatives strictly within the relational assertion:
 
 ```lean
 def DemonstratedPref (i : Agent) (t : Moment) (h : History) (α_star β : Action) : Prop :=

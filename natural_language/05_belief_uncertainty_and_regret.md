@@ -51,8 +51,8 @@ The table below catalogs the symbols and operators introduced in this chapter:
 | $`\mu(i, \alpha, t', h_\alpha)`$ / $\text{mature}$ | Maturation Moment Map | Future moment on $h_\alpha$ at which the consequence of $\alpha$ matures ($t' \preceq \mu$). | [Definition 5.7](#definition-57-projected-ex-ante-outcome) |
 | $\text{maturedOutcome}$ | Matured Physical Outcome | The ex-post physical/teleological outcome realized at the maturation moment. | [Definition 5.7](#definition-57-projected-ex-ante-outcome) |
 | $`\widehat{O}_M(i, \alpha, t, h')`$ / $M$ | Projected Ex-Ante Outcome | Composite outcome operator $\text{maturedOutcome}(\dots, \mu(\dots), \sigma(\dots))$. | [Definition 5.7](#definition-57-projected-ex-ante-outcome) |
-| $`\text{UA}(i, t, h, \alpha)`$ | Uniform Availability | Action $\alpha$ is feasible at $(i, t, h)$ and at all projected nodes $\tau(i, t, h')$. | [Definition 5.7](#strict-causal-futurity-from-active-choice) |
-| $`\mathcal{A}_{\text{rob}}(i, t, h)`$ | Robust Menu | Feasible actions uniformly available across all minimally plausible projected nodes. | [Definition 5.7](#strict-causal-futurity-from-active-choice) |
+| $`\text{UA}(i, t, h, \alpha)`$ | Uniform Availability | Action $\alpha$ is feasible at $(i, t, h)$ and at all projected nodes $\tau(i, t, h')$. | [Definition 5.7](#definition-57-projected-ex-ante-outcome) |
+| $`\mathcal{A}_{\text{rob}}(i, t, h)`$ | Robust Menu | Feasible actions uniformly available across all minimally plausible projected nodes. | [Definition 5.7](#definition-57-projected-ex-ante-outcome) |
 | $`\mathcal{F}_{\mathrm{branch},M}(i, t, H_t, \alpha_0)`$ | Inaction Branch Feasibility | Certifies that history bundle $H_t$ contains a branch where the agent refrains. | [Definition 5.9](#definition-59-doxastic-purposeful-action-in-the-maturation-model) |
 | $`\mathsf{P}_{\mathrm{ex\text{-}ante},M}(i, t, h, \alpha^{\ast})`$ | Ex-Ante Purposeful Action | Action undominated by robust rivals across all minimally plausible histories. | [Definition 5.8](#definition-58-ex-ante-purposeful-action) |
 | $`\mathsf{P}_{\mathrm{dox},M}(i, t, H_t, h)`$ | Doxastic Purposeful Action | Action undominated by locally feasible rivals relative to history bundle $H_t$. | [Definition 5.9](#definition-59-doxastic-purposeful-action-in-the-maturation-model) |
@@ -142,7 +142,7 @@ $$
 $$
 
 **Proof.**
-1. For any $h, h' \in S$, since $S \cap \psi = \emptyset$, neither $h$ nor $h'$ belongs to $\psi$. Thus the equivalence $h \in \psi \iff h' \in \psi$ holds trivially (both are false). By Definition 5.4, $h \le_{\mathbf{P} \Uparrow \psi} h' \iff h \le_{\mathbf{P}} h'$, which implies equality of the minimal strata.
+1. For any $h, h' \in S$, since $S \cap \psi = \emptyset$, neither $h$ nor $h'$ belongs to $\psi$. Thus the equivalence $h \in \psi \iff h' \in \psi$ holds trivially (both are false). By [Definition 5.4](#definition-54-lexicographic-signal-upgrade), $h \le_{\mathbf{P} \Uparrow \psi} h' \iff h \le_{\mathbf{P}} h'$, which implies equality of the minimal strata.
 2. If $h \in \min_{\pi}(\mathbf{P} \Uparrow \psi, S)$, then $h$ must belong to $\psi$; otherwise, any element $w \in S \cap \psi$ would satisfy $w \le_{\mathbf{P} \Uparrow \psi} h$ and $\neg(h \le_{\mathbf{P} \Uparrow \psi} w)$, contradicting minimality of $h$. Since both $h, h' \in S \cap \psi$, the ordering coincides with $\mathbf{P}$, establishing equivalence with $\min_{\pi}(\mathbf{P}, S \cap \psi)$. $\blacksquare$
 
 ---
@@ -181,7 +181,7 @@ $$
 \end{aligned}
 $$
 
-The requirement that the chosen action remain feasible throughout the plausible set matters: purposefulness at the actual node alone does not establish availability at the projected nodes. The result follows because histories through a projected node share the same present endowments. If neither alternative had a strictly later maturation, their grounded bundles would coincide there, leaving no strict end comparison to support active choice. Causal futurity therefore follows from physical grounding and the stated deliberative conditions; it is not an independent assumption that every action takes time.
+Evaluating choices across the plausible set requires uniform availability: the chosen action must be feasible at every projected node. Because histories through a projected node share identical present endowments, if neither alternative matured strictly later, their grounded bundles would coincide, precluding any strict preference comparison to justify active choice. Causal futurity is thus derived directly from physical grounding and deliberative choice, establishing that every purposeful action necessarily projects into the future.
 
 An action is **uniformly available** when
 
@@ -213,7 +213,7 @@ $$
 \end{aligned}
 $$
 
-The rival clause permits trade-offs across plausible histories: a rival is excluded only if it strictly improves the result at every plausible history. The strict comparison with inaction makes this definition active; the earlier definition of purposeful choice also allowed inaction. Neither ex-ante purposefulness nor robust availability alone establishes that the agent knows how to succeed.
+The rival clause permits trade-offs across plausible histories: a rival excludes an action only when it strictly improves outcomes across every plausible branch. The strict comparison with inaction requires the chosen act to actively improve upon passivity, distinguishing subjective purpose from objective know-how (which [Chapter 6](06_knowledge_ability_and_communication.md#chapter-6-knowledge-ability-and-communication) formalizes separately).
 
 We also require a concept of purposefulness that records which historical bundle is under deliberative consideration and explicitly requires inaction to be realized on an alternative branch in that bundle. This ensures that refraining is a genuine counterfactual alternative.
 
@@ -262,14 +262,14 @@ $$
 
 We record both the branch and the maturation time for each outcome. The reference action must have been enacted on the actual history, and the alternative must be feasible there. We do not require either action to satisfy the full purposeful-choice condition, nor do we require the alternative to remain feasible at every believed node.
 
-The partition identifies histories by action, but it does not establish that two histories share the same external circumstances. We therefore distinguish branch regret from matched-context regret. For the latter, we specify a context relation and require the actual outcome and the preferred alternative outcome to belong to one context. Guaranteed regret is stronger: every admissible alternative outcome in that context must be preferred, and at least one such outcome must exist. We must justify the context relation from the application rather than infer it from the choice partition.
+The choice partition groups histories by the action chosen. To evaluate regret under invariant external circumstances, matched-context regret pairs the actual outcome and the counterfactual alternative within an explicit context relation. Guaranteed regret strengthens this comparison: every admissible alternative outcome within that context must strictly dominate the realized outcome, providing an unambiguous evaluative standard for regret.
 
-We can use the same correspondence to compare actions robustly before the event: within each plausible context, compare their outcomes for every admissible realization. This is stronger than comparing one selected branch. If all such comparisons agree with the original selector, the robust rule reduces to Definition 5.8. A finite example below shows why that agreement is an extra condition.
+We can use the same correspondence to compare actions robustly before the event: within each plausible context, compare their outcomes for every admissible realization. This is stronger than comparing one selected branch. If all such comparisons agree with the original selector, the robust rule reduces to [Definition 5.8](#definition-58-ex-ante-purposeful-action). A finite example below shows why that agreement is an extra condition.
 
 ### Theorem 5.12 (A Selected Alternative Gives a Regret Witness)
 Suppose the choice structure supplies, for each feasible alternative, a history through the decision moment on which that action is enacted. If $t$ lies on the actual history, $\beta$ is feasible there, and the selected outcome for $\beta$ is preferred to the realized outcome of the enacted reference action, then the projected model satisfies the cross-branch regret condition.
 
-**Proof.** The selection condition gives a history through the decision moment on which $\beta$ is enacted. The maturation condition supplies an evaluation moment on that history. Together with actual execution and the strict comparison, these objects satisfy each clause of Definition 5.11. $\blacksquare$
+**Proof.** The selection condition gives a history through the decision moment on which $\beta$ is enacted. The maturation condition supplies an evaluation moment on that history. Together with actual execution and the strict comparison, these objects satisfy each clause of [Definition 5.11](#definition-511-cross-branch-counterfactual-regret). $\blacksquare$
 
 We have connected feasibility to an alternative branch and an evaluated outcome. To interpret that branch as the alternative under the actual external circumstances, we still need the separate context-matching premise just defined.
 
@@ -307,7 +307,7 @@ Suppose an ex-ante purposeful action has a uniformly available feasible alternat
 
 **Proof.** Suppose the actual history is minimally plausible. By the matching and stationarity assumptions, the actual strict comparison is also the projected comparison on that minimally plausible history. Uniform availability makes the alternative a robustly available rival. Ex-ante undominatedness implies that it cannot be strictly preferred on every minimally plausible history. Since it is strictly preferred on the actual one, some distinct minimally plausible history must fail the strict comparison. If the actual history is not minimally plausible, the first disjunct holds. $\square$
 
-The first case is **doxastic surprise**. In the second, the choice was made under a plausible set containing a countervailing outcome, so the realized comparison does not show that the alternative uniformly dominated ex ante. This theorem separates surprise from exposure to an alternative whose ranking varies across plausible histories.
+The first case characterizes **doxastic surprise**, where the realized branch lay outside the agent's minimal plausibility set. The second case characterizes **recognized risk**, where the agent purposefully faced an alternative whose projected outcomes varied across plausible histories, formally distinguishing genuine cognitive surprise from deliberate risk-bearing.
 
 ## Information and the Epistemic Second-Best
 
@@ -316,7 +316,7 @@ More information need not improve the outcome under every decision rule. The fin
 ### Theorem 5.16 (A Finite Witness of Epistemic Non-Monotonicity)
 We now give a finite example where a true partial signal changes the selected action, but an unresolved factor makes that action worse on the actual state. Let the actual state be $(\text{true},\text{false})$. Inaction has rank $1$; intervention has rank $2$ only when both factors are true and rank $0$ otherwise.
 
-Under ignorance, the focal state is $(\text{false},\text{true})$, where inaction beats intervention. After learning the first factor is true, the focal state becomes $(\text{true},\text{true})$, where intervention beats inaction. But the actual second factor is false, so intervention yields rank $0$ rather than rank $1$.
+Under ignorance, the focal state is $(\text{false},\text{true})$, where inaction is preferred to intervention. After learning that the first factor is true, the focal state updates to $(\text{true},\text{true})$, making intervention preferred to inaction. Because the unresolved second factor is false on the actual state, intervention realizes rank $0$, whereas refraining would have secured rank $1$.
 
 $$
 \begin{aligned}
@@ -331,14 +331,14 @@ $$
 
 **Verification.** Under ignorance, the specified focal state ranks inaction above intervention, so the rule selects inaction. The signal that the first factor is true moves the focal state to $(\text{true},\text{true})$, where intervention has rank $2$ and is selected over inaction at rank $1$. The signal is true in the actual state $(\text{true},\text{false})$, but the unresolved second factor makes intervention yield rank $0$ there. Inaction yields rank $1$. Thus the update is true and changes the selected action, while the realized outcome falls under the stated ranking.
 
-The example refutes the universal claim that every increase in true information improves every decision. It does not imply that partial information is generally harmful. The outcome depends on how the unresolved factor interacts with the action and on how the decision rule uses the signal.
+This theorem rigorously establishes the epistemic second-best: information signals interact conditionally with unresolved variables and decision rules, proving that the value of information is governed by structural context.
 
 ## Doxastic Action and Projected Maturation
 
 We can now make the projection used in the general comparison explicit. For each plausible history, we locate the corresponding decision moment, select a branch on which the action is enacted, and evaluate its outcome at the specified maturation time.
 
 ### Definition 5.17 (Projected Maturation Outcome)
-For an agent $i$, decision moment $t$, action $\alpha$, and plausible history $h'$, let $t'=\tau(i,t,h')$ be the projected decision moment. Let $h_\alpha=\sigma(i,t',\alpha,h')$ be a history through $t'$ on which $\alpha$ is enacted. Let $\mu(i,\alpha,t',h_\alpha)$ be a maturation moment on $h_\alpha$, equal to or later than $t'$. The projected maturation outcome $M(i,\alpha,t,h')$ coincides with $\widehat O_M(i,\alpha,t,h')$ introduced in Definition 5.7:
+For an agent $i$, decision moment $t$, action $\alpha$, and plausible history $h'$, let $t'=\tau(i,t,h')$ be the projected decision moment. Let $h_\alpha=\sigma(i,t',\alpha,h')$ be a history through $t'$ on which $\alpha$ is enacted. Let $\mu(i,\alpha,t',h_\alpha)$ be a maturation moment on $h_\alpha$, equal to or later than $t'$. The projected maturation outcome $M(i,\alpha,t,h')$ coincides with $\widehat O_M(i,\alpha,t,h')$ introduced in [Definition 5.7](#definition-57-projected-ex-ante-outcome):
 
 $$
 M(i,\alpha,t,h') \equiv \widehat O_M(i,\alpha,t,h') =
@@ -347,10 +347,10 @@ $$
 
 The projection, selection, and maturation conditions ensure that the outcome is evaluated at a valid moment on a history where the action is enacted. Different plausible histories may yield different projected outcomes.
 
-The definition below compares selected outcomes over every minimally plausible history. Its rival clause uses the actual feasible menu. When a theorem instead needs a rival to be feasible at every projected node, we will explicitly use the smaller robust menu from Definition 5.7.
+The definition below compares selected outcomes over every minimally plausible history. Its rival clause uses the actual feasible menu. When a theorem instead needs a rival to be feasible at every projected node, we will explicitly use the smaller robust menu from [Definition 5.7](#definition-57-projected-ex-ante-outcome).
 
 ### Definition 5.18 (Doxastic Purposeful Action)
-An enacted action is **doxastically purposeful** at $(i,t,h)$ relative to a history bundle $H_t$ (formulating Definition 5.9 with the explicit $M(i,\alpha,t,h')$ notation) when all of the following hold:
+An enacted action is **doxastically purposeful** at $(i,t,h)$ relative to a history bundle $H_t$ (formulating [Definition 5.9](#definition-59-doxastic-purposeful-action-in-the-maturation-model) with the explicit $M(i,\alpha,t,h')$ notation) when all of the following hold:
 
 1. $h\in H_t$, the enacted action is feasible at $(i,t,h)$, and the passive baseline $\alpha_0$ is feasible there.
 2. The passive baseline is branch-feasible in $H_t$, so there is a history in the bundle on which it is enacted.
@@ -381,7 +381,7 @@ We require feasibility and a realizable inaction branch, then compare the chosen
 Projected maturation outcomes and intended ends are different objects. To move from comparisons of the former to preference comparisons of the latter, we need bridge conditions. We state them separately so that the equivalence result does not hide an appraisal assumption.
 
 ### Definition 5.19 (Doxastic-Teleological Bridges and Unanimous Appraisal)
-Write $M(i,\alpha,t,h')$ for the projected maturation outcome from Definition 5.17, and let $P=\min_{\pi}(i,t)$. The action model structure requires two bridge conditions:
+Write $M(i,\alpha,t,h')$ for the projected maturation outcome from [Definition 5.17](#definition-517-projected-maturation-outcome), and let $P=\min_{\pi}(i,t)$. The action model structure requires two bridge conditions:
 
 1. **Weak-Pareto bridge.** If action $\alpha$ yields an equal or strictly preferred maturation outcome to $\beta$ at every history in $P$, and a strictly preferred outcome at at least one history in $P$, then its intended end is strictly preferred:
 
@@ -398,7 +398,7 @@ $$
 Separately, the **unanimous-appraisal condition** at a decision node says that a strict preference between intended ends implies the corresponding strict maturation preference at every history in $P$. This is an additional premise for the general equivalence theorem below; it is not a consequence of weak-Pareto dominance alone. When $P$ is a singleton, plausible support supplies this condition for the comparisons required by the bridge.
 
 ### Theorem 5.20 (Doxastic Dominance Implies Purposeful Action)
-Suppose $t\in h$, the node satisfies the unanimous-appraisal condition of Definition 5.19, and the enacted action is doxastically purposeful. Then it satisfies the purposeful-choice condition at $(i,t,h)$:
+Suppose $t\in h$, the node satisfies the unanimous-appraisal condition of [Definition 5.19](#definition-519-doxastic-teleological-bridges-and-unanimous-appraisal), and the enacted action is doxastically purposeful. Then it satisfies the purposeful-choice condition at $(i,t,h)$:
 
 $$
 \mathsf{P}(i,t,h,\text{enacted}(i,t,h)).
@@ -461,6 +461,29 @@ Take moments $`\mathcal{T}=\{t_0,t_1,t_2\}`$ and histories $`\mathcal{H}=\{h_0,h
 There is a finite model satisfying the branching-time, inventory-transition, choice-partition, preference, and bundle-appraisal conditions stated in this chapter.
 
 **Verification.** Take moments $r,a,b,c$ and histories $`\{r,a\}`$, $`\{r,b\}`$, and $`\{r,c\}`$. Let two agents have three means, with one unit of each means at every moment, and let every action use and yield zero units. Give one agent the root menu $`\{\alpha_0,\alpha_1,\alpha_2\}`$; let the three histories enact these actions respectively. Let the second agent enact $`\alpha_0`$ on all three histories. At the leaves only $`\alpha_0`$ is feasible and enacted. Set the first agent's ends to $`e_0,e_1,e_2`$ for $`\alpha_0,\alpha_1,\alpha_2`$, and let the only strict comparison be $`e_1\succ e_0`$. Make this relation the same at all histories. Take the sole minimally plausible history to be $`\{r,b\}`$ and let projected matured outcomes equal the corresponding action ends. Inaction has its own branch, the enacted $`\alpha_1`$ strictly improves on it, and no alternative dominates $`\alpha_1`$. Stocks are constant because every input and output is zero; hence no strict bundle dominance is asserted, and the preference bridge from a strict bundle-dominance premise holds vacuously. The three histories are maximal, extensional, and branch-selection can preserve the other agent's constant action. These assignments give a finite witness for the stated compatible conditions.
+
+## Section 5.6 Independent Conjectured Scenarios and Cross-Forecast Physical Invariance
+
+In addition to history-indexed plausibility strata where anticipated outcomes are evaluated along counterfactual branches of the actual economy, the formal architecture provides an independent subjective deliberation framework (`Subjective.lean` and `Veridical.lean`).
+
+### Definition 5.26 (Subjective Scenario Systems)
+A **Scenario System** (`ScenarioSystem`) introduces an independent carrier type $\mathcal{S}$ of conjectured scenarios distinct from actual historical paths $\mathcal{H}$:
+1. **Scenario Anchor**: Each scenario $s \in \mathcal{S}$ is anchored to a specific decision moment $t \in \mathcal{T}$ via $\text{anchor}(s) = t$.
+2. **Observation Agreement**: Deliberation at $(i, t, h)$ is constrained by observation equivalence: an actor only considers scenarios matching current local observations:
+   $$\text{observeScenario}(s) = \text{observeActual}(i, t, h)$$
+3. **Scenario Menus and Ends**: Each scenario assigns a contemplated menu $\mathcal{A}_{\mathrm{menu}}(i, s)$ and associates each action with an anticipated prospective end $\text{End}_{\mathrm{scen}}(i, \alpha, s) \in \mathcal{E}$.
+4. **Subjective Plausibility and Purposefulness**: The actor evaluates actions across a nonempty set of minimally plausible scenarios $\mathrm{MinPlausible}(i, t) \subseteq \mathcal{S}$ using unanimous appraisal (`Subjective.UnanimousAppraisalRule`) and executes a purposeful act (`Subjective.PurposefulAct`).
+
+This decoupling is essential: it allows an agent to hold a mistaken or non-veridical forecast (such as expecting four units of a complementary factor to be available in an auction when physical nature only supplies two) without requiring a physically impossible history to exist within the physical `ActionFrame`.
+
+### Theorem 5.27 (Cross-Forecast Physical Invariance)
+In a veridical scenario system (`VeridicalScenarioSystem`), actual histories embed into scenarios (`embedHistory : \mathcal{H} \to \mathcal{S}`). 
+
+Suppose an agent's subjective forecast changes from scenario $s_1$ to scenario $s_2$ (where both scenarios are observation-equivalent with actual history $h$ at decision moment $t$), but the actor's enacted physical action $\alpha = \text{enacted}(i, t, h)$ remains unchanged. Then:
+$$\forall m \in \mathcal{M}, \quad \omega(i, t', h, m; s_1) = \omega(i, t', h, m; s_2)$$
+*Altering an agent's subjective beliefs, expectations, or conjectured scenarios without altering the physically enacted action has zero causal impact on actual physical stock transitions.*
+
+**Proof.** Physical inventory transitions are governed strictly by the transition balance equation $\omega(i, t', h, m) + u(\alpha, m) = \omega(i, t, h, m) + y(\alpha, m)$ ([Definition 2.12](02_time_histories_and_physical_execution.md#definition-212-the-inventory-transition-rule)). Because initial stocks $\omega(i, t, h, m)$, physical factor usage $u(\alpha, m)$, and yield $y(\alpha, m)$ depend solely on physical reality and the enacted action $\alpha$, subjective scenario labels exert zero causal pull on material stocks. $\blacksquare$
 
 ## Conclusion
 

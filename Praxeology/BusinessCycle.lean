@@ -18,6 +18,7 @@ public import Praxeology.BusinessCycle.Outcome
 public import Praxeology.BusinessCycle.BehavioralProgram
 public import Praxeology.BusinessCycle.BehavioralChoices
 public import Praxeology.BusinessCycle.IntegratedResults
+public import Praxeology.BusinessCycle.MasterResults
 public import Praxeology.BusinessCycle.DefaultWitness
 public import Praxeology.BusinessCycle.PhysicalSettlementWitness
 
@@ -68,6 +69,10 @@ under the stated terminal preference and complete finite plan menu.
 `IntegratedResults` also proves that declining either marginal loan is a
 context-matched improvement over the actual default branch under the stated
 collateral-first preference. Beliefs and preferences remain explicit inputs.
+`BusinessCycle.MasterResults` provides a general composition theorem from
+scenario-based appraisal and selected physical replay to purposeful action and
+contextual regret, plus the named fiduciary-expansion synthesis. It does not
+assume either conclusion in its premises.
 `BusinessCycle.Outcome` bundles
 physical holdings, delivered
 household services, and matched contract, repayment, default, and collateral

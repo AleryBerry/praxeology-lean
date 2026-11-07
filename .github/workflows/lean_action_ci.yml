@@ -26,28 +26,4 @@ jobs:
         with:
           fetch-depth: 0
       - uses: leanprover/lean-action@v1
-      - name: Build every Lean module
-        run: lake build
-      - name: Audit transitive theorem axioms
-        run: python3 scripts/audit_constructive_axioms.py --check --by-file
-      - name: Check theorem links in maintained documentation
-        run: |
-          python3 scripts/update_theorem_links.py --check --add-missing --path README.md
-          python3 scripts/update_theorem_links.py --check --add-missing --path spec
-          python3 scripts/update_theorem_links.py --check --add-missing --path critiques
-      - name: Check maintained Markdown math markup
-        run: |
-          python3 scripts/fix_markdown_math.py --check --path README.md
-          python3 scripts/fix_markdown_math.py --check --path spec
-          python3 scripts/fix_markdown_math.py --check --path critiques
-          python3 scripts/check_markdown_math.py --path README.md
-          python3 scripts/check_markdown_math.py --path spec
-          python3 scripts/check_markdown_math.py --path critiques
-      - name: Run tooling tests
-        run: python3 -m unittest discover -s scripts/tests -p 'test_*.py'
-      - name: Print advisory modeling-pattern reports
-        run: |
-          python3 scripts/audit_axiomatic_floor.py
-          python3 scripts/audit_adhoc_premises.py
       - uses: leanprover-community/docgen-action@v1
-

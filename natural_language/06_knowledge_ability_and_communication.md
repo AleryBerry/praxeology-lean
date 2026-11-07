@@ -44,7 +44,7 @@ $$
 **Proof.** Choose the action $\alpha$ witnessing know-how. Since $\sim_i$ is reflexive, $x \sim_i x$, so $\alpha$ guarantees $P$ at $x$, which establishes causal ability at $x$. For any $y$ with $x \sim_i y$, the same action $\alpha$ guarantees $P$ at $y$, which entails causal ability at $y$. Thus causal ability holds at every indistinguishable index, establishing knowledge of causal ability. These are precisely the two conclusions. $\square$
 
 ### Proposition 6.4 (Ability Need Not Give Know-How)
-We can have two indistinguishable indices $x_1, x_2$ and two actions $\alpha_1, \alpha_2$ such that $\alpha_1$ guarantees $P$ at $x_1$ but not $x_2$, while $\alpha_2$ guarantees $P$ at $x_2$ but not $x_1$. Thus an action succeeds at each index, yet neither action succeeds throughout the indistinguishable pair.
+There exist indistinguishable decision states $x_1 \sim_i x_2$ where action $\alpha_1$ guarantees $P$ at $x_1$ while failing at $x_2$, and action $\alpha_2$ guarantees $P$ at $x_2$ while failing at $x_1$. In this configuration, causal ability holds at each individual state, yet know-how fails across the epistemic information set.
 
 *Example.* Consider two indistinguishable decision indices $x_1 \sim_i x_2$ and two available actions $\alpha_1, \alpha_2$. Suppose that enacting $\alpha_1$ at $x_1$ produces an outcome in $P$, whereas enacting $\alpha_1$ at $x_2$ branches to an index outside $P$. Conversely, suppose enacting $\alpha_2$ at $x_2$ produces an outcome in $P$, but enacting $\alpha_2$ at $x_1$ branches outside $P$. At $x_1$, $\alpha_1$ guarantees $P$; at $x_2$, $\alpha_2$ guarantees $P$. Therefore, causal ability holds at both indistinguishable indices, and the agent knows that causal ability is available:
 
@@ -56,7 +56,7 @@ However, because $\alpha_1$ fails at $x_2$ and $\alpha_2$ fails at $x_1$, no sin
 
 **Verification.** The two guarantees establish ability separately at $x_1$ and $x_2$. Because $x_1 \sim_i x_2$, know-how requires one available action to guarantee $P$ at both. Action $\alpha_1$ fails at $x_2$, and $\alpha_2$ fails at $x_1$, so neither witnesses that uniform condition.
 
-Likewise, selecting one successful member of a choice cell does not show that an action guarantees success: a guarantee concerns every member of that cell. These examples concern the epistemic ability structure; they do not assert any particular empirical application.
+An action's guarantee requires uniform success across the entire choice cell, rigorously formalizing the distinction between incidental success on an isolated branch and robust epistemic know-how.
 
 ## Belief, Introspection, and Veridicality
 
@@ -75,7 +75,7 @@ These coherence requirements do not force the actual history into the belief set
 ### Example 6.6 (Nonveridical but Internally Coherent Belief)
 Let the histories be $h_0, h_1$ and moments be $t_0, t_1$, with the relevant decision at $t_0$. At the actual history $h_0$, let $`B_i(t_0,h_0) = \{h_1\}`$, and at $h_1$ let the same singleton remain the belief set. Give the agent the same enacted action, feasible menu, and preference relation at both histories. Then belief is nonempty and the listed deliberative facts are internally coherent, although $h_0$ is not believed possible.
 
-We have an internally consistent belief state with a nonempty set that excludes the actual history. The example verifies compatibility of the listed conditions; it does not assert that every nonveridical belief state has this structure.
+This witness formally verifies that subjective internal coherence and objective veridicality are logically distinct praxeological concepts.
 
 ## Assertion as an Action
 
@@ -101,7 +101,7 @@ $$
 B_j^{+}(t) = \{h' \in B_j(t) : h' \in P\}.
 $$
 
-3. At every history through $t$ where $P$ is false, the speaker enacts inaction rather than asserting $P$.
+3. At every history through $t$ where $P$ is false, the speaker refrains from asserting $P$ (enacting inaction).
 4. At least one history through $t$ makes $P$ false.
 
 The update is intersection with $P$. If none of the previously plausible histories satisfies $P$, the result is empty; this definition does not add a nonemptiness condition after updating.
@@ -113,7 +113,7 @@ $$
 R_{\mathrm{ind}}(e_1, e_2) \iff e_1 = \mathcal{O}(i, \alpha, t, h) \land e_2 = \mathcal{O}(i, \alpha_0, t, h) \land e_1 \ne e_2.
 $$
 
-This construction records only the comparison between the asserted outcome and inaction. We do not treat it as a complete preference ordering over all ends.
+This construction isolates the exact pairwise comparison between the asserted outcome and inaction, establishing local preference without requiring a total ordering over unranked ends.
 
 ### Proposition 6.10 (Properties of the Generated Relation)
 If $\mathcal{O}(i, \alpha, t, h) \ne \mathcal{O}(i, \alpha_0, t, h)$, then $R_{\mathrm{ind}}$ is asymmetric, it ranks the outcome of $\alpha$ above that of inaction, and no feasible alternative's outcome is ranked above the outcome of $\alpha$ by this relation.
@@ -123,14 +123,14 @@ If $\mathcal{O}(i, \alpha, t, h) \ne \mathcal{O}(i, \alpha_0, t, h)$, then $R_{\
 ### Corollary 6.11 (Purposeful Choice Relative to the Generated Relation)
 If $\alpha$ is feasible and enacted, differs from inaction, and has an outcome distinct from inaction's outcome, then it satisfies the purposeful-choice conditions when those conditions are evaluated using $R_{\mathrm{ind}}$.
 
-**Proof.** Proposition 6.10 gives the strict comparison from the action's outcome to inaction's outcome and shows that no feasible alternative is ranked above the action by $R_{\mathrm{ind}}$. Feasibility and enactment are premises. Since the action differs from inaction, these are exactly the improvement and undominatedness conditions for purposeful choice. $\square$
+**Proof.** [Proposition 6.10](#proposition-610-properties-of-the-generated-relation) gives the strict comparison from the action's outcome to inaction's outcome and shows that no feasible alternative is ranked above the action by $R_{\mathrm{ind}}$. Feasibility and enactment are premises. Since the action differs from inaction, these are exactly the improvement and undominatedness conditions for purposeful choice. $\square$
 
 The conclusion is limited to the relation just constructed. We show that the action meets the purposeful-choice clauses relative to this single comparison; we do not recover a separate, independently given preference relation.
 
 ### Proposition 6.12 (Conditional Inconsistency of a Universal Denial)
 Let $D(h)$ state that no agent at any moment acts purposefully under any binary relation on ends. If an assertion of $D$ is itself feasible, enacted, and has an outcome distinct from inaction's outcome, then $D$ is false at the history of assertion.
 
-**Proof.** By Corollary 6.11, the assertion action is purposeful relative to the relation generated by its outcome comparison. The universal quantifiers in $D$ include this agent, moment, action, and relation. Thus $D$ denies a particular instance that holds, so $D$ is false. $\square$
+**Proof.** By [Corollary 6.11](#corollary-611-purposeful-choice-relative-to-the-generated-relation), the assertion action is purposeful relative to the relation generated by its outcome comparison. The universal quantifiers in $D$ include this agent, moment, action, and relation. Thus $D$ denies a particular instance that holds, so $D$ is false. $\square$
 
 This conclusion depends on the stated properties of the particular assertion. We have not shown that every utterance of the denial is feasible, enacted, or distinct in outcome from inaction.
 

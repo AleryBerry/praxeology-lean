@@ -78,7 +78,7 @@ This proposition isolates the deliberative threshold relevant to the Lucas criti
 
 ## What an Instrumental-Variable Observation Leaves Open
 
-An exclusion restriction concerns outcomes under different instrument values and actions. A record at the action actually taken does not by itself reveal all those values.
+An exclusion restriction imposes invariance across counterfactual instrument values and unchosen actions, demanding structural assumptions beyond the single action actually realized.
 
 ### Proposition 14.4 (Observed Outcomes Need Not Determine an Exclusion Restriction)
 Let $z_1 \ne z_2$ be two instrument values and let $\alpha^{\ast} \ne \alpha'$ be two actions. There are two potential-outcome functions that agree on the outcome of $\alpha^{\ast}$ at both instrument values, while:
@@ -88,7 +88,7 @@ Let $z_1 \ne z_2$ be two instrument values and let $\alpha^{\ast} \ne \alpha'$ b
 
 **Proof.** Assign one common outcome to $\alpha^{\ast}$ at both instrument values in both functions. For every other action, let the first function be constant in the instrument. Let the second assign distinct outcomes to $\alpha'$ at $z_1$ and $z_2$. The functions agree on the specified observed-action outcomes but differ on whether the instrument changes an outcome for an unobserved action. $\square$
 
-Thus the observed-action outcomes alone do not decide the restriction. Further observations or substantive assumptions about potential outcomes are needed to do so.
+This proposition rigorously proves the epistemic underdetermination of instrumental variables: empirical observation of the enacted path leaves off-path potential outcomes unconstrained, requiring explicit theoretical assumptions to identify counterfactual effects.
 
 ## Joint Hypotheses and Auxiliary Conditions
 
@@ -98,7 +98,7 @@ $$
 \neg(H_1 \land \cdots \land H_n) \iff \neg H_1 \lor \cdots \lor \neg H_n.
 $$
 
-This is a logical fact about conjunction. It does not identify which premise failed, and by itself it says nothing about the reliability of a particular measurement, statistical procedure, or theory. To draw such conclusions, the testing procedure and its assumptions must be specified.
+This proposition formalizes the Duhem-Quine thesis: an empirical refutation of a compound theoretical prediction establishes the falsity of the conjunction $\neg (H_1 \wedge \cdots \wedge H_n)$, demonstrating that isolating the specific failed auxiliary assumption requires independent, structurally identified tests.
 
 ## Regime Labels and Equal Observations
 
@@ -107,7 +107,7 @@ The same identification argument applies when the parameter of interest is a reg
 ### Corollary 14.5 (Regime Non-identification)
 Let $r(\text{interp})$ assign a regime label to each interpretation. If $`\text{interp}_1`$ and $`\text{interp}_2`$ have equal records at $(i,t,h)$ but $`r(\text{interp}_1) \ne r(\text{interp}_2)`$, then no estimator based only on that record identifies the regime label for both interpretations.
 
-**Proof.** Apply Theorem 14.1 with the regime label $r$ as the parameter of interest. $\square$
+**Proof.** Apply [Theorem 14.1](#theorem-141-non-identification-from-equal-records) with the regime label $r$ as the parameter of interest. $\square$
 
 ## Macro-Aggregate Capital Regime Non-Identifiability
 
@@ -116,13 +116,13 @@ We can make the identification limit concrete for the absorption and liquidation
 ### Corollary 14.6 (Macro Aggregates Do Not Identify the Capital Regime)
 There exist two finite interpretations in an action frame that agree on the observed macro-aggregate action and realized output at an initial decision point but receive opposite absorption and liquidation labels from their structural factor paths. Consequently, no empirical estimator that uses only that initial macro aggregate can identify the capital regime correctly across a class containing both.
 
-**Proof.** Both interpretations share the identical initial enacted loan issuance and initial observed yield. In the absorption interpretation, complementary input stocks are sufficient, leading to successful maturation. In the liquidation interpretation, real complementary savings are deficient, leading to factor shortages and liquidation. Because their initial historical observations are identical, Theorem 14.1 precludes any estimator based solely on that initial record from identifying the regime. $\square$
+**Proof.** Both interpretations share the identical initial enacted loan issuance and initial observed yield. In the absorption interpretation, complementary input stocks are sufficient, leading to successful maturation. In the liquidation interpretation, real complementary savings are deficient, leading to factor shortages and liquidation. Because their initial historical observations are identical, [Theorem 14.1](#theorem-141-non-identification-from-equal-records) precludes any estimator based solely on that initial record from identifying the regime. $\square$
 
 ## Auxiliary Assumptions and Counterfactual Underdetermination
 
 Observed action-outcome agreement can also leave an auxiliary hypothesis undetermined. We can hold fixed the realized outcome and assign different outcomes to an action that was not taken.
 
-### Proposition 14.8 (Duhem-Quine Underdetermination of Auxiliary Claims)
+### Proposition 14.7 (Duhem-Quine Underdetermination of Auxiliary Claims)
 Let $\alpha^{\ast}$ be the observed action and $\alpha'$ a distinct feasible alternative. There exist two outcome assignments that assign the same outcome to $\alpha^{\ast}$ at the observed decision point but assign different outcomes to $\alpha'$ there.
 
 **Proof.** Assign a common end to $\alpha^{\ast}$ in both functions. Assign distinct ends to $\alpha'$ in the two functions. Since $\alpha' \neq \alpha^{\ast}$, the change leaves the realized observation pair unchanged while altering the counterfactual property. $\square$

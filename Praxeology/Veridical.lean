@@ -187,15 +187,24 @@ noncomputable def singletonForecastScenarioFrame {W : ActionFrame}
     rw [hobs]
     exact (hagree _ hmem).2
 
-/-- Changing the conjectured scenario or forecast alters the subjective intended
-end without altering physical stocks or actual feasibility. -/
+/-- Two independent singleton forecasts can change appraisal while sharing
+the same actual physical frame. The equivalence makes the scope explicit:
+intended ends differ exactly when the two forecast executions differ; actual
+endowment and feasibility remain facts of the common `ActionFrame`. -/
 theorem forecast_change_preserves_physical_inventory
-    {W : ActionFrame} (_M : SubjectiveScenarioFrame W)
+    {W : ActionFrame} (E₁ E₂ : SingletonForecastEconomy W)
     (i : W.Agent) (t : W.Moment) (h : W.History) (m : W.Means)
-    (α : W.Action) :
+    (α : W.Action) (_hmem : W.mem_hist t h) :
     W.omega i t h m = W.omega i t h m ∧
-    (α ∈ W.A_feas i t h ↔ α ∈ W.A_feas i t h) :=
-  ⟨rfl, Iff.rfl⟩
+    (α ∈ W.A_feas i t h ↔ α ∈ W.A_feas i t h) ∧
+    (((singletonForecastScenarioFrame E₁).IntendedEnd i t h α ≠
+        (singletonForecastScenarioFrame E₂).IntendedEnd i t h α) ↔
+      (E₁.scenarioEnd i α (E₁.forecastScenario i t (E₁.observeActual i t h)) ≠
+        E₂.scenarioEnd i α (E₂.forecastScenario i t (E₂.observeActual i t h)))) := by
+  refine ⟨rfl, Iff.rfl, ?_⟩
+  change (E₁.scenarioEnd i α (E₁.forecastScenario i t (E₁.observeActual i t h)) ≠
+      E₂.scenarioEnd i α (E₂.forecastScenario i t (E₂.observeActual i t h))) ↔ _
+  rfl
 
 /-!
 ## Domain Veridical Instances: Allocation, Spot Exchange, and Firm

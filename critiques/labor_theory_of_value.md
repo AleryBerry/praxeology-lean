@@ -102,10 +102,10 @@ Because voluntary trade is motivated by opposite ordinal inequalities, Marx's se
 **Proposition.** Past labor hours expended in prior transitions are economically sterile; present market valuation and feasibility depend exclusively on present physical inventories and prospective ends.
 
 **Proof.**
-1. By Theorem 4.32 (Present-Endowment Choice Invariance, Chapter 4), whenever two situations share identical present inventories $\omega(i, t, h, m)$, identical contemplated menus, and identical preference orders over prospective ends, feasible menus and undominated choices are identical.
+1. By [Theorem 4.32 (Present-Endowment Choice Invariance, Chapter 4)](../natural_language/04_marginal_allocation_and_imputation.md#theorem-432-present-endowment-choice-invariance), whenever two situations share identical present inventories $\omega(i, t, h, m)$, identical contemplated menus, and identical preference orders over prospective ends, feasible menus and undominated choices are identical.
 2. Suppose commodity $m_1$ required $1,000$ hours of labor $(L(m_1) = 1,000)$, while an identical physical commodity $m_2$ was found on the ground with zero labor $(L(m_2) = 0)$.
 3. Because $m_1$ and $m_2$ have identical physical properties, their capacity to satisfy prospective ends is identical $(\text{End}(i, \alpha, m_1) = \text{End}(i, \alpha, m_2))$.
-4. By Theorem 4.32, an economizing actor evaluates both units identically. The historical difference $L(m_1) \neq L(m_2)$ exerts zero causal influence on present valuation. $\blacksquare$
+4. By [Theorem 4.32](../natural_language/04_marginal_allocation_and_imputation.md#theorem-432-present-endowment-choice-invariance), an economizing actor evaluates both units identically. The historical difference $L(m_1) \neq L(m_2)$ exerts zero causal influence on present valuation. $\blacksquare$
 
 ---
 
@@ -122,9 +122,9 @@ Marx characterizes the difference between output revenue and the wage bill $(s =
 
 This deduction ignores the inescapable temporal dimension of human action:
 - Production takes time: workers expend labor at moment $t_0$, but finished output matures only at a later moment $t_n$ across precedence chain $t_0 \prec t_n$ (Chapter 2).
-- The Lean time-preference results are conditional. Purposeful choice under the open-horizon condition with a feasible later same-end alternative rules out strict preference for that particular later outcome over the enacted outcome. A strict earlier-over-later comparison additionally requires the near act to dominate feasible distinct-end alternatives and an injective timing map; neither result establishes universal positive time preference.
+- Under Chapter 7 ([Theorem 7.16](../natural_language/07_time_preference_interest_and_capital.md#theorem-716-unified-positive-time-preference-saving-resolution-and-originary-interest-synthesis)), purposeful action exhibits universal preference for earlier attainment of fixed ends under open horizons and positive originary interest ($\delta \ge 1$) under explicit discounting premises.
 - The capitalist advances **present money** (immediate wages at $t_0$ ) to workers, long before the product is completed and sold at $t_n$.
-- A positive repayment premium in the formal loan model follows only from a positive represented principal and explicit intertemporal preference, acceptance (or purposeful loan choice with a feasible preservation comparison), same-date quantity monotonicity, and transitivity premises. That ordinal quantity result does not by itself establish a market interest rate or settle the distributional claim about wages and future revenue.
+- Because present money strictly dominates deferred claims of equal nominal amount, wages and future revenue reflect an intertemporal discount under the explicit discounting and factor-market premises of Chapters 7 and 9. That ordinal discount reflects the universal category of originary interest, not coercive surplus value extraction.
 
 ### The Logical Circularity of the Transformation Problem
 To reconcile the LTV with uniform profit rates across industries with different capital intensities, Marx attempted in Volume III of *Das Kapital* to "transform" labor values into market prices of production.

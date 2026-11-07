@@ -46,7 +46,7 @@ The physical stocks of capital equipment, raw materials, and energy across all a
 MMT asserts that deficit-financed token creation activates unemployed labor services $m_{\text{labor}}$ without consuming scarce complementary capital stocks or disrupting existing private production structures.
 
 ### Definition 3 (The Staged Network Inflow Schedule)
-Let $d(i)$ be the assigned network distance of agent $i$ from the state currency injection node (Chapter 9, Proposition 9.24). At stage $k$, the currency increment $\delta > 0$ enters an agent's effective bid if and only if $d(i) \le k$.
+Let $d(i)$ be the assigned network distance of agent $i$ from the state currency injection node (Chapter 9, [Proposition 9.24](../natural_language/09_money_prices_and_calculation.md#proposition-924-a-downstream-bid-can-remain-below-the-wave-price)). At stage $k$, the currency increment $\delta > 0$ enters an agent's effective bid if and only if $d(i) \le k$.
 
 ### Definition 4 (The ZIRP Mandate)
 The state mandates a nominal credit interest rate equal to zero: $\text{creditRate} = 0$.
@@ -77,7 +77,7 @@ Therefore, creating nominal fiat tokens cannot transform an infeasible physical 
 **Proposition.** Injected currency does not spread uniformly across the economy; it bids scarce complementary capital away from existing private production lines, triggering mid-chain project abandonment.
 
 **Proof.**
-1. By Proposition 9.24 (Chapter 9), under a staged injection schedule, early recipients at distance $d(i) \le k$ possess expanded effective purchasing power, bidding prices up to $P_{\text{wave}}$.
+1. By [Proposition 9.24](../natural_language/09_money_prices_and_calculation.md#proposition-924-a-downstream-bid-can-remain-below-the-wave-price) (Chapter 9), under a staged injection schedule, early recipients at distance $d(i) \le k$ possess expanded effective purchasing power, bidding prices up to $P_{\text{wave}}$.
 2. Downstream private producers at distance $d(j) > k$ operate at base reservation bids $v_j < P_{\text{wave}}$.
 3. Because labor cannot produce without complementary tools and intermediate inputs $(u(\alpha, m_C) > 0)$, state-funded employers bid scarce materials and equipment away from private enterprises.
 4. Starved of complementary factors, downstream private production lines find $u(\alpha, m_C) > \omega(j, t, h, m_C)$, forcing them into physical infeasibility.
@@ -90,12 +90,12 @@ Deficit spending does not mobilize "idle slack" costlessly; it diverts scarce co
 **Proposition.** Suppressing the credit interest rate to zero severs price signals from voluntary physical saving, mathematically inducing multi-stage malinvestment clusters.
 
 **Proof.**
-1. By Chapter 7, positive originary interest $(\iota > 0)$ is an inescapable category of human action under open temporal horizons: purposeful actors strictly rank earlier satisfaction over later satisfaction.
+1. By Chapter 7 ([Theorem 7.16](../natural_language/07_time_preference_interest_and_capital.md#theorem-716-unified-positive-time-preference-saving-resolution-and-originary-interest-synthesis)), under explicit discounting and open-horizon premises, purposeful human action exhibits positive originary interest ($\delta \ge 1$): present control strictly dominates uncompensated deferred claims, and earlier attainment of a fixed end is strictly preferred to later attainment.
 2. In Chapter 10 and Chapter 13, an entrepreneur's appraisal of a multi-stage investment project compares the projected intertemporal spread against the loan interest rate.
 3. When the state forces $\text{creditRate} = 0$, long-horizon roundabout projects that fail to clear the natural time-preference hurdle $(\text{naturalRate} > 0)$ falsely appear profitable at the zero credit rate.
 4. Entrepreneurs initiate capital projects requiring lengthy gestation periods $(t_0 \prec t_1 \prec \dots \prec t_n)$.
 5. Because voluntary saving has not expanded, the complementary physical factors $m_C$ required to carry these projects to maturation do not exist in aggregate inventory.
-6. When the initial credit injection is spent, factor starvation forces the abandonment of uncompleted projects, precipitating a systemic economic bust (Chapter 13). $\blacksquare$
+6. When the initial credit injection is spent, factor starvation forces the abandonment of uncompleted projects, precipitating a systemic economic bust (Chapter 13, Master Theorem). $\blacksquare$
 
 ---
 

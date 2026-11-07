@@ -55,34 +55,81 @@ The choice is judged by the actor’s own preference at that moment; the account
 
 ## Module architecture and dependency flow
 
-The modules share common foundations and combine them in economic applications. This compact diagram shows broad composition rather than every import edge. Each box contains module names only.
+The modules share common foundations and combine them in economic applications. This diagram organizes the library into conceptual subsystems, where solid arrows (`-->`) denote primary conceptual and architectural dependencies, and dashed arrows (`-.->`) with stadium nodes (`([ ... ])`) denote concrete witnesses, countermodels, and contractual lifecycle checks.
 
 ```mermaid
 flowchart TB
-    ExactNat["ExactNat"]
-    Frame["Frame"]
-    Action["Action"]
-    Production["Production"]
-    Marginal["Marginal"]
-    Catallactics["Catallactics"]
-    CatallacticsCredit["Catallactics.Credit"]
-    EpistemicAbility["EpistemicAbility"]
-    Organization["Organization"]
-    FirmBoundary["FirmBoundary"]
-    StateMonopoly["StateMonopoly"]
-    Entrepreneurship["Entrepreneurship"]
-    CycleInfo["BusinessCycle.Information"]
-    CycleClusters["BusinessCycle.Clusters"]
-    CycleFirms["BusinessCycle.Firms"]
-    CycleDefault["BusinessCycle.DefaultWitness"]
-    BusinessCycle["BusinessCycle"]
-    EconometricLimits["EconometricLimits"]
-    BehavioralPoset["BehavioralPoset"]
-    FiniteEconomy["FiniteEconomy"]
+    %% Categorized Subgraphs
 
+    subgraph Foundations ["Foundations & Epistemic Deliberation"]
+        direction TB
+        ExactNat["ExactNat"]
+        Frame["Frame"]
+        Action["Action"]
+        Production["Production"]
+        Subjective["Subjective"]
+        Veridical["Veridical"]
+        Marginal["Marginal"]
+        EpistemicAbility["EpistemicAbility"]
+    end
+
+    subgraph Institutions ["Catallactics, Capital & Institutions"]
+        direction TB
+        Catallactics["Catallactics"]
+        CatallacticsCredit["Catallactics.Credit"]
+        Organization["Organization"]
+        FirmBoundary["FirmBoundary"]
+        StateMonopoly["StateMonopoly"]
+        Entrepreneurship["Entrepreneurship"]
+    end
+
+    subgraph Execution ["Physical Execution & Market Clearing"]
+        direction TB
+        FiniteEconomy["FiniteEconomy"]
+        ProgActionFrame["FiniteEconomy.ProgramActionFrame"]
+        Auctions["BusinessCycle.Auctions"]
+        Regimes["BusinessCycle.Regimes"]
+        FactorExec["BusinessCycle.FactorExecution"]
+        ProfileProg["BusinessCycle.ProfileProgram"]
+        Outcome["BusinessCycle.Outcome"]
+    end
+
+    subgraph CycleSynthesis ["Business Cycle Analysis & Synthesis"]
+        direction TB
+        CycleInfo["BusinessCycle.Information"]
+        CycleClusters["BusinessCycle.Clusters"]
+        CycleFirms["BusinessCycle.Firms"]
+        BehavProg["BusinessCycle.BehavioralProgram"]
+        BehavChoices["BusinessCycle.BehavioralChoices"]
+        IntegResults["BusinessCycle.IntegratedResults"]
+        MasterResults["BusinessCycle.MasterResults"]
+        BusinessCycle["BusinessCycle"]
+    end
+
+    subgraph Witnesses ["Witnesses, Countermodels & Lifecycle Checks"]
+        direction TB
+        FrameWitnesses(["Frame.Witnesses"])
+        ComplementarityWitness(["Marginal.ComplementarityWitness"])
+        AllocationActionFrame(["Marginal.AllocationActionFrame"])
+        FirmWitness(["FirmWitness"])
+        CreditLifecycle(["BusinessCycle.CreditLifecycleFrame"])
+        CycleDefault(["BusinessCycle.DefaultWitness"])
+        PhysicalSettlement(["BusinessCycle.PhysicalSettlementWitness"])
+        CycleGrounded(["BusinessCycle.Grounded"])
+    end
+
+    subgraph Limits ["Methodological Scope & Identification"]
+        direction TB
+        EconometricLimits["EconometricLimits"]
+        BehavioralPoset["BehavioralPoset"]
+    end
+
+    %% Architectural & Definitional Dependencies (Solid Arrows)
     ExactNat --> Marginal
     Frame --> Action
     Action --> Production
+    Action --> Subjective
+    Subjective --> Veridical
     Action --> Marginal
     Production --> Marginal
     Action --> EpistemicAbility
@@ -90,27 +137,51 @@ flowchart TB
     Marginal --> Catallactics
     Catallactics --> CatallacticsCredit
     CatallacticsCredit --> Entrepreneurship
-
     Catallactics --> Organization
     Organization --> FirmBoundary
     FirmBoundary --> StateMonopoly
 
+    Catallactics --> FiniteEconomy
+    FiniteEconomy --> ProgActionFrame
+    ProgActionFrame --> ProfileProg
+
+    Auctions --> Regimes
+    Regimes --> FactorExec
+    FactorExec --> ProfileProg
+    ProfileProg --> Outcome
+
     EpistemicAbility --> CycleInfo
     Entrepreneurship --> CycleInfo
     CycleInfo --> CycleClusters
-    CycleClusters --> BusinessCycle
-    CycleDefault --> BusinessCycle
-
     FirmBoundary --> CycleFirms
+
+    Outcome --> BehavProg
+    BehavProg --> BehavChoices
+    BehavChoices --> IntegResults
+    IntegResults --> MasterResults
+    MasterResults --> BusinessCycle
+
+    CycleClusters --> BusinessCycle
     CycleFirms --> BusinessCycle
 
     Marginal --> EconometricLimits
     EconometricLimits --> BehavioralPoset
 
-    Catallactics --> FiniteEconomy
+    %% Witness, Countermodel & Lifecycle Checks (Dashed Arrows)
+    Frame -. "model witness" .-> FrameWitnesses
+    Marginal -. "attainment bound" .-> ComplementarityWitness
+    Marginal -. "discrete allocation" .-> AllocationActionFrame
+    Organization -. "workshop witness" .-> FirmWitness
+    CatallacticsCredit -. "lifecycle check" .-> CreditLifecycle
+    CreditLifecycle -. "unpaid maturity" .-> CycleDefault
+    FactorExec -. "settlement check" .-> PhysicalSettlement
+    Entrepreneurship -. "2-agent witness" .-> CycleGrounded
+    CycleDefault -. "lifecycle input" .-> BusinessCycle
+    CycleGrounded -. "cohort input" .-> BusinessCycle
+    PhysicalSettlement -. "settlement input" .-> BusinessCycle
 ```
 
-The chart shows selected module dependencies; each module is linked in the coverage table below, and the root [`Praxeology.lean`](Praxeology.lean) module re-exports the public library modules.
+The chart shows selected module dependencies; solid arrows denote conceptual and architectural flows, while dashed arrows and stadium nodes represent concrete models, empirical witnesses, and contractual lifecycle checks. Each module is linked in the coverage table below, and the root [`Praxeology.lean`](Praxeology.lean) module re-exports the public library modules.
 
 ### Axioms and assumptions
 
@@ -133,7 +204,10 @@ The root module [`Praxeology.lean`](Praxeology.lean) imports the public library 
 | Module | Principal mathematical content |
 |---|---|
 | [Frame](Praxeology/Frame.lean) | Branching-time histories, action menus, endowments, preferences, ends, and physical transition laws |
+| [Frame.Witnesses](Praxeology/Frame/Witnesses.lean) | Finite branching models and bilateral trade ActionFrame witnesses |
 | [Action module](Praxeology/Action.lean) | Purposeful choice, preference, opportunity costs, plausible histories, and contextual regret |
+| [Subjective](Praxeology/Subjective.lean) | Subjective scenario systems, independent carrier type, observation agreement, appraisal rules, and purposefulness certificates |
+| [Veridical](Praxeology/Veridical.lean) | Veridical scenario embeddings, cross-forecast physical inventory invariance theorems, and domain veridical instances |
 | [Production](Praxeology/Production.lean) | Inventory steps and runs, additive stock balances, and external service accounting |
 | [ExactNat](Praxeology/ExactNat.lean) | Exact natural-number remainders and additive certificates |
 | [FiniteSupport](Praxeology/FiniteSupport.lean) | Reusable finite-set support results |
@@ -161,6 +235,8 @@ The root module [`Praxeology.lean`](Praxeology.lean) imports the public library 
 | [BusinessCycle.BehavioralProgram](Praxeology/BusinessCycle/BehavioralProgram.lean) | Project-two ActionFrame menu, local observation, four-factor forecast, and subjective purposeful acceptance proof |
 | [BusinessCycle.BehavioralChoices](Praxeology/BusinessCycle/BehavioralChoices.lean) | Purposeful household saving under an explicit terminal preference and finite plan menu |
 | [BusinessCycle.IntegratedResults](Praxeology/BusinessCycle/IntegratedResults.lean) | Project-three forecast-based purposeful acceptance plus project-two and project-three contextual-regret witnesses for their actual default branches |
+| [BusinessCycle.MasterResults](Praxeology/BusinessCycle/MasterResults.lean) | Parameterized master theorem synthesizing the eight causal links of Austrian Business Cycle Theory from credit expansion to purposeful entry, factor squeeze, malinvestment, defaults, and ex-post regret |
+| [BusinessCycle.PhysicalSettlementWitness](Praxeology/BusinessCycle/PhysicalSettlementWitness.lean) | Physical settlement witness verifying that matched repayments clear obligations and return collateral independently of behavioral certificates |
 | [FiniteEconomy.ProfileSchedule](Praxeology/FiniteEconomy/ProfileSchedule.lean) | Generic compiler from well-formed proposed profiles plus explicitly listed alternatives to a branching physical program with pre-state affordability, idle actions, unilateral branches, and an executed-history witness |
 | [BusinessCycle.Firms](Praxeology/BusinessCycle/Firms.lean) | Organized-firm specialization of the single-project entrepreneurial cycle |
 | [BusinessCycle.Grounded](Praxeology/BusinessCycle/Grounded.lean) | Finite two-agent ActionFrame witness for one entrepreneur's investment and contextual regret |

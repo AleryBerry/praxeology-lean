@@ -57,9 +57,9 @@ Suppose a strictly positive quantity of public-service output accompanies compli
 3. the subject's compliance is a purposeful response to the threat; and
 4. public service provision remains strictly positive ( $0 < \text{publicGood}(\alpha_{\text{comply}}, \alpha_{\text{tax}})$ ).
 
-**Proof.** The four preference and endogenous invasion premises satisfy all clauses in the definition of coercive extortion, classifying the interaction as a political means. Voluntary exchange requires that the state's action be non-invasive ( $\neg \text{EndogenouslyInvasiveJ}(i, j, t, t', h, \alpha_{\text{tax}})$ ), which directly contradicts the invasion premise. Positivity of the externally specified output quantity is preserved as a separate fact; it does not change the stock contraction or the preference comparisons. Compliance is purposeful because $O_i(\alpha_{\text{comply}}, \alpha_{\text{tax}}) \succ_i O_i(\alpha_0, \alpha_{\text{tax}})$. $\square$
+**Proof.** The four preference and endogenous invasion premises satisfy all clauses in the definition of coercive extortion, classifying the interaction as a political means. Voluntary exchange requires that the state's action be non-invasive ( $\neg \text{EndogenouslyInvasiveJ}(i, j, t, t', h, \alpha_{\text{tax}})$ ), which directly contradicts the invasion premise. Positivity of the externally specified output quantity is preserved as an independent physical metric; it leaves the underlying stock contraction and preference comparisons intact. Compliance is purposeful because $O_i(\alpha_{\text{comply}}, \alpha_{\text{tax}}) \succ_i O_i(\alpha_0, \alpha_{\text{tax}})$. $\square$
 
-This theorem is proven universally for all action frames. The theorem does not say that every tax is coercive by definition; its conclusion depends on the specified physical stock contraction and three preference comparisons. The public-service quantity is an external fact about realized provision, not an erasure of property violation.
+This theorem is proven universally for all action frames. It establishes the exact conditions under which fiscal extraction constitutes coercive extortion: physical stock invasion paired with the victim's ordinal preference for unmolested property over extraction. Providing a public good represents an independent physical output, leaving the structural property invasion intact.
 
 ### Proposition 12.1a (Majoritarian Coalition Extraction is Political Means)
 
@@ -73,7 +73,7 @@ $$
 
 **Proof.** The four hypotheses immediately satisfy the conditions of coercive extortion, establishing political means. Voluntary exchange requires non-invasion ( $\neg \text{EndogenouslyInvasiveJ}(i, j, t, t', h, \alpha_{\text{tax}})$ ), which directly contradicts the invasion premise. $\square$
 
-Majoritarian voting procedures do not mathematically transmute coercive extortion into voluntary exchange. The praxeological status of an act is determined by physical invasion and revealed ordinal preference, not the numerosity of the coalition enacting it.
+The praxeological status of an act is determined strictly by physical invasion and revealed ordinal preference: majoritarian voting procedures preserve the formal structure of coercive extortion, as coalition size leaves the victim's property violation and preference ranking unchanged.
 
 ## Fiscal Incidence in an Action Frame: The Calhoun Class Partition
 
@@ -120,7 +120,7 @@ $$
 \sum_{a \in \text{Cohort}} \omega_{\text{pre}}(a) < \sum_{a \in \text{Cohort}} \omega_{\text{post}}(a)
 $$
 
-However, by the conservation law of Definition 12.1b and nonnegativity of deadweight loss $L \ge 0$:
+However, by the conservation law of [Definition 12.1b](#definition-121b-fiscal-transfer-system) and nonnegativity of deadweight loss $L \ge 0$:
 
 $$
 \sum_{a \in \text{Cohort}} \omega_{\text{post}}(a) \le \left(\sum_{a \in \text{Cohort}} \omega_{\text{post}}(a)\right) + L = \sum_{a \in \text{Cohort}} \omega_{\text{pre}}(a)
@@ -137,7 +137,7 @@ $$
 
 **Proof.** Immediate from the conservation equation $\sum \omega_{\text{post}} + L = \sum \omega_{\text{pre}}$ and $L > 0$. $\blacksquare$
 
-Theorem 12.2a demonstrates that rent-seeking contests and coercive redistribution are physically negative-sum over the cohort. In the presence of dissipation, gains to net tax-consumers are strictly outweighed by the physical depletion imposed on taxpayers.
+[Theorem 12.2a](#theorem-122a-tullock-rent-seeking-dissipation-depletes-cohort) demonstrates that rent-seeking contests and coercive redistribution are physically negative-sum over the cohort. In the presence of dissipation, gains to net tax-consumers are strictly outweighed by the physical depletion imposed on taxpayers.
 
 ### Theorem 12.2b (Calhoun Taxpayer Menu Stripping)
 When the fiscal transfer system is induced by the `ActionFrame`'s physical inventory transition at $t \to t'$ on history $h$ with nontrade actions and zero physical yield in means $m$, the extraction of physical stock from a net taxpayer $b \in \text{Cohort}$ strictly strips previously feasible purposeful actions from $b$'s choice menu:
@@ -147,9 +147,9 @@ $$
 \left(\alpha \in \mathcal{A}_{\text{feas}}(b, t, h) \wedge \alpha \in \mathcal{A}_{\text{cont}}(b, t', h) \wedge \text{use}(\alpha, m) = \omega(b, t, h, m)\right) \implies \text{FeasibleMenuStripped}(b, t, t', h, \alpha)
 $$
 
-**Proof.** By Theorem 12.2, the presence of a tax-consumer forces the existence of a net taxpayer $b$ whose stock contracts: $\omega(b, t', h, m) < \omega(b, t, h, m)$. Any action $\alpha$ requiring $b$'s full initial stock has $\text{use}(\alpha, m) = \omega(b, t, h, m) > \omega(b, t', h, m)$. By the feasibility coupling condition of the Action Frame, $\alpha$ is infeasible at $t'$, proving that the state's fiscal extraction forcibly strips $\alpha$ from the taxpayer's choice menu. $\blacksquare$
+**Proof.** By [Theorem 12.2](#theorem-122-calhoun-fiscal-class-partition-theorem), the presence of a tax-consumer forces the existence of a net taxpayer $b$ whose stock contracts: $\omega(b, t', h, m) < \omega(b, t, h, m)$. Any action $\alpha$ requiring $b$'s full initial stock has $\text{use}(\alpha, m) = \omega(b, t, h, m) > \omega(b, t', h, m)$. By the feasibility coupling condition of the Action Frame, $\alpha$ is infeasible at $t'$, proving that the state's fiscal extraction forcibly strips $\alpha$ from the taxpayer's choice menu. $\blacksquare$
 
-Theorem 12.2 supplies a conservation result for one measured physical account: a net beneficiary entails a net payer. Identifying who paid requires individual-level or equivalent allocation data; classifying the transfer as coercive requires the relevant invasion and preference comparisons; and comparing welfare between persons requires a separate evaluative basis.
+[Theorem 12.2](#theorem-122-calhoun-fiscal-class-partition-theorem) supplies a conservation result for one measured physical account: a net beneficiary entails a net payer. Identifying who paid requires individual-level or equivalent allocation data; classifying the transfer as coercive requires the relevant invasion and preference comparisons; and comparing welfare between persons requires a separate evaluative basis.
 
 The same accounting conclusion applies to multi-moment inventory runs when every member's run has zero total yield in the means being tracked. Inventory balance then gives
 
@@ -230,7 +230,7 @@ Suppose a ruler's tribunal is the final arbiter in a dispute between the ruler a
 
 **Proof.** The tribunal's action is identified with the ruler's action by the adjudication condition. The feasible expansion then strictly dominates the proposed limitation, contradicting the undominatedness condition for purposeful action. $\square$
 
-Proposition 12.5 composes the adjudication rule, which identifies the tribunal's action with the ruler's, with two decision inputs: the ruler's stated preference and the expansion's feasibility. Those inputs establish when the limiting decision fails the purposefulness condition.
+[Proposition 12.5](#proposition-125-a-preferred-expansion-excludes-the-limiting-decision) composes the adjudication rule, which identifies the tribunal's action with the ruler's, with two decision inputs: the ruler's stated preference and the expansion's feasibility. Those inputs establish when the limiting decision fails the purposefulness condition.
 
 ## Protected Entry and Calculation Uncertainty
 
@@ -253,7 +253,7 @@ where $\Pi$ is the entry penalty. The operator's binary appraisal compares the o
 
 **Proof.** In the operator's binary appraisal, $U_s+\Pi > U_f$, so the executed active choice is preferred to its baseline and is purposeful. The entrant would need $U_f > U_s+\Pi$ for entry to be purposeful, contrary to the assumed inequality. $\square$
 
-Proposition 12.6 supplies a binary entry-and-continuation comparison under its stated appraisal and execution premises. An application to a particular firm supplies evidence for those premises; when its inventory run also has zero total yield in a tracked means and the protected operator's stock rises, Proposition 12.3 composes with it to establish a cohort loss.
+[Proposition 12.6](#proposition-126-entry-penalty-and-purposeful-continuation) supplies a binary entry-and-continuation comparison under its stated appraisal and execution premises. An application to a particular firm supplies evidence for those premises; when its inventory run also has zero total yield in a tracked means and the protected operator's stock rises, [Proposition 12.3](#proposition-123-a-beneficiary-requires-a-loss-in-a-zero-yield-cohort) composes with it to establish a cohort loss.
 
 ## The State Monopoly Master Synthesis
 
@@ -269,7 +269,7 @@ Then:
 1. Fiscal extraction is political, not economic: The fiscal interaction is a political means (coercive extortion) and cannot be an economic means (voluntary exchange).
 2. The monopoly arbiter cannot purposefully limit the ruler: The monopoly arbiter cannot purposefully enact a limiting decision against the ruler.
 
-**Proof.** By Theorem 12.1, the endogenously invasive tax satisfies coercive extortion and contradicts voluntary exchange. By Proposition 12.5, since the arbiter's action is identified with the ruler's and the expansion action is feasible and strictly preferred over the limitation, the limitation is strictly dominated and cannot be a purposeful act of the arbiter. $\square$
+**Proof.** By [Theorem 12.1](#theorem-121-a-public-service-quantity-does-not-alter-the-specified-coercion-comparisons), the endogenously invasive tax satisfies coercive extortion and contradicts voluntary exchange. By [Proposition 12.5](#proposition-125-a-preferred-expansion-excludes-the-limiting-decision), since the arbiter's action is identified with the ruler's and the expansion action is feasible and strictly preferred over the limitation, the limitation is strictly dominated and cannot be a purposeful act of the arbiter. $\square$
 
 ## Conclusion
 

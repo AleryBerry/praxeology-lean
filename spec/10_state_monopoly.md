@@ -10,13 +10,13 @@ The module extends property-anchored bilateral interaction and firm uncertainty 
 
 `IsMarketCompetition` in `Catallactics` now requires both participants to be non-invasive and the competitor to prefer its competitive action to conditional inaction. The existing trichotomy witness supplies all three branches.
 
-## Theorem 11.1: Taxation with public goods
+## Definition 11.1: Taxation with public goods
 
 `taxation_with_public_goods_is_extortion_not_catallactic` assumes a positive physical service quantity, invasion by the taxing party, purposeful compliance compared with punishment, dissent relative to the autonomous baseline, and a gain for the taxing party. It proves anchored extortion, failure of voluntary exchange, and `PurposefulResponseI`, while retaining positivity of the service quantity. Physical services alone do not imply consent or subjective benefit relative to autonomy.
 
 `majoritarian_coalition_tax_is_political_means` proves that majoritarian coalition voting does not transmute coercive tax extraction into economic means: even when extraction is enacted by a winning coalition $`j`$, if it is endogenously invasive against taxpayer $`i`$'s clean-title endowment, it is classified strictly as political means (`IsPoliticalMeans`) and strictly fails to be voluntary exchange (`¬ IsEconomicMeans`).
 
-## Theorem 11.2: Fiscal conservation and Calhoun class partition
+## Definition 11.2: Fiscal conservation and Calhoun class partition
 
 `FiscalTransferSystem` records natural-number endowments and nonnegative deadweight loss, with total post-transfer holdings plus loss equal to initial holdings. `calhoun_fiscal_class_partition` proves that any strict net beneficiary requires a strict net payer. `no_universal_net_subsidy` rules out universal strict gain on a **nonempty** cohort. Empty cohorts and all-zero transfers are permitted by the accounting structure. The arithmetic does not itself prove coercion or aggregate utility loss.
 
@@ -24,7 +24,7 @@ The module extends property-anchored bilateral interaction and firm uncertainty 
 
 `calhoun_action_frame_run_class_partition` extends Calhoun's law to dynamic physical execution runs (`ActionFrameInventoryRun`): across any closed multi-moment execution history under zero-yield fiscal extraction, if an institutional extractor strictly expands its physical stock of factor $`m`$, physical conservation (*Laws in Re*) guarantees that at least one subject in the taxpayer cohort experiences strict physical stock depletion.
 
-## Theorem 11.3: Production and ruler horizons
+## Lemma 11.3: Production and ruler horizons
 
 `BinaryFiscalDecision` specializes an existing `ActionFrame` to a feasible menu consisting of an active alternative and inertia. Its two local preference equivalences represent the actor's comparison of the specified returns. They are explicit modeling assumptions, not universal cardinal utility.
 
@@ -42,7 +42,7 @@ The module extends property-anchored bilateral interaction and firm uncertainty 
 
 `statutory_judicial_monopoly_self_exoneration` proves that when a sovereign magistrate holds monopoly arbitration jurisdiction over its own disputes, purposeful self-limitation against statutory expansion is praxeologically excluded.
 
-## Theorem 11.5: Protected calculation blindness and master synthesis
+## Definition 11.5: Protected calculation blindness and master synthesis
 
 `statutory_monopoly_calculation_bounds` proves that internal uncertainty can exceed spot-market uncertainty while a statutory penalty reverses the cost comparison facing entry. `statutory_monopoly_immunizes_calculation_blindness` connects those bounds to local operator and entrant decisions: the enacted protected operation is purposeful, while entry is not. The local return representations and execution are explicit hypotheses. Persistence requires these conditions to continue to hold; a single decision does not establish perpetual misallocation.
 

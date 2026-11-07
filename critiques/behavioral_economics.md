@@ -32,20 +32,20 @@ Intertemporal choice under hyperbolic discounting discounts future utility by fa
 ### 2.1 The Category Mistake of "Rationality" vs. Human Action
 The entire behavioral economics critique rests on a foundational category mistake: confusing neoclassical *mechanical maximization* with praxeological *purposeful action*.
 1. **The Neoclassical Straw Man:** Neoclassical economics defined "rationality" as an omniscient computer maximizing an invariant, continuous, context-free cardinal utility function with perfect foresight.
-2. **The Praxeological Axiom:** Praxeology never endorsed *Homo Economicus*. In praxeology, rationality is identical to purposeful action: an acting human being deliberately employs scarce physical means to relieve what they subjectively perceive as their most urgent felt unease at that concrete moment (Chapter 1, Definition 1.1; Chapter 3, Definition 3.1).
+2. **The Praxeological Axiom:** Praxeology never endorsed *Homo Economicus*. In praxeology, rationality is identical to purposeful action: an acting human being deliberately employs scarce physical means to relieve what they subjectively perceive as their most urgent felt unease at that concrete moment (Chapter 1, [Definition 1.1](../natural_language/01_agents_means_ends_and_feasibility.md#definition-11-the-basic-vocabulary-of-an-action-frame); Chapter 3, [Definitions 3.8](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-38-purposeful-choice-relative-to-a-relation)–[3.9](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-39-purposeful-choice-under-the-agents-preference)).
 3. Whenever an experimental subject chooses alternative $A$ over $B$ in a laboratory experiment, they act purposefully. They do not demonstrate "irrationality"; they demonstrate that human beings are sensitive to context, language, perspective, and the psychological meaning of words.
 
 ### 2.2 Simon's Bounded Contemplation as Purposeful Attention Economizing
 Herbert Simon coined the term "bounded rationality" to describe human beings who "satisfice" rather than optimize, arguing that computational limits prevent full rationality.
 
-Praxeologically, cognitive attention is itself a scarce physical means (Chapter 1, Definition 1.3):
-1. In an action frame, an agent's contemplated action menu $`\mathcal{A}_{\text{cont}}(i, t, h)`$ is finite (Chapter 1, Definition 1.4). Deliberating, computing, and researching options consumes scarce physical time and metabolic energy.
-2. An agent who chooses an undominated action within their feasible menu ( $`\mathcal{A}_{\text{feas}} \subseteq \mathcal{A}_{\text{cont}}`$ ) without contemplating an infinite array of uncontemplated actions $`\gamma \notin \mathcal{A}_{\text{cont}}`$ is acting with complete praxeological purposefulness (Chapter 3, Proposition 3.37). Economizing mental effort is not a failure of rationality; it is purposeful economizing of scarce cognitive resources.
+Praxeologically, cognitive attention is itself a scarce physical means (Chapter 1, [Definition 1.3](../natural_language/01_agents_means_ends_and_feasibility.md#definition-13-input-depletion-and-output-yield-functions)):
+1. In an action frame, an agent's contemplated action menu $`\mathcal{A}_{\text{cont}}(i, t, h)`$ is finite (Chapter 1, [Definition 1.4](../natural_language/01_agents_means_ends_and_feasibility.md#definition-14-action-menus-contemplation-and-feasibility)). Deliberating, computing, and researching options consumes scarce physical time and metabolic energy.
+2. An agent who chooses an undominated action within their feasible menu ( $`\mathcal{A}_{\text{feas}} \subseteq \mathcal{A}_{\text{cont}}`$ ) without contemplating an infinite array of uncontemplated actions $`\gamma \notin \mathcal{A}_{\text{cont}}`$ is acting with complete praxeological purposefulness (Chapter 3, [Proposition 3.37](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-337-bounded-contemplation-and-purposeful-action)). Economizing mental effort is not a failure of rationality; it is purposeful economizing of scarce cognitive resources.
 
 ### 2.3 Contextual Posets and Node-Indexed Consistency
 Behavioral economists claim that framing effects prove human preferences are intransitive and contradictory.
 
-As proved in our constructive formalization (Chapter 3, Proposition 3.32), this claim is mathematically false:
+As proved in our constructive formalization (Chapter 3, [Proposition 3.32](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-332-framing-reversals-require-context-distinction)), this claim is mathematically false:
 1. Preference rankings do not exist in a platonic vacuum; they are grounded at a specific historical choice node $\langle t, h \rangle$.
 2. The relation $e_1 \succ_{t_1, h_1} e_2$ and $e_2 \succ_{t_2, h_2} e_1$ does not violate asymmetry within either decision node. The two frames represent distinct linguistic and psychological contexts, steering the agent onto distinct history branches. Within each context, preference forms a mathematically rigorous strict partial order (strict poset).
 
@@ -62,7 +62,7 @@ $$
 \mathsf{P}(i, t, h, \alpha) \wedge \gamma \notin \mathcal{A}_{\text{cont}}(i, t, h) \implies \gamma \notin \mathcal{A}_{\text{feas}}(i, t, h) \wedge \forall \beta \in \mathcal{A}_{\text{feas}}(i, t, h), \neg(\text{outcome}(\beta) \succ_{i,t,h} \text{outcome}(\alpha))
 $$
 
-**Proof.** By the feasibility coupling condition (Chapter 1, Definition 1.4), $`\beta \in \mathcal{A}_{\text{feas}} \implies \beta \in \mathcal{A}_{\text{cont}}`$. Since $`\gamma \notin \mathcal{A}_{\text{cont}}`$, it cannot be feasible. The second clause is direct from the undominatedness condition of purposeful action (Chapter 3, Proposition 3.37). Purposeful action requires optimality only over the contemplated feasible set, not over an omniscient universe of unconsidered options. $\blacksquare$
+**Proof.** By the feasibility coupling condition (Chapter 1, [Definition 1.4](../natural_language/01_agents_means_ends_and_feasibility.md#definition-14-action-menus-contemplation-and-feasibility)), $`\beta \in \mathcal{A}_{\text{feas}} \implies \beta \in \mathcal{A}_{\text{cont}}`$. Since $`\gamma \notin \mathcal{A}_{\text{cont}}`$, it cannot be feasible. The second clause is direct from the undominatedness condition of purposeful action (Chapter 3, [Proposition 3.37](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-337-bounded-contemplation-and-purposeful-action)). Purposeful action requires optimality only over the contemplated feasible set, not over an omniscient universe of unconsidered options. $\blacksquare$
 
 ### Theorem 2 (Loss Aversion Grounded in Endowment Differentiation)
 Reference-dependent choice is an instance of contextual valuation across histories with distinct initial physical endowments. If an agent evaluates an outcome from a gain history $h_{\text{gain}}$ versus a loss history $h_{\text{loss}}$ at moment $t$ such that the physical stock of means $m$ strictly differs:
@@ -71,7 +71,7 @@ $$
 \omega(i, t, h_{\text{gain}}, m) > \omega(i, t, h_{\text{loss}}, m) \implies h_{\text{gain}} \neq h_{\text{loss}}
 $$
 
-**Proof.** Direct from Chapter 3, Proposition 3.33. By bundle invariance of physical endowments (Chapter 2), histories sharing a common node have identical stocks. A divergence in physical holdings implies the agent is positioned on separate branches of history. Evaluating prospects differently when one is richer versus poorer is not a psychological anomaly, but an ordinal evaluation from distinct physical baselines. $\blacksquare$
+**Proof.** Direct from Chapter 3, [Proposition 3.33](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-333-loss-aversion-grounded-in-endowment-distinction). By bundle invariance of physical endowments (Chapter 2), histories sharing a common node have identical stocks. A divergence in physical holdings implies the agent is positioned on separate branches of history. Evaluating prospects differently across unequal endowment states reflects coherent ordinal evaluation from distinct physical baselines. $\blacksquare$
 
 ### Theorem 3 (Hyperbolic Discounting as Intertemporal Evolution)
 Preference reversals between immediate and delayed ends across distinct moments:
@@ -82,7 +82,7 @@ $$
 
 are fully consistent with strict poset transitivity at each separate temporal stage.
 
-**Proof.** Chapter 3, Proposition 3.34. The disjunction $t_1 \neq t_2 \vee h_1 \neq h_2$ reduces to $t_1 \neq t_2$. Changing one's mind over time does not violate preference asymmetry at any single moment; each choice is purposeful at the historical moment it is enacted. $\blacksquare$
+**Proof.** Chapter 3, [Proposition 3.34](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-334-hyperbolic-discounting-reversals-require-distinct-evaluation-moments). The disjunction $t_1 \neq t_2 \vee h_1 \neq h_2$ reduces to $t_1 \neq t_2$. Changing one's mind over time does not violate preference asymmetry at any single moment; each choice is purposeful at the historical moment it is enacted. $\blacksquare$
 
 ### Theorem 4 (Asymmetry of Self-Precommitment vs. Coercive Menu Stripping)
 There is an absolute praxeological asymmetry between autonomous self-precommitment and paternalistic coercive intervention:
@@ -93,7 +93,7 @@ $$
 I_{j \to i}(\alpha_{\text{nudge}}) \implies \text{PoliticalMeans} \wedge \neg \text{EconomicMeans}
 $$
 
-**Proof.** Direct from Chapter 3, Proposition 3.39 and Chapter 12, Theorem 12.1. Paternalistic regulation cannot be justified as a "precommitment device," because it replaces the agent's voluntary self-discipline with unilateral physical coercion. $\blacksquare$
+**Proof.** Direct from Chapter 3, [Proposition 3.39](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-339-autonomous-self-precommitment-vs-external-menu-stripping) and Chapter 12, [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-a-public-service-quantity-does-not-alter-the-specified-coercion-comparisons). Paternalistic regulation cannot be justified as a "precommitment device," because it replaces the agent's voluntary self-discipline with unilateral physical coercion. $\blacksquare$
 
 ---
 
@@ -103,7 +103,7 @@ $$
 Thaler and Sunstein advocate "libertarian paternalism," asserting that governments can "nudge" citizens toward choices they *would* have made if they possessed perfect information and self-control, without restricting freedom.
 
 This doctrine collapses on foundational praxeological grounds:
-1. **The Epistemic Conceit:** The government planner has no access to the citizen's true subjective scale of ends (Chapter 14, Theorem 14.1). What the bureaucrat calls a "cognitive bias" (e.g., eating cake, smoking, or saving less) is the citizen's deliberate, demonstrated preference for immediate consumption over future health.
+1. **The Epistemic Conceit:** The government planner has no access to the citizen's true subjective scale of ends (Chapter 14, [Theorem 14.1](../natural_language/14_historical_observation_and_identification.md#theorem-141-non-identification-from-equal-records)). What the bureaucrat calls a "cognitive bias" (e.g., eating cake, smoking, or saving less) is the citizen's deliberate, demonstrated preference for immediate consumption over future health.
 2. **The Inevitability of Coercion:** Whenever a state nudge mandates default options, levies sin taxes, or bans product choices, it deploys the coercive machinery of territorial monopoly (Chapter 12). If the intervention is genuinely voluntary, it is redundant; if it is compulsory, it is political extortion.
 
 ### 4.2 The "Rationality as Conformity to Calculus" Error
@@ -120,4 +120,4 @@ Behavioral economics provided valuable empirical proof that the neoclassical mod
 Praxeology reconstructs behavioral phenomena on apodictic foundations:
 1. **Universal Purposefulness:** All human action is purposeful, directed toward the relief of felt unease within the actor's subjective horizon (Chapter 1; Chapter 3).
 2. **Context-Dependent Ordinal Posets:** Framing effects, reference points, and loss aversion reflect the situated, contextual nature of human consciousness, instantiated as mathematically valid strict partial orders across decision nodes (Chapter 3).
-3. **The Sovereign Individual:** Because subjective ends are known only to the acting individual, no state planner or behavioral architect can ever know what is "best" for another human being. True welfare maximization consists of unhampered voluntary exchange and absolute respect for clean-title boundaries (Chapter 8, Theorem 8.15; Chapter 12, Theorem 12.1).
+3. **The Sovereign Individual:** Because subjective ends are known only to the acting individual, no state planner or behavioral architect can ever know what is "best" for another human being. True welfare maximization consists of unhampered voluntary exchange and absolute respect for clean-title boundaries (Chapter 8, [Theorem 8.15](../natural_language/08_social_interaction_property_and_exchange.md#theorem-815-the-three-stated-categories-are-pairwise-disjoint); Chapter 12, [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-a-public-service-quantity-does-not-alter-the-specified-coercion-comparisons)).

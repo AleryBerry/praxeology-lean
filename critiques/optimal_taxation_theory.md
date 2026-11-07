@@ -30,20 +30,20 @@ where $\theta$ is the marginal shadow cost of public funds.
 
 ### 2.1 The Category Error of Social Welfare Maximization
 The objective function of optimal taxation theory, $\sum \lambda_i U_i$, is mathematically illegitimate:
-1. As proved in Chapter 3 (Assumption 3.3), subjective utility is strictly ordinal. Utility exists as an asymmetric ranking of alternatives at a specific choice node; it has no intensive cardinal magnitude and no common unit of measurement.
+1. As established in Chapter 3 ([Assumption 3.3](../natural_language/03_preference_purpose_and_opportunity_cost.md#assumption-33-strict-asymmetry-of-preference) and [Proposition 3.4](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-34-derived-strict-irreflexivity-of-preference)), subjective utility is strictly ordinal. Utility exists as an asymmetric ranking of alternatives at a specific choice node; it has no intensive cardinal magnitude and no common unit of measurement.
 2. Summing cardinal utility indices across distinct individuals ($U_i + U_j$) commits a mathematical category error analogous to adding temperatures and lengths ($u_i \not\sim u_j$). Weighting them with arbitrary distributive weights $\lambda_i$ merely disguises personal ethical value judgments in the pseudoscientific language of mathematical calculus.
 
 ### 2.2 The Epistemic Impossibility of Incentive Compatibility
 Mirrlees optimal tax models assume the planner knows the aggregate distribution of skills $F(w)$ and the exact mathematical functional form of agents' utility functions $U_i(c, l)$.
 
 Praxeologically, this information is strictly inaccessible to any central observer:
-1. Individual abilities and subjective trade-offs between leisure and production are never revealed in isolation; they are discovered and demonstrated only through real-time action within market institutions (Chapter 6, Proposition 6.1; Chapter 14, Theorem 14.1).
+1. Individual abilities and subjective trade-offs between leisure and production are never revealed in isolation; they are discovered and demonstrated only through real-time action within market institutions (Chapter 6, [Definition 6.1](../natural_language/06_knowledge_ability_and_communication.md#definition-61-guarantee-and-causal-ability); Chapter 14, [Theorem 14.1](../natural_language/14_historical_observation_and_identification.md#theorem-141-non-identification-from-equal-records)).
 2. Elasticities of demand ($\epsilon_k$) and labor supply are not invariant physical constants like the velocity of light. They are historical, transient records of past choices that fluctuate unpredictably with changes in subjective time preference, expectations, and entrepreneurial opportunities.
 
 ### 2.3 The Disregard of Physical Stock Conservation
 Optimal taxation theory models taxes as frictionless scalar deductions from a continuous output stream $Y$. 
 
-In the physical world, production requires concrete complementary factor combinations (Chapter 4, Definition 4.10; Chapter 8, Theorem 8.13b). Levying a tax contracts the physical stock of capital goods $\omega(i, t, h, m)$ available to producers, stripping previously feasible production processes from their menus and distorting the multi-stage structure of capital.
+In the physical world, production requires concrete complementary factor combinations (Chapter 4, [Definition 4.10](../natural_language/04_marginal_allocation_and_imputation.md#definition-410-comparison-of-two-allocated-sets); Chapter 8, [Theorem 8.13b](../natural_language/08_social_interaction_property_and_exchange.md#theorem-813b-action-axiom-menu-stripping-equivalence)). Levying a tax contracts the physical stock of capital goods $\omega(i, t, h, m)$ available to producers, stripping previously feasible production processes from their menus and distorting the multi-stage structure of capital.
 
 ---
 
@@ -76,7 +76,7 @@ If the extraction is endogenously invasive of taxpayer $i$'s clean-title endowme
 2. The interaction strictly fails to be an economic means (voluntary exchange);
 3. Physical service provision remains strictly positive, but does not alter the coercive classification.
 
-**Proof.** Direct from Chapter 12, Theorem 12.1. Positivity of the physical service quantity is an external accounting fact; it cannot erase the physical invasion of clean title ($I_{j \to i}$) or the ordinal preference comparison demonstrating dissent relative to the unmolested baseline. $\blacksquare$
+**Proof.** Direct from Chapter 12, [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-a-public-service-quantity-does-not-alter-the-specified-coercion-comparisons). Positivity of the physical service quantity is an external accounting fact; it cannot erase the physical invasion of clean title ($I_{j \to i}$) or the ordinal preference comparison demonstrating dissent relative to the unmolested baseline. $\blacksquare$
 
 ### Theorem 3 (Calhoun Cohort Fiscal Partition)
 Let $F$ be any fiscal transfer system over finite cohort $C$ satisfying physical conservation:
@@ -87,7 +87,7 @@ $$
 
 If any agent in $C$ is a net tax-consumer ( $\omega_{\text{pre}}(s) < \omega_{\text{post}}(s)$ ), there must exist at least one agent in $C$ who is a net taxpayer ( $\omega_{\text{post}}(b) < \omega_{\text{pre}}(b)$ ). Furthermore, if administrative and compliance friction is positive ( $`\text{deadweight\_loss} > 0`$ ), aggregate cohort physical holdings strictly contract.
 
-**Proof.** Chapter 12, Theorem 12.2 and Theorem 12.2a. It is mathematically impossible for a fiscal tax system to universally enrich all members of a cohort. $\blacksquare$
+**Proof.** Chapter 12, [Theorem 12.2](../natural_language/12_state_and_fiscal_political_economy.md#theorem-122-calhoun-fiscal-class-partition-theorem) and [Theorem 12.2a](../natural_language/12_state_and_fiscal_political_economy.md#theorem-122a-tullock-rent-seeking-dissipation-depletes-cohort). It is mathematically impossible for a fiscal tax system to universally enrich all members of a cohort. $\blacksquare$
 
 ---
 
@@ -98,13 +98,13 @@ Neoclassical public finance posits that a head tax (lump-sum tax) generates zero
 
 Praxeologically, this is an illusion resulting from ignoring physical factor constraints:
 1. A lump-sum tax forces the physical surrender of scarce means $\omega(i, t, h, m)$ under penalty of invasive punitive force ($I_{j \to i}$).
-2. Contracting physical endowments directly strips previously feasible actions from the taxpayer's menu (Chapter 8, Theorem 8.13b), forcing taxpayers to adjust their intertemporal plans and capital maintenance.
+2. Contracting physical endowments directly strips previously feasible actions from the taxpayer's menu (Chapter 8, [Theorem 8.13b](../natural_language/08_social_interaction_property_and_exchange.md#theorem-813b-action-axiom-menu-stripping-equivalence)), forcing taxpayers to adjust their intertemporal plans and capital maintenance.
 3. Every tax redistributes resources coercively, creating a Calhoun partition between net payers and net consumers. No tax can ever be economically neutral.
 
 ### 4.2 The "Excess Burden" Misconception
 Optimal taxation treats the "excess burden" (Harberger triangles) as an uncollected dollar surplus that could have been captured. 
 
-Praxeology recognizes that the true cost of taxation is not an unmeasured geometric area on a supply-and-demand diagram, but the deliberate suppression of human action:
+Praxeology identifies the true cost of taxation as the physical disruption and suppression of purposeful human action:
 - Viable production processes are shut down when gross returns fall below the tax threshold (Theorem 1);
 - Factor investments are diverted into tax avoidance, accounting maneuvers, and political lobbying;
 - The capital structure is depleted through coercive consumption by net tax-consumers (Chapter 12).
@@ -116,6 +116,6 @@ Praxeology recognizes that the true cost of taxation is not an unmeasured geomet
 Optimal taxation theory represents an attempt to provide an intellectual veneer of scientific optimization to the institutional extraction of wealth.
 
 Praxeology reconstructs the economic analysis of taxation on apodictic foundations:
-1. **Taxation is an Act of Hegemony:** By definition, taxation is an extraction of physical means executed via unilateral political command rather than bilateral catallactic exchange (Chapter 12, Theorem 12.1).
+1. **Taxation is an Act of Hegemony:** By definition, taxation is an extraction of physical means executed via unilateral political command, structurally distinct from bilateral catallactic exchange (Chapter 12, [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-a-public-service-quantity-does-not-alter-the-specified-coercion-comparisons)).
 2. **Strict Invariance of Welfare Loss:** Because a coerced taxpayer demonstrates dissent relative to their unmolested baseline ( $O_i(\alpha_0, \alpha_0) \succ_i O_i(\alpha_{\text{comply}}, \alpha_{\text{tax}})$ ), taxation mathematically demonstrates a subjective welfare loss for the taxpayer. No social welfare function can overturn this revealed preference.
 3. **The Impossibility of Scientific "Optimal" Rates:** Because subjective values are unobservable, ordinal, and fluctuating, the search for an "optimal" tax rate is an epistemic impossibility. The state cannot optimize social utility; it can only redistribute physical endowments from net producers to net consumers at the cost of capital depletion and rent dissipation.

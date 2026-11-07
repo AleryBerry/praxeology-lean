@@ -54,7 +54,7 @@ Y^{\text{SNA}}(t) = GO(t) - \sum_{k=0}^{n-1} \sum_{j} P_{j,k}(t) \cdot u(\alpha_
 $$
 
 ### Definition 2 (Gross Investment vs. Capital Depreciation)
-Under the physical inventory transition law of Chapter 2 (Theorem 2.13):
+Under the physical inventory transition law of Chapter 2 ([Definition 2.11](../natural_language/02_time_histories_and_physical_execution.md#definition-211-physical-execution-and-guarantees) and [Definition 2.12](../natural_language/02_time_histories_and_physical_execution.md#definition-212-the-inventory-transition-rule)):
 
 $$
 \omega(i, t', h', m_K) = \omega(i, t, h, m_K) - u(\alpha_{\text{deprec}}, m_K) + y(\alpha_{\text{invest}}, m_K)
@@ -63,7 +63,7 @@ $$
 GDP defines private investment strictly in gross terms: $I(t) = \sum P_K y(\alpha_{\text{invest}}, m_K)$, omitting physical capital wear, obsolescence, and destruction $u(\alpha_{\text{deprec}}, m_K)$.
 
 ### Definition 3 (Coercive Government Outlays at Factor Cost)
-The state apparatus extracts resources coercively via taxation (political means (coercive extortion), Chapter 12, Theorem 12.1, 12.2) and purchases physical inputs: $u(\alpha_{\text{state}}, m) > 0$. The SNA decrees government output value to be identical to administrative monetary expenditure:
+The state apparatus extracts resources coercively via taxation (political means (coercive extortion), Chapter 12, [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-a-public-service-quantity-does-not-alter-the-specified-coercion-comparisons), 12.2) and purchases physical inputs: $u(\alpha_{\text{state}}, m) > 0$. The SNA decrees government output value to be identical to administrative monetary expenditure:
 
 $$
 G(t) = \sum_{m \in \mathcal{M}} P_m(t) \cdot u(\alpha_{\text{state}}, m)
@@ -77,17 +77,17 @@ $$
 Heterogeneous physical capital goods form antichains that cannot be ordered, summed, or aggregated into a scalar index of physical output without realized voluntary market exchange ratios. Historical GDP aggregates reflect fluctuating monetary token balances rather than physical productive capacity.
 
 **Proof.**
-1. By Chapter 9 (Definition 9.15 and Proposition 9.16), heterogeneous physical capital goods form posets with antichains: for distinct tools $`m_A, m_B \in \mathcal{M}_K`$, physical quantities satisfy $m_A \not\le m_B$ and $m_B \not\le m_A$. Physical machinery, chemical reagents, and agricultural land possess no common physical unit.
+1. By Chapter 9 ([Definition 9.15](../natural_language/09_money_prices_and_calculation.md#definition-915-physical-input-order-and-antichains) and [Proposition 9.16](../natural_language/09_money_prices_and_calculation.md#proposition-916-physical-incomparability)), heterogeneous physical capital goods form posets with antichains: for distinct tools $`m_A, m_B \in \mathcal{M}_K`$, physical quantities satisfy $m_A \not\le m_B$ and $m_B \not\le m_A$. Physical machinery, chemical reagents, and agricultural land possess no common physical unit.
 2. A scalar aggregation $Y = \sum_j P_j Q_j$ requires multiplying physical units by monetary exchange ratios $P_j$.
-3. By Chapter 8 (Definition 8.16) and Chapter 9 (Theorem 9.13), market prices $P_j$ are realized only at discrete, historical bilateral transactions where marginal reservation bids intersect.
-4. When central banks inject unbacked fiduciary currency (Chapter 10, Proposition 10.10; Chapter 9, Proposition 9.24), nominal transaction prices $P_j$ rise unevenly along the Cantillon injection wave.
+3. By Chapter 8 ([Propositions 8.12](../natural_language/08_social_interaction_property_and_exchange.md#proposition-812-conditional-improvement-does-not-imply-voluntary-gain)–[8.14](../natural_language/08_social_interaction_property_and_exchange.md#proposition-814-peaceful-competition-excludes-anchored-extortion)) and Chapter 9 ([Theorem 9.13](../natural_language/09_money_prices_and_calculation.md#theorem-913-the-discrete-marginal-pair-bracket)), market prices $P_j$ are realized only at discrete, historical bilateral transactions where marginal reservation bids intersect.
+4. When central banks inject unbacked fiduciary currency (Chapter 10, [Proposition 10.10](../natural_language/10_entrepreneurship_credit_and_investment.md#proposition-1010-physical-effects-of-note-issuance); Chapter 9, [Proposition 9.14g](../natural_language/09_money_prices_and_calculation.md#proposition-914g-cantillon-network-purchasing-power-dilution)), nominal transaction prices $P_j$ rise unevenly along the Cantillon injection wave.
 5. Consequently, the nominal scalar $Y^{\text{SNA}}(t') > Y^{\text{SNA}}(t)$ can increase while the physical stock of capital goods strictly contracts:
 
 $$
 \sum_{i \in \mathcal{I}} \omega(i, t', h', m_K) < \sum_{i \in \mathcal{I}} \omega(i, t, h, m_K)
 $$
 
-6. By Theorem 9.23 (Mises Calculation Problem under Indistinguishable Records) and Theorem 14.1 (Non-Identification from Equal Records), aggregate scalar output metrics cannot distinguish between genuine capital accumulation and monetary inflation. $\blacksquare$
+6. By [Theorem 9.23](../natural_language/09_money_prices_and_calculation.md#theorem-923-indistinguishable-records-and-opposite-economizing-choices) (Mises Calculation Problem under Indistinguishable Records) and [Theorem 14.1 (Non-Identification from Equal Records)](../natural_language/14_historical_observation_and_identification.md#theorem-141-non-identification-from-equal-records), aggregate scalar output metrics cannot distinguish between genuine capital accumulation and monetary inflation. $\blacksquare$
 
 ### Proposition 2 (The Consumption-Bias Fallacy of Intermediate Stage Exclusion)
 By censoring intermediate transactions between roundabout production stages, GDP systematically understates the magnitude of the capital goods structure, producing the statistical illusion that consumer spending drives aggregate economic activity.
@@ -113,13 +113,13 @@ Y^{\text{SNA}}(t) = C(t) + I_{\text{gross}}(t) + G(t) + (X(t) - M(t))
 $$
 
 5. In the truncated denominator $Y^{\text{SNA}}$, household consumption $C$ appears to constitute approximately $65\% \text{--} 70\%$ of economic activity. In the comprehensive denominator $GO$, business spending on intermediate capital goods and maintenance constitutes over $60\% \text{--} 70\%$, while final consumption accounts for less than 30%.
-6. This accounting truncation generates a persistent consumption bias: policy-makers infer that stimulating consumer spending ($C \uparrow$) drives growth, whereas diverting resources toward consumption starves higher-order stages of complementary capital (Proposition 13.3) and triggers capital de-accumulation (Theorem 13.2). $\blacksquare$
+6. This accounting truncation generates a persistent consumption bias: policy-makers infer that stimulating consumer spending ($C \uparrow$) drives growth, whereas diverting resources toward consumption starves higher-order stages of complementary capital (Chapter 13, [Propositions 13.5](../natural_language/13_business_cycles_and_crisis.md#proposition-135-the-basic-completion-and-liquidation-conditions-are-complements), 13.8, 13.12) and triggers capital de-accumulation (Chapter 7, [Theorem 7.12](../natural_language/07_time_preference_interest_and_capital.md#theorem-712-combining-time-preference-with-the-quantity-comparison), [Theorem 7.13](../natural_language/07_time_preference_interest_and_capital.md#theorem-713-a-purposeful-later-method-must-yield-more-under-the-stated-conditions)). $\blacksquare$
 
 ### Proposition 3 (The Broken Window Fallacy of Gross Investment Accounting)
 Because GDP accounts for gross investment ($I$) while ignoring physical capital destruction ( $u(\alpha_{\text{deprec}}, m_K)$ ), catastrophic destruction of physical capital followed by partial reconstruction registers statistically as positive economic growth.
 
 **Proof.**
-1. Under Theorem 2.13 (Chapter 2), net physical capital change across interval $t \prec t'$ is:
+1. Under Chapter 2 ([Definition 2.11](../natural_language/02_time_histories_and_physical_execution.md#definition-211-physical-execution-and-guarantees) and [Definition 2.12](../natural_language/02_time_histories_and_physical_execution.md#definition-212-the-inventory-transition-rule)), net physical capital change across interval $t \prec t'$ is:
 
 $$
 \Delta \omega(m_K) = y(\alpha_{\text{invest}}, m_K) - u(\alpha_{\text{deprec}}, m_K)
@@ -150,15 +150,15 @@ $$
 The SNA treats government expenditure $G$ as an additive component of national product, valuing state activities at their accounting cost of inputs ( $G = \sum P_m u(\alpha_{\text{state}}, m)$ ).
 
 From the standpoint of praxeology:
-1. **Absence of Demonstrated Preference:** In voluntary catallactic exchange, transaction prices reflect mutual subjective utility gain satisfying the double inequality (Chapter 8, Theorem 8.20). State expenditures are financed through non-consensual taxation (political means (coercive extortion), Chapter 12, Theorem 12.1). Taxpayers do not demonstrate preference for state outputs over unmolested alternatives.
-2. **Double Counting of Coercive Overhead:** State expenditures are overhead costs borne by the productive private sector (Chapter 12, Theorem 12.2). Treating factor consumption by bureaucratic agencies as final output treats the consumption of wealth as the production of wealth. A state that hired workers to dig holes and fill them up would increase measured GDP, even while physically starving the population of food and tools.
+1. **Absence of Demonstrated Preference:** In voluntary catallactic exchange, transaction prices reflect mutual subjective utility gain satisfying the double inequality (Chapter 8, [Theorem 8.20](../natural_language/08_social_interaction_property_and_exchange.md#theorem-820-the-double-inequality-of-exchange) and [Proposition 8.21](../natural_language/08_social_interaction_property_and_exchange.md#proposition-821-purposefulness-on-a-binary-trade-menu)). State expenditures are financed through non-consensual taxation (political means (coercive extortion), Chapter 12, [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-a-public-service-quantity-does-not-alter-the-specified-coercion-comparisons)). Taxpayers do not demonstrate preference for state outputs over unmolested alternatives.
+2. **Double Counting of Coercive Overhead:** State expenditures are overhead costs borne by the productive private sector (Chapter 12, [Theorem 12.2](../natural_language/12_state_and_fiscal_political_economy.md#theorem-122-calhoun-fiscal-class-partition-theorem)). Treating factor consumption by bureaucratic agencies as final output treats the consumption of wealth as the production of wealth. A state that hired workers to dig holes and fill them up would increase measured GDP, even while physically starving the population of food and tools.
 
 ### Epistemic Breakdown of Continuous Price Deflators
 National income statistics attempt to isolate "real GDP" by dividing nominal GDP by continuous price indices (GDP deflator, Consumer Price Index).
 
 This procedure violates the core axioms of human action:
 1. **Branching Time and Changing Menus:** Continuous index numbers (Laspeyres, Paasche, Fisher) assume an invariant basket of commodities across temporal intervals $t_0 \prec t_1$. In branching historical time (Chapters 2 and 14), technological innovation alters the feasible choice menu $`\mathcal{A}_{\text{feas}}`$: new goods appear, quality changes discretely, and obsolete products vanish.
-2. **Subjective Valuation vs. Invariant Vectors:** By Chapter 3 (Definition 3.1) and Chapter 4, valuation is an ordinal ranking over prospective ends, not a cardinal scalar attached to physical molecules. When relative prices and available goods change, actors re-rank ends. There exists no fixed cardinal conversion factor that can mathematically separate physical volume from subjective price appraisal across historical periods (Theorems 14.1 and 14.2).
+2. **Subjective Valuation vs. Invariant Vectors:** By Chapter 3 ([Assumption 3.3](../natural_language/03_preference_purpose_and_opportunity_cost.md#assumption-33-strict-asymmetry-of-preference) and [Proposition 3.4](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-34-derived-strict-irreflexivity-of-preference)) and Chapter 4, valuation is an ordinal ranking over prospective ends, not a cardinal scalar attached to physical molecules. When relative prices and available goods change, actors re-rank ends. There exists no fixed cardinal conversion factor that can mathematically separate physical volume from subjective price appraisal across historical periods ([Theorems 14.1](../natural_language/14_historical_observation_and_identification.md#theorem-141-non-identification-from-equal-records) and 14.2).
 
 ---
 
@@ -168,10 +168,10 @@ This procedure violates the core axioms of human action:
 The GDP paradigm rests on macroeconomic holism: the assumption that a complex social division of labor can be modeled as a single giant firm or aggregate production function $Y = F(K, L)$ managed by technocratic monetary and fiscal stimulus.
 
 Praxeological realism refutes macroeconomic aggregates:
-1. **Teleological Decentralization:** The economic process is not a homogeneous output stream, but the coordinated actions of millions of distinct individuals economizing on discrete posets (Chapters 1 and 3).
-2. **The Coordination Role of Capital:** Coordination is achieved not through managing aggregate demand, but through the delicate vertical alignment of heterogeneous capital goods across roundabout temporal stages (Chapters 7, 9, 10, and 13). Manipulating monetary aggregates to inflate headline GDP distorts entrepreneurial interest-rate calculation, inducing malinvestments and systemic factor starvation.
+1. **Teleological Decentralization:** The economic process consists of the coordinated actions of millions of distinct individuals economizing on discrete posets (Chapters 1 and 3).
+2. **The Coordination Role of Capital:** Intertemporal coordination arises through the vertical alignment of heterogeneous capital goods across roundabout temporal stages (Chapters 7, 9, 10, and 13). Manipulating monetary aggregates to inflate headline GDP distorts entrepreneurial interest-rate calculation, inducing malinvestments and systemic factor starvation.
 
 ### The Praxeological Alternative
 The quest for a single statistical aggregate to measure "national wealth" or "economic growth" is an epistemological impossibility. 
 
-Rational economic calculation does not operate at the level of nations via macroeconomic aggregates; it operates at the level of purposeful individual enterprises via monetary profit-and-loss accounting on realized market prices (Chapter 9, Proposition 9.20). Meaningful economic growth consists of the unhampered accumulation of physical capital goods per capita, the extension of roundabout production structures, and the expansion of the feasible action menus of purposeful human actors.
+Rational economic calculation does not operate at the level of nations via macroeconomic aggregates; it operates at the level of purposeful individual enterprises via monetary profit-and-loss accounting on realized market prices (Chapter 9, [Proposition 9.20](../natural_language/09_money_prices_and_calculation.md#proposition-920-cost-reducing-factor-substitution-raises-net-return-and-return-ratio)). Meaningful economic growth consists of the unhampered accumulation of physical capital goods per capita, the extension of roundabout production structures, and the expansion of the feasible action menus of purposeful human actors.

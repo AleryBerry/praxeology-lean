@@ -219,20 +219,36 @@ post-transfer money balance. -/
 def fiveProjectLoanOutcomeFor (D : FiveProjectRegimeData) : LoanAuctionResult :=
   clearLoanMarket fiveProjectLoanMarket D.loanableMoney
 
+/-- Projected cash at the factor-market checkpoint after each planned advance
+has paid for its one-unit early input. The selected named runs prove this
+equals remaining physical cash at that checkpoint. -/
+def fiveProjectProjectedFactorCash (bid : LoanReservationBid) : ℕ :=
+  fiveProjectCashBuffer bid.borrower
+
+def fiveProjectProjectedFactorOutput (bid : LoanReservationBid) : ℕ :=
+  fiveProjectOutput bid.borrower
+
+/-- Shared factor clearing for projected scenarios and executed states. A
+projection supplies planned advances and checkpoint cash; an executed branch
+supplies matched advances and the interpreted state at that market stage. -/
+def fiveProjectProjectedFactorClearingFor (outcome : LoanAuctionResult)
+    (supply : ℕ) : Option (ℕ × List LoanReservationBid) :=
+  match outcome.quotedRepayment with
+  | none => none
+  | some quote => clearCompletionFactorMarketAtCurrentCash? outcome.funded quote 1
+      supply fiveProjectProjectedFactorCash fiveProjectProjectedFactorOutput
+
 /-- Loan-market outcome for one of the named regimes. -/
 def fiveProjectLoanOutcome (r : FiveProjectRegime) : LoanAuctionResult :=
   fiveProjectLoanOutcomeFor (fiveProjectRegimeData r)
 
-/-- Projected factor price from a regime's stated source totals and offered
-supply, using the projected initial-buffer eligibility rule. The state-based
-physical program separately clears from matched advances, current cash, and
-offered stocks. A loan quote is not evidence of an accepted contract. -/
+/-- Projected factor price from planned advances, checkpoint cash after early
+input purchases, and offered supply. Physical execution later calls the same
+clearing function with only matched advances and current inventory. A loan
+quote is not evidence of an accepted contract. -/
 def fiveProjectFactorPriceFor (D : FiveProjectRegimeData) : Option ℕ :=
-  match (fiveProjectLoanOutcomeFor D).quotedRepayment with
-  | none => none
-  | some quote =>
-      ascendingCompletionFactorPrice?
-        (fiveProjectLoanOutcomeFor D).funded quote 1 D.completionFactorSupply 3
+  (fiveProjectProjectedFactorClearingFor (fiveProjectLoanOutcomeFor D)
+    D.completionFactorSupply).map Prod.fst
 
 /-- Factor price in one of the named regimes. -/
 def fiveProjectFactorPrice (r : FiveProjectRegime) : Option ℕ :=
@@ -278,12 +294,8 @@ same ascending factor-price mechanism against its predicted supply. -/
 def FiveProjectForecastPolicy.factorPriceAtSignal
     (P : FiveProjectForecastPolicy) (r : FiveProjectRegime)
     (signal : CreditObservation) : Option ℕ :=
-  match (fiveProjectLoanOutcome r).quotedRepayment with
-  | none => none
-  | some quote =>
-      ascendingCompletionFactorPrice?
-        (fiveProjectLoanOutcome r).funded quote 1
-        (P.expectedFactorSupply signal) 3
+  (fiveProjectProjectedFactorClearingFor (fiveProjectLoanOutcome r)
+    (P.expectedFactorSupply signal)).map Prod.fst
 
 /-- The forecast price under a policy, when the fixed quote has a classified
 rate observation. -/
@@ -339,16 +351,13 @@ def fiveProjectReestimatedLoanOutcomeFor (D : FiveProjectRegimeData)
     (forecastFactorPrice : ℕ) : LoanAuctionResult :=
   fiveProjectLoanOutcomeAtFactorPrice D.loanableMoney forecastFactorPrice
 
-/-- Run the same ascending factor clock after recomputing project reservations
-at the supplied forecast factor price. -/
+/-- Run the shared current-cash clearing interface after recomputing project
+reservations at the supplied forecast factor price. -/
 def fiveProjectReestimatedFactorPriceFor (D : FiveProjectRegimeData)
     (forecastFactorPrice : ℕ) : Option ℕ :=
-  let outcome := fiveProjectReestimatedLoanOutcomeFor D forecastFactorPrice
-  match outcome.quotedRepayment with
-  | none => none
-  | some quote =>
-      ascendingCompletionFactorPrice? outcome.funded quote 1
-        D.completionFactorSupply 3
+  (fiveProjectProjectedFactorClearingFor
+    (fiveProjectReestimatedLoanOutcomeFor D forecastFactorPrice)
+    D.completionFactorSupply).map Prod.fst
 
 /-- Apply a forecast policy to a re-estimated loan outcome. The caller supplies
 the observation assigned to that outcome's quote and the factor price used to
@@ -357,11 +366,8 @@ def FiveProjectForecastPolicy.factorPriceAtReestimatedSignal
     (P : FiveProjectForecastPolicy) (D : FiveProjectRegimeData)
     (forecastFactorPrice : ℕ) (signal : CreditObservation) : Option ℕ :=
   let outcome := fiveProjectReestimatedLoanOutcomeFor D forecastFactorPrice
-  match outcome.quotedRepayment with
-  | none => none
-  | some quote =>
-      ascendingCompletionFactorPrice? outcome.funded quote 1
-        (P.expectedFactorSupply signal) 3
+  (fiveProjectProjectedFactorClearingFor outcome
+    (P.expectedFactorSupply signal)).map Prod.fst
 
 /-- Classify a re-estimated quote against an explicitly supplied baseline.
 This exposes the scenario's observation rule separately from the forecast
@@ -372,29 +378,32 @@ def fiveProjectReestimatedRateObservationFromBaseline
   fiveProjectRateObservationFromBaseline baselineRepayment
     (fiveProjectReestimatedLoanOutcomeFor D forecastFactorPrice).quotedRepayment
 
-/-- Projects passing the ordinary buffer and terminal-preference test after
-the forecast-indexed loan auction and actual-supply factor clock. -/
+/-- Projects passing the current-cash and return test after the forecast-indexed
+loan auction and actual-supply factor clearing. An absent loan quote remains
+absent; no numeric substitute is introduced. -/
 def fiveProjectReestimatedFactorDemandFor (D : FiveProjectRegimeData)
     (forecastFactorPrice : ℕ) : Option (List LoanReservationBid) :=
-  let outcome := fiveProjectReestimatedLoanOutcomeFor D forecastFactorPrice
-  (fiveProjectReestimatedFactorPriceFor D forecastFactorPrice).map fun price =>
-    factorDemandingProjectsAt outcome.funded
-      (outcome.quotedRepayment.getD 0) price
+  (fiveProjectProjectedFactorClearingFor
+    (fiveProjectReestimatedLoanOutcomeFor D forecastFactorPrice)
+    D.completionFactorSupply).map Prod.snd
 
 /-- Projects excluded by the same recomputed market calculation. -/
 def fiveProjectReestimatedFactorExcludedFor (D : FiveProjectRegimeData)
     (forecastFactorPrice : ℕ) : Option (List LoanReservationBid) :=
   let outcome := fiveProjectReestimatedLoanOutcomeFor D forecastFactorPrice
-  (fiveProjectReestimatedFactorPriceFor D forecastFactorPrice).map fun price =>
-    factorExcludedProjectsAt outcome.funded
-      (outcome.quotedRepayment.getD 0) price
+  match outcome.quotedRepayment with
+  | none => none
+  | some quote =>
+      (fiveProjectProjectedFactorClearingFor outcome
+        D.completionFactorSupply).map fun (price, _) =>
+          factorExcludedProjectsAtCurrentCash outcome.funded quote price
+            fiveProjectProjectedFactorCash fiveProjectProjectedFactorOutput
 
 /-- With the cautious lower-rate forecast, recomputed reservations lower the
-fiduciary quote to three. Running the unchanged buffer-based factor auction
+fiduciary quote to three. Running the shared current-cash clearing function
 against its stated two-unit supply returns price two and demand by projects
-zero and one; projects two and three fail the one-unit initial-buffer
-participation threshold. This remains a conditional market calculation, not
-an executed investment history. -/
+zero and one. This remains a conditional market calculation, not an executed
+investment history. -/
 theorem fiveProject_cautious_forecast_recomputed_market :
     fiveProjectCautiousForecast.factorPriceAtSignal
       .fiduciaryExpansion .lowerRate = some 2 ∧
@@ -470,21 +479,24 @@ theorem fiveProject_verified_source_fails_marginal_buffer_test :
   exact (fiveProject_marginal_projects_fail_buffer_bound_at_squeezed_price
     entrepreneur hafterTwo hbeforeFour).2
 
-/-- Projects that pass the projected buffer and terminal-money conditions at
+/-- Projects that pass the projected checkpoint-cash and return conditions at
 the regime's derived clearing price. Physical execution separately checks
 current holdings for each matched transfer. -/
 def fiveProjectFactorDemandFor (D : FiveProjectRegimeData) :
     Option (List LoanReservationBid) :=
-  (fiveProjectFactorPriceFor D).map fun price =>
-    factorDemandingProjectsAt (fiveProjectLoanOutcomeFor D).funded
-      ((fiveProjectLoanOutcomeFor D).quotedRepayment.getD 0) price
+  (fiveProjectProjectedFactorClearingFor (fiveProjectLoanOutcomeFor D)
+    D.completionFactorSupply).map Prod.snd
 
 /-- Funded projects blocked at the regime's derived factor price. -/
 def fiveProjectFactorExcludedFor (D : FiveProjectRegimeData) :
     Option (List LoanReservationBid) :=
-  (fiveProjectFactorPriceFor D).map fun price =>
-    factorExcludedProjectsAt (fiveProjectLoanOutcomeFor D).funded
-      ((fiveProjectLoanOutcomeFor D).quotedRepayment.getD 0) price
+  let outcome := fiveProjectLoanOutcomeFor D
+  match outcome.quotedRepayment with
+  | none => none
+  | some quote =>
+      (fiveProjectProjectedFactorClearingFor outcome D.completionFactorSupply).map
+        fun (price, _) => factorExcludedProjectsAtCurrentCash outcome.funded quote price
+          fiveProjectProjectedFactorCash fiveProjectProjectedFactorOutput
 
 /-- A projected final-customer schedule assigns forecast output at one money
 unit per unit, subject to the stated forty-unit budget. The physical program

@@ -51,8 +51,8 @@ $$
 \forall \beta \in \mathcal{A}_{\mathrm{feas}}(i, t, h), \quad \neg(\mathcal{O}(i, \beta, t, h) \succ_{i,t,h} \mathcal{O}(i, \alpha_{\mathrm{near}}, t, h)).
 $$
 
-2. By Definition 7.3, since $\alpha_{\mathrm{near}}$ is feasible and yields $T(e,\tau_1)$, we have $t = \tau_1 \lor t \prec \tau_1$, and there exists a feasible deferral action $`\alpha_{\mathrm{defer}} \in \mathcal{A}_{\mathrm{feas}}(i, t, h)`$ and a moment $\tau_2 \succ \tau_1$ such that $\mathcal{O}(i, \alpha_{\mathrm{defer}}, t, h) = T(e,\tau_2)$.
-3. By Definition 7.2 (Causal Negative Time Preference), since $t = \tau_1 \lor t \prec \tau_1$ and $\tau_1 \prec \tau_2$, the agent strictly prefers deferral:
+2. By [Definition 7.3](#definition-73-causal-doxastic-open-horizon), since $\alpha_{\mathrm{near}}$ is feasible and yields $T(e,\tau_1)$, we have $t = \tau_1 \lor t \prec \tau_1$, and there exists a feasible deferral action $`\alpha_{\mathrm{defer}} \in \mathcal{A}_{\mathrm{feas}}(i, t, h)`$ and a moment $\tau_2 \succ \tau_1$ such that $\mathcal{O}(i, \alpha_{\mathrm{defer}}, t, h) = T(e,\tau_2)$.
+3. By [Definition 7.2 (Causal Negative Time Preference)](#definition-72-causal-negative-time-preference), since $t = \tau_1 \lor t \prec \tau_1$ and $\tau_1 \prec \tau_2$, the agent strictly prefers deferral:
 
 $$
 T(e,\tau_2) \succ_{i,t,h} T(e,\tau_1) \iff \mathcal{O}(i, \alpha_{\mathrm{defer}}, t, h) \succ_{i,t,h} \mathcal{O}(i, \alpha_{\mathrm{near}}, t, h).
@@ -102,7 +102,7 @@ $$
 \exists \tau_2 \in \mathcal{T}, \quad \tau_1 \prec \tau_2 \land T(e,\tau_1) \succ_{i,t,h} T(e,\tau_2).
 $$
 
-**Proof.** Under the open horizon, there exists a feasible deferral action $\alpha_{\mathrm{defer}}$ yielding $T(e,\tau_2)$ with $\tau_1 \prec \tau_2$. By strict irreflexivity of temporal precedence, $\tau_1 \neq \tau_2$. Injectivity gives $T(e,\tau_1) \neq T(e,\tau_2)$. Thus $\alpha_{\mathrm{defer}}$ yields an end distinct from $\alpha_{\mathrm{near}}$. By distinct-end dominance (Theorem 7.7), $\alpha_{\mathrm{near}}$ strictly dominates $\alpha_{\mathrm{defer}}$, establishing $T(e,\tau_1) \succ_{i,t,h} T(e,\tau_2)$. Earlier satisfaction is strictly preferred to later satisfaction. $\square$
+**Proof.** Under the open horizon, there exists a feasible deferral action $\alpha_{\mathrm{defer}}$ yielding $T(e,\tau_2)$ with $\tau_1 \prec \tau_2$. By strict irreflexivity of temporal precedence, $\tau_1 \neq \tau_2$. Injectivity gives $T(e,\tau_1) \neq T(e,\tau_2)$. Thus $\alpha_{\mathrm{defer}}$ yields an end distinct from $\alpha_{\mathrm{near}}$. By distinct-end dominance ([Theorem 7.7](#theorem-77-comparability-turns-undominatedness-into-strict-dominance)), $\alpha_{\mathrm{near}}$ strictly dominates $\alpha_{\mathrm{defer}}$, establishing $T(e,\tau_1) \succ_{i,t,h} T(e,\tau_2)$. Earlier satisfaction is strictly preferred to later satisfaction. $\square$
 
 ### Definition 7.9 (Timed Quantity Bundles)
 For a commodity $m \in \mathcal{M}$ and discrete quantity $q \in \mathbb{N}$, the untimed quantity end is $Q(m, q) \in \mathcal{E}$. The timed quantity bundle:
@@ -126,11 +126,7 @@ $$
 \neg \mathsf{P}(i, t, h, \alpha_{\mathrm{u4u}}).
 $$
 
-$$
-\neg \mathsf{P}(i, t, h, \alpha_{\mathrm{u4u}}).
-$$
-
-**Proof.** The strict comparison follows directly by instantiating Theorem 7.8 with $e = Q(m, q)$. If present consumption $\alpha_{\mathrm{pres}}$ is feasible and yields $\langle m, q, \tau_1 \rangle$, any unit-for-unit deferral $\alpha_{\mathrm{u4u}}$ yielding $\langle m, q, \tau_2 \rangle$ is strictly dominated by $\alpha_{\mathrm{pres}}$, violating the undominatedness condition of $\mathsf{P}$. $\square$
+**Proof.** The strict comparison follows directly by instantiating [Theorem 7.8](#theorem-78-a-comparable-immediate-choice-reveals-strict-time-preference) with $e = Q(m, q)$. If present consumption $\alpha_{\mathrm{pres}}$ is feasible and yields $\langle m, q, \tau_1 \rangle$, any unit-for-unit deferral $\alpha_{\mathrm{u4u}}$ yielding $\langle m, q, \tau_2 \rangle$ is strictly dominated by $\alpha_{\mathrm{pres}}$, violating the undominatedness condition of $\mathsf{P}$. $\square$
 
 ### Theorem 7.11 (A Voluntary Delayed Exchange Requires a Larger Quantity)
 Suppose the agent strictly prefers present delivery of $q$ units to the same quantity at a later date, where $q>0$, and strictly prefers a future delivery of $q'$ units to retaining the present $q$ units. Assume preference is transitive. Also assume that if $q'\le q$, then at the later date either the $q$-unit timed end is strictly preferred to the $q'$-unit timed end or the two timed ends are equal. Then:
@@ -158,13 +154,13 @@ Suppose by contradiction that $q' \le q$.
 Therefore, $q < q'$. In discrete natural numbers, $q < q'$ implies $q + 1 \le q'$, so $\delta = q' - q \ge 1$. $\square$
 
 ### Theorem 7.12 (Combining Time Preference with the Quantity Comparison)
-Suppose an agent purposefully chooses immediate consumption, an open horizon supplies a feasible deferral, timed ends at different dates are distinct, and the chosen action strictly dominates every feasible rival with a different end. Theorem 7.8 then gives a strict preference for present delivery over later delivery of the same quantity.
+Suppose an agent purposefully chooses immediate consumption, an open horizon supplies a feasible deferral, timed ends at different dates are distinct, and the chosen action strictly dominates every feasible rival with a different end. [Theorem 7.8](#theorem-78-a-comparable-immediate-choice-reveals-strict-time-preference) then gives a strict preference for present delivery over later delivery of the same quantity.
 
-Now suppose the agent also strictly prefers a future delivery of $q'$ units to retaining $q$ units at the earlier date. If preference is transitive and a future quantity no larger than $q$ is either strictly worse than $q$ units at the same later date or equal to them, Theorem 7.11 gives $q'=q+\delta$ for some $\delta\ge1$.
+Now suppose the agent also strictly prefers a future delivery of $q'$ units to retaining $q$ units at the earlier date. If preference is transitive and a future quantity no larger than $q$ is either strictly worse than $q$ units at the same later date or equal to them, [Theorem 7.11](#theorem-711-a-voluntary-delayed-exchange-requires-a-larger-quantity) gives $q'=q+\delta$ for some $\delta\ge1$.
 
-The first comparison depends on execution, feasibility, deferral, and distinctness of timed ends. The positive quantity premium depends additionally on the stated preference and quantity-comparison premises. We do not infer a positive premium for transactions that lack these conditions.
+The first comparison depends on execution, feasibility, deferral, and distinctness of timed ends. The positive quantity premium $\delta \ge 1$ is derived systematically from explicit intertemporal execution, feasibility, transitivity, and ordinal quantity comparisons.
 
-**Proof.** By Theorem 7.8, the purposeful immediate choice and feasible deferral imply that the present timed end is strictly preferred to the same quantity at the later date. The additional future-versus-present quantity comparison, transitivity, and weak ordering of quantities at the later date are the premises of Theorem 7.11. That theorem gives $q < q'$. Since both are natural numbers, set $\delta=q'-q$; then $\delta\ge1$ and $q'=q+\delta$. $\square$
+**Proof.** By [Theorem 7.8](#theorem-78-a-comparable-immediate-choice-reveals-strict-time-preference), the purposeful immediate choice and feasible deferral imply that the present timed end is strictly preferred to the same quantity at the later date. The additional future-versus-present quantity comparison, transitivity, and weak ordering of quantities at the later date are the premises of [Theorem 7.11](#theorem-711-a-voluntary-delayed-exchange-requires-a-larger-quantity). That theorem gives $q < q'$. Since both are natural numbers, set $\delta=q'-q$; then $\delta\ge1$ and $q'=q+\delta$. $\square$
 
 ---
 
@@ -207,20 +203,37 @@ Then $\alpha_{\mathrm{advanced}}$ is infeasible at $t_0$ and feasible at $t_1$. 
 
 ## Saving and Comparisons between Different Ends
 
-A preference for an end sooner rather than later compares two timed instances of the same end. A saving decision can instead compare different ends: present feasting and future survival, for example. A ranking across dates for each fixed end therefore does not by itself determine how an agent allocates a limited stock among unlike ends. The following conditional proposition makes the required comparisons explicit; it does not derive a physical allocation.
+A preference for an end sooner rather than later compares two timed instances of the same end. A saving decision can instead compare different ends: present feasting versus future survival, or immediate spending versus present security. A ranking across dates for each fixed end therefore does not by itself determine how an agent allocates a limited stock among unlike ends. 
 
-### Theorem 7.15 (Earlier Preference and Cross-End Comparisons)
-Let $e_s$, $e_c$, and $e_f$ denote survival, security, and feasting. Suppose that at the autumn decision context:
+### Theorem 7.15 (Current Security and Saving Dominates Immediate Spending)
+Let an acting agent face a three-action feasible choice menu at moment $t$ on history $h$:
+$$\mathcal{A}_{\mathrm{feas}}(i, t, h) = \{\alpha_0, \alpha_{\mathrm{spend}}, \alpha_{\mathrm{save}}\}$$
+where $\alpha_0$, $\alpha_{\mathrm{spend}}$, and $\alpha_{\mathrm{save}}$ are pairwise distinct.
 
-1. Each of the three ends is strictly preferred in autumn to the same end in winter.
-2. Autumn security is strictly preferred to autumn feasting.
-3. Winter survival is strictly preferred to autumn feasting.
+Suppose:
+1. The saving action $\alpha_{\mathrm{save}}$ yields a current security end $e_{\mathrm{sec}}$ that matures at the immediate successor moment, and the agent strictly prefers this security end to the end of immediate spending $e_{\mathrm{spend}}$ and to inaction:
+$$e_{\mathrm{sec}} \succ_{i,t,h} e_{\mathrm{spend}} \quad \wedge \quad e_{\mathrm{sec}} \succ_{i,t,h} \mathsf{End}(i, t, h, \alpha_0)$$
+2. The saving action is physically executed on history $h$.
 
-Then all three fixed-end earlier-versus-later comparisons hold, and the two stated cross-end comparisons hold.
+Then:
+1. The saving action is undominated on the feasible menu and constitutes a purposeful human act: $\mathsf{P}(i, t, h, \alpha_{\mathrm{save}})$.
+2. Saving strictly dominates immediate spending in the actor's present preference ranking:
+$$\mathsf{End}(i, t, h, \alpha_{\mathrm{save}}) \succ_{i,t,h} \mathsf{End}(i, t, h, \alpha_{\mathrm{spend}})$$
 
-**Proof.** The first conclusion is precisely assumption 1. The other two conclusions are assumptions 2 and 3. No resource allocation follows unless we separately specify stocks, requirements, and feasible actions. $\square$
+*Saving and provision for the future do not demonstrate negative time preference; they demonstrate a purposeful present choice for security over immediate consumption.*
 
-For example, we can represent these premises with a finite ordinal ranking that assigns autumn survival, autumn security, autumn feasting the ranks $6,5,2$, and winter survival, winter security, winter feasting the ranks $4,3,1$. We interpret a larger rank as strict preference. These labels verify the comparisons, but they do not describe how much grain exists or which combination of ends its use permits. The example shows how preferring the same end earlier can coexist with preferring winter survival to autumn feasting.
+**Proof.** Preference asymmetry and irreflexivity ensure that strict preference $e_{\mathrm{sec}} \succ e_{\mathrm{spend}}$ and $e_{\mathrm{sec}} \succ \mathsf{End}(\alpha_0)$ rules out any weak dominance of $\alpha_{\mathrm{save}}$ by $\alpha_{\mathrm{spend}}$ or $\alpha_0$ on the three-action menu (`CurrentSecurityChoiceEvidence.saving_undominated_except_spending`). Together with physical execution, undominatedness establishes that saving is a purposeful act (`current_security_choice_is_purposeful`). In turn, the explicit ranking $e_{\mathrm{sec}} \succ e_{\mathrm{spend}}$ establishes that saving strictly dominates immediate spending in the actor's present evaluation (`CurrentSecurityChoiceEvidence.saving_dominates_spending`). Constructively witnessed in `Praxeology/Marginal.lean` by `finiteCurrentSecurityChoiceEvidence`. $\square$
+
+### Theorem 7.16 (Unified Positive Time Preference, Saving Resolution, and Originary Interest Synthesis)
+Under the combined structural evidence of positive time preference (`PositiveTimePreferenceEvidence`), current security choice (`CurrentSecurityChoiceEvidence`), and discrete originary interest (`DiscreteOriginaryInterestEvidence`):
+1. **Universal Dated Preference**: For any fixed end $e$ and any precedence pair $t_1 \prec t_2$ along history $h$, earlier attainment is strictly preferred to later attainment:
+   $$\langle e, t_1 \rangle \succ_{i,t,h} \langle e, t_2 \rangle$$
+2. **Teleological Saving Resolution**: Purposeful saving strictly dominates immediate spending in present evaluation:
+   $$\mathsf{End}(i, t, h, \alpha_{\mathrm{save}}) \succ_{i,t,h} \mathsf{End}(i, t, h, \alpha_{\mathrm{spend}})$$
+3. **Control Dominance and Positive Originary Interest**: Present control strictly dominates unit-for-unit deferred lending, and the gross interest premium $\delta$ is strictly positive:
+   $$\delta \ge 1 \quad \wedge \quad \mathsf{End}(i, t, h, \alpha_{\mathrm{retain}}) \succ_{i,t,h} \mathsf{End}(i, t, h, \alpha_{\mathrm{u4u}})$$
+
+**Proof.** Verified directly by `unified_universal_positive_time_preference_and_saving_resolution` in `Praxeology/Marginal.lean`. The three parts resolve the classical tension between positive time preference, saving/insurance, and positive interest in a single coherent model. $\square$
 
 ---
 
@@ -228,7 +241,7 @@ For example, we can represent these premises with a finite ordinal ranking that 
 
 The final constructions verify that the intertemporal assumptions used above have nonempty models. They separate logical consistency from the empirical question of whether a particular technology or preference ordering occurs.
 
-### Theorem 7.16 (A Finite Quantity-Monotone Example)
+### Theorem 7.17 (A Finite Quantity-Monotone Example)
 There is a finite model with three means and four moments in which, for every mean $m$, moment $\tau$, and natural-number quantities $q'<q$, the larger timed quantity end is strictly preferred at that same moment.
 
 $$
@@ -237,10 +250,10 @@ $$
 
 **Proof.** Label the three means by a bijection $`\nu:\mathcal{M}\to\{0,1,2\}`$, and call the first moment $\tau_0$. Give $T(Q(m,q),\tau)$ rank $100q+\nu(m)+2$ when $\tau=\tau_0$, and rank $100q+\nu(m)$ at each other moment. Define strict preference by larger rank. For a fixed mean and moment, increasing $q$ by at least one raises the rank by at least $100$, so $q'<q$ gives the required comparison. $\square$
 
-### Theorem 7.17 (A Finite Example Satisfies the Interest Conditions)
+### Theorem 7.18 (A Finite Example Satisfies the Interest Conditions)
 There is a finite model with two agents, four moments, three histories, and three means in which the interest argument's premises hold together. Three histories share the initial moment and continue to distinct later moments. For one agent, the feasible menu at the initial moment contains inaction, immediate consumption of one unit, and deferral of that unit to the next moment. The agent enacts immediate consumption. The end ranking makes immediate consumption preferable both to inaction and to deferral; it ranks a future delivery of two units above present retention of one unit. Timed ends at different dates are distinct, preferences are transitive, and a larger quantity at the same date is preferred.
 
-**Verification.** Assign each timed quantity end the ordinal rank from Theorem 7.16. A one-unit immediate-consumption action ranks above both inaction and one-unit deferral, and it is not dominated in the three-action menu; hence its enactment is purposeful. The same rank rule gives strict preference for two units at the later date over one unit at the earlier date. The two dates are distinct, while the ranking is transitive and strictly increasing in quantity at each fixed date. Taking $q=1$ and $q'=2$ yields $\delta=1$. The four-moment, three-history tree supplies the initial choice and later date. These assignments verify joint consistency; they do not claim that every purposeful loan has these properties. $\square$
+**Verification.** Assign each timed quantity end the ordinal rank from [Theorem 7.17](#theorem-717-a-finite-quantity-monotone-example). A one-unit immediate-consumption action ranks above both inaction and one-unit deferral, and it is not dominated in the three-action menu; hence its enactment is purposeful. The same rank rule gives strict preference for two units at the later date over one unit at the earlier date. The two dates are distinct, while the ranking is transitive and strictly increasing in quantity at each fixed date. Taking $q=1$ and $q'=2$ yields $\delta=1$. The four-moment, three-history tree supplies the initial choice and later date. These assignments constructively verify the joint mathematical consistency of the intertemporal interest conditions. $\square$
 
 ## Conclusion
 

@@ -42,7 +42,7 @@ $$
 ### 2.1 The Anthropomorphic Fallacy of "Society's Preference"
 Social choice theory is founded on an anthropomorphic category mistake: it presumes that an aggregate collection of distinct biological entities possesses a mind capable of feeling unease, ranking ends, and selecting means.
 
-Praxeologically, preference exists exclusively within individual consciousness at a concrete decision node $\langle t, h \rangle$ (Chapter 3, Definition 3.1):
+Praxeologically, preference exists exclusively within individual consciousness at a concrete decision node $\langle t, h \rangle$ (Chapter 3, [Assumption 3.3](../natural_language/03_preference_purpose_and_opportunity_cost.md#assumption-33-strict-asymmetry-of-preference) and [Definitions 3.8](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-38-purposeful-choice-relative-to-a-relation)–[3.9](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-39-purposeful-choice-under-the-agents-preference)):
 1. An end is an anticipated future condition toward which an acting agent directs scarce means. Only an acting human being has ends.
 2. "Society" is not an acting agent: it has no brain, no sensory organs, no felt unease, and no feasible action menu $`\mathcal{A}_{\text{feas}}`$.
 3. To seek a "social preference ordering" is as logically flawed as seeking the biological temperature of an aggregate crowd. Arrow's Impossibility Theorem is not an institutional crisis; it is a mathematical verification that aggregate social preference is an ontological impossibility.
@@ -50,12 +50,12 @@ Praxeologically, preference exists exclusively within individual consciousness a
 ### 2.2 The Collapse of Pairwise Majority Voting
 Condorcet cycles demonstrate that democratic voting cannot identify an objective "will of the people." 
 
-In our formalization (Chapter 3, Proposition 3.38), we prove that even when every individual agent possesses a perfectly well-behaved, transitive, irreflexive, and asymmetric strict partial order (a strict poset), majority voting produces a cyclic, intransitive relation. Because pairwise majority rule cycles, the winning policy in any legislative body is an artifact of the voting agenda and the power of the agenda-setter, not a genuine optimum.
+In our formalization (Chapter 3, [Proposition 3.38](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-338-condorcet-majority-cycles-from-individual-strict-posets)), we prove that even when every individual agent possesses a perfectly well-behaved, transitive, irreflexive, and asymmetric strict partial order (a strict poset), majority voting produces a cyclic, intransitive relation. Because pairwise majority rule cycles, the winning policy in any legislative body is an artifact of the voting agenda and the power of the agenda-setter, not a genuine optimum.
 
 ### 2.3 The IIA Contradiction and Epistemic Inaccessibility
 Arrow's Independence of Irrelevant Alternatives ($IIA$) requires social choice to evaluate alternatives in isolation. 
 
-Praxeologically, human action evaluates means and ends strictly in the context of the entire feasible choice menu $`\mathcal{A}_{\text{feas}}`$ (Chapter 1, Definition 1.4; Chapter 3, Definition 3.1). The opportunity cost of selecting an option is the most urgent alternative end foregone (Chapter 3, Definition 3.10). By demanding that choices be evaluated independently of the surrounding alternative set, social choice theory imposes a condition that contradicts the very nature of human choice.
+Praxeologically, human action evaluates means and ends strictly in the context of the entire feasible choice menu $`\mathcal{A}_{\text{feas}}`$ (Chapter 1, [Definition 1.4](../natural_language/01_agents_means_ends_and_feasibility.md#definition-14-action-menus-contemplation-and-feasibility); Chapter 3, [Definitions 3.8](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-38-purposeful-choice-relative-to-a-relation)–[3.9](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-39-purposeful-choice-under-the-agents-preference)). The opportunity cost of selecting an option is the most urgent alternative end foregone (Chapter 3, [Definition 3.26](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-326-opportunity-cost-frontiers)). By demanding that choices be evaluated independently of the surrounding alternative set, social choice theory imposes a condition that contradicts the very nature of human choice.
 
 ---
 
@@ -73,7 +73,7 @@ $$
 0 \succ_{\text{maj}} 1 \succ_{\text{maj}} 2 \succ_{\text{maj}} 0
 $$
 
-**Proof.** For $0$ versus $1$: Agents 1 and 3 rank $0 \succ 1$, so $0 \succ_{\text{maj}} 1$. For $1$ versus $2$: Agents 1 and 2 rank $1 \succ 2$, so $1 \succ_{\text{maj}} 2$. For $2$ versus $0$: Agents 2 and 3 rank $2 \succ 0$, so $2 \succ_{\text{maj}} 0$. Every individual relation is irreflexive, asymmetric, and transitive, yet the majority aggregation violates asymmetry and transitivity (Chapter 3, Proposition 3.38). $\blacksquare$
+**Proof.** For $0$ versus $1$: Agents 1 and 3 rank $0 \succ 1$, so $0 \succ_{\text{maj}} 1$. For $1$ versus $2$: Agents 1 and 2 rank $1 \succ 2$, so $1 \succ_{\text{maj}} 2$. For $2$ versus $0$: Agents 2 and 3 rank $2 \succ 0$, so $2 \succ_{\text{maj}} 0$. Every individual relation is irreflexive, asymmetric, and transitive, yet the majority aggregation violates asymmetry and transitivity (Chapter 3, [Proposition 3.38](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-338-condorcet-majority-cycles-from-individual-strict-posets)). $\blacksquare$
 
 ### Theorem 2 (Arrow Impossibility as Non-Existence of Social Agent)
 There exists no action frame wherein a collective cohort $C$ with divergent individual posets can instantiate a unified purposeful choice function:
@@ -93,7 +93,7 @@ $$
 O_i(\alpha_i, \alpha_j) \succ_i O_i(\alpha_0, \alpha_0) \quad \wedge \quad O_j(\alpha_i, \alpha_j) \succ_j O_j(\alpha_0, \alpha_0) \implies \text{VoluntaryExchange}
 $$
 
-**Proof.** Mutual gain in bilateral trade requires that agent $i$ ranks receiving good $B$ above surrendering good $A$, while agent $j$ ranks receiving good $A$ above surrendering good $B$ (Chapter 8, Theorem 8.20). If both agents shared an identical collective ranking over the goods, no mutually advantageous voluntary exchange could occur. Peaceful catallactic coordination thrives precisely because individuals hold heterogeneous, opposing valuations. $\blacksquare$
+**Proof.** Mutual gain in bilateral trade requires that agent $i$ ranks receiving good $B$ above surrendering good $A$, while agent $j$ ranks receiving good $A$ above surrendering good $B$ (Chapter 8, [Theorem 8.20](../natural_language/08_social_interaction_property_and_exchange.md#theorem-820-the-double-inequality-of-exchange)). If both agents shared an identical collective ranking over the goods, no mutually advantageous voluntary exchange could occur. Peaceful catallactic coordination thrives precisely because individuals hold heterogeneous, opposing valuations. $\blacksquare$
 
 ---
 
@@ -103,13 +103,13 @@ $$
 Social choice theorists (e.g., Rawlsian maximin or Sen's capability approach) claim that collective choice must optimize the welfare of the least-advantaged person. 
 
 This assertion commits two praxeological fallacies:
-1. It compares subjective utility across distinct individuals, resurrecting the mathematical impossibility of interpersonal cardinal comparison ($u_i \not\sim u_j$, Chapter 3, Assumption 3.3).
-2. It assumes that physical redistributions can be enacted without coercive extraction. By Chapter 12 (Theorem 12.2 and Theorem 12.2a), every fiscal transfer depletes a net taxpayer's clean-title endowment and dissipates physical factors through rent-seeking friction.
+1. It compares subjective utility across distinct individuals, resurrecting the mathematical impossibility of interpersonal cardinal comparison ($u_i \not\sim u_j$, Chapter 3, [Assumption 3.3](../natural_language/03_preference_purpose_and_opportunity_cost.md#assumption-33-strict-asymmetry-of-preference)).
+2. It assumes that physical redistributions can be enacted without coercive extraction. By Chapter 12 ([Theorem 12.2](../natural_language/12_state_and_fiscal_political_economy.md#theorem-122-calhoun-fiscal-class-partition-theorem) and [Theorem 12.2a](../natural_language/12_state_and_fiscal_political_economy.md#theorem-122a-tullock-rent-seeking-dissipation-depletes-cohort)), every fiscal transfer depletes a net taxpayer's clean-title endowment and dissipates physical factors through rent-seeking friction.
 
 ### 4.2 The "Liberal Paradox" Misconception
 Amartya Sen claimed in *The Impossibility of a Paretian Liberal* that minimal individual liberty is mathematically incompatible with Pareto efficiency. 
 
-Sen's paradox is an artifact of defining liberty as a "social preference" over outcomes (e.g., whether Prude or Lewd reads a book). Praxeologically, liberty is not a preference over what other people do; it is the physical absence of directed invasion against one's own clean-title endowment ($I_{j \to i} = 0$, Chapter 8, Definition 8.13; Theorem 8.15). When rights are defined as physical boundaries rather than preferences over third-party actions, Sen's paradox evaporates entirely.
+Sen's paradox is an artifact of defining liberty as a "social preference" over outcomes (e.g., whether Prude or Lewd reads a book). Praxeologically, liberty is not a preference over what other people do; it is the physical absence of directed invasion against one's own clean-title endowment ($I_{j \to i} = 0$, Chapter 8, [Definition 8.13](../natural_language/08_social_interaction_property_and_exchange.md#definition-813-purposeful-lockean-homesteading-and-clean-title-traces); [Theorem 8.15](../natural_language/08_social_interaction_property_and_exchange.md#theorem-815-the-three-stated-categories-are-pairwise-disjoint)). When rights are defined as physical boundaries rather than preferences over third-party actions, Sen's paradox evaporates entirely.
 
 ---
 
@@ -119,5 +119,5 @@ Social choice theory arrived at an intellectual dead end because it searched for
 
 Praxeology reconstructs welfare economics on apodictic foundations:
 1. **Unanimity as the Sole Catallactic Benchmark:** The only objective criterion of social improvement is demonstrated voluntary agreement. When two individuals trade voluntarily, both demonstrate anticipated improvement, and neither's clean-title endowment is invaded.
-2. **The Price System as Decentralized Coordination:** The market economy does not require or produce a "social choice." Market prices are not collective valuations, but historical ratios formed by the intersection of divergent individual valuations (Chapter 9).
-3. **Institutional Disjointness:** Peaceful catallactic coordination operates through voluntary exchange and market competition; collective political decision-making operates through hegemonic extraction and the political means (Chapter 8, Theorem 8.15; Chapter 12, Theorem 12.1).
+2. **The Price System as Decentralized Coordination:** The market economy operates through decentralized, pairwise catallactic clearing. Market prices represent discrete historical exchange ratios formed by the intersection of divergent individual valuations, coordinating human action without any collective social preference ordering (Chapter 9).
+3. **Institutional Disjointness:** Peaceful catallactic coordination operates through voluntary exchange and market competition; collective political decision-making operates through hegemonic extraction and the political means (Chapter 8, [Theorem 8.15](../natural_language/08_social_interaction_property_and_exchange.md#theorem-815-the-three-stated-categories-are-pairwise-disjoint); Chapter 12, [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-a-public-service-quantity-does-not-alter-the-specified-coercion-comparisons)).

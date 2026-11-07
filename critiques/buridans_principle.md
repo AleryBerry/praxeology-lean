@@ -75,7 +75,7 @@ $$
 $$
 
 2. If the agent does not intervene to consume bale $A$ $(\alpha_A)$ or bale $B$ $(\alpha_B)$, the agent refrains from intervention.
-3. By Definition 1.1 (Chapter 1), refraining from intervention is the distinguished baseline action $\alpha_0$. Hesitation is not a state "outside" action; it is the physical enactment of $\alpha_0$. $\blacksquare$
+3. By [Definition 1.1](../natural_language/01_agents_means_ends_and_feasibility.md#definition-11-the-basic-vocabulary-of-an-action-frame) (Chapter 1), refraining from intervention is the distinguished baseline action $\alpha_0$. Hesitation is not a state "outside" action; it is the physical enactment of $\alpha_0$. $\blacksquare$
 
 ---
 
@@ -84,7 +84,7 @@ $$
 **Proposition.** An agent seeking survival cannot persist in the undecided state of starvation when accessible undominated alternatives exist.
 
 **Proof.**
-1. By Definition 3.8 (Chapter 3), purposeful action $\mathsf{P}(i, t, h, \alpha^{\ast})$ requires the chosen action $\alpha^{\ast}$ to be undominated in the feasible menu:
+1. By [Definition 3.8](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-38-purposeful-choice-relative-to-a-relation) (Chapter 3), purposeful action $\mathsf{P}(i, t, h, \alpha^{\ast})$ requires the chosen action $\alpha^{\ast}$ to be undominated in the feasible menu:
 
 $$
 \forall \beta \in \mathcal{A}_{\text{feas}}(i, t, h), \quad \neg (\text{End}(i, \beta, t, h) \succ_{i,t,h} \text{End}(i, \alpha^{\ast}, t, h))

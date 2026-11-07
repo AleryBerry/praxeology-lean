@@ -33,7 +33,7 @@ $$
 Buchanan and Tullock's *The Calculus of Consent* attempts to ground state coercion in voluntary exchange by positing an ex-ante unanimous agreement to majoritarian rules. 
 
 Praxeologically, this argument collapses on the principle of demonstrated preference (Chapter 3):
-1. Preference is revealed strictly through actual human action ($\mathsf{P}$). An unacted, counterfactual, or hypothetical choice behind a conceptual "veil of uncertainty" is an epistemic fiction (Chapter 14, Theorem 14.1).
+1. Preference is revealed strictly through actual human action ($\mathsf{P}$). An unacted, counterfactual, or hypothetical choice behind a conceptual "veil of uncertainty" is an epistemic fiction (Chapter 14, [Theorem 14.1](../natural_language/14_historical_observation_and_identification.md#theorem-141-non-identification-from-equal-records)).
 2. An agent who currently dissents from a tax assessment or regulatory decree demonstrates an actual preference against the state action ( $O_i(\alpha_0, \alpha_0) \succ_i O_i(\alpha_{\text{comply}}, \alpha_{\text{tax}})$ ).
 3. Appealing to a non-existent past contract to overrule present demonstrated dissent commits a category error: an actual coercion at moment $t$ cannot be transformed into voluntary exchange by an unobservable counterfactual agreement.
 
@@ -41,13 +41,13 @@ Praxeologically, this argument collapses on the principle of demonstrated prefer
 Downs observed that in large electorates, $p_{\text{piv}} \approx 0$, making $R_{\text{Downs}}(i) < 0$, yet millions of citizens cast ballots ("the paradox of voting"). Neoclassical economics patches this with ad-hoc "civic duty" utility terms ($D$).
 
 Praxeology resolves the paradox without ad-hoc utility parameters:
-1. In an action frame, if casting a ballot does not change the physical end realized ( $\text{outcome}(i, \alpha_{\text{vote}}, t, h) = \text{outcome}(i, \alpha_0, t, h)$ ), instrumental voting cannot be purposeful due to the strict irreflexivity of preference ( $\neg (e \succ e)$, Chapter 3, Proposition 3.4).
+1. In an action frame, if casting a ballot does not change the physical end realized ( $\text{outcome}(i, \alpha_{\text{vote}}, t, h) = \text{outcome}(i, \alpha_0, t, h)$ ), instrumental voting cannot be purposeful due to the strict irreflexivity of preference ( $\neg (e \succ e)$, Chapter 3, [Proposition 3.4](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-34-derived-strict-irreflexivity-of-preference)).
 2. If an individual purposefully votes, the action cannot be an instrumental investment aimed at altering state policy; it is an act of direct expressive consumption, where felt unease is relieved by the physical act of participation itself.
 
 ### 2.3 Rent-Seeking Dissipation as Cohort Physical Contraction
 Public choice analyzes rent-seeking as an "efficiency loss" relative to an imaginary competitive benchmark. 
 
-In our constructive formalization, rent-seeking is grounded directly in physical factor depletion: the resources expended in seeking, defending, and administering fiscal privileges consume actual physical means ($\omega$), strictly contracting the total physical factor stock available to the cohort (Chapter 12, Theorem 12.2a).
+In our constructive formalization, rent-seeking is grounded directly in physical factor depletion: the resources expended in seeking, defending, and administering fiscal privileges consume actual physical means ($\omega$), strictly contracting the total physical factor stock available to the cohort (Chapter 12, [Theorem 12.2a](../natural_language/12_state_and_fiscal_political_economy.md#theorem-122a-tullock-rent-seeking-dissipation-depletes-cohort)).
 
 ---
 
@@ -62,7 +62,7 @@ $$
 I_{j \to i}(\alpha_{\text{tax}}) \wedge O_i(\alpha_c, \alpha_t) \succ_i O_i(\alpha_0, \alpha_t) \wedge O_i(\alpha_0, \alpha_0) \succ_i O_i(\alpha_c, \alpha_t) \wedge O_j(\alpha_c, \alpha_t) \succ_j O_j(\alpha_0, \alpha_0) \implies \text{PoliticalMeans} \wedge \neg \text{EconomicMeans}
 $$
 
-**Proof.** The four hypotheses satisfy all conditions of anchored coercive extortion (Chapter 12, Theorem 12.1 and Proposition 12.1a). Voluntary exchange requires that neither party initiates physical invasion against clean-title endowments ($\neg I_{j \to i}$), which directly contradicts $I_{j \to i}(\alpha_{\text{tax}})$. Democratic majoritarian procedures do not alter physical invasion or revealed preference. $\blacksquare$
+**Proof.** The four hypotheses satisfy all conditions of anchored coercive extortion (Chapter 12, [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-a-public-service-quantity-does-not-alter-the-specified-coercion-comparisons) and [Proposition 12.1a](../natural_language/12_state_and_fiscal_political_economy.md#proposition-121a-majoritarian-coalition-extraction-is-political-means)). Voluntary exchange requires that neither party initiates physical invasion against clean-title endowments ($\neg I_{j \to i}$), which directly contradicts $I_{j \to i}(\alpha_{\text{tax}})$. Democratic majoritarian procedures do not alter physical invasion or revealed preference. $\blacksquare$
 
 ### Theorem 2 (Tullock Rent-Seeking Dissipation Depletes Cohort)
 Let $F$ be a fiscal transfer system over finite cohort $C$ satisfying physical conservation:
@@ -77,7 +77,7 @@ $$
 \text{deadweight\_loss} > 0 \implies \sum_{a \in C} \omega_{\text{post}}(a) < \sum_{a \in C} \omega_{\text{pre}}(a)
 $$
 
-**Proof.** Follows directly from integer arithmetic on the conservation identity with $`\text{deadweight\_loss} > 0`$ (Chapter 12, Theorem 12.2a). Coercive transfers cannot generate new physical factors; administrative friction and rent dissipation guarantee that the cohort's total physical inventory strictly contracts. $\blacksquare$
+**Proof.** Follows directly from integer arithmetic on the conservation identity with $`\text{deadweight\_loss} > 0`$ (Chapter 12, [Theorem 12.2a](../natural_language/12_state_and_fiscal_political_economy.md#theorem-122a-tullock-rent-seeking-dissipation-depletes-cohort)). Coercive transfers cannot generate new physical factors; administrative friction and rent dissipation guarantee that the cohort's total physical inventory strictly contracts. $\blacksquare$
 
 ### Theorem 3 (Downsian Non-Pivotality Excludes Instrumental Purposefulness)
 Let an agent face a binary decision between active instrumental voting $\alpha_{\text{vote}} \neq \alpha_0$ and abstention $\alpha_0$. If the voter's single ballot does not alter the electoral or policy outcome:
@@ -92,7 +92,7 @@ $$
 \neg \mathsf{P}_{\text{instrumental}}(i, t, h, \alpha_{\text{vote}})
 $$
 
-**Proof.** By Definition 3.1, purposeful active choice requires $\text{outcome}(\alpha_{\text{vote}}) \succ_{i,t,h} \text{outcome}(\alpha_0)$. If the ends are identical, this would require $\text{outcome}(\alpha_0) \succ_{i,t,h} \text{outcome}(\alpha_0)$, which violates the strict irreflexivity of preference (Chapter 3, Proposition 3.4; Chapter 12, Proposition 12.4a). $\blacksquare$
+**Proof.** By Chapter 3 ([Definitions 3.8](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-38-purposeful-choice-relative-to-a-relation)–[3.10](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-310-active-purposeful-choice)), purposeful active choice requires $\text{outcome}(\alpha_{\text{vote}}) \succ_{i,t,h} \text{outcome}(\alpha_0)$. If the ends are identical, this would require $\text{outcome}(\alpha_0) \succ_{i,t,h} \text{outcome}(\alpha_0)$, which violates the strict irreflexivity of preference (Chapter 3, [Proposition 3.4](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-34-derived-strict-irreflexivity-of-preference); Chapter 12, [Proposition 12.4a](../natural_language/12_state_and_fiscal_political_economy.md#proposition-124a-downsian-voter-non-pivotality-blocks-purposeful-voting)). $\blacksquare$
 
 ### Theorem 4 (Calhoun Cohort Fiscal Class Partition)
 In any closed fiscal transfer system on a finite cohort $C$, every net tax-consumer requires at least one net taxpayer:
@@ -101,7 +101,7 @@ $$
 \exists s \in C, \quad \omega_{\text{pre}}(s) < \omega_{\text{post}}(s) \implies \exists b \in C, \quad \omega_{\text{post}}(b) < \omega_{\text{pre}}(b)
 $$
 
-**Proof.** By conservation, $\sum \omega_{\text{post}} \le \sum \omega_{\text{pre}}$. If no member lost stock, $\omega_{\text{pre}}(a) \le \omega_{\text{post}}(a)$ for all $a \in C$. Since $s$ strictly gained, summing yields $\sum \omega_{\text{pre}} < \sum \omega_{\text{post}}$, a direct contradiction (Chapter 12, Theorem 12.2). $\blacksquare$
+**Proof.** By conservation, $\sum \omega_{\text{post}} \le \sum \omega_{\text{pre}}$. If no member lost stock, $\omega_{\text{pre}}(a) \le \omega_{\text{post}}(a)$ for all $a \in C$. Since $s$ strictly gained, summing yields $\sum \omega_{\text{pre}} < \sum \omega_{\text{post}}$, a direct contradiction (Chapter 12, [Theorem 12.2](../natural_language/12_state_and_fiscal_political_economy.md#theorem-122-calhoun-fiscal-class-partition-theorem)). $\blacksquare$
 
 ---
 
@@ -117,7 +117,7 @@ This analogy breaks down praxeologically on the distinction between voluntary ex
 ### 4.2 The "Public Goods" Immunization Fallacy
 Public choice theorists often justify constitutional taxation on the grounds that non-excludable "public goods" cannot be financed voluntarily. 
 
-As proved in Theorem 12.1 (Chapter 12), the presence of a positive physical service quantity ($0 < \text{publicGood}$) does not alter the fact of coercive extortion: providing a park or defense service does not undo the physical contraction of the taxpayer's clean-title endowment or convert demonstrated dissent into consent.
+As proved in [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-a-public-service-quantity-does-not-alter-the-specified-coercion-comparisons) (Chapter 12), the presence of a positive physical service quantity ($0 < \text{publicGood}$) does not alter the fact of coercive extortion: providing a park or defense service does not undo the physical contraction of the taxpayer's clean-title endowment or convert demonstrated dissent into consent.
 
 ---
 
@@ -127,6 +127,6 @@ Public choice theory correctly identified the self-interested motivation of stat
 
 Praxeological political economy replaces these neoclassical artifacts with rigorous axiomatic foundations:
 1. **The Methodological Individual:** Society has no collective mind, utility function, or aggregate contract. All choices are enacted by individual agents at discrete decision nodes $\langle t, h \rangle$.
-2. **The Economic vs. Political Partition:** All human interactions partition strictly into voluntary exchange (economic means), market competition, and coercive extortion (political means) (Chapter 8, Theorem 8.15; Chapter 12, Theorem 12.1).
-3. **The Calhoun Fiscal Division:** The state is not a cooperative club; it is an institution of territorial monopoly that divides society into two exhaustive and mutually exclusive classes: net tax-consumers who gain physical factor endowments, and net taxpayers whose clean-title endowments are depleted (Chapter 12, Theorem 12.2).
-4. **Physical Dissipation:** Rent seeking is not an intangible welfare loss, but a measurable physical depletion of scarce factors consumed in the struggle for political privilege (Chapter 12, Theorem 12.2a).
+2. **The Economic vs. Political Partition:** All human interactions partition strictly into voluntary exchange (economic means), market competition, and coercive extortion (political means) (Chapter 8, [Theorem 8.15](../natural_language/08_social_interaction_property_and_exchange.md#theorem-815-the-three-stated-categories-are-pairwise-disjoint); Chapter 12, [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-a-public-service-quantity-does-not-alter-the-specified-coercion-comparisons)).
+3. **The Calhoun Fiscal Division:** The state operates as an institution of territorial monopoly that partitions society into two exhaustive and mutually exclusive classes: net tax-consumers who gain physical factor endowments, and net taxpayers whose clean-title endowments are depleted (Chapter 12, [Theorem 12.2](../natural_language/12_state_and_fiscal_political_economy.md#theorem-122-calhoun-fiscal-class-partition-theorem)).
+4. **Physical Dissipation:** Rent seeking represents a measurable physical depletion of scarce factors consumed in the struggle for political privilege (Chapter 12, [Theorem 12.2a](../natural_language/12_state_and_fiscal_political_economy.md#theorem-122a-tullock-rent-seeking-dissipation-depletes-cohort)).

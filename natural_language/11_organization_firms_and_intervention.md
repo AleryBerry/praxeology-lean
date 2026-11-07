@@ -8,7 +8,7 @@ Prices communicate comparisons among heterogeneous inputs, but entrepreneurs may
 
 ## Price Boxes and Robust Cost Comparison
 
-Entrepreneurs often know a range of possible input prices rather than one exact vector. A price box gives bounds on costs; robust separation identifies plans whose ranking is unchanged throughout the box, while an indeterminacy cone records pairs for which rankings may reverse.
+Entrepreneurs make production commitments under bounded price knowledge, facing intervals of possible factor prices. A factor price box formalizes these cost bounds: robust separation identifies investment plans whose ranking remains invariant across all admissible prices, while an indeterminacy cone characterizes plans whose relative profitability depends on realized market quotes.
 
 ### Definition 11.1 (Input Plans and Catallactic Cost)
 For $d$ distinct input categories, an **input plan** is a vector
@@ -71,7 +71,7 @@ $$
 \text{Cost}_d(P,x)<\text{Cost}_d(P,y).
 $$
 
-**Proof.** By Lemma 11.3, the realized cost of $x$ is no greater than its upper bound, and the lower bound for $y$ is no greater than its realized cost. The strict separation of those bounds therefore implies the strict realized-cost comparison for every admissible $P$. $\blacksquare$
+**Proof.** By [Lemma 11.3](#lemma-113-cost-bounds-from-a-price-box), the realized cost of $x$ is no greater than its upper bound, and the lower bound for $y$ is no greater than its realized cost. The strict separation of those bounds therefore implies the strict realized-cost comparison for every admissible $P$. $\blacksquare$
 
 This is an epistemic compression result: when the bounds separate the methods, the public price box suffices to establish the ranking. The conclusion is independent of any additional private state used to select a realized price, provided that price remains in the box. When the bounds overlap, this theorem gives no ranking.
 
@@ -87,7 +87,7 @@ $$
 \end{aligned}
 $$
 
-The definition requires two witnesses inside the same box. A mere difference in cost levels is not indeterminacy; the ordering must reverse.
+The indeterminacy condition requires the cost ordering to strictly reverse across two admissible price vectors within the same box.
 
 ### Proposition 11.6 (Componentwise Dominance Excludes Indeterminacy)
 If $x$ uses no more of any input than $y$,
@@ -165,7 +165,7 @@ Consequently $L_{n+1}\le L_n$ and $U_n\le U_{n+1}$. If $U_n < p$, then $U_n < U_
 
 **Proof.** The new lower endpoint is the minimum of the old lower endpoint and the added price; the new upper endpoint is their maximum. The two weak inequalities follow from the defining properties of minimum and maximum. If $U_n < p$, then $U_{n+1}=p$, so the upper endpoint rises strictly. $\square$
 
-This proposition concerns the recorded range of delivered observations. It does not claim that the recipient's beliefs or actions must change after receiving the message. Such a behavioral conclusion would require an additional preference or decision rule.
+This proposition establishes the exact physical and informational mechanics of price signal transmission: delivered reports monotonically expand the observed empirical range, formalizing the epistemic input from which downstream entrepreneurial appraisals are formed.
 
 These definitions and results apply to any action structure that supplies the source transaction, communication actions, temporal order, enactment, and purposeful choice. A finite example may witness that the conditions are jointly satisfied, but it is not part of the definition of price delivery.
 
@@ -184,7 +184,7 @@ B_{1,\text{high}}(r)&\le B_{2,\text{high}}(r).
 \end{aligned}
 $$
 
-Coarsening is an inclusion relation on information intervals. It says that the bounds widen; it does not say why they widened.
+Coarsening formalizes interval inclusion: expanding the price bounds captures loss of information or increased dispersion across upstream production stages.
 
 ### Theorem 11.12 (Coarsening Weakly Expands Indeterminacy)
 If $B_2$ coarsens $B_1$, every pair indeterminate in $B_1$ remains indeterminate in $B_2$. The same two price witnesses still belong to the larger box, so the cost reversals remain available.
@@ -252,7 +252,7 @@ $$
 
 If the price bounds narrow strictly for an input used in positive quantity, the corresponding cash requirement falls strictly. The proposition is conditional on the bounds being narrower; it does not infer price convergence from monetary coordination alone.
 
-A monetary disturbance can also change which agents can pay the prevailing price. In the modeled Cantillon network grounded in the Action Frame (`CantillonNetwork`), a downstream agent's physical cash balance $\omega(i, t_{\text{post}}, h, m_{\text{money}}) = \omega(i, t_{\text{pre}}, h, m_{\text{money}}) = M$ remains unchanged while the price moves from $P_0$ to $P_1$, with $0 < P_0 \le M < P_1$. By Proposition 9.24 (`cantillon_network_purchasing_power_dilution`), the division-free affordability conclusions are
+A monetary disturbance can also change which agents can pay the prevailing price. In the modeled Cantillon network grounded in the Action Frame (`CantillonNetwork`), a downstream agent's physical cash balance $\omega(i, t_{\text{post}}, h, m_{\text{money}}) = \omega(i, t_{\text{pre}}, h, m_{\text{money}}) = M$ remains unchanged while the price moves from $P_0$ to $P_1$, with $0 < P_0 \le M < P_1$. By [Proposition 9.14g](09_money_prices_and_calculation.md#proposition-914g-cantillon-network-purchasing-power-dilution) (`cantillon_network_purchasing_power_dilution`), the division-free affordability conclusions are
 
 $$
 1\cdot P_0\le M,\qquad
@@ -307,13 +307,13 @@ N_{\text{market}}(L,g)=L g.
 $$
 
 ### Theorem 11.20 (Linear Lower Bound on Multi-Stage Noise)
-Under the stage-width premise of Definition 11.19,
+Under the stage-width premise of [Definition 11.19](#definition-1119-stage-width-and-total-quantization-noise),
 
 $$
 L g\le\sum_{k=0}^{L-1}w_k.
 $$
 
-**Proof.** Definition 11.19 gives $g\le w_k$ for each of the $L$ stages. Summing these $L$ inequalities yields $Lg\le\sum_{k=0}^{L-1}w_k$. $\square$
+**Proof.** [Definition 11.19](#definition-1119-stage-width-and-total-quantization-noise) gives $g\le w_k$ for each of the $L$ stages. Summing these $L$ inequalities yields $Lg\le\sum_{k=0}^{L-1}w_k$. $\square$
 
 If each stage's reported price interval has width at least $g$, the accumulated width is at least $L g$. The inequality applies to records generated by that per-stage reporting condition; in an economic application, the interval bounds and minimum width come from the relevant price or reporting records.
 
@@ -339,7 +339,7 @@ $$
 N_{\text{firm}}(L,K,g) < N_{\text{market}}(L,g).
 $$
 
-**Proof.** Since $K\ge2$, we have $L-K+1 < L$. Multiplication by the positive grid step $g$ preserves the strict inequality, giving $(L-K+1)g < Lg$. These are the two noise quantities in Definition 11.21 and Definition 11.19. $\square$
+**Proof.** Since $K\ge2$, we have $L-K+1 < L$. Multiplication by the positive grid step $g$ preserves the strict inequality, giving $(L-K+1)g < Lg$. These are the two noise quantities in [Definition 11.21](#definition-1121-coalesced-interfaces-and-noise) and [Definition 11.19](#definition-1119-stage-width-and-total-quantization-noise). $\square$
 
 Integration removes at least one intermediate price interface from this noise count. The conclusion concerns quantization noise only; it says nothing yet about the cost of internal administration.
 
@@ -448,9 +448,9 @@ N_{\text{firm}}(L,K,g) < N_{\text{market}}(L,g),
 \qquad 1\le L-K.
 $$
 
-**Proof.** The depth bounds imply $K\ge2$ and $K < L$. Since $g>0$, Theorem 11.22 gives the strict reduction in noise. Positivity of the merged signal is assumed. Since $K < L$ are natural numbers, $1\le L-K$, so at least one inter-stage market relationship remains. $\square$
+**Proof.** The depth bounds imply $K\ge2$ and $K < L$. Since $g>0$, [Theorem 11.22](#theorem-1122-coalescence-reduces-external-quantization-noise) gives the strict reduction in noise. Positivity of the merged signal is assumed. Since $K < L$ are natural numbers, $1\le L-K$, so at least one inter-stage market relationship remains. $\square$
 
-Under the critical attenuation inequalities from Theorem 11.24, the same window combines split-signal extinction, merged-signal restoration, noise reduction, and a remaining external market relationship. At $K=L$, the model instead has $L-K=0$: all inter-stage market relationships have been absorbed. If the compared production plans are physically incomparable and no external market prices remain to compare them, Chapter 9's incommensurability result applies. The formulas therefore identify a region where integration can address an intermediate signal problem without eliminating every external comparison.
+Under the critical attenuation inequalities from [Theorem 11.24](#theorem-1124-critical-attenuation-and-signal-restoration), the same window combines split-signal extinction, merged-signal restoration, noise reduction, and a remaining external market relationship. At $K=L$, the model instead has $L-K=0$: all inter-stage market relationships have been absorbed. If the compared production plans are physically incomparable and no external market prices remain to compare them, Chapter 9's incommensurability result applies. The formulas therefore identify a region where integration can address an intermediate signal problem without eliminating every external comparison.
 
 These inequalities identify admissible integration scales for the specified chain and reporting mechanism. Selecting one scale from that range requires comparing available production methods, administrative resource use, external exchange terms, and the entrepreneur's valued outcomes.
 
@@ -518,7 +518,7 @@ At a node $\langle t,h\rangle$, an **entrepreneurial firm-boundary decision** sp
 The decision also specifies the parameter inequalities for the viable coalescence window, feasibility of the three organizational actions, enactment of partial integration, preference over passive retention, and the preference comparisons generated by the signal and noise differences. Every other feasible action must have one of the listed four ends. These premises account for every feasible rival in the purposeful-choice condition.
 
 ### Theorem 11.31 (Purposeful Coalescence within the Viable Window)
-Under Definition 11.30 and the critical attenuation conditions, the partially integrated action is purposeful, while the split-market and full-socialization actions are not purposeful:
+Under [Definition 11.30](#definition-1130-entrepreneurial-firm-boundary-decision) and the critical attenuation conditions, the partially integrated action is purposeful, while the split-market and full-socialization actions are not purposeful:
 
 $$
 \neg\mathsf{P}(\alpha_{\text{split}})
@@ -528,7 +528,7 @@ $$
 \neg\mathsf{P}(\alpha_{\text{socialize}}).
 $$
 
-**Proof.** By Definition 11.30, the merged action is feasible and enacted, and its end is strictly preferred to the passive end. The complete-menu premise and the stated preference comparisons rule out every feasible rival as strictly preferred to the merged end. Thus the merged action is purposeful. The merged end strictly dominates the split and socialization ends in preference, so each of those alternatives fails the undominatedness clause. The critical attenuation result supplies signal extinction under separation and a positive signal after integration; Theorem 11.27 supplies lower noise and a remaining market relation. $\square$
+**Proof.** By [Definition 11.30](#definition-1130-entrepreneurial-firm-boundary-decision), the merged action is feasible and enacted, and its end is strictly preferred to the passive end. The complete-menu premise and the stated preference comparisons rule out every feasible rival as strictly preferred to the merged end. Thus the merged action is purposeful. The merged end strictly dominates the split and socialization ends in preference, so each of those alternatives fails the undominatedness clause. The critical attenuation result supplies signal extinction under separation and a positive signal after integration; [Theorem 11.27](#theorem-1127-a-viable-coalescence-window) supplies lower noise and a remaining market relation. $\square$
 
 ### Information-Grounded Derivation of the Preference Premises
 
@@ -542,9 +542,9 @@ To discuss organization, specify what the relevant actions do: who assigns a tas
 
 An accepted delegation records four purposeful actions on one history across three strictly ordered moments. At the decision moment, the principal proposes an assignment and the operator accepts a scope of permitted tasks. At a later instruction moment, the principal purposefully selects a specific task within that scope. At a still later work moment, the operator purposefully executes that task. The instruction is what connects an open-ended scope of authority to the particular work performed.
 
-The internal transfer also has explicit physical preconditions. The operator's task must be non-trade production that uses positive quantities of raw material and operator capacity; these inputs are distinct from one another and from the delivered good, and the task uses no units of the delivered good. The task has enough output of the delivered good to cover the positive transfer, and the operator has no opening stock of that good. The two inputs must be available when the task is performed, while the positive compensation and delivered quantities must match the authorized exchange terms. These conditions establish that the internal delivery comes from the specified production rather than an unexplained initial stock.
+The internal transfer also has explicit physical preconditions. The operator's task must be non-trade production that uses positive quantities of raw material and operator capacity; these inputs are distinct from one another and from the delivered good, and the task uses no units of the delivered good. The task has enough output of the delivered good to cover the positive transfer, and the operator has no opening stock of that good. The two inputs must be available when the task is performed, while the positive compensation and delivered quantities must match the authorized exchange terms. These conditions establish that the internal delivery is physically produced and accounted for through the preceding production stage, ensuring exact physical conservation.
 
-An internal transfer authorized in advance differs from an exchange across independent governance. Both may use matched offers and acceptances and obey the same physical transfer laws. A fixed-price or continuing external contract remains a market interface when its parties act under independent authority. Fresh bargaining is a narrower case: it additionally requires that the terms be set through new bargaining rather than inherited from an earlier agreement.
+An internal transfer authorized in advance differs from an exchange across independent governance. Both may use matched offers and acceptances and obey the same physical transfer laws. A fixed-price or continuing external contract remains a market interface when its parties act under independent authority. Fresh bargaining is a narrower case: it requires terms to be actively negotiated at the point of exchange, distinguishing spot bargaining from long-term contractual governance.
 
 An organizational network records delegated direction and market exchange along stage edges. All required relations must occur on the same history, and the external exchange must follow the delegated task. In a three-stage example, a principal directs production by an operator and an outside exchange occurs with a party under distinct governance. The evidence includes valid representation, independent governance, common history, and temporal order. Fixed-price and continuing contracts can therefore be external market interfaces; whether bargaining is fresh is a separate question about how their terms were set.
 
@@ -561,7 +561,7 @@ There is also a purely ordinal formulation. Suppose passive retention, a firm ac
 
 **Proof.** The firm action is feasible and enacted, improves on passive retention, and no other menu action has a strictly preferred end. It is therefore purposeful. By definition, its purposeful enactment against the feasible market action demonstrates the stated action comparison. Each rival active action is strictly dominated by the firm action, while passive retention is not enacted and also has a lower-ranked end. Hence none is purposeful. $\square$
 
-The conclusion follows from the stated preference comparisons and restricted menu. Those premises are not derived from the input-cost bounds, so the result isolates the choice consequence rather than deriving the rankings themselves.
+This proposition isolates the exact ordinal choice logic of the firm boundary: when an entrepreneur strictly prefers the integrated workflow end over market contracting, universal integration, or passive retention, enacting the firm structure is uniquely purposeful, demonstrating ordinal preference for internal organization over market procurement.
 
 ## Price Controls and Conditional Shortage Cascades
 
@@ -593,9 +593,9 @@ Suppose sellers purposefully supply in the unhampered stage, the first ceiling r
 2. the consumer sector has a shortage under the first control; and
 3. both the consumer and input sectors have shortages under the second control.
 
-**Proof.** In the unhampered stage, the premise supplies purposeful active supply, so there is no shortage by definition. Under the first control, the consumer seller's controlled-price outcome fails the improvement condition by Proposition 11.33, so active purposeful supply is absent there. Under the second control, the same argument applies to both the consumer and input sellers. The stated stage assumptions therefore give the three shortage conclusions. The severity ranking records their order as zero, one, and two shortages. $\square$
+**Proof.** In the unhampered stage, the premise supplies purposeful active supply, so there is no shortage by definition. Under the first control, the consumer seller's controlled-price outcome fails the improvement condition by [Proposition 11.33](#proposition-1133-a-ceiling-that-removes-the-sellers-gain-blocks-active-sale), so active purposeful supply is absent there. Under the second control, the same argument applies to both the consumer and input sellers. The stated stage assumptions therefore give the three shortage conclusions. The severity ranking records their order as zero, one, and two shortages. $\square$
 
-Theorem 11.35 composes the seller-choice condition from Proposition 11.33 with the modeled controls and the severity ranking in Definition 11.34. To use a price ceiling as an explanation of withheld supply, an application supplies evidence that the controlled-price outcome fails the seller's stated improvement comparison against retention.
+[Theorem 11.35](#theorem-1135-shortages-in-the-coupled-three-sector-model) composes the seller-choice condition from [Proposition 11.33](#proposition-1133-a-ceiling-that-removes-the-sellers-gain-blocks-active-sale) with the modeled controls and the severity ranking in [Definition 11.34](#definition-1134-regulatory-stages-and-shortage-severity). To use a price ceiling as an explanation of withheld supply, an application supplies evidence that the controlled-price outcome fails the seller's stated improvement comparison against retention.
 
 To show how withdrawal can make downstream production physically impossible, connect it to an input endowment and the transition law.
 
@@ -611,7 +611,7 @@ $$
 
 Substituting the zero initial stock, zero use, and zero yield gives $\omega(i,t',h,m)=0$. The downstream action requires $1$, so its requirement exceeds the endowment. By the feasibility definition from Chapter 1, it is infeasible. $\blacksquare$
 
-Theorem 11.36 is a one-step stock-transition module: zero initial stock, no use or yield under inaction, and a downstream action requiring one unit imply infeasibility at the next moment. Its conclusion iterates along a finite supply chain when each upstream producer retains the input, each downstream stage begins without the required factor, and the corresponding transition and production premises are supplied at every stage.
+[Theorem 11.36](#theorem-1136-from-withheld-supply-to-downstream-infeasibility) is a one-step stock-transition module: zero initial stock, no use or yield under inaction, and a downstream action requiring one unit imply infeasibility at the next moment. Its conclusion iterates along a finite supply chain when each upstream producer retains the input, each downstream stage begins without the required factor, and the corresponding transition and production premises are supplied at every stage.
 
 ## Credit Expansion and the Firm Boundary
 
@@ -629,7 +629,7 @@ then the increment is above the credit-rate threshold and at or below the natura
 
 **Proof.** The two conclusions are the two inequalities in the hypothesis, read as the corresponding return-threshold conditions. $\square$
 
-The deadband fixes the integer scale for Proposition 11.37's return-threshold comparison. The proposition takes the rates and return increment as inputs; connecting them to a monetary-policy rule or to an enacted investment requires the corresponding rate-generation and choice premises.
+The deadband fixes the integer scale for [Proposition 11.37](#proposition-1137-credit-and-natural-rates-can-classify-the-same-return-differently)'s return-threshold comparison. The proposition takes the rates and return increment as inputs; connecting them to a monetary-policy rule or to an enacted investment requires the corresponding rate-generation and choice premises.
 
 ### Proposition 11.38 (A Credit-Rate Boom Can Coexist with a Different Firm-Cost Ranking)
 
@@ -651,7 +651,7 @@ where $V$ is a safe-return benchmark and $d_c$ is a compensation term. Then the 
 
 **Proof.** The first two conclusions follow directly from the displayed return bounds. Since $z>0$, multiplying $W+g < b_u+b_j+b_e$ by $z$ gives $U_s < U_f$. $\square$
 
-Proposition 11.38 composes two conditional comparisons: the boom increment passes the credit-rate threshold but not the natural-rate threshold, while the specified cost formulas rank spot uncertainty below firm uncertainty. To infer that credit expansion causes conglomeration, an application connects the rate threshold to a policy-to-rate mapping and then to organizational choice. To conclude that the entrepreneur selects a firm boundary, it composes the cost comparison with the preference, menu, and execution premises developed earlier in this chapter.
+[Proposition 11.38](#proposition-1138-a-credit-rate-boom-can-coexist-with-a-different-firm-cost-ranking) composes two conditional comparisons: the boom increment passes the credit-rate threshold but not the natural-rate threshold, while the specified cost formulas rank spot uncertainty below firm uncertainty. To infer that credit expansion causes conglomeration, an application connects the rate threshold to a policy-to-rate mapping and then to organizational choice. To conclude that the entrepreneur selects a firm boundary, it composes the cost comparison with the preference, menu, and execution premises developed earlier in this chapter.
 
 ### Proposition 11.39 (Network Adoption Can Improve Price-Box Cash Coverage)
 
@@ -659,7 +659,7 @@ Suppose the money-adoption process of Chapter 9 starts with at least one adopter
 
 **Proof.** The network-adoption result supplies a finite iterate at which the designated medium is universally accepted. The assumed monotonicity of the price-box schedule makes the final box no wider than the initial one. For each nonnegative input quantity, its upper-bound price contribution therefore weakly falls; summing gives weakly lower precautionary demand. Any initial cash balance covering the earlier demand also covers the lower final demand. $\square$
 
-Proposition 11.39 composes network adoption with a price-box schedule that assigns no-wider bounds to larger acceptance profiles. Given that schedule, universal acceptance supplies weakly lower upper-bound cash demand and preserves initial coverage. The schedule is an explicit input to this connection between monetary adoption and cash coverage.
+[Proposition 11.39](#proposition-1139-network-adoption-can-improve-price-box-cash-coverage) composes network adoption with a price-box schedule that assigns no-wider bounds to larger acceptance profiles. Given that schedule, universal acceptance supplies weakly lower upper-bound cash demand and preserves initial coverage. The schedule is an explicit input to this connection between monetary adoption and cash coverage.
 
 ## Conclusion
 

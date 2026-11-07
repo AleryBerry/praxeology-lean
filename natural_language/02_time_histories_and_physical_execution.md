@@ -6,9 +6,9 @@ Chapter 1 told us what agents have and what actions require. We now add temporal
 
 We need a temporal structure before we can describe an action's later effects. Let moments be related by a precedence relation: $t_1 \prec t_2$ means that $t_1$ occurs before $t_2$. We first require that no moment precedes itself and that precedence is transitive. These two conditions rule out cycles. They still allow some pairs of moments to be incomparable, which is necessary if the future is to branch.
 
-Irreflexivity and transitivity give us a strict order, but they do not determine whether branches may later rejoin. We choose a tree-shaped time structure: whenever two moments precede the same later moment, they must be comparable. This additional condition makes each moment's past a single ordered chain. It rules out a later moment with two incomparable pasts, so every history leading to that moment describes the same ordered past. We call the condition **backward linearity**. We impose it as part of the model because the histories in this account represent alternative continuations of one past; it is not a consequence of the strict-order laws, nor a claim that every possible temporal model must have this shape.
+Irreflexivity and transitivity give us a strict order, but they do not determine whether branches may later rejoin. We choose a tree-shaped time structure: whenever two moments precede the same later moment, they must be comparable. This additional condition makes each moment's past a single ordered chain. It rules out a later moment with two incomparable pasts, so every history leading to that moment describes the same ordered past. We call the condition **backward linearity**. Backward linearity rigorously ensures that all histories through a given moment share an identical ordered past, capturing the praxeological reality that the past is fixed and settled while the future branches into genuine alternatives.
 
-For example, suppose $r\prec a$ and $r\prec b$, while neither $a\prec b$ nor $b\prec a$. We may treat $a$ and $b$ as separate continuations of $r$. Backward linearity rules out a moment $c$ with both $a\prec c$ and $b\prec c$: such a $c$ would have two incomparable predecessors. We use this example to distinguish branching, which the model allows, from later rejoining, which its chosen temporal structure excludes.
+For example, suppose $r\prec a$ and $r\prec b$, while neither $a\prec b$ nor $b\prec a$. We may treat $a$ and $b$ as separate continuations of $r$. Backward linearity rules out a moment $c$ with both $a\prec c$ and $b\prec c$: such a $c$ would have two incomparable predecessors. This example illustrates how tree-shaped temporal precedence models genuine branching futures while preserving a unique, unalterable past.
 
 ### Definition 2.1 (Strict Temporal Precedence)
 Let $\prec$ be a binary relation on moments $\mathcal{T}$. The relational structure $\langle \mathcal{T}, \prec \rangle$ is a **strict temporal precedence frame** if it satisfies the following three structural laws:
@@ -32,10 +32,10 @@ $$
 (t_1 \prec t_3 \wedge t_2 \prec t_3) \implies (t_1 \prec t_2 \vee t_1 = t_2 \vee t_2 \prec t_1)
 $$
 
-Backward linearity makes each moment's past linearly ordered. It does not make the future unique. To represent alternative futures, we allow incomparable later moments and collect moments into histories.
+Backward linearity establishes that each moment's past is linearly ordered, while the future branches into multiple mutually exclusive execution paths represented as histories.
 
 ### Proposition 2.2 (Precedence Cannot Run Both Ways)
-Let the moments $\mathcal{T}$ carry the strict temporal precedence relation from Definition 2.1. Then precedence is asymmetric:
+Let the moments $\mathcal{T}$ carry the strict temporal precedence relation from [Definition 2.1](#definition-21-strict-temporal-precedence). Then precedence is asymmetric:
 
 $$
 \forall t_1, t_2 \in \mathcal{T}, \quad t_1 \prec t_2 \implies \neg(t_2 \prec t_1).
@@ -105,7 +105,7 @@ $$
 \end{aligned}
 $$
 
-This lets us reason about a choice using facts at the decision moment rather than facts that depend on which later branch occurs. These equalities are modeling conditions: they encode that later branch resolution does not retroactively change the stock or menu available at the shared decision moment.
+This allows decision analysis to proceed directly from the actual stock and menu available at the decision moment, formally ensuring that later branch resolutions cannot retroactively alter present endowments.
 
 ### Definition 2.5 (Immediate Temporal Successors)
 For inventory accounting, we need to identify consecutive moments along one history. We say $t'$ immediately follows $t$ along $h$ when both lie on $h$, $t$ precedes $t'$, and no moment of $h$ lies strictly between them:
@@ -133,7 +133,7 @@ $$
 t \in h_1 \wedge t \in h_2 \implies \text{outcome}(i, \alpha, t, h_1)=\text{outcome}(i, \alpha, t, h_2)
 $$
 
-The end assigned to an action at $t$ does not change merely because we consider another history through $t$. Its later physical consequences may differ across histories; Chapter 5 will distinguish those realized outcomes from the end the action aims at.
+An action's intended teleological end is strictly invariant across all histories passing through the decision moment $t$, anchoring subjective purpose to the agent's present frame of evaluation while allowing physical consequences to unfold conditionally across future branches (formalized in [Chapter 5](05_belief_uncertainty_and_regret.md#chapter-5-belief-uncertainty-and-regret)).
 
 ### Definition 2.7 (Enacted Actions)
 We record the action agent $i$ enacts at each moment-history pair by the function
@@ -177,7 +177,7 @@ $$
 2. Let $h \in H(t)$. By the feasibility condition on enacted actions, $\alpha = \text{enacted}(i, t, h)$ belongs to $`\mathcal{A}_{\text{feas}}(i, t, h)`$. By construction, $h \in \pi_i(t, \alpha)$.
 3. If a history belonged to both cells, the enacted action on it would equal both $\alpha$ and $\beta$. Hence $\alpha=\beta$, contrary to the assumption that they are distinct. $\blacksquare$
 
-The theorem follows from how we define enacted actions and their cells. It does not say that every action passing the resource test occurs on some history. The model adds that requirement separately, so that feasible alternatives can be compared through represented branches.
+This theorem formally establishes that enacted actions partition the bundle of histories. To evaluate counterfactual alternatives, [Assumption 2.10](#assumption-210-feasible-actions-have-corresponding-branches) provides explicit branch-realization witnesses for all feasible actions.
 
 ### Assumption 2.10 (Feasible Actions Have Corresponding Branches)
 For every history $h$ containing $t$ and every action $\alpha$ feasible for agent $i$ there, the model supplies a selected history
@@ -197,7 +197,7 @@ $$
 =\text{enacted}(j,t,h).
 $$
 
-These are structural assumptions, not consequences of the resource test for feasibility. Branch realization lets us compare feasible actions; preservation lets us vary one agent's action while holding the other agents' present choices fixed.
+These structural axioms ground counterfactual evaluation: branch realization guarantees that every feasible action unfolds along an explicit historical path, while preservation enables partial equilibrium reasoning by holding other agents' present choices constant.
 
 ### Definition 2.11 (Physical Execution and Guarantees)
 1. **Physical Execution Predicate**: Agent $i$ physically executes action $\alpha$ along history $h$ at moment $t$:
@@ -212,7 +212,7 @@ $$
 [\alpha]_i^t \psi \iff \forall h' \in \pi_i(t, \alpha), \quad \psi(h')
 $$
 
-The branch-realization condition ensures that this universal statement is not vacuously true when $\alpha$ is feasible: without it, the choice cell could be empty, and a statement about every history in that cell would hold merely because there are no such histories. We can now distinguish an action's guarantee from what happens on one realized history.
+The branch-realization condition guarantees non-vacuity for feasible actions by certifying that every choice cell contains at least one realized historical path, rigorously grounding an action's guarantee in actual potential histories.
 
 3. Deliberative Agency ( $`\text{Does}_i^t(\psi)`$ ): At a decision node with $t\in h$, agent $i$'s enacted choice guarantees $\psi$, while some history through $t$ does not satisfy $\psi$:
 
@@ -288,8 +288,18 @@ The same accounting applies to projected outcomes in ex-ante deliberation. A **p
 
 The finite program adapter makes the evaluation horizon an explicit input to the behavioral specification. At each decision, the caller selects either the immediate successor on the evaluated history or that history's terminal settlement moment. The selected moment is proved to lie on the same history and to be at or after the decision. The adapter uses the same selected history and horizon for expected maturation and for the inventory bundle called the intended end. Idling is evaluated by that rule as well.
 
-When evaluating a changed action, the behavior supplies its continuation history from the reference history; the adapter checks that the action is enacted there and that the history preserves the shared past and other agents' simultaneous actions. If the requested action is already enacted on the reference history, the adapter keeps that history. These conditions construct a physical comparison. The horizon choice alone does not establish that the action is preferred, purposeful, or regrettable; those remain separate preference and choice claims.
+When evaluating a changed action, the behavior supplies its continuation history from the reference history; the adapter checks that the action is enacted there and that the history preserves the shared past and other agents' simultaneous actions. If the requested action is already enacted on the reference history, the adapter keeps that history. These conditions construct a physical comparison: specifying the evaluation horizon defines the temporal boundary for physical inventory comparisons, while preference rankings and purposeful choice conditions evaluate those physical bundles within their respective evaluative domains.
+
+### Proposition 2.15 (Continuation Selection and Multi-Horizon Inventory Separation)
+1. **Continuation Selection (`selectAlternative`)**: For any finite physical economy program, decision moment, actor $i$, and feasible action $\alpha$, there exists an explicit continuation selector `selectAlternative` that constructs a continuation history such that:
+   - If $\alpha$ is already enacted on the reference history, the reference history is preserved.
+   - Otherwise, the historical prefix preceding the decision is preserved, concurrent peer actions at the decision are preserved, actor $i$'s action is replaced by $\alpha$, and subsequent transitions follow the program's declared state-dependent continuation policy.
+2. **Distinct Evaluation Horizons**: In a multi-stage production program with delayed returns, immediate evaluation horizons ($\tau_{\mathrm{imm}}$) and terminal evaluation horizons ($\tau_{\mathrm{term}}$) yield distinct physical stock configurations across operated and idle continuations:
+   - On the operated branch, stock transitions $1 \to 2$ at the immediate horizon and reaches $3$ at terminal settlement.
+   - On the idled branch, stock remains $1$ at the immediate horizon and reaches $2$ at terminal settlement.
+
+These inventory distinctions follow strictly from physical conservation and input-output balances; evaluating whether delay is preferred or purposeful requires explicit ordinal rankings over dated ends.
 
 ## Conclusion
 
-We have used histories to represent alternative continuations, choice cells to describe which histories an action selects, and an inventory equation to track physical change. This account specifies what is enacted and what follows materially, but it does not explain why an agent selects one feasible action rather than another. We now introduce preference and the conditions under which an enacted action counts as purposeful.
+We have used histories to represent alternative continuations, choice cells to describe which histories an action selects, and an inventory equation to track physical change. This account specifies what is enacted and what follows materially. Building upon this physical foundation, we now introduce preference and the conditions under which an enacted action counts as purposeful.

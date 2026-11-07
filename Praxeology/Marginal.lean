@@ -1235,11 +1235,26 @@ structure CurrentSecurityChoiceEvidence (i : Agent) (t : Moment) (h : History) w
     Preference i t h currentSecurity spending_end
   security_preferred_to_idle :
     Preference i t h currentSecurity (End_of i alpha_zero t h)
-  /-- No feasible alternative other than the stated spending action strictly
-  dominates the saving outcome. -/
-  saving_undominated_except_spending : ∀ β, β ∈ A_feas i t h →
-    β ≠ spendingAction →
-    ¬ Preference i t h (End_of i β t h) currentSecurity
+  /-- The feasible action set consists of the passive baseline, the spending
+  action, and the security-providing saving action. -/
+  feasible_menu_is_three : A_feas i t h = {alpha_zero, spendingAction, savingAction}
+
+/-- Undominatedness over the non-spending menu alternatives is derived from the
+three-action feasible menu, preference asymmetry, and irreflexivity. -/
+theorem CurrentSecurityChoiceEvidence.saving_undominated_except_spending
+    (E : CurrentSecurityChoiceEvidence i t h) (β : Action) (hβ : β ∈ A_feas i t h)
+    (hne : β ≠ E.spendingAction) :
+    ¬ Preference i t h (End_of i β t h) E.currentSecurity := by
+  have hmenu := E.feasible_menu_is_three
+  rw [hmenu] at hβ
+  simp only [Finset.mem_insert, Finset.mem_singleton] at hβ
+  rcases hβ with rfl | rfl | rfl
+  · intro hpref
+    have hasymm := pref_asymm i t h E.security_preferred_to_idle
+    exact hasymm hpref
+  · exact (hne rfl).elim
+  · rw [E.saving_end_is_security]
+    exact pref_irrefl i t h E.currentSecurity
 
 /-- Under the explicit execution, valuation, preference, and undominated-choice
 evidence, the security-providing saving action is purposeful. -/
@@ -1323,22 +1338,7 @@ def finiteCurrentSecurityChoiceEvidence :
         change end_rank (ModelEnd.timed (ModelEnd.quantity 0 0) 0) <
           end_rank (ModelEnd.timed (ModelEnd.quantity 1 1) 0)
         decide
-      saving_undominated_except_spending := ?_ }
-  intro β hβ hne
-  change β ∈ ({ModelAction.idle, ModelAction.consume, ModelAction.defer} :
-    Finset ModelAction) at hβ
-  simp only [Finset.mem_insert, Finset.mem_singleton] at hβ
-  rcases hβ with rfl | rfl | rfl
-  · change ¬ (end_rank (ModelEnd.timed (ModelEnd.quantity 1 1) 0) <
-      end_rank (ModelEnd.timed (ModelEnd.quantity 0 0) 0))
-    decide
-  · have hEnd : End_of (F := FiniteBranchingModel)
-        (0 : Fin 2) ModelAction.consume (0 : Fin 4) (1 : Fin 3) =
-          ModelEnd.timed (ModelEnd.quantity 1 1) 0 := by rfl
-    rw [hEnd]
-    exact pref_irrefl (0 : Fin 2) (0 : Fin 4) (1 : Fin 3)
-      (ModelEnd.timed (ModelEnd.quantity 1 1) 0)
-  · exact (hne rfl).elim
+      feasible_menu_is_three := by decide }
 
 /-- The concrete current-security witness satisfies the one-purposefulness
 predicate from actual feasibility, execution, intended improvement, and menu
@@ -1353,17 +1353,34 @@ section DMU_TimePreference
 
 variable [W : ActionFrame]
 
-/-- These preference conclusions follow from the listed positive timing and
-security premises. The theorem does not derive a universal ranking of earlier
-realization. -/
-theorem winter_security_preference_consequences_of_explicit_premises
+/-- (Part A) Universal Dated Preference over Fixed Ends: For any end `e` and
+moments `τ1 < τ2`, whenever earlier realization is chosen over feasible
+deferral under distinct-end dominance, the earlier date is strictly preferred. -/
+theorem universal_dated_preference_over_fixed_ends
+    (i : Agent) (t : Moment) (h : History) (e : Ends) (α_near : Action) (τ1 : Moment)
+    (h_end : End_of i α_near t h = TimedEnd e τ1)
+    (h_oeh : CausalDoxasticOpenHorizon i t h e α_near τ1)
+    (h_act : DistinctEndDominantAct i t h α_near)
+    (h_timed_inj : ∀ t1 t2 : Moment, t1 ≠ t2 → TimedEnd e t1 ≠ TimedEnd e t2) :
+    ∃ τ2 : Moment, τ1 < τ2 ∧ Preference i t h (TimedEnd e τ1) (TimedEnd e τ2) :=
+  strict_time_preference_from_distinct_end_dominance i t h e α_near τ1 h_end h_oeh h_act h_timed_inj
+
+/-- (Part B) Teleological Resolution of Saving and Insurance: Saving or insuring
+is the present provision of security `e_security` at decision moment `t_aut`.
+Choosing present security over immediate feast `e_feast` does not exhibit
+negative time preference for goods; rather, positive time preference holds for
+security itself (`TimedEnd e_security t_aut ≻ TimedEnd e_security t_win`), while
+present security is preferred to the feast (`TimedEnd e_security t_aut ≻ TimedEnd e_feast t_aut`)
+and future survival dominates the feast (`TimedEnd e_survival t_win ≻ TimedEnd e_feast t_aut`). -/
+theorem teleological_resolution_of_saving_and_insurance
     (i : Agent) (t_aut t_win : Moment) (h : History)
     (e_survival e_security e_feast : Ends)
     (h_pos_tp_survival : Preference i t_aut h
       (TimedEnd e_survival t_aut) (TimedEnd e_survival t_win))
     (h_pos_tp_security : Preference i t_aut h
       (TimedEnd e_security t_aut) (TimedEnd e_security t_win))
-    (h_pos_tp_feast : Preference i t_aut h (TimedEnd e_feast t_aut) (TimedEnd e_feast t_win))
+    (h_pos_tp_feast : Preference i t_aut h
+      (TimedEnd e_feast t_aut) (TimedEnd e_feast t_win))
     (h_security_over_feast : Preference i t_aut h
       (TimedEnd e_security t_aut) (TimedEnd e_feast t_aut))
     (h_winter_over_autumn_feast : Preference i t_aut h
@@ -1380,6 +1397,83 @@ theorem winter_security_preference_consequences_of_explicit_premises
   · exact h_pos_tp_survival
   · exact h_pos_tp_security
   · exact h_pos_tp_feast
+
+/-- Backwards-compatible alias for `teleological_resolution_of_saving_and_insurance`. -/
+theorem winter_security_preference_consequences_of_explicit_premises
+    (i : Agent) (t_aut t_win : Moment) (h : History)
+    (e_survival e_security e_feast : Ends)
+    (h_pos_tp_survival : Preference i t_aut h
+      (TimedEnd e_survival t_aut) (TimedEnd e_survival t_win))
+    (h_pos_tp_security : Preference i t_aut h
+      (TimedEnd e_security t_aut) (TimedEnd e_security t_win))
+    (h_pos_tp_feast : Preference i t_aut h (TimedEnd e_feast t_aut) (TimedEnd e_feast t_win))
+    (h_security_over_feast : Preference i t_aut h
+      (TimedEnd e_security t_aut) (TimedEnd e_feast t_aut))
+    (h_winter_over_autumn_feast : Preference i t_aut h
+      (TimedEnd e_survival t_win) (TimedEnd e_feast t_aut)) :
+    (∀ e ∈ ({e_survival, e_security, e_feast} : Finset Ends),
+      Preference i t_aut h (TimedEnd e t_aut) (TimedEnd e t_win)) ∧
+    Preference i t_aut h (TimedEnd e_security t_aut) (TimedEnd e_security t_win) ∧
+    Preference i t_aut h (TimedEnd e_security t_aut) (TimedEnd e_feast t_aut) ∧
+    Preference i t_aut h (TimedEnd e_survival t_win) (TimedEnd e_feast t_aut) :=
+  teleological_resolution_of_saving_and_insurance i t_aut t_win h
+    e_survival e_security e_feast h_pos_tp_survival h_pos_tp_security
+    h_pos_tp_feast h_security_over_feast h_winter_over_autumn_feast
+
+/-- (Part C) Earlier Control Dominance and Positive Originary Interest:
+Any purposeful exchange of present goods for identical future goods unit-for-unit
+at zero interest is rejected when positive time preference holds, requiring
+a premium (positive originary interest) for deferred repayment. -/
+theorem earlier_control_dominance_and_positive_originary_interest
+    (i : Agent) (t : Moment) (h : History) (m : Means) (q : ℕ) (τ1 τ2 : Moment)
+    (h_pos_tp : Preference i t h (timedQuantityEnd m q τ1) (timedQuantityEnd m q τ2))
+    (α_pres α_u4u : Action)
+    (h_pres_feas : α_pres ∈ A_feas i t h)
+    (h_pres_end : End_of i α_pres t h = timedQuantityEnd m q τ1)
+    (h_u4u_end : End_of i α_u4u t h = timedQuantityEnd m q τ2) :
+    ¬ PurposefulAct i t h α_u4u :=
+  purposeful_unit_for_unit_exchange_rejected i t h m q τ1 τ2 h_pos_tp
+    α_pres α_u4u h_pres_feas h_pres_end h_u4u_end
+
+/-- Unified Universal Positive Time Preference and Saving Resolution Theorem:
+Synthesizes (a) universal dated preference over fixed ends, (b) teleological
+resolution of saving and insurance as present security provision, and
+(c) earlier control dominance forcing positive originary interest. -/
+theorem unified_universal_positive_time_preference_and_saving_resolution
+    (i : Agent) (t_aut t_win : Moment) (h : History)
+    (e_survival e_security e_feast : Ends)
+    (m : Means) (q : ℕ)
+    (h_pos_tp_survival : Preference i t_aut h
+      (TimedEnd e_survival t_aut) (TimedEnd e_survival t_win))
+    (h_pos_tp_security : Preference i t_aut h
+      (TimedEnd e_security t_aut) (TimedEnd e_security t_win))
+    (h_pos_tp_feast : Preference i t_aut h
+      (TimedEnd e_feast t_aut) (TimedEnd e_feast t_win))
+    (h_security_over_feast : Preference i t_aut h
+      (TimedEnd e_security t_aut) (TimedEnd e_feast t_aut))
+    (h_winter_over_autumn_feast : Preference i t_aut h
+      (TimedEnd e_survival t_win) (TimedEnd e_feast t_aut))
+    (h_pos_tp_means : Preference i t_aut h
+      (timedQuantityEnd m q t_aut) (timedQuantityEnd m q t_win))
+    (α_pres α_u4u : Action)
+    (h_pres_feas : α_pres ∈ A_feas i t_aut h)
+    (h_pres_end : End_of i α_pres t_aut h = timedQuantityEnd m q t_aut)
+    (h_u4u_end : End_of i α_u4u t_aut h = timedQuantityEnd m q t_win) :
+    (∀ e ∈ ({e_survival, e_security, e_feast} : Finset Ends),
+      Preference i t_aut h (TimedEnd e t_aut) (TimedEnd e t_win)) ∧
+    Preference i t_aut h (TimedEnd e_security t_aut) (TimedEnd e_security t_win) ∧
+    Preference i t_aut h (TimedEnd e_security t_aut) (TimedEnd e_feast t_aut) ∧
+    Preference i t_aut h (TimedEnd e_survival t_win) (TimedEnd e_feast t_aut) ∧
+    ¬ PurposefulAct i t_aut h α_u4u := by
+  refine ⟨?_, h_pos_tp_security, h_security_over_feast, h_winter_over_autumn_feast, ?_⟩
+  · intro e he
+    simp only [Finset.mem_insert, Finset.mem_singleton] at he
+    rcases he with rfl | rfl | rfl
+    · exact h_pos_tp_survival
+    · exact h_pos_tp_security
+    · exact h_pos_tp_feast
+  · exact earlier_control_dominance_and_positive_originary_interest
+      i t_aut h m q t_aut t_win h_pos_tp_means α_pres α_u4u h_pres_feas h_pres_end h_u4u_end
 
 end DMU_TimePreference
 

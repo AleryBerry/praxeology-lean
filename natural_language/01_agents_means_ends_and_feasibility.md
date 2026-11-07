@@ -16,9 +16,9 @@ Our aim is to develop a mathematical account in which these distinctions support
 
 Before we define these objects one by one, we describe the setting in which they belong. We call this setting an **action frame**. It supplies domains for agents, moments, histories, actions, physical means, and ends, together with rules that connect them. Those rules say which actions an agent considers at a situation, what means each action uses and yields, which action is enacted, and which end is assigned to it. Further structure records temporal order, preferences, and uncertainty. A particular economic model results when we specify these domains and rules.
 
-We should be precise about what an action is in this setting. An action is a member of the action domain; it is not itself a bundle that combines an agent, a moment, a stock of goods, and a desired end. Instead, the frame assigns each action an input schedule and an output schedule: for every physical means, the schedules state how many units the action uses and how many units it yields. The frame separately records whether the action is considered and feasible for an agent at a given situation, whether it is enacted there, and what end it is intended to bring about. We keep these assignments separate because physical requirements, actual choice, and intended result answer different questions.
+An action is an element of the action domain. The frame assigns each action an input schedule and an output schedule: for every physical means, the schedules state how many units the action uses and how many units it yields. The frame separately records whether the action is considered and feasible for an agent at a given situation, whether it is enacted there, and what end it is intended to bring about. We keep these assignments separate because physical requirements, actual choice, and intended result answer different questions.
 
-One distinguished action, written $\alpha_0$, represents refraining from intervention. It uses and yields no physical means. The action domain also includes forms of offer and acceptance, each specified by the agents involved and the kinds and quantities of means proposed for exchange. These are particular forms of action; they do not exhaust every action the domain may contain.
+One distinguished action, written $\alpha_0$, represents refraining from intervention. It uses and yields zero physical means. The action domain also includes forms of offer and acceptance, each specified by the agents involved and the kinds and quantities of means proposed for exchange. These are specific operational forms within the broader action domain.
 
 ### Definition 1.1 (The Basic Vocabulary of an Action Frame)
 
@@ -30,13 +30,13 @@ $$
 
 1. **Agents.** $\mathcal{I}$ is a nonempty finite set of actors. We write $i, j, k$ for its members.
 
-2. **Moments.** $\mathcal{T}$ is the domain of moments; we write $t, t', \tau$ for its members. The frame does not require time to be discrete.
+2. **Moments.** $\mathcal{T}$ is the domain of moments; we write $t, t', \tau$ for its members. The frame accommodates both discrete and continuous temporal structures.
 
 3. **Histories.** $\mathcal{H}$ is the domain of histories; we write $h, h'$ for its members. A history represents a possible course through moments; Chapter 2 will make this precise.
 
 4. **Actions.** $\mathcal{A}$ is a nonempty domain of actions; we write $\alpha, \beta, \gamma$ for its members.
 
-5. **Means.** $\mathcal{M}$ is the domain of physical resources, such as commodities and productive inputs. We write $m, m_A, m_B$ for its members. A means may be scarce in a particular situation; scarcity is not assumed for every means in every situation.
+5. **Means.** $\mathcal{M}$ is the domain of physical resources, such as commodities and productive inputs. We write $m, m_A, m_B$ for its members. Scarcity is determined endogenously within each situation based on available physical endowments relative to action requirements.
 
 6. **Ends.** $\mathcal{E}$ is the domain of ends; we write $e, e_1, e_2$ for its members. It accommodates intended and realized results, including representations of physical bundles and results dated by a moment.
 
@@ -52,7 +52,7 @@ to state that the action is purposeful for that agent at that situation. Chapter
 
 ### Constructive Witnesses and Model-Theoretic Consistency
 
-An axiomatic formalization of human action poses an essential mathematical requirement: **consistency**. It is not enough to define domains and write down plausible-sounding axioms governing physical conservation, temporal branching, and purposeful evaluation; we must establish that these axioms do not contradict one another. In constructive mathematics, consistency is not proven by abstract metaphysical assertion, but by exhibiting an explicit **model witness**—a concrete, computable mathematical structure in which every domain is an explicit set, every transition is verified by exact finite calculation, and every structural law holds.
+An axiomatic formalization of human action poses an essential mathematical requirement: **consistency**. Beyond defining domains and axioms governing physical conservation, temporal branching, and purposeful evaluation, we establish that these axioms hold together coherently. In constructive mathematics, consistency is established by exhibiting an explicit **model witness**—a concrete, computable mathematical structure in which every domain is an explicit set, every transition is verified by exact finite calculation, and every structural law holds.
 
 Throughout this treatise, the term **witness** operates at two distinct mathematical levels:
 
@@ -156,9 +156,9 @@ $$
 \end{aligned}
 $$
 
-When $`\mathcal{E}_{\mathrm{val}} = \mathcal{E}`$, this coincides with global bundle dominance $\triangleright_{\mathrm{T}}(\rho, b_1, b_2)$. Restricting to valued ends ensures that attainability comparisons reflect the teleological significance of means to an evaluating agent rather than ends irrelevant to that agent's purposes.
+When $`\mathcal{E}_{\mathrm{val}} = \mathcal{E}`$, this coincides with global bundle dominance $\triangleright_{\mathrm{T}}(\rho, b_1, b_2)$. Restricting to valued ends ensures that attainability comparisons reflect the teleological significance of means for an evaluating agent's concrete purposes.
 
-The two relations answer different questions. Physical dominance compares quantities coordinate by coordinate. Attainability-based dominance asks whether the first bundle supports every finite set of valued ends supported by the second, and at least one additional set. We need the latter distinction because extra stock can be unusable when a required complement is missing; quantity alone does not tell us which ends become possible.
+The two relations answer different questions: physical dominance compares quantities coordinate by coordinate, whereas attainability-based dominance evaluates the ultimate economic services of means. Because additional physical stock remains unusable whenever a required complementary input is absent, teleological dominance directly assesses which ends become physically and technologically realizable.
 
 ### Theorem 1.9 (Attainability-Based Dominance Is a Strict Partial Order)
 Let $\rho : \mathcal{E} \times \mathcal{M} \to \mathbb{N}$ be a technological requirement schedule and $`\mathcal{E}_{\mathrm{val}} \subseteq \mathcal{E}`$ any set of ends. The relation $`\triangleright_{\mathrm{T}}(\rho, \mathcal{E}_{\mathrm{val}}, \cdot, \cdot)`$ on physical bundles $\mathcal{M} \to \mathbb{N}$ is a strict partial order: it is irreflexive, strictly asymmetric, and transitive.
@@ -196,7 +196,7 @@ $$
 \triangleright_{\mathrm{T}}(\rho, b_1, b_0)
 $$
 
-**Proof.** First, $`b_0(m)=0\le b_1(m)`$ for every means $m$. By Lemma 1.10, every end-set attainable under $`b_0`$ is therefore attainable under $`b_1`$. This proves the required universal inclusion. For strictness, the singleton set $`\{e_{\text{atom}}(m^{\ast})\}`$ requires one unit of $m^{\ast}$ and zero of every other means. It is attainable under $`b_1`$ because $`b_1(m^{\ast})\ge1`$, but not under $`b_0`$, whose stock of $m^{\ast}$ is zero. The singleton witnesses the strict clause. $\blacksquare$
+**Proof.** First, $`b_0(m)=0\le b_1(m)`$ for every means $m$. By [Lemma 1.10](#lemma-110-basic-properties-of-joint-attainability), every end-set attainable under $`b_0`$ is therefore attainable under $`b_1`$. This proves the required universal inclusion. For strictness, the singleton set $`\{e_{\text{atom}}(m^{\ast})\}`$ requires one unit of $m^{\ast}$ and zero of every other means. It is attainable under $`b_1`$ because $`b_1(m^{\ast})\ge1`$, but not under $`b_0`$, whose stock of $m^{\ast}$ is zero. The singleton witnesses the strict clause. $\blacksquare$
 
 ## Conclusion
 

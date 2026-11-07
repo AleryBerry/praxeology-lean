@@ -44,7 +44,78 @@ python3 scripts/update_theorem_links.py --path critiques/critics_of_praxeology.m
 
 ---
 
-## 2. `fix_markdown_math.py`
+## 2. `update_natural_language_links.py`
+
+### Purpose
+Audits and standardizes formal declaration references (Theorems, Propositions, Definitions, Lemmas, Corollaries, Assumptions, and Examples) across Markdown documentation (such as `critiques/`, `spec/`, and `natural_language/`). Directly complements `update_theorem_links.py` for natural-language prose: it indexes all 320+ formal declarations declared across `natural_language/*.md` and enables automatic cross-reference validation, in-place corrections, and one-step conversion of plain-text references into clickable Markdown links.
+
+### Features
+- **Natural Language Declaration Indexer**: Dynamically parses all chapter files in `natural_language/`, indexing 320+ formal declarations with chapter number, item number, declaration type, canonical title, file path, line number, and GitHub-compatible heading anchor slugs.
+- **Cross-Reference Auditor**:
+  * Flags references to unknown/non-existent declaration numbers.
+  * Detects declaration type mismatches (e.g. citing `Proposition 8.20` when declared as `Theorem 8.20`).
+  * Detects chapter mismatches (e.g. citing `Chapter 10` for an item declared in `Chapter 7`).
+  * Validates titles in parentheticals and finds matching declarations when titles diverge.
+  * Validates destination Markdown files and anchors (`#slug` or `#L<line>`).
+- **In-Place Auto-Fixing (`--fix`)**:
+  * Automatically corrects cited declaration types to match canonical declarations.
+  * Fixes chapter numbers when an item is cited under the wrong chapter.
+  * Updates outdated line numbers and broken anchor slugs in Markdown links.
+  * Resolves unknown numbers when an unambiguous canonical title match exists.
+- **Clickable Reference Linkification (`--add-links` / `--linkify`)**:
+  * Converts plain-text citations (e.g., `Theorem 7.16`, `Definition 1.1 (The Basic Vocabulary of an Action Frame)`, or ranges like `Definitions 3.8–3.10`) into clickable Markdown links.
+  * Preserves code blocks, inline code, headings, and existing links.
+  * Generates exact relative paths based on source document depth (`../natural_language/07_...md#...` from `critiques/`, `#...` within the same chapter, or `natural_language/...` from root).
+- **Lossless Unlinking (`--remove-links` / `--unlink`)**:
+  * Easily unwraps Markdown links back into clean plain text.
+- **Anchor Styles (`--anchor-style {slug,line}`)**:
+  * `slug` (default): Uses GitHub heading slugs (e.g. `#theorem-716-unified-positive-time-preference-via-saving-dominance`). Works natively in GitHub's rendered Markdown viewer and remains robust to line additions/deletions.
+  * `line`: Uses line targets (e.g. `#L225`) for direct navigation in code editors.
+- **Index Export (`--dump-index [markdown|json]`)**:
+  * Exports a complete markdown summary table or JSON database of all indexed declarations.
+- **CI / Gatekeeper Mode (`--check`)**:
+  * Returns exit code `1` if any unknown numbers, broken links, or mismatched chapters are detected; returns `0` when clean.
+
+### Command-Line Options
+| Option | Description |
+|---|---|
+| `--check` | CI mode: exits with `0` if all formal references and links are valid, `1` if critical issues exist. |
+| `--fix` | Automatically patches declaration types, chapter numbers, and link targets in-place. |
+| `--add-links`, `--linkify` | Converts plain-text references into clickable Markdown links. |
+| `--remove-links`, `--unlink` | Unwraps Markdown links back into plain text. |
+| `--anchor-style {slug,line}` | Anchor format for generated links: `slug` (header anchor slug, default) or `line` (`#L...`). |
+| `--dry-run` | Previews proposed fixes or link additions without modifying any files. |
+| `--dump-index {markdown,json}` | Dumps the complete indexed dictionary of natural_language declarations to stdout. |
+| `--path <PATH>` | Audit a specific Markdown file or subdirectory. Defaults to entire repository. |
+| `--root <DIR>` | Specifies repository root (defaults to `.`). |
+
+### Usage Examples
+```bash
+# Verify that all formal references and links are valid across documentation (CI check)
+python3 scripts/update_natural_language_links.py --check
+
+# Automatically fix declaration types, chapter numbers, and broken link anchors
+python3 scripts/update_natural_language_links.py --fix
+
+# Preview turning plain-text references into clickable links across critiques/
+python3 scripts/update_natural_language_links.py --dry-run --add-links --path critiques/
+
+# Convert all plain-text references in critiques/ into clickable links with GitHub slugs
+python3 scripts/update_natural_language_links.py --add-links --path critiques/
+
+# Convert references using line numbers (#L...) instead of slugs
+python3 scripts/update_natural_language_links.py --add-links --anchor-style line --path critiques/
+
+# Revert clickable links back to plain text
+python3 scripts/update_natural_language_links.py --remove-links --path critiques/
+
+# Dump complete declaration dictionary in Markdown format
+python3 scripts/update_natural_language_links.py --dump-index markdown > docs/DECLARATIONS_INDEX.md
+```
+
+---
+
+## 3. `fix_markdown_math.py`
 
 ### Purpose
 Identifies and automatically repairs KaTeX and GitHub Flavored Markdown (GFM) math rendering errors across all documentation.
@@ -103,7 +174,7 @@ python3 scripts/fix_markdown_math.py --path spec/02_action_and_preference.md --f
 
 ---
 
-## 3. `check_markdown_math.py`
+## 4. `check_markdown_math.py`
 
 This read-only checker validates structural math syntax in Markdown without
 changing files. It checks fenced display math and inline math while ignoring
@@ -136,7 +207,7 @@ suitable for CI.
 
 ---
 
-## 4. `audit_adhoc_premises.py`
+## 5. `audit_adhoc_premises.py`
 
 ### Purpose
 Audits the Lean 4 formalization for ad-hoc premise wrappers, exogenous macroeconomic shock structures, ungrounded subjective flips, and detached interaction payoff matrices.
@@ -158,7 +229,7 @@ python3 scripts/audit_adhoc_premises.py --check
 
 ---
 
-## 5. `audit_axiomatic_floor.py`
+## 6. `audit_axiomatic_floor.py`
 
 Heuristic source-pattern screen for ontological leakage, `omit ... in` bypasses, shadow doxastic frames, and implicational bridge stuffing.
 
@@ -168,7 +239,7 @@ python3 scripts/audit_axiomatic_floor.py
 
 ---
 
-## 6. Recommended CI / Pre-Commit Workflow
+## 7. Recommended CI / Pre-Commit Workflow
 
 These tools are designed to run in continuous integration workflows (e.g. GitHub Actions) or as pre-commit hooks to prevent documentation regressions:
 
@@ -177,6 +248,7 @@ These tools are designed to run in continuous integration workflows (e.g. GitHub
 - name: Verify Documentation Links & Math
   run: |
     python3 scripts/update_theorem_links.py --check
+    python3 scripts/update_natural_language_links.py --check
     python3 scripts/fix_markdown_math.py --check
     python3 scripts/check_markdown_math.py
     python3 scripts/audit_adhoc_premises.py --check

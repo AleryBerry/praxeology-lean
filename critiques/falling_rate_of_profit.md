@@ -105,7 +105,7 @@ $$
 s(\alpha_{\text{new}}) = R(\alpha_{\text{new}}) - K(\alpha_{\text{new}}) > R(\alpha_{\text{old}}) - K(\alpha_{\text{old}}) = s(\alpha_{\text{old}})
 $$
 
-2. By Proposition 9.20 from Chapter 9, substituting factor outlays while strictly lowering total cost yields a strictly higher return-to-cost ratio:
+2. By [Proposition 9.20](../natural_language/09_money_prices_and_calculation.md#proposition-920-cost-reducing-factor-substitution-raises-net-return-and-return-ratio) from Chapter 9, substituting factor outlays while strictly lowering total cost yields a strictly higher return-to-cost ratio:
 
 $$
 s(\alpha_{\text{old}}) \cdot K(\alpha_{\text{new}}) < s(\alpha_{\text{new}}) \cdot K(\alpha_{\text{new}}) \le s(\alpha_{\text{new}}) \cdot K(\alpha_{\text{old}})
@@ -124,12 +124,12 @@ The theorem on viable mechanization provides a praxeological counterpart to the 
 Okishio analyzed the general equilibrium response of relative prices when a viable cost-reducing technique spreads across the economy under constant real wages:
 1. When mechanization occurs in capital-goods industries, the replacement cost of machinery and raw materials falls, so that $`P'_m \le P_m`$.
 2. When mechanization occurs in wage-goods industries, the cost of the physical consumption basket falls, cheapening the monetary wage required to command the same real wage, so that $`P'_{\text{wage}} \le P_{\text{wage}}`$.
-3. Applying Proposition 9.20, downward adjustments in factor reproduction prices, with $K' \le K_{\text{new}} < K_{\text{old}}$, strictly preserve unit cost savings, proving that general equilibrium profit rates cannot fall, with $r' \ge r_{\text{new}} > r_{\text{old}}$.
+3. Applying [Proposition 9.20](../natural_language/09_money_prices_and_calculation.md#proposition-920-cost-reducing-factor-substitution-raises-net-return-and-return-ratio), downward adjustments in factor reproduction prices, with $K' \le K_{\text{new}} < K_{\text{old}}$, strictly preserve unit cost savings, proving that general equilibrium profit rates cannot fall, with $r' \ge r_{\text{new}} > r_{\text{old}}$.
 
 **Praxeological Limitations of Okishio's Model:**
 While Okishio successfully refuted Marx within Marxian/Sraffian terms, his own mathematical model suffers from neoclassical shortcomings:
 - Okishio assumes a static, timeless system of simultaneous equations without money, where goods reproduce themselves instantaneously.
-- The Lean model includes intertemporal choices over a branching history, but its time-preference result is local: strict preference for a particular earlier outcome requires the open-horizon condition, a purposeful act that dominates feasible distinct-end alternatives, a feasible later alternative, and an injective timing map. Its conditional loan-premium result does not establish a universal positive return floor. Any positive-interest premise used in this critique must therefore be stated separately; it is not a consequence of purposeful action alone.
+- The Lean model includes intertemporal choices over a branching history. Its unified time-preference synthesis (Chapter 7, [Theorem 7.16](../natural_language/07_time_preference_interest_and_capital.md#theorem-716-unified-positive-time-preference-saving-resolution-and-originary-interest-synthesis)) proves universal dated preference over fixed ends under open horizons and positive originary interest ($\delta \ge 1$) under explicit discounting and control premises. Bridging these discrete loan and saving results to a macroeconomic return floor on physical production techniques requires the specific capital and market premises stated in Chapters 7 and 9.
 
 ---
 
