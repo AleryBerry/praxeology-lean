@@ -351,6 +351,14 @@ theorem credit_unpaid_maturity_defaults :
     CreditTransition .outstanding .unpaidMaturity .defaulted :=
   .unpaidMaturity
 
+/-- A settled loan has no further lifecycle transition. In particular, the
+same discharged balance cannot be collected a second time. -/
+theorem credit_default_has_no_further_transition {event : CreditEvent}
+    {next : CreditStatus} :
+    ¬ CreditTransition .defaulted event next := by
+  intro htransition
+  cases htransition
+
 /-- Reflexive closure of an ActionFrame's strict temporal precedence. -/
 def MomentAtOrBefore (W : ActionFrame) (t u : W.Moment) : Prop :=
   t = u ∨ W.Precedence t u
@@ -377,7 +385,8 @@ structure AdvanceExecution {W : ActionFrame} {T : PawnLoanTerms W} where
   settlementMoment : W.Moment
   successor : IsNextMoment W.Precedence W.mem_hist
     decisionMoment settlementMoment history
-  settlesByMaturity : MomentAtOrBefore W settlementMoment T.maturity
+  /-- Origination completes strictly before the contractual maturity node. -/
+  advanceBeforeMaturity : W.Precedence settlementMoment T.maturity
   maturityOnHistory : W.mem_hist T.maturity history
   lenderOfferMatched : W.enacted T.lender decisionMoment history =
     W.Offer T.lender T.borrower T.principal T.money
@@ -413,7 +422,7 @@ def execution {W : ActionFrame} {T : PawnLoanTerms W} (A : CreditAdvance T) :
   decisionMoment := A.moment
   settlementMoment := A.nextMoment
   successor := A.successor
-  settlesByMaturity := Or.inr A.advanceBeforeMaturity
+  advanceBeforeMaturity := A.advanceBeforeMaturity
   maturityOnHistory := A.maturityOnHistory
   lenderOfferMatched :=
     (bilateral_exchange_enacted_actions T.lender T.borrower A.moment A.history

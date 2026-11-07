@@ -92,7 +92,7 @@ The credit module records advances, fiduciary issuance, repayment, and unpaid
 maturity as separate lifecycle evidence. Its accounting theorems derive
 inventory changes from matched ActionFrame transfers and state when
 redemption offers are infeasible for insufficient balances. The result
-[`fiduciary_origination_and_cash_shortfall_contract_comparison`](../Praxeology/Catallactics/Credit.lean#L1651)
+[`fiduciary_origination_and_cash_shortfall_contract_comparison`](../Praxeology/Catallactics/Credit.lean#L1660)
 has additional strong premises: two terms share borrower, principal, and
 money; a purposeful fiduciary issuance, origination, advance, and repayment
 are represented; and the borrower's cash immediately before repayment falls

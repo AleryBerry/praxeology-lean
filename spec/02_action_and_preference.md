@@ -15,7 +15,7 @@ def PurposefulAct (i : Agent) (t : Moment) (h : History) (α_star : Action) : Pr
   (α_star = α₀ ∨ Preference i t h (End_of i α_star t h) (End_of i α₀ t h)) ∧
   ∀ β ∈ A_feas i t h, ¬ Preference i t h (End_of i β t h) (End_of i α_star t h)
 ```
-([`PurposefulAct`](../Praxeology/Action.lean#L222)).
+([`PurposefulAct`](../Praxeology/Action.lean#L232)).
 
 ### Structural Components
 
@@ -39,8 +39,8 @@ def PurposefulAct (i : Agent) (t : Moment) (h : History) (α_star : Action) : Pr
 This implication requires the stated strict-preference premise; purposeful
 action by itself also permits the passive baseline.
 ```
-  ([`purposeful_act_non_passive`](../Praxeology/Action.lean#L368)).
-* **Buridan Tie Compatibility:** Because optimality is undominated rather than strictly dominant, two distinct physical actions $`\alpha_1 \neq \alpha_2`$ serving identical ends ( $`\text{End}(\alpha_1) = \text{End}(\alpha_2)`$ ) are admitted without producing logical contradiction ($`\bot`$) ([`buridan_tie_refutes_strict_demonstrated_pref`](../Praxeology/Action.lean#L999), [`buridan_tie_compatible_with_purposeful_act`](../Praxeology/Action.lean#L514)).
+  ([`purposeful_act_non_passive`](../Praxeology/Action.lean#L378)).
+* **Buridan Tie Compatibility:** Because optimality is undominated rather than strictly dominant, two distinct physical actions $`\alpha_1 \neq \alpha_2`$ serving identical ends ( $`\text{End}(\alpha_1) = \text{End}(\alpha_2)`$ ) are admitted without producing logical contradiction ($`\bot`$) ([`buridan_tie_refutes_strict_demonstrated_pref`](../Praxeology/Action.lean#L1009), [`buridan_tie_compatible_with_purposeful_act`](../Praxeology/Action.lean#L524)).
 
 ---
 
@@ -52,7 +52,7 @@ Following Definition 4.3 of *A Formalization of Austrian Economics* ($`T_{\text{
 def DemonstratedPref (i : Agent) (t : Moment) (h : History) (α_star β : Action) : Prop :=
   PurposefulAct i t h α_star ∧ β ∈ (A_feas i t h).erase α_star
 ```
-([`DemonstratedPref`](../Praxeology/Action.lean#L279)).
+([`DemonstratedPref`](../Praxeology/Action.lean#L289)).
 
 ### Catallactic Consistency
 
@@ -60,8 +60,8 @@ def DemonstratedPref (i : Agent) (t : Moment) (h : History) (α_star β : Action
 ```math
   \text{DemonstratedPref}(i, t, h, \alpha^{\ast}, \beta) \implies \neg \text{DemonstratedPref}(i, t, h, \beta, \alpha^{\ast})
 ```
-  ([`demonstrated_pref_grounding`](../Praxeology/Action.lean#L297)).
-* **Multi-Option Consistency:** For menus of size $`|\mathcal{A}_i(t, h)| \ge 3`$, no execution cycles or contradictory multiple simultaneous choices are forced ([`purposeful_act_unique_execution`](../Praxeology/Action.lean#L466)).
+  ([`demonstrated_pref_grounding`](../Praxeology/Action.lean#L307)).
+* **Multi-Option Consistency:** For menus of size $`|\mathcal{A}_i(t, h)| \ge 3`$, no execution cycles or contradictory multiple simultaneous choices are forced ([`purposeful_act_unique_execution`](../Praxeology/Action.lean#L476)).
 
 ---
 
@@ -77,7 +77,7 @@ def OCSet (i : Agent) (t : Moment) (h : History) (α_star : Action) : Finset End
   (ForegoneEnds i t h α_star).filter (fun e =>
     ∀ e' ∈ ForegoneEnds i t h α_star, ¬ Preference i t h e' e)
 ```
-([`StrictForegoneEnds`](../Praxeology/Action.lean#L667), [`StrictOCSet`](../Praxeology/Action.lean#L719)).
+([`StrictForegoneEnds`](../Praxeology/Action.lean#L677), [`StrictOCSet`](../Praxeology/Action.lean#L729)).
 
 ### Structural Theorems
 
@@ -85,12 +85,12 @@ def OCSet (i : Agent) (t : Moment) (h : History) (α_star : Action) : Finset End
 ```math
    \text{ForegoneEnds}.\text{Nonempty} \implies (\text{OCSet}(i, t, h, \alpha^{\ast})).\text{Nonempty}
 ```
-   ([`strict_ocset_nonempty_of_trans`](../Praxeology/Action.lean#L774)).
+   ([`strict_ocset_nonempty_of_trans`](../Praxeology/Action.lean#L784)).
 2. **Subsumption of Classical Uniqueness:** When local connectedness (comparability) holds across all foregone alternatives, $`\text{OCSet}`$ contracts to a unique singleton:
 ```math
    |\text{OCSet}(i, t, h, \alpha^{\ast})| = 1
 ```
-   ([`strict_ocset_singleton_of_connected`](../Praxeology/Action.lean#L805)), recovering textbook opportunity cost as a special regime condition rather than an ontological axiom.
+   ([`strict_ocset_singleton_of_connected`](../Praxeology/Action.lean#L815)), recovering textbook opportunity cost as a special regime condition rather than an ontological axiom.
 
 ---
 
@@ -105,7 +105,7 @@ def Asserts (i : Agent) (t : Moment) (h : History) (_p : Prop) : Prop :=
 def DenialOfAction (i : Agent) (t : Moment) (h : History) : Prop :=
   ¬ ∃ α ∈ A_feas i t h, PurposefulAct i t h α
 ```
-([`Asserts`](../Praxeology/Action.lean#L885), [`NoPurposefulActionProp`](../Praxeology/Action.lean#L899)).
+([`Asserts`](../Praxeology/Action.lean#L895), [`NoPurposefulActionProp`](../Praxeology/Action.lean#L909)).
 
 ### Theorem 1.1b (Pragmatic Self-Falsification of Action Denial)
 
@@ -119,7 +119,7 @@ If an agent $`i`$ purposefully asserts $`P_{\text{no act}}`$ at node $`\langle t
 ```math
    \neg \text{VeridicalClaim}(i, t, h, \text{content}, P_{\text{no act}})
 ```
-   ([`dialectical_self_falsification_under_deliberative_norms`](../Praxeology/Action.lean#L975)).
+   ([`dialectical_self_falsification_under_deliberative_norms`](../Praxeology/Action.lean#L985)).
 
 The result is conditional on the structured `DeliberativeEpistemicAssertion`
 premises, including assertion, belief, counterexample-history, response, and

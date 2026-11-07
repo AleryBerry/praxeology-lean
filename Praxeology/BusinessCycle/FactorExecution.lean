@@ -6,6 +6,7 @@ Authors: Alexander Etxeberria
 module
 
 public import Praxeology.BusinessCycle.Regimes
+public import Praxeology.Catallactics.Credit
 public import Praxeology.FiniteEconomy.Compiler
 public import Praxeology.FiniteEconomy.Physical
 
@@ -13,10 +14,10 @@ public import Praxeology.FiniteEconomy.Physical
 # Physical execution of completion-factor purchases
 
 The Regimes factor-demand lists are projected calculations; this executor
-clears again from each prepared branch's actual funded advances and offered
-stocks. It preserves the initial-buffer participation rule, then checks each
-transfer against current holdings through the physical interpreter. The
-resulting purchases run as sequential bilateral transfers. The household's
+clears again from each prepared branch's actual funded advances, current cash,
+and offered stocks. The shared current-cash auction selects eligible bids,
+then the physical interpreter checks each transfer against current holdings.
+The resulting purchases run as sequential bilateral transfers. The household's
 stated consumption is run first; offered factors remain in its inventory until
 a matched trade sells them. The existing output schedule then supplies the
 completion operations, and customer purchases execute through matched trades.
@@ -25,10 +26,14 @@ finite menu; only the matched profile transfers inventory. Regime-specified
 fiduciary notes, the household cash transfer, and standardized loan advances are also
 executed through operation or matched-transfer stages. After sales, each
 completed project's auction-quoted repayment is a separate matched transfer.
-The household-to-bank transfer is only the cash leg: no deposit claim or bank
-repayment obligation is represented. The earlier input and capital-production
-stage remains unmodeled; projects excluded from completion are not adjudicated
-as defaults, and legal foreclosure is outside this physical ledger.
+In the household-transfer regime, the household exchanges two money units for
+one identified deposit claim promising three units at redemption. The claim
+and its redemption are recorded only when their transfers match. Funded
+borrowers purchase one early input and convert it one-to-one into project
+capital before completion. Unpaid maturity follows the explicit five-project
+nonrecourse agreement: title to collateral held by the bank transfers to it,
+and the remaining obligation is discharged. This contractual settlement is
+distinct from physical project completion.
 -/
 
 @[expose] public section
@@ -36,7 +41,7 @@ as defaults, and legal foreclosure is outside this physical ledger.
 namespace Praxeology
 
 abbrev FiveProjectPhysicalAgent := Fin 9
-abbrev FiveProjectPhysicalGood := Fin 3
+abbrev FiveProjectPhysicalGood := Fin 11
 
 def fiveProjectFactorSupplier : FiveProjectPhysicalAgent := 0
 def fiveProjectBank : FiveProjectPhysicalAgent := 7
@@ -44,37 +49,195 @@ def fiveProjectHousehold : FiveProjectPhysicalAgent := 8
 def fiveProjectMoneyGood : FiveProjectPhysicalGood := 0
 def fiveProjectCompletionGood : FiveProjectPhysicalGood := 1
 def fiveProjectOutputGood : FiveProjectPhysicalGood := 2
+def fiveProjectEarlyInputGood : FiveProjectPhysicalGood := 3
+def fiveProjectCapitalGood : FiveProjectPhysicalGood := 4
+def fiveProjectDepositClaimGood : FiveProjectPhysicalGood := 10
 
-/-- The customer's initial money endowment in the fixed physical witness. -/
-def fiveProjectCustomerMoneyEndowment : ℕ := 40
+/-- Named stages in the finite physical program. The cursor consumes these
+positions in order; loan and deposit contracts can name their settlement
+stage without relying on a numeric offset. -/
+inductive FiveProjectPhysicalPhase where
+  | chooseHouseholdPlan
+  | noteIssuance
+  | householdCashTransfer
+  | loanClearing
+  | loanAcceptance (project : Fin 5)
+  | earlyInputPurchase (project : Fin 5)
+  | capitalConversion (project : Fin 5)
+  | householdConsumption
+  | factorClearing
+  | factorPurchase (slot : Fin 5)
+  | completion (project : Fin 5)
+  | customerSale (project : Fin 5)
+  | loanSettlement (project : Fin 5)
+  | loanMaturitySettlement (project : Fin 5)
+  | depositSettlement
+  deriving DecidableEq, Repr
+
+/-- Terms accepted at deposit origination. The same holder, issuer, claim,
+promised amount, and named settlement stage parameterize later redemption. -/
+structure FiveProjectDepositTerms where
+  holder : FiveProjectPhysicalAgent
+  issuer : FiveProjectPhysicalAgent
+  holder_ne_issuer : holder ≠ issuer
+  principal : ℕ
+  claimQuantity : ℕ
+  claimGood : FiveProjectPhysicalGood
+  moneyGood : FiveProjectPhysicalGood
+  promisedRepayment : ℕ
+  redemptionPhase : FiveProjectPhysicalPhase
+  deriving DecidableEq
+
+def fiveProjectHouseholdDepositTerms : FiveProjectDepositTerms where
+  holder := fiveProjectHousehold
+  issuer := fiveProjectBank
+  holder_ne_issuer := by decide
+  principal := 2
+  claimQuantity := 1
+  claimGood := fiveProjectDepositClaimGood
+  moneyGood := fiveProjectMoneyGood
+  promisedRepayment := 3
+  redemptionPhase := .depositSettlement
 
 def fiveProjectPhysicalBorrower (project : Fin 5) : FiveProjectPhysicalAgent :=
   ⟨project.val + 1, by omega⟩
 
+/-- Each borrower pledges a distinct, initially owned collateral good. -/
+def fiveProjectCollateralGood (project : Fin 5) : FiveProjectPhysicalGood :=
+  ⟨project.val + 5, by omega⟩
+
+/-- Contract supplied at origination for one project's collateralized advance.
+The terms state custody of the named collateral, return of title after full
+repayment, and an all-or-nothing nonrecourse settlement at unpaid maturity:
+title transfers to the lender and no loan balance remains collectible. -/
+structure FiveProjectPawnAgreement where
+  bid : LoanReservationBid
+  terms : FundedLoanTerms
+  lender : FiveProjectPhysicalAgent
+  collateral : FiveProjectPhysicalGood
+  collateralQuantity : Nat
+  titleOwner : CreditStatus → FiveProjectPhysicalAgent
+  remainingObligation : CreditStatus → Option Nat
+  borrower_matches : terms.borrower = bid.borrower
+  principal_matches : terms.principal = fiveProjectLoanMarket.principal
+  lender_is_bank : lender = fiveProjectBank
+  collateral_is_pledged_good : collateral = fiveProjectCollateralGood bid.borrower
+  collateral_quantity_is_one : collateralQuantity = 1
+  title_before_default : titleOwner .unadvanced = fiveProjectPhysicalBorrower bid.borrower ∧
+    titleOwner .outstanding = fiveProjectPhysicalBorrower bid.borrower
+  title_after_repayment : titleOwner .repaid = fiveProjectPhysicalBorrower bid.borrower
+  title_after_unpaid_maturity : titleOwner .defaulted = lender
+  obligation_not_open_before_advance : remainingObligation .unadvanced = none
+  obligation_open_after_advance : remainingObligation .outstanding =
+    some terms.promisedRepayment
+  obligation_discharged_after_repayment : remainingObligation .repaid = none
+  obligation_discharged_by_collateral_at_default : remainingObligation .defaulted = none
+
+/-- The named agreement preserves the clearing quote and encodes exactly the
+stated nonrecourse collateral disposition. It introduces no seizure profile:
+the lender already has physical custody from the matched origination. -/
+def fiveProjectPawnAgreement (bid : LoanReservationBid) (repayment : Nat) :
+    FiveProjectPawnAgreement := by
+  let terms : FundedLoanTerms :=
+    { borrower := bid.borrower
+      principal := fiveProjectLoanMarket.principal
+      principal_positive := fiveProjectLoanMarket.principal_positive
+      promisedRepayment := repayment }
+  refine
+    { bid := bid
+      terms := terms
+      lender := fiveProjectBank
+      collateral := fiveProjectCollateralGood bid.borrower
+      collateralQuantity := 1
+      titleOwner := fun status =>
+        if status = .defaulted then fiveProjectBank
+        else fiveProjectPhysicalBorrower bid.borrower
+      remainingObligation := fun status =>
+        if status = .outstanding then some repayment else none
+      borrower_matches := rfl
+      principal_matches := rfl
+      lender_is_bank := rfl
+      collateral_is_pledged_good := rfl
+      collateral_quantity_is_one := rfl
+      title_before_default := ?_
+      title_after_repayment := ?_
+      title_after_unpaid_maturity := ?_
+      obligation_not_open_before_advance := ?_
+      obligation_open_after_advance := ?_
+      obligation_discharged_after_repayment := ?_
+      obligation_discharged_by_collateral_at_default := ?_ }
+  · constructor <;> simp
+  · simp
+  · simp
+  · simp
+  · rfl
+  · simp
+  · simp
+
+/-- The customer's initial money endowment in the fixed physical witness. -/
+def fiveProjectCustomerMoneyEndowment : ℕ := 40
+
+/-- Household plan data chosen before its deposit, consumption, and factor-offer
+actions. The program records the selection in its cursor; the plan operation
+itself changes no physical inventory. -/
+structure FiveProjectHouseholdPlan where
+  deposit : ℕ
+  consumedFactors : ℕ
+  offeredFactors : ℕ
+  deriving DecidableEq, Repr
+
+/-- The fixed regime schedule is the selected-plan profile used by its named
+path. The compiled choice stage also exposes its affordable alternatives. -/
+def fiveProjectHouseholdPlanOf (D : FiveProjectRegimeData) :
+    FiveProjectHouseholdPlan where
+  deposit := D.householdMoneyTransferred
+  consumedFactors := D.householdFactorsConsumed
+  offeredFactors := D.householdFactorsOffered
+
+theorem fiveProjectHousehold_ne_bank :
+    fiveProjectHousehold ≠ fiveProjectBank := by
+  decide
+
 inductive FiveProjectPhysicalOperation where
   | issueFiduciaryNotes (quantity : ℕ)
+  | chooseHouseholdPlan (plan : FiveProjectHouseholdPlan)
   | consumeHouseholdFactors (quantity : ℕ)
+  | convertEarlyInputToCapital (project : Fin 5)
   | completeProject (project : Fin 5)
   deriving DecidableEq
 
+/-- The household's delivered consumption-service quantity. -/
+def fiveProjectConsumptionService : ℕ := 0
+
 def fiveProjectPhysicalOperations :
     OperationSemantics FiveProjectPhysicalOperation
-      FiveProjectPhysicalGood Unit where
+      FiveProjectPhysicalGood Nat where
   input operation good :=
     match operation with
     | .issueFiduciaryNotes _ => 0
+    | .chooseHouseholdPlan _ => 0
     | .consumeHouseholdFactors quantity =>
         if good = fiveProjectCompletionGood then quantity else 0
+    | .convertEarlyInputToCapital _ =>
+        if good = fiveProjectEarlyInputGood then 1 else 0
     | .completeProject _ =>
-        if good = fiveProjectCompletionGood then 1 else 0
+        if good = fiveProjectCompletionGood ∨ good = fiveProjectCapitalGood then 1 else 0
   output operation good :=
     match operation with
     | .issueFiduciaryNotes quantity =>
         if good = fiveProjectMoneyGood then quantity else 0
+    | .chooseHouseholdPlan _ => 0
     | .consumeHouseholdFactors _ => 0
+    | .convertEarlyInputToCapital _ =>
+        if good = fiveProjectCapitalGood then 1 else 0
     | .completeProject project =>
         if good = fiveProjectOutputGood then fiveProjectOutput project else 0
-  service _ _ := 0
+  service operation serviceKind :=
+    if serviceKind = fiveProjectConsumptionService then
+      match operation with
+      | .consumeHouseholdFactors quantity => quantity
+      | _ => 0
+    else 0
 
 /-- Action profile for a matched, zero-price money transfer. Both parties
 enact corresponding offer and acceptance actions. -/
@@ -89,6 +252,100 @@ def fiveProjectMoneyTransferProfile (sender recipient : FiveProjectPhysicalAgent
       .accept recipient sender quantity fiveProjectMoneyGood 0 fiveProjectMoneyGood
     else .idle
 
+/-- Origination exchanges the bank's principal for the borrower's identified
+collateral good. No advance occurs unless both actions match and both goods
+are owned in the common pre-state. -/
+def fiveProjectLoanAdvanceProfile (bid : LoanReservationBid) :
+    ActionProfile (Agent := FiveProjectPhysicalAgent)
+      (Means := FiveProjectPhysicalGood) (Operation := FiveProjectPhysicalOperation) :=
+  let borrower := fiveProjectPhysicalBorrower bid.borrower
+  let collateral := fiveProjectCollateralGood bid.borrower
+  fun actor =>
+    if actor = fiveProjectBank then
+      .offer fiveProjectBank borrower fiveProjectLoanMarket.principal
+        fiveProjectMoneyGood 1 collateral
+    else if actor = borrower then
+      .accept borrower fiveProjectBank fiveProjectLoanMarket.principal
+        fiveProjectMoneyGood 1 collateral
+    else .idle
+
+/-- Physically enact one collateralized principal advance through the common
+inventory interpreter. -/
+def executeFiveProjectLoanAdvance
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
+    (bid : LoanReservationBid) :
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
+  advanceIfAffordable fiveProjectPhysicalOperations state
+    (fiveProjectLoanAdvanceProfile bid)
+
+/-- Repayment transfers the promised money back to the bank and returns that
+borrower's pledged collateral in the same matched exchange. -/
+def fiveProjectLoanRepaymentProfile (contract : FundedLoanTerms) :
+    ActionProfile (Agent := FiveProjectPhysicalAgent)
+      (Means := FiveProjectPhysicalGood) (Operation := FiveProjectPhysicalOperation) :=
+  let borrower := fiveProjectPhysicalBorrower contract.borrower
+  let collateral := fiveProjectCollateralGood contract.borrower
+  fun actor =>
+    if actor = borrower then
+      .offer borrower fiveProjectBank contract.promisedRepayment
+        fiveProjectMoneyGood 1 collateral
+    else if actor = fiveProjectBank then
+      .accept fiveProjectBank borrower contract.promisedRepayment
+        fiveProjectMoneyGood 1 collateral
+    else .idle
+
+/-- Physically settle one funded loan only when the borrower can transfer the
+promised repayment and the bank holds the pledged collateral. -/
+def executeFiveProjectLoanRepayment
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
+    (contract : FundedLoanTerms) :
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
+  advanceIfAffordable fiveProjectPhysicalOperations state
+    (fiveProjectLoanRepaymentProfile contract)
+
+/-- Origination exchanges the specified household principal for the bank's
+identified deposit claim. -/
+def fiveProjectDepositOriginationProfile :
+    ActionProfile (Agent := FiveProjectPhysicalAgent)
+      (Means := FiveProjectPhysicalGood) (Operation := FiveProjectPhysicalOperation) :=
+  fun actor =>
+    if actor = fiveProjectHouseholdDepositTerms.holder then
+      .offer fiveProjectHouseholdDepositTerms.holder
+        fiveProjectHouseholdDepositTerms.issuer
+        fiveProjectHouseholdDepositTerms.principal
+        fiveProjectHouseholdDepositTerms.moneyGood
+        fiveProjectHouseholdDepositTerms.claimQuantity
+        fiveProjectHouseholdDepositTerms.claimGood
+    else if actor = fiveProjectHouseholdDepositTerms.issuer then
+      .accept fiveProjectHouseholdDepositTerms.issuer
+        fiveProjectHouseholdDepositTerms.holder
+        fiveProjectHouseholdDepositTerms.principal
+        fiveProjectHouseholdDepositTerms.moneyGood
+        fiveProjectHouseholdDepositTerms.claimQuantity
+        fiveProjectHouseholdDepositTerms.claimGood
+    else .idle
+
+/-- Redemption follows the recorded agreement and pays its promised cash only
+against return of the same claim. -/
+def fiveProjectDepositRedemptionProfile (terms : FiveProjectDepositTerms) :
+    ActionProfile (Agent := FiveProjectPhysicalAgent)
+      (Means := FiveProjectPhysicalGood) (Operation := FiveProjectPhysicalOperation) :=
+  fun actor =>
+    if actor = terms.holder then
+      .offer terms.holder terms.issuer terms.claimQuantity terms.claimGood
+        terms.promisedRepayment terms.moneyGood
+    else if actor = terms.issuer then
+      .accept terms.issuer terms.holder terms.claimQuantity terms.claimGood
+        terms.promisedRepayment terms.moneyGood
+    else .idle
+
+/-- Execute deposit redemption only if its matched transfer is affordable. -/
+def executeFiveProjectDepositRedemption (terms : FiveProjectDepositTerms)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
+  advanceIfAffordable fiveProjectPhysicalOperations state
+    (fiveProjectDepositRedemptionProfile terms)
+
 /-- A complete profile for one proposed factor sale. Only the seller and buyer
 act; the interpreter transfers stocks only when both actions match exactly. -/
 def fiveProjectFactorPurchaseProfile (seller buyer : FiveProjectPhysicalAgent)
@@ -102,13 +359,48 @@ def fiveProjectFactorPurchaseProfile (seller buyer : FiveProjectPhysicalAgent)
       .accept buyer seller 1 fiveProjectCompletionGood price fiveProjectMoneyGood
     else .idle
 
+/-- Each funded borrower can purchase one early input from the supplier for
+one unit of money through the same matched-transfer interpreter. -/
+def fiveProjectEarlyInputPurchaseProfile (project : Fin 5) :
+    ActionProfile (Agent := FiveProjectPhysicalAgent)
+      (Means := FiveProjectPhysicalGood) (Operation := FiveProjectPhysicalOperation) :=
+  let seller := fiveProjectFactorSupplier
+  let buyer := fiveProjectPhysicalBorrower project
+  fun actor =>
+    if actor = seller then
+      .offer seller buyer 1 fiveProjectEarlyInputGood 1 fiveProjectMoneyGood
+    else if actor = buyer then
+      .accept buyer seller 1 fiveProjectEarlyInputGood 1 fiveProjectMoneyGood
+    else .idle
+
+def executeFiveProjectEarlyInputPurchase
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
+    (project : Fin 5) :
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
+  advanceIfAffordable fiveProjectPhysicalOperations state
+    (fiveProjectEarlyInputPurchaseProfile project)
+
+/-- Convert one owned early input to one capital unit with the declared
+operation semantics. -/
+def executeFiveProjectCapitalConversion
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
+    (project : Fin 5) :
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
+  let borrower := fiveProjectPhysicalBorrower project
+  let profile : ActionProfile (Agent := FiveProjectPhysicalAgent)
+      (Means := FiveProjectPhysicalGood) (Operation := FiveProjectPhysicalOperation) :=
+    fun actor =>
+      if actor = borrower then .operate (.convertEarlyInputToCapital project)
+      else .idle
+  advanceIfAffordable fiveProjectPhysicalOperations state profile
+
 /-- Apply one matched completion-factor purchase to the current inventory.
 Insufficient seller stock or buyer money yields `none` under the existing
 pre-transition affordability check. -/
 def executeFiveProjectFactorPurchase
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (seller buyer : FiveProjectPhysicalAgent) (price : ℕ) :
-    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :=
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
   advanceIfAffordable fiveProjectPhysicalOperations state
     (fiveProjectFactorPurchaseProfile seller buyer price)
 
@@ -116,7 +408,7 @@ def executeFiveProjectFactorPurchase
 inventory balances: one completion unit and `price` money units move between
 the two parties. No additional transfer rule is assumed here. -/
 theorem executeFiveProjectFactorPurchase_balances
-    (state next : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state next : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (seller buyer : FiveProjectPhysicalAgent) (price : ℕ)
     (hdistinct : seller ≠ buyer)
     (hstep : executeFiveProjectFactorPurchase state seller buyer price = some next) :
@@ -150,7 +442,7 @@ active agent can choose its selected action or idle, and inactive agents can
 only idle. The selected actions must already be affordable from the common
 pre-state; no incoming transfer is used as an input. -/
 def finitePhysicalStageOfProfile
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (profile : ActionProfile (Agent := FiveProjectPhysicalAgent)
       (Means := FiveProjectPhysicalGood) (Operation := FiveProjectPhysicalOperation))
     (active : Finset FiveProjectPhysicalAgent)
@@ -160,7 +452,7 @@ def finitePhysicalStageOfProfile
     (profile_affordable : ∀ agent,
       actionAffordable fiveProjectPhysicalOperations state agent (profile agent)) :
     FinitePhysicalChoiceStage FiveProjectPhysicalAgent FiveProjectPhysicalGood
-      FiveProjectPhysicalOperation Unit :=
+      FiveProjectPhysicalOperation Nat :=
   { choices := FiniteChoiceStage.ofProfile profile active profile_nonidle
       profile_wellFormed
     operations := fiveProjectPhysicalOperations
@@ -186,12 +478,12 @@ def finitePhysicalStageOfProfile
 unilateral offer/accept alternatives. The selected profile is affordable
 when the sender owns the transferred amount in the common pre-state. -/
 def fiveProjectMoneyTransferChoiceStage
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (sender recipient : FiveProjectPhysicalAgent) (quantity : ℕ)
     (hdistinct : sender ≠ recipient)
     (hfunded : quantity ≤ state.stock sender fiveProjectMoneyGood) :
     FinitePhysicalChoiceStage FiveProjectPhysicalAgent FiveProjectPhysicalGood
-      FiveProjectPhysicalOperation Unit := by
+      FiveProjectPhysicalOperation Nat := by
   let profile := fiveProjectMoneyTransferProfile sender recipient quantity
   let active : Finset FiveProjectPhysicalAgent := {sender, recipient}
   have hnonidle : ∀ agent, agent ∈ active → profile agent ≠ EconomyAction.idle := by
@@ -233,10 +525,112 @@ def fiveProjectMoneyTransferChoiceStage
   exact finitePhysicalStageOfProfile state profile active
     hnonidle hwellFormed hprofileAffordable
 
+/-- A deposit origination choice stage with the same idle and unilateral
+branches as other bilateral transfers. Both the household's principal and
+the bank's claim must be present before the matched profile is feasible. -/
+def fiveProjectDepositOriginationChoiceStage
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
+    (hprincipal : fiveProjectHouseholdDepositTerms.principal ≤
+      state.stock fiveProjectHousehold fiveProjectMoneyGood)
+    (hclaim : 1 ≤ state.stock fiveProjectBank fiveProjectDepositClaimGood) :
+    FinitePhysicalChoiceStage FiveProjectPhysicalAgent FiveProjectPhysicalGood
+      FiveProjectPhysicalOperation Nat := by
+  let profile := fiveProjectDepositOriginationProfile
+  let active : Finset FiveProjectPhysicalAgent :=
+    {fiveProjectHousehold, fiveProjectBank}
+  have hnonidle : ∀ agent, agent ∈ active → profile agent ≠ EconomyAction.idle := by
+    intro agent hagent
+    simp only [active, Finset.mem_insert, Finset.mem_singleton] at hagent
+    rcases hagent with hh | hb
+    · subst agent
+      simp [profile, fiveProjectDepositOriginationProfile,
+        fiveProjectHouseholdDepositTerms]
+    · subst agent
+      simp [profile, fiveProjectDepositOriginationProfile,
+        fiveProjectHouseholdDepositTerms, fiveProjectHousehold_ne_bank.symm]
+  have hwellFormed : ∀ agent,
+      EconomyAction.WellFormed agent (profile agent) := by
+    intro agent
+    by_cases hh : agent = fiveProjectHousehold
+    · subst agent
+      simp [profile, fiveProjectDepositOriginationProfile,
+        EconomyAction.WellFormed, fiveProjectHouseholdDepositTerms,
+        fiveProjectHousehold_ne_bank]
+    · by_cases hb : agent = fiveProjectBank
+      · subst agent
+        simp [profile, fiveProjectDepositOriginationProfile,
+          EconomyAction.WellFormed, fiveProjectHouseholdDepositTerms, hh]
+      · simp [profile, fiveProjectDepositOriginationProfile, hh, hb,
+          fiveProjectHouseholdDepositTerms, EconomyAction.WellFormed]
+  have hprofileAffordable : ∀ agent,
+      actionAffordable fiveProjectPhysicalOperations state agent (profile agent) := by
+    intro agent good
+    by_cases hh : agent = fiveProjectHousehold
+    · subst agent
+      by_cases hgood : good = fiveProjectMoneyGood
+      · simpa [profile, fiveProjectDepositOriginationProfile,
+          rawActionUse, fiveProjectHouseholdDepositTerms, hgood] using hprincipal
+      · simp [profile, fiveProjectDepositOriginationProfile,
+          rawActionUse, fiveProjectHouseholdDepositTerms, hgood]
+    · by_cases hb : agent = fiveProjectBank
+      · subst agent
+        by_cases hgood : good = fiveProjectDepositClaimGood
+        · simpa [profile, fiveProjectDepositOriginationProfile,
+            rawActionUse, fiveProjectHouseholdDepositTerms, hgood,
+            fiveProjectHousehold_ne_bank.symm] using hclaim
+        · simp [profile, fiveProjectDepositOriginationProfile,
+            rawActionUse, fiveProjectHouseholdDepositTerms, hgood,
+            fiveProjectHousehold_ne_bank.symm]
+      · simp [profile, fiveProjectDepositOriginationProfile, rawActionUse,
+          fiveProjectHouseholdDepositTerms, hh, hb]
+  exact finitePhysicalStageOfProfile state profile active
+    hnonidle hwellFormed hprofileAffordable
+
+/-- Every actor's action in the matched deposit profile belongs to the
+origination stage's finite menu. -/
+theorem fiveProjectDepositOriginationChoiceStage_profile_mem
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
+    (hprincipal : fiveProjectHouseholdDepositTerms.principal ≤
+      state.stock fiveProjectHousehold fiveProjectMoneyGood)
+    (hclaim : 1 ≤ state.stock fiveProjectBank fiveProjectDepositClaimGood) :
+    ∀ agent,
+      fiveProjectDepositOriginationProfile agent ∈
+        (fiveProjectDepositOriginationChoiceStage state hprincipal hclaim).choices.menu
+          agent := by
+  intro agent
+  by_cases hh : agent = fiveProjectHousehold
+  · subst agent
+    simp [fiveProjectDepositOriginationChoiceStage,
+      finitePhysicalStageOfProfile, FiniteChoiceStage.ofProfile,
+      fiveProjectDepositOriginationProfile, fiveProjectHouseholdDepositTerms]
+  · by_cases hb : agent = fiveProjectBank
+    · subst agent
+      simp [fiveProjectDepositOriginationChoiceStage,
+        finitePhysicalStageOfProfile, FiniteChoiceStage.ofProfile,
+        fiveProjectDepositOriginationProfile, fiveProjectHouseholdDepositTerms, hh]
+    · simp [fiveProjectDepositOriginationChoiceStage,
+        finitePhysicalStageOfProfile, FiniteChoiceStage.ofProfile,
+        fiveProjectDepositOriginationProfile, fiveProjectHouseholdDepositTerms, hh, hb]
+
+/-- Execute the selected deposit exchange through its finite physical choice
+stage. The stage is unavailable unless both sides own their offered goods. -/
+def executeFiveProjectDepositOrigination
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
+  if hprincipal : fiveProjectHouseholdDepositTerms.principal ≤
+      state.stock fiveProjectHousehold fiveProjectMoneyGood then
+    if hclaim : 1 ≤ state.stock fiveProjectBank fiveProjectDepositClaimGood then
+      let stage := fiveProjectDepositOriginationChoiceStage state hprincipal hclaim
+      some (stage.advance
+        ⟨fiveProjectDepositOriginationProfile,
+          fiveProjectDepositOriginationChoiceStage_profile_mem state hprincipal hclaim⟩)
+    else none
+  else none
+
 /-- The transfer stage contains both parties' unilateral choices and the
 complete matched profile. Each unilateral profile leaves the other party idle. -/
 theorem fiveProjectMoneyTransferChoiceStage_branches
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (sender recipient : FiveProjectPhysicalAgent) (quantity : ℕ)
     (hdistinct : sender ≠ recipient)
     (hfunded : quantity ≤ state.stock sender fiveProjectMoneyGood) :
@@ -314,7 +708,7 @@ theorem fiveProjectMoneyTransferChoiceStage_branches
 stage's finite menu. -/
 def finitePhysicalSelectedProfile
     (stage : FinitePhysicalChoiceStage FiveProjectPhysicalAgent
-      FiveProjectPhysicalGood FiveProjectPhysicalOperation Unit)
+      FiveProjectPhysicalGood FiveProjectPhysicalOperation Nat)
     (profile : ActionProfile (Agent := FiveProjectPhysicalAgent)
       (Means := FiveProjectPhysicalGood) (Operation := FiveProjectPhysicalOperation))
     (selected : ∀ agent, profile agent ∈ stage.choices.menu agent) :
@@ -325,13 +719,13 @@ def finitePhysicalSelectedProfile
 that the physical interpreter executes. The menu includes the supplier's
 unilateral offer and the borrower's unilateral acceptance alongside idling. -/
 def fiveProjectFactorPurchaseChoiceStage
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (seller buyer : FiveProjectPhysicalAgent) (price : ℕ)
     (hdistinct : seller ≠ buyer)
     (hsupply : 1 ≤ state.stock seller fiveProjectCompletionGood)
     (hcash : price ≤ state.stock buyer fiveProjectMoneyGood) :
     FinitePhysicalChoiceStage FiveProjectPhysicalAgent FiveProjectPhysicalGood
-      FiveProjectPhysicalOperation Unit := by
+      FiveProjectPhysicalOperation Nat := by
   let profile := fiveProjectFactorPurchaseProfile seller buyer price
   let active : Finset FiveProjectPhysicalAgent := {seller, buyer}
   have hnonidle : ∀ agent, agent ∈ active →
@@ -380,7 +774,7 @@ def fiveProjectFactorPurchaseChoiceStage
 /-- The complete matched purchase profile belongs to the stage's generated
 menu product, while each unilateral action is also a generated branch. -/
 theorem fiveProjectFactorPurchaseChoiceStage_branches
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (seller buyer : FiveProjectPhysicalAgent) (price : ℕ)
     (hdistinct : seller ≠ buyer)
     (hsupply : 1 ≤ state.stock seller fiveProjectCompletionGood)
@@ -456,7 +850,7 @@ theorem fiveProjectFactorPurchaseChoiceStage_branches
 /-- The actual matched purchase transition is exactly the transition selected
 from its finite physical choice stage. -/
 theorem fiveProjectFactorPurchase_is_choiceStage_advance
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (seller buyer : FiveProjectPhysicalAgent) (price : ℕ)
     (hdistinct : seller ≠ buyer)
     (hsupply : 1 ≤ state.stock seller fiveProjectCompletionGood)
@@ -512,17 +906,18 @@ theorem fiveProjectFactorPurchase_is_choiceStage_advance
 customer; physical factor stocks remain with the supplier and household until
 consumption or a matched sale occurs. Notes, the household cash transfer, and
 loan advances are executed as later stages. -/
-def fiveProjectFactorInitialState (D : FiveProjectRegimeData) :
-    PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit :=
+def fiveProjectFactorInitialStateWithCashBuffers (D : FiveProjectRegimeData)
+    (cashBuffer : Fin 5 → ℕ) :
+    PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat :=
   PhysicalState.zeroServices fun agent good =>
     match good.val with
     | 0 =>
         match agent.val with
-        | 1 => fiveProjectCashBuffer 0
-        | 2 => fiveProjectCashBuffer 1
-        | 3 => fiveProjectCashBuffer 2
-        | 4 => fiveProjectCashBuffer 3
-        | 5 => fiveProjectCashBuffer 4
+        | 1 => cashBuffer 0
+        | 2 => cashBuffer 1
+        | 3 => cashBuffer 2
+        | 4 => cashBuffer 3
+        | 5 => cashBuffer 4
         | 6 => fiveProjectCustomerMoneyEndowment
         | 7 => D.bankMoney
         | 8 => D.householdMoneyEndowment
@@ -531,14 +926,27 @@ def fiveProjectFactorInitialState (D : FiveProjectRegimeData) :
         if agent = fiveProjectFactorSupplier then D.supplierFactorStock
         else if agent = fiveProjectHousehold then D.householdFactorEndowment
         else 0
+    | 3 => if agent = fiveProjectFactorSupplier then D.supplierEarlyInputStock else 0
+    | 5 => if agent = fiveProjectPhysicalBorrower 0 then 1 else 0
+    | 6 => if agent = fiveProjectPhysicalBorrower 1 then 1 else 0
+    | 7 => if agent = fiveProjectPhysicalBorrower 2 then 1 else 0
+    | 8 => if agent = fiveProjectPhysicalBorrower 3 then 1 else 0
+    | 9 => if agent = fiveProjectPhysicalBorrower 4 then 1 else 0
+    | 10 => if agent = fiveProjectBank then 1 else 0
     | _ => 0
+
+/-- Initial state of the named scenario, with the specified entrepreneur cash
+buffers as its specialization. -/
+def fiveProjectFactorInitialState (D : FiveProjectRegimeData) :
+    PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat :=
+  fiveProjectFactorInitialStateWithCashBuffers D fiveProjectCashBuffer
 
 /-- Fiduciary notes specified by a regime are issued by the bank operation
 before the loan auction's funded advances. The amount comes directly from the
 regime's explicit note-issuance field. -/
 def issueFiveProjectFiduciaryNotes (D : FiveProjectRegimeData)
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :
-    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :=
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
   let profile : ActionProfile (Agent := FiveProjectPhysicalAgent)
       (Means := FiveProjectPhysicalGood) (Operation := FiveProjectPhysicalOperation) :=
     fun actor =>
@@ -551,9 +959,9 @@ def issueFiveProjectFiduciaryNotes (D : FiveProjectRegimeData)
 corresponding offer and acceptance; the sender must hold the full quantity in
 the common pre-state. -/
 def executeFiveProjectMoneyTransfer
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (sender recipient : FiveProjectPhysicalAgent) (quantity : ℕ) :
-    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :=
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
   if quantity = 0 then some state
   else if sender = recipient then none
   else advanceIfAffordable fiveProjectPhysicalOperations state
@@ -563,7 +971,7 @@ def executeFiveProjectMoneyTransfer
 matched profile's branch in the choice stage that also contains the two
 unilateral alternatives. -/
 theorem fiveProjectMoneyTransfer_is_choiceStage_advance
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (sender recipient : FiveProjectPhysicalAgent) (quantity : ℕ)
     (hdistinct : sender ≠ recipient) (hpositive : 0 < quantity)
     (hfunded : quantity ≤ state.stock sender fiveProjectMoneyGood) :
@@ -618,7 +1026,7 @@ theorem fiveProjectMoneyTransfer_is_choiceStage_advance
 inventory balance. The zero-quantity case is the identity already specified
 by the executor; positive transfers require a matched offer and acceptance. -/
 theorem executeFiveProjectMoneyTransfer_balances
-    (state next : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state next : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (sender recipient : FiveProjectPhysicalAgent) (quantity : ℕ)
     (hne : sender ≠ recipient)
     (hstep : executeFiveProjectMoneyTransfer state sender recipient quantity =
@@ -651,26 +1059,107 @@ theorem executeFiveProjectMoneyTransfer_balances
 /-- A positive self-transfer is not a matched bilateral exchange and is
 rejected by the execution helper. -/
 theorem executeFiveProjectMoneyTransfer_self_positive
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (agent : FiveProjectPhysicalAgent) (quantity : ℕ) (hquantity : 0 < quantity) :
     executeFiveProjectMoneyTransfer state agent agent quantity = none := by
   simp [executeFiveProjectMoneyTransfer, Nat.ne_of_gt hquantity]
 
-/-- Execute the cash-transfer leg recorded in the household-transfer regime.
-This is a matched zero-price money transfer; it does not issue a deposit claim
-or record a bank obligation to repay the household. A zero transfer is the
-identity transition. -/
+/-- In the named saving regime the household exchanges its principal for the
+deposit claim. Other regimes have no household deposit transaction; a
+zero-sized cash transfer is the identity transition. -/
 def executeFiveProjectHouseholdCashTransfer (D : FiveProjectRegimeData)
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :=
-  executeFiveProjectMoneyTransfer state fiveProjectHousehold fiveProjectBank
-    D.householdMoneyTransferred
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
+  if D.householdMoneyTransferred = fiveProjectHouseholdDepositTerms.principal then
+    executeFiveProjectDepositOrigination state
+  else
+    executeFiveProjectMoneyTransfer state fiveProjectHousehold fiveProjectBank
+      D.householdMoneyTransferred
+
+/-- A funded named deposit exchange transfers exactly its principal and its
+claim through the ordinary matched-transfer interpreter. -/
+theorem executeFiveProjectDepositOrigination_succeeds
+    (D : FiveProjectRegimeData)
+    (hprincipal : D.householdMoneyTransferred =
+      fiveProjectHouseholdDepositTerms.principal) :
+    ∃ next,
+      executeFiveProjectDepositOrigination (fiveProjectFactorInitialState D) =
+        some next ∧
+      next.stock fiveProjectHousehold fiveProjectMoneyGood +
+          fiveProjectHouseholdDepositTerms.principal = D.householdMoneyEndowment ∧
+      next.stock fiveProjectBank fiveProjectMoneyGood =
+        D.bankMoney + fiveProjectHouseholdDepositTerms.principal ∧
+      next.stock fiveProjectHousehold fiveProjectDepositClaimGood = 1 ∧
+      next.stock fiveProjectBank fiveProjectDepositClaimGood = 0 := by
+  let state := fiveProjectFactorInitialState D
+  let profile := fiveProjectDepositOriginationProfile
+  have hinitialHousehold : state.stock fiveProjectHousehold fiveProjectMoneyGood =
+      D.householdMoneyEndowment := by rfl
+  have hhouseholdCash : fiveProjectHouseholdDepositTerms.principal ≤
+      state.stock fiveProjectHousehold fiveProjectMoneyGood := by
+    calc
+      fiveProjectHouseholdDepositTerms.principal = D.householdMoneyTransferred :=
+        hprincipal.symm
+      _ ≤ D.householdMoneyEndowment := D.transfer_affordable
+      _ = state.stock fiveProjectHousehold fiveProjectMoneyGood :=
+        hinitialHousehold.symm
+  have hbankClaim : 1 ≤ state.stock fiveProjectBank fiveProjectDepositClaimGood := by
+    change 1 ≤ 1
+    omega
+  let stage := fiveProjectDepositOriginationChoiceStage state
+    hhouseholdCash hbankClaim
+  let selected : stage.choices.Profile :=
+    ⟨profile, fiveProjectDepositOriginationChoiceStage_profile_mem state
+      hhouseholdCash hbankClaim⟩
+  let next := stage.advance selected
+  have hstep : executeFiveProjectDepositOrigination state = some next := by
+    simp [executeFiveProjectDepositOrigination, hhouseholdCash, hbankClaim,
+      stage, selected, next, state, profile]
+  have hphysical : advanceIfAffordable fiveProjectPhysicalOperations
+      state profile = some next := by
+    have h := stage.advanceIfAffordable_eq_some_advance selected
+    have hselected : stage.advance
+        ⟨profile, fiveProjectDepositOriginationChoiceStage_profile_mem state
+          hhouseholdCash hbankClaim⟩ = next := by rfl
+    rw [hselected] at h
+    simpa [fiveProjectDepositOriginationChoiceStage, stage,
+      finitePhysicalStageOfProfile] using h
+  have hbalances := advanceIfAffordable_matchedTransfer_balance
+    fiveProjectPhysicalOperations state next profile fiveProjectHousehold
+    fiveProjectBank fiveProjectHouseholdDepositTerms.principal
+    fiveProjectMoneyGood 1 fiveProjectDepositClaimGood hphysical
+    (by simp [profile, fiveProjectDepositOriginationProfile,
+      fiveProjectHouseholdDepositTerms])
+    (by simp [profile, fiveProjectDepositOriginationProfile,
+      fiveProjectHouseholdDepositTerms, fiveProjectHousehold_ne_bank.symm])
+  refine ⟨next, hstep, ?_, ?_, ?_, ?_⟩
+  · have h := hbalances.1 fiveProjectMoneyGood
+    rw [hinitialHousehold] at h
+    simpa [fiveProjectMoneyGood, fiveProjectDepositClaimGood] using h
+  · have hinitialBank : state.stock fiveProjectBank fiveProjectMoneyGood =
+        D.bankMoney := by rfl
+    have h := hbalances.2 fiveProjectMoneyGood
+    rw [hinitialBank] at h
+    simpa [fiveProjectMoneyGood, fiveProjectDepositClaimGood] using h
+  · have hinitialClaim :
+        state.stock fiveProjectHousehold fiveProjectDepositClaimGood = 0 := by rfl
+    have h := hbalances.1 fiveProjectDepositClaimGood
+    rw [hinitialClaim] at h
+    simpa [fiveProjectMoneyGood, fiveProjectDepositClaimGood] using h
+  · have hinitialClaim :
+        state.stock fiveProjectBank fiveProjectDepositClaimGood = 1 := by rfl
+    have h := hbalances.2 fiveProjectDepositClaimGood
+    rw [hinitialClaim] at h
+    simpa [fiveProjectMoneyGood, fiveProjectDepositClaimGood] using h
 
 /-- Any household cash transfer recorded as affordable by the regime data
 executes as a matched transfer from the initial physical cash balance. This
-checks the funding source against the interpreter; it establishes neither a
-deposit claim nor a purposeful saving choice. -/
-theorem executeFiveProjectHouseholdCashTransfer_succeeds
-    (D : FiveProjectRegimeData) :
+checks the funding source against the interpreter. In the saving regime the
+cash leg is matched to the issued deposit claim; this physical contract alone
+does not establish purposeful saving. -/
+theorem executeFiveProjectHouseholdCashTransfer_succeeds_without_deposit
+    (D : FiveProjectRegimeData)
+    (hnotDeposit : D.householdMoneyTransferred ≠
+      fiveProjectHouseholdDepositTerms.principal) :
     ∃ next,
       executeFiveProjectHouseholdCashTransfer D (fiveProjectFactorInitialState D) =
         some next ∧
@@ -688,7 +1177,8 @@ theorem executeFiveProjectHouseholdCashTransfer_succeeds
     rfl
   by_cases hzero : D.householdMoneyTransferred = 0
   · refine ⟨fiveProjectFactorInitialState D, ?_, ?_, ?_⟩
-    · simp [executeFiveProjectHouseholdCashTransfer, executeFiveProjectMoneyTransfer, hzero]
+    · norm_num [executeFiveProjectHouseholdCashTransfer,
+        executeFiveProjectMoneyTransfer, fiveProjectHouseholdDepositTerms, hzero]
     · rw [hinitialHousehold, hzero]
       omega
     · rw [hinitialBank, hzero]
@@ -722,14 +1212,15 @@ theorem executeFiveProjectHouseholdCashTransfer_succeeds
                 fiveProjectMoneyTransferProfile, hhousehold, hbank])
     have hstep : executeFiveProjectHouseholdCashTransfer D
         (fiveProjectFactorInitialState D) = some (stage.advance selected) := by
-      simpa [executeFiveProjectHouseholdCashTransfer, stage, selected] using
+      simpa [executeFiveProjectHouseholdCashTransfer, hnotDeposit,
+        stage, selected] using
         fiveProjectMoneyTransfer_is_choiceStage_advance
           (fiveProjectFactorInitialState D) fiveProjectHousehold fiveProjectBank
           D.householdMoneyTransferred hdistinct hpositive hfunded
     have hbalances := executeFiveProjectMoneyTransfer_balances
       (fiveProjectFactorInitialState D) (stage.advance selected)
       fiveProjectHousehold fiveProjectBank D.householdMoneyTransferred hdistinct
-      (by simpa [executeFiveProjectHouseholdCashTransfer] using hstep)
+      (by simpa [executeFiveProjectHouseholdCashTransfer, hnotDeposit] using hstep)
     refine ⟨stage.advance selected, hstep, ?_, ?_⟩
     · have hhousehold := hbalances.1
       rw [hinitialHousehold] at hhousehold
@@ -738,30 +1229,49 @@ theorem executeFiveProjectHouseholdCashTransfer_succeeds
       rw [hinitialBank] at hbank
       exact hbank
 
+/-- The household-source stage succeeds either as the explicit named deposit
+contract or as the existing cash-transfer specialization. -/
+theorem executeFiveProjectHouseholdCashTransfer_succeeds
+    (D : FiveProjectRegimeData) :
+    ∃ next,
+      executeFiveProjectHouseholdCashTransfer D (fiveProjectFactorInitialState D) =
+        some next ∧
+      next.stock fiveProjectHousehold fiveProjectMoneyGood +
+          D.householdMoneyTransferred = D.householdMoneyEndowment ∧
+      next.stock fiveProjectBank fiveProjectMoneyGood =
+        D.bankMoney + D.householdMoneyTransferred := by
+  by_cases hdeposit : D.householdMoneyTransferred =
+      fiveProjectHouseholdDepositTerms.principal
+  · obtain ⟨next, hstep, hhousehold, hbank, _hclaim, _hbankClaim⟩ :=
+      executeFiveProjectDepositOrigination_succeeds D hdeposit
+    refine ⟨next, ?_, ?_, ?_⟩
+    · simpa [executeFiveProjectHouseholdCashTransfer, hdeposit] using hstep
+    · simpa [hdeposit] using hhousehold
+    · simpa [hdeposit] using hbank
+  · exact executeFiveProjectHouseholdCashTransfer_succeeds_without_deposit D hdeposit
+
 /-- Execute the principal advances for the loan auction's funded prefix. The
 fixed market has unit principal, and each advance is a separate matched
 transfer from the bank to the named borrower. -/
 def executeFiveProjectLoanAdvances
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :
     List LoanReservationBid →
-      Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+      Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
   | [] => some state
   | bid :: rest =>
-      (executeFiveProjectMoneyTransfer state fiveProjectBank
-        (fiveProjectPhysicalBorrower bid.borrower) fiveProjectLoanMarket.principal).bind
+      (executeFiveProjectLoanAdvance state bid).bind
         fun next => executeFiveProjectLoanAdvances next rest
 
 /-- Execute each scheduled loan transfer and return exactly the bids whose
 matched transfer succeeded. -/
 def executeFiveProjectLoanAdvancesWithTrace
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :
     List LoanReservationBid →
-      Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit ×
+      Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat ×
         List LoanReservationBid)
   | [] => some (state, [])
   | bid :: rest =>
-      (executeFiveProjectMoneyTransfer state fiveProjectBank
-        (fiveProjectPhysicalBorrower bid.borrower) fiveProjectLoanMarket.principal).bind
+      (executeFiveProjectLoanAdvance state bid).bind
         fun next =>
           (executeFiveProjectLoanAdvancesWithTrace next rest).map fun (final, advances) =>
             (final, bid :: advances)
@@ -781,7 +1291,7 @@ def fiveProjectLoanOutcomeAfterSourcesFor (D : FiveProjectRegimeData) :
 resulting physical state. A list appears here only when every generated
 advance transfer has executed through the interpreter. -/
 def fiveProjectFundedTraceFor (D : FiveProjectRegimeData) :
-    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit ×
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat ×
       List LoanReservationBid) :=
   (issueFiveProjectFiduciaryNotes D (fiveProjectFactorInitialState D)).bind
     fun noted =>
@@ -793,12 +1303,39 @@ def fiveProjectExecutedLoanAdvancesFor (D : FiveProjectRegimeData) :
     Option (List LoanReservationBid) :=
   (fiveProjectFundedTraceFor D).map Prod.snd
 
+/-- Execute early-input purchases and one-to-one capital conversion for the
+loans whose advances actually matched. A failed purchase or conversion stops
+this selected execution; no capital is inferred from a loan quote alone. -/
+def executeFiveProjectEarlyCapitalPlan
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :
+    List LoanReservationBid →
+      Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
+  | [] => some state
+  | bid :: rest =>
+      (executeFiveProjectEarlyInputPurchase state bid.borrower).bind fun purchased =>
+        (executeFiveProjectCapitalConversion purchased bid.borrower).bind fun capitalized =>
+          executeFiveProjectEarlyCapitalPlan capitalized rest
+
+/-- State after the executed funding branch and its matched early-input and
+capital-formation stages. The list of projects comes from actual advances. -/
+def fiveProjectCapitalizedTraceFor (D : FiveProjectRegimeData) :
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat ×
+      List LoanReservationBid) :=
+  (fiveProjectFundedTraceFor D).bind fun (state, advances) =>
+    (executeFiveProjectEarlyCapitalPlan state advances).map fun capitalized =>
+      (capitalized, advances)
+
+/-- State after the executed funding branch and capital formation. -/
+def fiveProjectCapitalizedStateFor (D : FiveProjectRegimeData) :
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
+  (fiveProjectCapitalizedTraceFor D).map Prod.fst
+
 /-- Build the pre-production physical state by executing note issuance,
 the household cash transfer, and the loan auction's actual funded advances in sequence.
 The loan-auction source total and physical bank receipts are the same regime
 data used to compute capacity. -/
 def fiveProjectFundedStateFor (D : FiveProjectRegimeData) :
-    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :=
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
   fiveProjectFundedTraceFor D |>.map Prod.fst
 
 /-- Read a money balance after the regime's notes, household transfer, and funded loan
@@ -844,12 +1381,12 @@ theorem fiveProject_named_loan_advances_execute :
       (fiveProjectPhysicalBorrower 3) = some 2 := by
   decide
 
-/-- At the current modeled funding checkpoint, the two marginal fiduciary
-borrowers each hold their one-unit buffer plus the one-unit loan advance. They
-can therefore afford price two from current cash even though the projected
-initial-buffer test rejects them at that price. The physical affordability
-check is separate from this participation rule; earlier input production
-remains absent. -/
+/-- At the funding checkpoint before early-input purchases, the two marginal
+fiduciary borrowers each hold their one-unit buffer plus the one-unit loan
+advance. This records the intermediate balance only; the later current-cash
+auction is run after early-input expenditure and uses the resulting inventory.
+The projected buffer-and-return test remains a separate forecast calculation.
+-/
 theorem fiveProject_marginal_borrowers_funded_balance_exceeds_buffer_test :
     ∀ entrepreneur, 2 ≤ entrepreneur.val → entrepreneur.val < 4 →
       fiveProjectFundedMoneyBalance? (fiveProjectRegimeData .fiduciaryExpansion)
@@ -880,9 +1417,9 @@ def fiveProjectFactorSellerPlan (supplierStock householdStock : ℕ) :
 separate matched offer and acceptance, so a later purchase uses the state
 produced by earlier transfers. -/
 def executeFiveProjectFactorPlan
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (price : ℕ) : List (Fin 5 × FiveProjectPhysicalAgent) →
-      Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+      Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
   | [] => some state
   | (project, seller) :: rest =>
       (executeFiveProjectFactorPurchase state seller
@@ -892,8 +1429,8 @@ def executeFiveProjectFactorPlan
 /-- Execute ordinary household factor consumption before the factor market,
 using the regime's explicit consumption quantity. -/
 def prepareFiveProjectHouseholdFactors (D : FiveProjectRegimeData)
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :
-    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :=
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
   let action :=
     if D.householdFactorsConsumed = 0 then EconomyAction.idle
     else .operate (.consumeHouseholdFactors D.householdFactorsConsumed)
@@ -906,36 +1443,88 @@ def prepareFiveProjectHouseholdFactors (D : FiveProjectRegimeData)
 stated offer and the seller's current physical stock. Unoffered household
 stock remains with the household. -/
 def fiveProjectAvailableSupplierFactors (D : FiveProjectRegimeData)
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) : ℕ :=
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) : ℕ :=
   min D.supplierFactorStock (state.stock fiveProjectFactorSupplier
     fiveProjectCompletionGood)
 
 def fiveProjectAvailableHouseholdFactors (D : FiveProjectRegimeData)
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) : ℕ :=
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) : ℕ :=
   min D.householdFactorsOffered (state.stock fiveProjectHousehold
     fiveProjectCompletionGood)
 
-/-- Clear the completion-factor market against currently available offered
-stock and actual loan-source branch. Its existing initial-buffer test determines
-participation; the resulting transfers still face the interpreter's separate
-current-inventory affordability check. -/
+/-- Shared factor clearing at one physical market node. It receives the
+already matched advances and published repayment quote, reads current cash
+from the supplied inventory, and combines present affordability with
+projected output receipts. -/
+def fiveProjectClearFactorMarketAtState
+    (actualAdvances : List LoanReservationBid) (quotedRepayment supply : ℕ)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :
+    Option (ℕ × List LoanReservationBid) :=
+  let currentCash : LoanReservationBid → ℕ := fun bid => state.stock
+    (fiveProjectPhysicalBorrower bid.borrower) fiveProjectMoneyGood
+  let projectedOutput : LoanReservationBid → ℕ :=
+    fun bid => fiveProjectOutput bid.borrower
+  let greatestCash := actualAdvances.foldl
+    (fun greatest bid => max greatest (currentCash bid)) 0
+  (ascendingCompletionFactorPriceAtCurrentCash? actualAdvances quotedRepayment 1 supply
+    greatestCash currentCash projectedOutput).map fun price =>
+      (price, factorDemandingProjectsAtCurrentCash actualAdvances quotedRepayment price
+        currentCash projectedOutput)
+
+/-- Any result returned by the current-state factor clock respects its
+offered-stock constraint, regardless of the cash balances that determine its
+price and eligible bids. -/
+theorem fiveProjectClearFactorMarketAtState_projects_le_supply
+    (actualAdvances : List LoanReservationBid) (quotedRepayment supply : ℕ)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
+    (price : ℕ) (projects : List LoanReservationBid)
+    (hclear : fiveProjectClearFactorMarketAtState actualAdvances
+      quotedRepayment supply state = some (price, projects)) :
+    projects.length ≤ supply := by
+  let currentCash : LoanReservationBid → ℕ := fun bid => state.stock
+    (fiveProjectPhysicalBorrower bid.borrower) fiveProjectMoneyGood
+  let projectedOutput : LoanReservationBid → ℕ :=
+    fun bid => fiveProjectOutput bid.borrower
+  let greatestCash := actualAdvances.foldl
+    (fun greatest bid => max greatest (currentCash bid)) 0
+  have hclear' :
+      (ascendingCompletionFactorPriceAtCurrentCash? actualAdvances
+        quotedRepayment 1 supply greatestCash currentCash projectedOutput).map
+        (fun selectedPrice =>
+          (selectedPrice, factorDemandingProjectsAtCurrentCash actualAdvances
+            quotedRepayment selectedPrice currentCash projectedOutput)) =
+        some (price, projects) := by
+    simpa [fiveProjectClearFactorMarketAtState, currentCash, projectedOutput,
+      greatestCash] using hclear
+  rcases Option.map_eq_some_iff.mp hclear' with
+    ⟨selectedPrice, hprice, hresult⟩
+  have hprojects :
+      factorDemandingProjectsAtCurrentCash actualAdvances quotedRepayment
+        selectedPrice currentCash projectedOutput = projects := by
+    exact (Prod.mk.inj hresult).2
+  rw [← hprojects]
+  exact factorDemandingProjectsAtCurrentCash_length_le_supply
+    actualAdvances quotedRepayment 1 supply greatestCash selectedPrice
+    currentCash projectedOutput hprice
+
+/-- Clear completion factors against currently offered stock and the actual
+funding branch. This named-regime wrapper specializes the shared state-based
+factor market to the regime's matched advances and published quote. -/
 def fiveProjectFactorMarketAtStateFor (D : FiveProjectRegimeData)
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :
     Option (ℕ × List LoanReservationBid) :=
   (fiveProjectLoanOutcomeAfterSourcesFor D).bind fun outcome =>
     outcome.quotedRepayment.bind fun quote =>
       (fiveProjectExecutedLoanAdvancesFor D).bind fun actualAdvances =>
         let supply := fiveProjectAvailableSupplierFactors D state +
           fiveProjectAvailableHouseholdFactors D state
-        (ascendingCompletionFactorPrice? actualAdvances quote 1 supply 3).map
-          fun price =>
-            (price, factorDemandingProjectsAt actualAdvances quote price)
+        fiveProjectClearFactorMarketAtState actualAdvances quote supply state
 
 /-- State immediately before factor-market clearing, after the executed
 funding branch and the household's stated factor-consumption operation. -/
 def fiveProjectPreparedFactorStateFor (D : FiveProjectRegimeData) :
-    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :=
-  (fiveProjectFundedStateFor D).bind fun state =>
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
+  (fiveProjectCapitalizedStateFor D).bind fun state =>
     prepareFiveProjectHouseholdFactors D state
 
 /-- The factor-market result selected from that prepared branch state. -/
@@ -954,7 +1543,7 @@ def fiveProjectExecutedFactorDemandFor (D : FiveProjectRegimeData) :
 /-- Execute the factor purchases implied by one regime's computed market
 result. A missing market price or purchase list produces no execution. -/
 def fiveProjectFactorExecutionFor (D : FiveProjectRegimeData) :
-    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :=
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
   (fiveProjectPreparedFactorStateFor D).bind fun state =>
     (fiveProjectFactorMarketAtStateFor D state).bind fun (price, demand) =>
       (fiveProjectFactorSellerPlan
@@ -981,7 +1570,7 @@ def fiveProjectCompletionProfile (projects : List LoanReservationBid) :
 /-- Execute the completion operations after the matched factor purchases.
 Affordability therefore checks that each listed project owns its input. -/
 def fiveProjectProductionExecutionFor (D : FiveProjectRegimeData) :
-    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :=
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
   (fiveProjectFactorExecutionFor D).bind fun state =>
     (fiveProjectExecutedFactorDemandFor D).bind fun projects =>
       advanceIfAffordable fiveProjectPhysicalOperations state
@@ -1003,13 +1592,13 @@ def fiveProjectCustomerPurchaseProfile (project : Fin 5) (quantity : ℕ) :
 /-- A physically affordable output sale has a finite choice stage with the
 seller's offer, customer's acceptance, and idle alternatives. -/
 def fiveProjectCustomerPurchaseChoiceStage
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (project : Fin 5) (quantity : ℕ)
     (houtput : quantity ≤ state.stock (fiveProjectPhysicalBorrower project)
       fiveProjectOutputGood)
     (hcash : quantity ≤ state.stock 6 fiveProjectMoneyGood) :
     FinitePhysicalChoiceStage FiveProjectPhysicalAgent FiveProjectPhysicalGood
-      FiveProjectPhysicalOperation Unit := by
+      FiveProjectPhysicalOperation Nat := by
   let seller := fiveProjectPhysicalBorrower project
   let buyer : FiveProjectPhysicalAgent := 6
   let profile := fiveProjectCustomerPurchaseProfile project quantity
@@ -1067,9 +1656,9 @@ def fiveProjectCustomerPurchaseChoiceStage
 /-- Execute one customer purchase by matching the entrepreneur's output offer
 with the customer's money acceptance at the modeled unit price. -/
 def executeFiveProjectCustomerPurchase
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (project : Fin 5) (quantity : ℕ) :
-    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :=
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
   advanceIfAffordable fiveProjectPhysicalOperations state
     (fiveProjectCustomerPurchaseProfile project quantity)
 
@@ -1077,7 +1666,7 @@ def executeFiveProjectCustomerPurchase
 bilateral inventory balances. The customer's money outflow and the seller's
 money inflow equal the output quantity scheduled for sale. -/
 theorem executeFiveProjectCustomerPurchase_balances
-    (state next : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state next : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (project : Fin 5) (quantity : ℕ)
     (hstep : executeFiveProjectCustomerPurchase state project quantity = some next) :
     next.stock (fiveProjectPhysicalBorrower project) fiveProjectOutputGood + quantity =
@@ -1112,7 +1701,7 @@ theorem executeFiveProjectCustomerPurchase_balances
 /-- The actual customer sale is exactly the transition selected from its
 finite physical choice stage. -/
 theorem fiveProjectCustomerPurchase_is_choiceStage_advance
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
     (project : Fin 5) (quantity : ℕ)
     (houtput : quantity ≤ state.stock (fiveProjectPhysicalBorrower project)
       fiveProjectOutputGood)
@@ -1168,9 +1757,9 @@ theorem fiveProjectCustomerPurchase_is_choiceStage_advance
 matched sales. Each transaction consumes output and money from the current
 physical inventory. -/
 def executeFiveProjectCustomerPlan
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :
     List (Fin 5 × ℕ) →
-      Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+      Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
   | [] => some state
   | (project, quantity) :: rest =>
       (executeFiveProjectCustomerPurchase state project quantity).bind fun next =>
@@ -1180,9 +1769,9 @@ def executeFiveProjectCustomerPlan
 output and the customer's remaining money, then continue from the resulting
 inventory. The order is the actual factor-market funded order. -/
 def executeFiveProjectCustomerPlanFromState
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :
     List LoanReservationBid →
-      Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+      Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
   | [] => some state
   | bid :: rest =>
       let project := bid.borrower
@@ -1196,7 +1785,7 @@ def executeFiveProjectCustomerPlanFromState
 factor trades. No sale quantity is credited unless the matched physical
 transfer succeeds. -/
 def fiveProjectCustomerSaleExecutionFor (D : FiveProjectRegimeData) :
-    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :=
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
   (fiveProjectProductionExecutionFor D).bind fun state =>
     (fiveProjectExecutedFactorDemandFor D).bind fun projects =>
       executeFiveProjectCustomerPlanFromState state projects
@@ -1227,30 +1816,56 @@ def fiveProjectCompletedLoanTermsFor (D : FiveProjectRegimeData) :
 separate matched transfer after customer sales. A quoted term and a funded
 advance do not themselves count as repayment. -/
 def executeFiveProjectRepaymentPlan
-    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :
     List FundedLoanTerms →
-      Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit)
+      Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat)
   | [] => some state
   | contract :: rest =>
-      (executeFiveProjectMoneyTransfer state
-        (fiveProjectPhysicalBorrower contract.borrower)
-        fiveProjectBank contract.promisedRepayment).bind fun next =>
+      (executeFiveProjectLoanRepayment state contract).bind fun next =>
           executeFiveProjectRepaymentPlan next rest
 
-/-- Run completed-project repayments only after their production and customer
-sales have executed. This is a physical settlement stage; it does not model
-default adjudication, legal title, or foreclosure. -/
-def fiveProjectLoanSettlementExecutionFor (D : FiveProjectRegimeData) :
-    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Unit) :=
+/-- Attempt deposit redemption after the loan settlements. The claim and the
+bank's actual cash remain preconditions of the matched physical transfer. -/
+def executeFiveProjectHouseholdDepositRedemption (D : FiveProjectRegimeData)
+    (state : PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
+  if D.householdMoneyTransferred = fiveProjectHouseholdDepositTerms.principal then
+    executeFiveProjectDepositRedemption fiveProjectHouseholdDepositTerms state
+  else some state
+
+/-- Run completed-project repayments after production and customer sales. -/
+def fiveProjectLoanRepaymentExecutionFor (D : FiveProjectRegimeData) :
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
   (fiveProjectCustomerSaleExecutionFor D).bind fun state =>
     (fiveProjectCompletedLoanTermsFor D).bind fun contracts =>
       executeFiveProjectRepaymentPlan state contracts
+
+/-- After loan repayments, attempt redemption only for a deposit principal
+specified by the household-transfer regime. -/
+def fiveProjectLoanSettlementExecutionFor (D : FiveProjectRegimeData) :
+    Option (PhysicalState FiveProjectPhysicalAgent FiveProjectPhysicalGood Nat) :=
+  (fiveProjectLoanRepaymentExecutionFor D).bind
+    (executeFiveProjectHouseholdDepositRedemption D)
+
+/-- Read bank cash after project repayments and before a household claim is
+redeemed. -/
+def fiveProjectPreDepositRedemptionMoneyBalance? (D : FiveProjectRegimeData)
+    (agent : FiveProjectPhysicalAgent) : Option ℕ :=
+  (fiveProjectLoanRepaymentExecutionFor D).map fun state =>
+    state.stock agent fiveProjectMoneyGood
 
 /-- Read a money balance after completed-project repayments. -/
 def fiveProjectSettledMoneyBalance? (D : FiveProjectRegimeData)
     (agent : FiveProjectPhysicalAgent) : Option ℕ :=
   (fiveProjectLoanSettlementExecutionFor D).map fun state =>
     state.stock agent fiveProjectMoneyGood
+
+/-- Read a physical good after project repayment and any authorized matched
+deposit redemption. -/
+def fiveProjectSettledStock? (D : FiveProjectRegimeData)
+    (agent : FiveProjectPhysicalAgent) (good : FiveProjectPhysicalGood) :
+    Option ℕ :=
+  (fiveProjectLoanSettlementExecutionFor D).map fun state => state.stock agent good
 
 /-- For each named funding source, the funded borrowers receive terms with
 unit principal and the quote produced by its actual loan-auction capacity. -/
@@ -1279,29 +1894,37 @@ theorem fiveProject_named_completed_project_repayments_execute :
     fiveProjectSettledMoneyBalance? (fiveProjectRegimeData .baseline)
       fiveProjectBank = some 12 ∧
     fiveProjectSettledMoneyBalance? (fiveProjectRegimeData .baseline)
-      (fiveProjectPhysicalBorrower 0) = some 6 ∧
+      (fiveProjectPhysicalBorrower 0) = some 5 ∧
     fiveProjectSettledMoneyBalance? (fiveProjectRegimeData .baseline)
-      (fiveProjectPhysicalBorrower 1) = some 5 ∧
+      (fiveProjectPhysicalBorrower 1) = some 4 ∧
     (fiveProjectLoanSettlementExecutionFor
       (fiveProjectRegimeData .fiduciaryExpansion)).isSome = true ∧
     fiveProjectSettledMoneyBalance? (fiveProjectRegimeData .fiduciaryExpansion)
       fiveProjectBank = some 8 ∧
     fiveProjectSettledMoneyBalance? (fiveProjectRegimeData .fiduciaryExpansion)
-      (fiveProjectPhysicalBorrower 0) = some 7 ∧
+      (fiveProjectPhysicalBorrower 0) = some 6 ∧
     fiveProjectSettledMoneyBalance? (fiveProjectRegimeData .fiduciaryExpansion)
-      (fiveProjectPhysicalBorrower 1) = some 6 ∧
+      (fiveProjectPhysicalBorrower 1) = some 5 ∧
     (fiveProjectLoanSettlementExecutionFor
       (fiveProjectRegimeData .householdTransfer)).isSome = true ∧
     fiveProjectSettledMoneyBalance? (fiveProjectRegimeData .householdTransfer)
-      fiveProjectBank = some 16 ∧
+      fiveProjectBank = some 13 ∧
+    fiveProjectPreDepositRedemptionMoneyBalance?
+      (fiveProjectRegimeData .householdTransfer) fiveProjectBank = some 16 ∧
     fiveProjectSettledMoneyBalance? (fiveProjectRegimeData .householdTransfer)
-      (fiveProjectPhysicalBorrower 0) = some 8 ∧
+      fiveProjectHousehold = some 5 ∧
+    fiveProjectSettledStock? (fiveProjectRegimeData .householdTransfer)
+      fiveProjectHousehold fiveProjectDepositClaimGood = some 0 ∧
+    fiveProjectSettledStock? (fiveProjectRegimeData .householdTransfer)
+      fiveProjectBank fiveProjectDepositClaimGood = some 1 ∧
     fiveProjectSettledMoneyBalance? (fiveProjectRegimeData .householdTransfer)
-      (fiveProjectPhysicalBorrower 1) = some 7 ∧
+      (fiveProjectPhysicalBorrower 0) = some 7 ∧
     fiveProjectSettledMoneyBalance? (fiveProjectRegimeData .householdTransfer)
-      (fiveProjectPhysicalBorrower 2) = some 4 ∧
+      (fiveProjectPhysicalBorrower 1) = some 6 ∧
     fiveProjectSettledMoneyBalance? (fiveProjectRegimeData .householdTransfer)
-      (fiveProjectPhysicalBorrower 3) = some 3 := by
+      (fiveProjectPhysicalBorrower 2) = some 3 ∧
+    fiveProjectSettledMoneyBalance? (fiveProjectRegimeData .householdTransfer)
+      (fiveProjectPhysicalBorrower 3) = some 2 := by
   decide
 
 /-- Customer money spent, as read from the final physical inventory after
@@ -1333,10 +1956,10 @@ def fiveProjectExecutedStockFor? (D : FiveProjectRegimeData)
     (agent : FiveProjectPhysicalAgent) (good : FiveProjectPhysicalGood) : Option ℕ :=
   (fiveProjectFactorExecutionFor D).map fun state => state.stock agent good
 
-/-- Named factor markets use actual funded advances and offered stock while
-preserving the existing initial-buffer participation rule. The two marginal
-borrowers each have two units of current cash but fail that separate buffer
-condition at price two. -/
+/-- Named factor markets use actual funded advances, current cash after early
+input purchases, and currently offered stock. In the fiduciary expansion the
+marginal borrowers each have one cash unit at factor clearing, so the
+current-cash auction excludes them at price two. -/
 theorem fiveProject_named_executed_factor_markets :
     fiveProjectExecutedFactorPriceFor (fiveProjectRegimeData .baseline) = some 1 ∧
     (fiveProjectExecutedFactorDemandFor (fiveProjectRegimeData .baseline)).map
@@ -1365,10 +1988,11 @@ theorem fiveProject_baseline_factor_trades_execute :
       fiveProjectCompletionGood = some 1 := by
   decide
 
-/-- Under fiduciary expansion, the two projects that remain eligible under the
-initial-buffer participation rule at price two acquire the supplier's two
-factors; the excluded projects do not receive inventory. This is distinct
-from the physical affordability check on each executed transfer. -/
+/-- Under fiduciary expansion, factor clearing reads the borrowers' cash after
+early-input purchases. At price two projects zero and one can pay from current
+cash and acquire the supplier's factors; projects two and three cannot pay
+that price. Each matched transfer is still checked by the physical
+interpreter. -/
 theorem fiveProject_fiduciary_factor_trades_execute :
     (fiveProjectFactorExecution .fiduciaryExpansion).isSome = true ∧
     fiveProjectExecutedStock? .fiduciaryExpansion fiveProjectFactorSupplier
@@ -1485,13 +2109,13 @@ theorem fiveProject_executed_sales_match_revenue_plans :
 money balances generated by the matched transfer sequence in each regime. -/
 theorem fiveProject_three_regime_executed_money_balances :
     fiveProjectExecutedMoneyBalance? (fiveProjectRegimeData .baseline)
-      fiveProjectFactorSupplier = some 2 ∧
+      fiveProjectFactorSupplier = some 4 ∧
     fiveProjectExecutedMoneyBalance? (fiveProjectRegimeData .baseline) 6 = some 23 ∧
     fiveProjectExecutedMoneyBalance? (fiveProjectRegimeData .fiduciaryExpansion)
-      fiveProjectFactorSupplier = some 4 ∧
+      fiveProjectFactorSupplier = some 8 ∧
     fiveProjectExecutedMoneyBalance? (fiveProjectRegimeData .fiduciaryExpansion) 6 = some 23 ∧
     fiveProjectExecutedMoneyBalance? (fiveProjectRegimeData .householdTransfer)
-      fiveProjectFactorSupplier = some 2 ∧
+      fiveProjectFactorSupplier = some 6 ∧
     fiveProjectExecutedMoneyBalance? (fiveProjectRegimeData .householdTransfer)
       fiveProjectHousehold = some 2 ∧
     fiveProjectExecutedMoneyBalance? (fiveProjectRegimeData .householdTransfer) 6 = some 10 := by

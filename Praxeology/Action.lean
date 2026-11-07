@@ -211,12 +211,22 @@ theorem pref_irrefl (i : Agent) (t : Moment) (h : History) (e : Ends) :
 -- 3. Purposeful Action
 
 
-def PurposefulActUnder (R : Ends → Ends → Prop) (i : Agent) (t : Moment) (h : History)
+/-- The single purposeful-choice condition parameterized by the decision
+maker's intended-end appraisal. Feasibility and execution remain actual
+ActionFrame facts; only the two preference comparisons use `intendedEnd`. -/
+def PurposefulActWithEnd
+    (intendedEnd : Agent → Action → Moment → History → Ends)
+    (R : Ends → Ends → Prop) (i : Agent) (t : Moment) (h : History)
     (α_star : Action) : Prop :=
   α_star ∈ A_feas i t h ∧
   Exec i t α_star h ∧
-  (α_star = α₀ ∨ R (End_of i α_star t h) (End_of i α₀ t h)) ∧
-  ∀ β ∈ A_feas i t h, ¬ R (End_of i β t h) (End_of i α_star t h)
+  (α_star = α₀ ∨ R (intendedEnd i α_star t h) (intendedEnd i α₀ t h)) ∧
+  ∀ β ∈ A_feas i t h,
+    ¬ R (intendedEnd i β t h) (intendedEnd i α_star t h)
+
+def PurposefulActUnder (R : Ends → Ends → Prop) (i : Agent) (t : Moment) (h : History)
+    (α_star : Action) : Prop :=
+  PurposefulActWithEnd End_of R i t h α_star
 
 /-- Purposeful action under the frame's preference relation. -/
 abbrev PurposefulAct (i : Agent) (t : Moment) (h : History) (α_star : Action) : Prop :=
@@ -331,7 +341,7 @@ theorem purposeful_act_choice_cell_invariant (i : Agent) (t : Moment) (h1 h2 : H
   have h_pref : Preference i t h1 = Preference i t h2 := Preference_bundle_invariant i t h1_in h2_in
   have h_end : ∀ α, End_of i α t h1 = End_of i α t h2 :=
     fun α => F.End_of_bundle_invariant i α t h1_in h2_in
-  dsimp [PurposefulAct, PurposefulActUnder]
+  dsimp [PurposefulAct, PurposefulActUnder, PurposefulActWithEnd]
   rw [h_feas, h_pref]
   simp_rw [h_end]
   have h_exec : Exec i t α_star h1 ↔ Exec i t α_star h2 := by
@@ -1230,6 +1240,38 @@ def ContextMatchedRegret {Context : Type}
       (F.OutcomeOf i β x.moment τAlt hAlt)
       (F.OutcomeOf i α x.moment τActual x.history)
 
+/-- A selected counterfactual improvement is contextual regret under the
+deterministic correspondence. The correspondence keeps the actual enacted
+history centered and obtains the alternative by the frame's existing branch
+selector; it adds no separate causal or preference premise. -/
+theorem contextMatchedRegret_of_selected_outcome_improvement
+    (i : Agent) (x : F.DecisionIndex) (α β : Action)
+    (hα : α ∈ A_feas i x.moment x.history)
+    (hαexec : Exec i x.moment α x.history)
+    (hβ : β ∈ A_feas i x.moment x.history)
+    (hbetter : Preference i
+      (F.ExpectedMaturation i α x.moment x.history) x.history
+      (F.OutcomeOf i β x.moment
+        (F.ExpectedMaturation i β x.moment (F.sigma i x.moment β x.history))
+        (F.sigma i x.moment β x.history))
+      (F.OutcomeOf i α x.moment
+        (F.ExpectedMaturation i α x.moment x.history) x.history)) :
+    ContextMatchedRegret F.deterministicCorrespondence i x
+      (F.ExpectedMaturation i α x.moment x.history) α β := by
+  let C := F.deterministicCorrespondence
+  let hAlt := F.sigma i x.moment β x.history
+  let τAlt := F.ExpectedMaturation i β x.moment hAlt
+  have hcenter : F.sigma i x.moment α x.history = x.history :=
+    F.sigma_centering i x.moment x.history x.2 hαexec.2
+  have hactual : C.admissible i x () α x.history
+      (F.ExpectedMaturation i α x.moment x.history) := by
+    dsimp [C, ActionFrame.deterministicCorrespondence]
+    exact ⟨hα, hcenter.symm, by rw [hcenter]⟩
+  have halt : C.admissible i x () β hAlt τAlt := by
+    dsimp [C, hAlt, τAlt, ActionFrame.deterministicCorrespondence]
+    exact ⟨hβ, rfl, rfl⟩
+  exact ⟨hβ, (), hAlt, τAlt, trivial, hactual, halt, hbetter⟩
+
 /-- Every admitted alternative outcome in one compatible context is better
 than the admitted realized outcome; nonemptiness rules out vacuity. -/
 def GuaranteedContextRegret {Context : Type}
@@ -1262,7 +1304,8 @@ theorem doxastic_sure_thing_asymm (i : Agent) (t : Moment) (h : History) (α β 
   exact h_all2 h_wit hh_wit h_pref
 
 
-def DoxasticPurposefulAct (i : Agent) (t : Moment) (H_t : Set History) (h : History) : Prop :=
+def DoxasticAppraisalCertificate (i : Agent) (t : Moment)
+    (H_t : Set History) (h : History) : Prop :=
   h ∈ H_t ∧
   enacted i t h ∈ A_feas i t h ∧
   α₀ ∈ A_feas i t h ∧
@@ -1278,7 +1321,7 @@ def DoxasticPurposefulAct (i : Agent) (t : Moment) (H_t : Set History) (h : Hist
       (MaturationEnd i (enacted i t h) t h'))
 
 
-def SureThingDoxasticPurposefulAct (i : Agent) (t : Moment) (H_t : Set History)
+def SureThingAppraisalCertificate (i : Agent) (t : Moment) (H_t : Set History)
     (h : History) : Prop :=
   h ∈ H_t ∧
   enacted i t h ∈ A_feas i t h ∧
@@ -1289,7 +1332,7 @@ def SureThingDoxasticPurposefulAct (i : Agent) (t : Moment) (H_t : Set History)
   (∀ β ∈ A_feas i t h, ¬ DoxasticWeakParetoDominates i t h β (enacted i t h))
 
 
-def PlausibleSupportDoxasticPurposefulAct (i : Agent) (t : Moment) (H_t : Set History)
+def PlausibleSupportAppraisalCertificate (i : Agent) (t : Moment) (H_t : Set History)
     (h : History) : Prop :=
   h ∈ H_t ∧
   enacted i t h ∈ A_feas i t h ∧
@@ -1328,7 +1371,7 @@ theorem derived_stit_partition_properties (i : Agent) (t : Moment) :
 
 
 theorem doxastic_action_non_passive (i : Agent) (t : Moment) (H_t : Set History) (h : History)
-    (h_act : DoxasticPurposefulAct i t H_t h) :
+    (h_act : DoxasticAppraisalCertificate i t H_t h) :
     enacted i t h ≠ α₀ ∧
     ∀ h' ∈ MinPlausible i t,
       MaturationEnd i (enacted i t h) t h' ≠ MaturationEnd i α₀ t h' := by
@@ -1347,7 +1390,7 @@ theorem doxastic_action_non_passive (i : Agent) (t : Moment) (H_t : Set History)
 
 
 theorem action_implies_branching_universe (i : Agent) (t : Moment) (H_t : Set History) (h : History)
-    (h_act : DoxasticPurposefulAct i t H_t h) :
+    (h_act : DoxasticAppraisalCertificate i t H_t h) :
     ∃ h₀ ∈ H_t, h₀ ≠ h ∧ enacted i t h₀ = α₀ ∧ enacted i t h ≠ α₀ := by
   have ⟨_, _, _, ⟨h₀, hh₀_in, h_en_h₀⟩, _, _, _⟩ := h_act
   have ⟨h_en_ne_α₀, _⟩ := doxastic_action_non_passive i t H_t h h_act
@@ -1377,12 +1420,12 @@ structure DoxasticDeliberativeEpistemicAssertion
     ¬ ∀ h' ∈ MinPlausible i t,
       Preference i t h (MaturationEnd i β t h') (MaturationEnd i α_assert t h')
 
-/-- The assertion conditions imply `DoxasticPurposefulAct`. -/
+/-- The assertion conditions imply `DoxasticAppraisalCertificate`. -/
 theorem doxastic_purposeful_act_of_deliberative_assertion
     (i : Agent) (t : Moment) (H_t : Set History) (h : History)
     (P : History → Prop) (α_assert : Action)
     (h_delib : DoxasticDeliberativeEpistemicAssertion i t H_t h P α_assert) :
-    DoxasticPurposefulAct i t H_t h := by
+    DoxasticAppraisalCertificate i t H_t h := by
   have ⟨h_f, hh_f, h_not_P_f⟩ := h_delib.falsifying_branch
   have h_refrain : enacted i t h_f = α₀ := h_delib.reason_resp h_f hh_f h_not_P_f
   have h_branch_feas : BranchFeas i t H_t α₀ := ⟨h_f, hh_f, h_refrain⟩
@@ -1422,8 +1465,8 @@ theorem doxastic_purposeful_act_of_internal_coherence
     (i : Agent) (t : Moment) (H_t : Set History) (h : History) (h_pl : History)
     (h_coh : InternalDoxasticCoherence i t H_t h)
     (hh_pl : h_pl ∈ MinPlausible i t)
-    (h_purp : DoxasticPurposefulAct i t H_t h) :
-    DoxasticPurposefulAct i (tau i t h_pl) H_t h_pl := by
+    (h_purp : DoxasticAppraisalCertificate i t H_t h) :
+    DoxasticAppraisalCertificate i (tau i t h_pl) H_t h_pl := by
   have ⟨_, h_act_cont, h_a0_cont, _, _, h_unease, h_undom⟩ := h_purp
   refine ⟨h_coh.pl_in_bundle h_pl hh_pl, ?_, ?_, h_coh.branch_introspection h_pl hh_pl,
           min_plausible_nonempty i (tau i t h_pl), ?_, ?_⟩
@@ -1445,15 +1488,15 @@ theorem deliberative_doxastic_action_denial_self_falsifying
     (α_assert : Action)
     (h_coh : InternalDoxasticCoherence i t H_t h)
     (h_delib : DoxasticDeliberativeEpistemicAssertion i t H_t h
-      (fun h' => ¬ DoxasticPurposefulAct i (tau i t h') H_t h') α_assert) :
+      (fun h' => ¬ DoxasticAppraisalCertificate i (tau i t h') H_t h') α_assert) :
     False := by
-  have h_act : DoxasticPurposefulAct i t H_t h :=
+  have h_act : DoxasticAppraisalCertificate i t H_t h :=
     doxastic_purposeful_act_of_deliberative_assertion i t H_t h
-      (fun h' => ¬ DoxasticPurposefulAct i (tau i t h') H_t h') α_assert h_delib
+      (fun h' => ¬ DoxasticAppraisalCertificate i (tau i t h') H_t h') α_assert h_delib
   obtain ⟨h_pl, hh_pl⟩ := h_delib.pl_nonempty
-  have h_believed_neg : ¬ DoxasticPurposefulAct i (tau i t h_pl) H_t h_pl :=
+  have h_believed_neg : ¬ DoxasticAppraisalCertificate i (tau i t h_pl) H_t h_pl :=
     h_delib.belief h_pl hh_pl
-  have h_pl_purp : DoxasticPurposefulAct i (tau i t h_pl) H_t h_pl :=
+  have h_pl_purp : DoxasticAppraisalCertificate i (tau i t h_pl) H_t h_pl :=
     doxastic_purposeful_act_of_internal_coherence i t H_t h h_pl h_coh hh_pl h_act
   exact h_believed_neg h_pl_purp
 
@@ -1462,13 +1505,13 @@ theorem deliberative_doxastic_global_action_denial_self_falsifying
     (i : Agent) (t : Moment) (H_t : Set History) (h : History)
     (α_assert : Action)
     (h_delib : DoxasticDeliberativeEpistemicAssertion i t H_t h
-      (fun _ => ∀ h_act ∈ H_t, ¬ DoxasticPurposefulAct i t H_t h_act) α_assert) :
+      (fun _ => ∀ h_act ∈ H_t, ¬ DoxasticAppraisalCertificate i t H_t h_act) α_assert) :
     False := by
-  have h_act : DoxasticPurposefulAct i t H_t h :=
+  have h_act : DoxasticAppraisalCertificate i t H_t h :=
     doxastic_purposeful_act_of_deliberative_assertion i t H_t h
-      (fun _ => ∀ h_act ∈ H_t, ¬ DoxasticPurposefulAct i t H_t h_act) α_assert h_delib
+      (fun _ => ∀ h_act ∈ H_t, ¬ DoxasticAppraisalCertificate i t H_t h_act) α_assert h_delib
   obtain ⟨h_pl, hh_pl⟩ := h_delib.pl_nonempty
-  have h_denial_all : ∀ h_act ∈ H_t, ¬ DoxasticPurposefulAct i t H_t h_act :=
+  have h_denial_all : ∀ h_act ∈ H_t, ¬ DoxasticAppraisalCertificate i t H_t h_act :=
     h_delib.belief h_pl hh_pl
   exact h_denial_all h h_delib.in_bundle h_act
 
@@ -1517,7 +1560,7 @@ theorem plausible_support_doxastic_of_purposeful_act
     (h_branch : BranchFeas i t H_t α₀)
     (h_projected : ActionFrame.ProjectedFeasibility F)
     (h_act : ActivePurposefulAct i t h (enacted i t h)) :
-    PlausibleSupportDoxasticPurposefulAct i t H_t h := by
+    PlausibleSupportAppraisalCertificate i t H_t h := by
   refine ⟨h_in, h_act.1.1, h_base, h_branch, F.min_plausible_nonempty i t, ?_, ?_, ?_⟩
   · have h_pref := h_act.2
     have h_app : ∀ h' ∈ MinPlausible i t,
@@ -1548,7 +1591,7 @@ theorem purposeful_act_of_doxastic_dominance
     (h_mem : t ∈ h)
     (h_projected : ActionFrame.ProjectedFeasibility F)
     (h_app : F.IsUnanimousAppraisal i t h)
-    (h_dox : DoxasticPurposefulAct i t H_t h) :
+    (h_dox : DoxasticAppraisalCertificate i t H_t h) :
     PurposefulAct i t h (enacted i t h) := by
   have ⟨_h_in, h_feas, _h_base_feas, _h_branch_feas, _h_nonempty, h_unease, h_undom⟩ := h_dox
   have h_enacted_app : F.ProjectedAppraisable i t (enacted i t h) := by
@@ -1578,7 +1621,7 @@ theorem doxastic_dominance_of_purposeful_act
     (h_app : F.IsUnanimousAppraisal i t h)
     (h_act : PurposefulAct i t h (enacted i t h))
     (h_unease : Preference i t h (End_of i (enacted i t h) t h) (End_of i α₀ t h)) :
-    DoxasticPurposefulAct i t H_t h := by
+    DoxasticAppraisalCertificate i t H_t h := by
   refine ⟨h_in, h_act.1, h_base, h_branch, F.min_plausible_nonempty i t, ?_, ?_⟩
   · have h_enacted_app : F.ProjectedAppraisable i t (enacted i t h) := by
       intro h' hh'
@@ -1600,7 +1643,7 @@ theorem doxastic_dominance_of_purposeful_act_singleton
     (h_projected : ActionFrame.ProjectedFeasibility F)
     (h_act : PurposefulAct i t h (enacted i t h))
     (h_unease : Preference i t h (End_of i (enacted i t h) t h) (End_of i α₀ t h)) :
-    DoxasticPurposefulAct i t H_t h :=
+    DoxasticAppraisalCertificate i t H_t h :=
   doxastic_dominance_of_purposeful_act i t H_t h h_in h_base h_branch
     h_projected (ActionFrame.is_unanimous_appraisal_of_singleton F i t h h_pl h_singleton)
     h_act h_unease
@@ -1616,7 +1659,7 @@ theorem purposeful_act_iff_doxastic_purposeful_act
     (h_app : F.IsUnanimousAppraisal i t h)
     (h_unease : Preference i t h (End_of i (enacted i t h) t h) (End_of i α₀ t h)) :
     PurposefulAct i t h (enacted i t h) ↔
-      DoxasticPurposefulAct i t H_t h := by
+      DoxasticAppraisalCertificate i t H_t h := by
   constructor
   · intro h_purp
     exact doxastic_dominance_of_purposeful_act i t H_t h h_in h_base h_branch
@@ -1635,7 +1678,7 @@ theorem purposeful_act_iff_doxastic_purposeful_act_singleton
     (h_projected : ActionFrame.ProjectedFeasibility F)
     (h_unease : Preference i t h (End_of i (enacted i t h) t h) (End_of i α₀ t h)) :
     PurposefulAct i t h (enacted i t h) ↔
-      DoxasticPurposefulAct i t H_t h :=
+      DoxasticAppraisalCertificate i t H_t h :=
   purposeful_act_iff_doxastic_purposeful_act i t H_t h h_mem h_in h_base h_branch
     h_projected (ActionFrame.is_unanimous_appraisal_of_singleton F i t h h_pl h_singleton) h_unease
 

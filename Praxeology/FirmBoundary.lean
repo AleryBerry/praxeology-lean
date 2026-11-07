@@ -1170,6 +1170,23 @@ structure InformationGroundedFirmDecision (i : Agent) (t : Moment) (h : History)
   h_menu : ∀ β ∈ A_feas i t h, β ≠ α_merge →
     End_of i β t h = e_split ∨ End_of i β t h = e_complete ∨ End_of i β t h = e_retain
 
+/-- A veridical projection certificate for firm decisions: asserts that the actual
+history `h` is among the plausible scenarios appraised by agent `i` at decision moment `t`.
+This bridge is explicit and optional, ensuring that conjectured stocks are never
+implicitly equated with actual physical inventory without stating this veridical condition. -/
+structure VeridicalFirmProjection (W : ActionFrame) (i : W.Agent)
+    (t : W.Moment) (h : W.History) : Prop where
+  actual_is_plausible : h ∈ W.MinPlausible i t
+
+/-- Every InformationGroundedFirmDecision carries an explicit veridical projection
+certificate for the actual decision history. -/
+theorem InformationGroundedFirmDecision.veridical_projection
+    (dec : InformationGroundedFirmDecision i t h L K K_min grid_step ΔP_out R1 R2 db_int db_u) :
+    VeridicalFirmProjection W i t h :=
+  ⟨dec.actual_history_plausible⟩
+
+
+
 
 theorem InformationGroundedFirmDecision.same_opening_inventory
     (V : InformationGroundedFirmDecision i t h L K K_min grid_step ΔP_out R1 R2 db_int db_u)

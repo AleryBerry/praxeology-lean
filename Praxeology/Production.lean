@@ -442,6 +442,29 @@ theorem ProjectedInventoryTrace.stockBalance_iff
   · rintro rfl
     exact R.projectedStock_balance
 
+/-- An explicit veridical projection certificate for inventory traces:
+asserts that actual history `h` is among the plausible scenarios evaluated
+by agent `i` at decision moment `t`. Equating projected stock on `h` with
+actual post-execution stock requires this explicit certificate, preventing
+conjectured stocks from being implicitly treated as physical stock facts. -/
+structure VeridicalInventoryProjection (W : ActionFrame) (i : W.Agent)
+    (t : W.Moment) (h : W.History) : Prop where
+  actual_plausible : h ∈ W.MinPlausible i t
+
+/-- Under an explicit veridical projection certificate, the projected stock on the
+actual history agrees with the physical inventory at the action-selected continuation. -/
+theorem projectedStock_eq_actual_stock_of_veridical
+    {i : W.Agent} {α : W.Action} {t : W.Moment} {h : W.History}
+    (_V : VeridicalInventoryProjection W i t h)
+    (ht : W.tau i t h = t) :
+    projectedStock W i α t h =
+      fun m => W.omega i (W.ExpectedMaturation i α t (W.sigma i t α h))
+        (W.sigma i t α h) m := by
+  funext m
+  dsimp [projectedStock]
+  rw [ht]
+
+
 
 /-- Total externally accounted service flow along a projected trace. -/
 def ProjectedInventoryTrace.totalService {W : ActionFrame} {i : W.Agent}

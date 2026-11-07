@@ -139,6 +139,195 @@ def ActionFrameBehavior.withEvaluationHorizon
     program.ActionFrameBehavior :=
   { behavior with evaluationHorizon := horizon }
 
+/-- Replace only root counterfactual continuations with a behavior-supplied
+state-dependent policy. The unchanged root action keeps the complete input
+history. At other moments, the original behavior selector remains in force. -/
+noncomputable def ActionFrameBehavior.withRootContinuation
+    {fuel : ℕ} {Agent Means Operation Service : Type}
+    [Fintype Agent] [DecidableEq Agent] [Fintype Means]
+    [DecidableEq Means] [DecidableEq Operation]
+    {stage : FinitePhysicalChoiceStage Agent Means Operation Service}
+    {continuation : ∀ profile,
+      FinitePhysicalEconomyProgram Agent Means Operation Service fuel
+        (stage.advance profile)}
+    (behavior : (FinitePhysicalEconomyProgram.decision (state := stage.before)
+      stage continuation).ActionFrameBehavior)
+    (continueWith : ∀ profile,
+      FinitePhysicalEconomyProgram.History (continuation profile)) :
+    (FinitePhysicalEconomyProgram.decision (state := stage.before)
+      stage continuation).ActionFrameBehavior := by
+  classical
+  let physicalProgram : FinitePhysicalEconomyProgram Agent Means Operation Service
+      (fuel + 1) stage.before := .decision (state := stage.before) stage continuation
+  let program := physicalProgram.toFiniteEconomyProgram
+  let selectHistory : Agent → FiniteEconomyProgram.ProgramMoment program →
+      EconomyAction Agent Means Operation → FiniteEconomyProgram.ProgramHistory program →
+        FiniteEconomyProgram.ProgramHistory program := fun actor moment action history =>
+    if hroot : moment = FiniteEconomyProgram.ProgramMoment.root then
+      if haction : action ∈ stage.choices.menu actor then
+        history.selectActorAtRootWithContinuation actor action
+          haction continueWith
+      else history
+    else behavior.selectedHistory actor moment action history
+  refine { behavior with
+    selectedHistory := selectHistory
+    selectedHistory_mem := ?_
+    selectedHistory_past := ?_
+    selectedHistory_action := ?_
+    selectedHistory_other := ?_
+    selectedHistory_centered := ?_ }
+  · intro actor moment action history hmem
+    by_cases hroot : moment = FiniteEconomyProgram.ProgramMoment.root
+    · subst moment
+      exact FiniteEconomyProgram.ProgramMoment.root_memHist
+        (selectHistory actor FiniteEconomyProgram.ProgramMoment.root action history)
+    · simpa [selectHistory, hroot] using
+        behavior.selectedHistory_mem actor moment action history hmem
+  · intro actor moment action history hmem haction past hbefore other
+    by_cases hroot : moment = FiniteEconomyProgram.ProgramMoment.root
+    · subst moment
+      have hfalse : False := by
+        cases past <;> simp [FiniteEconomyProgram.ProgramMoment.Precedence] at hbefore
+      exact False.elim hfalse
+    · simpa [selectHistory, hroot] using
+        behavior.selectedHistory_past actor moment action history hmem haction
+          past hbefore other
+  · intro actor moment action history hmem haction
+    by_cases hroot : moment = FiniteEconomyProgram.ProgramMoment.root
+    · subst moment
+      have hmenu : action ∈ stage.choices.menu actor := by
+        simpa [program, FiniteEconomyProgram.ProgramMoment.currentStage,
+          FinitePhysicalEconomyProgram.toFiniteEconomyProgram,
+          FiniteEconomyProgram.physicalDecision] using haction
+      have hselectedHistory : selectHistory actor
+          FiniteEconomyProgram.ProgramMoment.root action history =
+            history.selectActorAtRootWithContinuation actor action hmenu continueWith := by
+        simp only [selectHistory, dite_eq_left rfl]
+        dsimp [program, physicalProgram, FinitePhysicalEconomyProgram.toFiniteEconomyProgram,
+          FiniteEconomyProgram.physicalDecision]
+        by_cases hactual : action ∈ stage.choices.menu actor
+        · calc
+            (if h : action ∈ stage.choices.menu actor then
+              history.selectActorAtRootWithContinuation actor action h continueWith
+             else history) =
+                history.selectActorAtRootWithContinuation actor action hactual continueWith := by
+                  simp [hactual]
+            _ = history.selectActorAtRootWithContinuation actor action hmenu continueWith := by
+                rw [Subsingleton.elim hactual hmenu]
+        · exact False.elim (hactual hmenu)
+      rw [hselectedHistory]
+      exact FiniteEconomyProgram.ProgramHistory.selectActorAtRootWithContinuation_enacted
+        history actor action hmenu continueWith
+    · simpa [selectHistory, hroot] using
+        behavior.selectedHistory_action actor moment action history hmem haction
+  · intro actor other moment action history hne hmem haction
+    by_cases hroot : moment = FiniteEconomyProgram.ProgramMoment.root
+    · subst moment
+      have hmenu : action ∈ stage.choices.menu actor := by
+        simpa [program, FiniteEconomyProgram.ProgramMoment.currentStage,
+          FinitePhysicalEconomyProgram.toFiniteEconomyProgram,
+          FiniteEconomyProgram.physicalDecision] using haction
+      have hselectedHistory : selectHistory actor
+          FiniteEconomyProgram.ProgramMoment.root action history =
+            history.selectActorAtRootWithContinuation actor action hmenu continueWith := by
+        simp only [selectHistory, dite_eq_left rfl]
+        dsimp [program, physicalProgram, FinitePhysicalEconomyProgram.toFiniteEconomyProgram,
+          FiniteEconomyProgram.physicalDecision]
+        by_cases hactual : action ∈ stage.choices.menu actor
+        · calc
+            (if h : action ∈ stage.choices.menu actor then
+              history.selectActorAtRootWithContinuation actor action h continueWith
+             else history) =
+                history.selectActorAtRootWithContinuation actor action hactual continueWith := by
+                  simp [hactual]
+            _ = history.selectActorAtRootWithContinuation actor action hmenu continueWith := by
+                rw [Subsingleton.elim hactual hmenu]
+        · exact False.elim (hactual hmenu)
+      rw [hselectedHistory]
+      exact FiniteEconomyProgram.ProgramHistory.selectActorAtRootWithContinuation_other
+        history actor other action hmenu hne.symm continueWith
+    · simpa [selectHistory, hroot] using
+        behavior.selectedHistory_other actor other moment action history hne hmem haction
+  · intro actor moment action history hmem haction henacted
+    by_cases hroot : moment = FiniteEconomyProgram.ProgramMoment.root
+    · subst moment
+      have hmenu : action ∈ stage.choices.menu actor := by
+        simpa [program, FiniteEconomyProgram.ProgramMoment.currentStage,
+          FinitePhysicalEconomyProgram.toFiniteEconomyProgram,
+          FiniteEconomyProgram.physicalDecision] using haction
+      have hselectedHistory : selectHistory actor
+          FiniteEconomyProgram.ProgramMoment.root action history =
+            history.selectActorAtRootWithContinuation actor action hmenu continueWith := by
+        simp only [selectHistory, dite_eq_left rfl]
+        dsimp [program, physicalProgram, FinitePhysicalEconomyProgram.toFiniteEconomyProgram,
+          FiniteEconomyProgram.physicalDecision]
+        by_cases hactual : action ∈ stage.choices.menu actor
+        · calc
+            (if h : action ∈ stage.choices.menu actor then
+              history.selectActorAtRootWithContinuation actor action h continueWith
+             else history) =
+                history.selectActorAtRootWithContinuation actor action hactual continueWith := by
+                  simp [hactual]
+            _ = history.selectActorAtRootWithContinuation actor action hmenu continueWith := by
+                rw [Subsingleton.elim hactual hmenu]
+        · exact False.elim (hactual hmenu)
+      rw [hselectedHistory]
+      exact FiniteEconomyProgram.ProgramHistory.selectActorAtRootWithContinuation_centered
+        history actor action hmenu henacted continueWith
+    · simpa [selectHistory, hroot] using
+        behavior.selectedHistory_centered actor moment action history hmem haction henacted
+
+/-- At the root, a valid requested action is realized by replacing that
+actor's action in the supplied profile and continuing with `continueWith`.
+This exposes the branch selected by `withRootContinuation` for downstream
+physical-run correspondence proofs. -/
+theorem ActionFrameBehavior.withRootContinuation_selectedHistory_root
+    {fuel : ℕ} {Agent Means Operation Service : Type}
+    [Fintype Agent] [DecidableEq Agent] [Fintype Means]
+    [DecidableEq Means] [DecidableEq Operation]
+    {stage : FinitePhysicalChoiceStage Agent Means Operation Service}
+    {continuation : ∀ profile,
+      FinitePhysicalEconomyProgram Agent Means Operation Service fuel
+        (stage.advance profile)}
+    (behavior : (FinitePhysicalEconomyProgram.decision (state := stage.before)
+      stage continuation).ActionFrameBehavior)
+    (continueWith : ∀ profile,
+      FinitePhysicalEconomyProgram.History (continuation profile))
+    (actor : Agent) (action : EconomyAction Agent Means Operation)
+    (history : (FinitePhysicalEconomyProgram.decision (state := stage.before)
+      stage continuation).History)
+    (hmenu : action ∈ stage.choices.menu actor) :
+    (behavior.withRootContinuation continueWith).selectedHistory actor
+      FiniteEconomyProgram.ProgramMoment.root action history =
+      history.selectActorAtRootWithContinuation actor action hmenu continueWith := by
+  classical
+  let physicalProgram := FinitePhysicalEconomyProgram.decision
+    (state := stage.before) stage continuation
+  let program := physicalProgram.toFiniteEconomyProgram
+  let selectHistory : Agent → FiniteEconomyProgram.ProgramMoment program →
+      EconomyAction Agent Means Operation → FiniteEconomyProgram.ProgramHistory program →
+        FiniteEconomyProgram.ProgramHistory program := fun actor moment action history =>
+    if hroot : moment = FiniteEconomyProgram.ProgramMoment.root then
+      if haction : action ∈ stage.choices.menu actor then
+        history.selectActorAtRootWithContinuation actor action haction continueWith
+      else history
+    else behavior.selectedHistory actor moment action history
+  change selectHistory actor FiniteEconomyProgram.ProgramMoment.root action history = _
+  simp only [selectHistory, dite_eq_left rfl]
+  dsimp [program, physicalProgram,
+    FinitePhysicalEconomyProgram.toFiniteEconomyProgram,
+    FiniteEconomyProgram.physicalDecision]
+  by_cases hactual : action ∈ stage.choices.menu actor
+  · calc
+      (if h : action ∈ stage.choices.menu actor then
+        history.selectActorAtRootWithContinuation actor action h continueWith
+       else history) =
+          history.selectActorAtRootWithContinuation actor action hactual continueWith := by
+            simp [hactual]
+      _ = history.selectActorAtRootWithContinuation actor action hmenu continueWith := by
+          rw [Subsingleton.elim hactual hmenu]
+  · exact False.elim (hactual hmenu)
+
 /-- Inventory at a program-generated moment. -/
 def stateAt {fuel : ℕ} {state : PhysicalState Agent Means Service}
     (program : FinitePhysicalEconomyProgram Agent Means Operation Service fuel state)
@@ -245,6 +434,66 @@ theorem selectAt_centered {fuel : ℕ} {state : PhysicalState Agent Means Servic
   simp only [dite_eq_left hmem, dite_eq_left haction]
   exact FiniteEconomyProgram.ProgramHistory.selectActorAtMoment_centered
     moment history hmem actor action haction henacted
+
+/-- Build the history-selection part of a physical-program behavior from an
+explicit reference history. Valuations and preferences remain explicit
+behavioral inputs; callers must supply their invariance, asymmetry, and
+teleological-bridge evidence. -/
+noncomputable def ActionFrameBehavior.fromReferenceHistory
+    {fuel : ℕ} {state : PhysicalState Agent Means Service}
+    {program : FinitePhysicalEconomyProgram Agent Means Operation Service fuel state}
+    (referenceHistory : Agent → program.Moment → program.History)
+    (referenceHistory_mem : ∀ i t,
+      FiniteEconomyProgram.ProgramMoment.memHist program.toFiniteEconomyProgram t
+        (referenceHistory i t))
+    (valuedEnd : Agent → program.Moment → program.History → program.End → Prop)
+    (valuedEnd_invariant : ∀ i t {h₁ h₂ : program.History} e,
+      FiniteEconomyProgram.ProgramMoment.memHist program.toFiniteEconomyProgram t h₁ →
+      FiniteEconomyProgram.ProgramMoment.memHist program.toFiniteEconomyProgram t h₂ →
+      (valuedEnd i t h₁ e ↔ valuedEnd i t h₂ e))
+    (preference : Agent → program.Moment → program.History → program.End → program.End → Prop)
+    (preference_invariant : ∀ i t {h₁ h₂ : program.History},
+      FiniteEconomyProgram.ProgramMoment.memHist program.toFiniteEconomyProgram t h₁ →
+      FiniteEconomyProgram.ProgramMoment.memHist program.toFiniteEconomyProgram t h₂ →
+      preference i t h₁ = preference i t h₂)
+    (preference_asymmetric : ∀ i t h {e₁ e₂ : program.End},
+      preference i t h e₁ e₂ → ¬ preference i t h e₂ e₁)
+    (teleological_dominance_prefers : ∀ i t h b₁ b₂,
+      SubjectiveTeleologicalDominates finiteProgramEndRequirement
+        (valuedEnd i t h) b₁ b₂ →
+      preference i t h (.bundle b₁) (.bundle b₂)) :
+    program.ActionFrameBehavior := by
+  classical
+  refine {
+    referenceHistory := referenceHistory
+    referenceHistory_mem := referenceHistory_mem
+    selectedHistory := fun actor moment action history =>
+      program.selectAt actor moment action history
+    selectedHistory_mem := ?_
+    selectedHistory_past := ?_
+    selectedHistory_action := ?_
+    selectedHistory_other := ?_
+    selectedHistory_centered := ?_
+    evaluationHorizon := fun _ _ _ => .terminalSettlement
+    valuedEnd := valuedEnd
+    valuedEnd_invariant := valuedEnd_invariant
+    preference := preference
+    preference_invariant := preference_invariant
+    preference_asymmetric := preference_asymmetric
+    teleological_dominance_prefers := teleological_dominance_prefers }
+  · intro actor moment action history hmem
+    exact program.selectAt_memHist actor moment action history hmem
+  · intro actor moment action history hmem haction past hbefore other
+    have hselectedMem := program.selectAt_memHist actor moment action history hmem
+    exact FiniteEconomyProgram.ProgramHistory.enactedAt_eq_of_shared_future
+      (program.selectAt actor moment action history) history past moment hbefore
+      hselectedMem hmem other
+  · intro actor moment action history hmem haction
+    exact program.selectAt_enacted actor moment action history hmem haction
+  · intro actor other moment action history hne hmem haction
+    exact program.selectAt_other actor other moment action history hmem haction hne.symm
+  · intro actor moment action history hmem haction henacted
+    exact program.selectAt_centered actor moment action history hmem haction henacted
 
 /-- Select the behavior-supplied branch for a feasible action. Invalid actions
 and histories outside the decision node retain the input history. -/
@@ -416,10 +665,11 @@ noncomputable def intendedEnd {fuel : ℕ} {state : PhysicalState Agent Means Se
     (program : FinitePhysicalEconomyProgram Agent Means Operation Service fuel state)
     (behavior : program.ActionFrameBehavior) (actor : Agent) (moment : program.Moment)
     (action : EconomyAction Agent Means Operation) : program.End :=
-  program.outcomeAt actor
-    (program.expectedMaturation behavior actor moment action
-      (program.selectByBehavior behavior actor moment action
-        (behavior.referenceHistory actor moment)))
+  let selectedHistory := program.selectByBehavior behavior actor moment action
+    (behavior.referenceHistory actor moment)
+  let evaluationMoment :=
+    program.expectedMaturation behavior actor moment action selectedHistory
+  .timed (program.outcomeAt actor evaluationMoment) evaluationMoment
 
 /-- Intended ends evaluate the behavioral branch supplied from the reference
 history at the same declared horizon used by `ExpectedMaturation`. -/
@@ -430,7 +680,10 @@ theorem intendedEnd_uses_behavior_selected_history {fuel : ℕ}
     (action : EconomyAction Agent Means Operation)
     (haction : action ∈ moment.currentStage.menu actor) :
     program.intendedEnd behavior actor moment action =
-      program.outcomeAt actor
+      .timed (program.outcomeAt actor
+        (program.expectedMaturation behavior actor moment action
+          (behavior.selectedHistory actor moment action
+            (behavior.referenceHistory actor moment))))
         (program.expectedMaturation behavior actor moment action
           (behavior.selectedHistory actor moment action
             (behavior.referenceHistory actor moment))) := by
@@ -681,7 +934,8 @@ constructor, not an implication of physical feasibility. -/
     requirement := finiteProgramEndRequirement
     ValuedEnd := behavior.valuedEnd
     valued_end_bundle_invariant := behavior.valuedEnd_invariant
-    OutcomeOf := fun i _ _ t' _ => program.outcomeAt i t'
+    OutcomeOf := fun i _ _ t' _ =>
+      .timed (program.outcomeAt i t') t'
     ExpectedMaturation := fun i action t history =>
       program.expectedMaturation behavior i t action history
     expected_maturation_mem_future := by

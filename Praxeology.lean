@@ -11,6 +11,8 @@ public import Praxeology.FiniteEconomy
 public import Praxeology.FiniteEconomy.ActiveParticipation
 public import Praxeology.FiniteEconomy.BilateralPilot
 public import Praxeology.Action
+public import Praxeology.Subjective
+public import Praxeology.Veridical
 public import Praxeology.EpistemicAbility
 public import Praxeology.Marginal
 public import Praxeology.Catallactics
@@ -41,9 +43,12 @@ mechanisms, econometric limitations, behavioral choice, and state monopoly.
 The modules establish conditional results under explicit model assumptions.
 They do not by themselves derive every Austrian economic conclusion from a
 single minimal axiom system. The named five-project regimes have a recursive
-physical ActionFrame schedule; early capital production, behaviorally derived
-choices, market recalculation after deviations, and integrated default
-adjudication remain incomplete.
+physical ActionFrame schedule with early capital production, branch-sensitive
+market recalculation, and contractual default settlement. Separate behavioral
+results establish purposeful household saving and subjective project-two and
+project-three acceptance under an explicit forecast, together with
+context-matched regret on the two actual default branches. These results do not
+derive the forecast from the actual household plan or model legal foreclosure.
 
 Axiom dependencies are audited separately. Mathlib is used as a theorem library;
 its use is not an additional axiom. The audit allows Lean's standard
@@ -390,7 +395,8 @@ theorem ground_deliberative_doxastic_action_denial_self_falsifying
     (α_assert : W.Action)
     (h_coh : InternalDoxasticCoherence (F := W) i t H_t h)
     (h_delib : DoxasticDeliberativeEpistemicAssertion (F := W) i t H_t h
-      (fun h' => ¬ DoxasticPurposefulAct (F := W) i (W.tau i t h') H_t h') α_assert) :
+      (fun h' => ¬ DoxasticAppraisalCertificate (F := W) i
+        (W.tau i t h') H_t h') α_assert) :
     False :=
   deliberative_doxastic_action_denial_self_falsifying (F := W) i t H_t h α_assert h_coh h_delib
 
@@ -489,18 +495,20 @@ theorem ground_multilateral_market_book_trade_conserved_and_solvent
       ∑ a ∈ B.Traders, B.after a m = ∑ a ∈ B.Traders, B.ω a m :=
   multilateral_market_book_trade_conserved_and_solvent B m
 
-/-- Ground instantiation of Theorem 1.8: Doxastic dominance implies PurposefulAct. -/
-theorem ground_purposeful_act_of_doxastic_dominance
+/-- Ground instantiation of the appraisal-certificate bridge to `PurposefulAct`.
+The certificate records scenario appraisal evidence; it is not a second
+purposefulness predicate. -/
+theorem ground_purposeful_act_of_doxastic_appraisal
     (W : ActionFrame) (i : W.Agent) (t : W.Moment) (H_t : Set W.History) (h : W.History)
     (h_mem : W.mem_hist t h)
     (h_projected : W.ProjectedFeasibility)
     (h_app : W.IsUnanimousAppraisal i t h)
-    (h_dox : DoxasticPurposefulAct (F := W) i t H_t h) :
+    (h_dox : DoxasticAppraisalCertificate (F := W) i t H_t h) :
     PurposefulAct (F := W) i t h (W.enacted i t h) :=
   purposeful_act_of_doxastic_dominance (F := W) i t H_t h h_mem h_projected h_app h_dox
 
-/-- Ground instantiation of Theorem 1.10: Equivalence on singleton plausibility strata. -/
-theorem ground_purposeful_act_iff_doxastic_purposeful_act
+/-- Ground instantiation of the singleton appraisal-certificate equivalence. -/
+theorem ground_purposeful_act_iff_doxastic_appraisal_certificate
     (W : ActionFrame) (i : W.Agent) (t : W.Moment) (H_t : Set W.History) (h : W.History)
     (h_mem : W.mem_hist t h)
     (h_in : h ∈ H_t)
@@ -512,7 +520,7 @@ theorem ground_purposeful_act_iff_doxastic_purposeful_act
     (h_unease : W.Preference i t h
       (W.End_of i (W.enacted i t h) t h) (W.End_of i W.alpha_zero t h)) :
     PurposefulAct (F := W) i t h (W.enacted i t h) ↔
-      DoxasticPurposefulAct (F := W) i t H_t h :=
+      DoxasticAppraisalCertificate (F := W) i t H_t h :=
   purposeful_act_iff_doxastic_purposeful_act_singleton (F := W) i t H_t h h_mem h_in
     h_base h_branch h_pl h_singleton h_projected h_unease
 

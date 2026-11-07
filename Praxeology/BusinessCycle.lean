@@ -14,6 +14,10 @@ public import Praxeology.BusinessCycle.Auctions
 public import Praxeology.BusinessCycle.Regimes
 public import Praxeology.BusinessCycle.FactorExecution
 public import Praxeology.BusinessCycle.ProfileProgram
+public import Praxeology.BusinessCycle.Outcome
+public import Praxeology.BusinessCycle.BehavioralProgram
+public import Praxeology.BusinessCycle.BehavioralChoices
+public import Praxeology.BusinessCycle.IntegratedResults
 public import Praxeology.BusinessCycle.DefaultWitness
 public import Praxeology.BusinessCycle.PhysicalSettlementWitness
 
@@ -31,32 +35,43 @@ regret theorem when each project's counterfactual evidence is supplied. These
 results range over the existing `ActionFrame`; they do not introduce a
 separate finite history model.
 `BusinessCycle.Auctions` supplies deterministic finite loan and factor price
-mechanisms and the five-project reservation/price calculations; a complete
-causal lifecycle also requires preference-grounded choices and earlier
-production stages.
+mechanisms and the five-project reservation/price calculations; preference-
+grounded choice remains a separate requirement for a behavioral cycle result.
 `BusinessCycle.Regimes` computes the fixed baseline, credit, and saving
 scenario outcomes from explicitly accounted money and completion-factor
 sources, and exposes a named policy from rate observations to expected factor
 supply. The policy is an explicit behavioral premise; equal rate observations
-do not determine it. `BusinessCycle.FactorExecution` applies the eligible
-completion-factor purchases through matched physical transfers, including
-the household's stated factor consumption and sales of offered factors. It
-executes note issuance, the household cash transfer, funded principal advances,
-completion operations, customer output sales, and auction-quoted repayments
-for projects that complete. The earlier input and capital-production stage,
-preference-grounded household and entrepreneur choices, default adjudication,
-and legal foreclosure remain unmodeled.
-`BusinessCycle.ProfileProgram` compiles the stated funding, factor, production,
-sale, and repayment schedule into the recursive physical program and its
-existing ActionFrame adapter. Loan capacity is cleared from bank money after
-the executed issuance and household-transfer branches. Factor clearing uses
-the advances that actually matched and the currently offered factor stock,
-while preserving the model's initial-buffer participation rule and checking
-physical affordability at each transfer. Later market rounds are computed
-from the state reached on that branch; terms already assigned by a clearing
-round are not revised automatically. Beliefs and preferences remain explicit
-inputs to the adapter, and the named cycle does not derive purposeful
-household saving or investment.
+do not determine it. `BusinessCycle.FactorExecution` applies eligible
+completion-factor purchases through matched physical transfers, including the
+household's stated factor consumption and sales of offered factors. It
+executes note issuance, the household deposit exchange, funded principal
+advances, early-input purchases, one-to-one capital formation, completion,
+customer output sales, repayment, unpaid-maturity settlement, and deposit
+redemption. A liability or settlement is recorded only when its exchange
+matches. The nonrecourse contract stipulates the collateral title rule; no
+separate foreclosure action is represented.
+`BusinessCycle.ProfileProgram` compiles the cursor schedule into the recursive
+physical program and its existing ActionFrame adapter. Loan capacity is cleared
+from bank money after executed issuance and household-transfer branches. Factor
+clearing uses advances that actually matched, current holdings, and explicitly
+offered factors, while retaining the stated participation and ordering rules.
+Later markets are computed from the state reached on that branch; terms already
+assigned by a clearing round are not revised automatically. The household plan
+menu separately exposes deposit, consumption, and offer quantities.
+`BusinessCycle.BehavioralProgram` and `BusinessCycle.IntegratedResults` prove
+the project-two and project-three loan acceptances purposeful relative to the
+independently executed four-factor forecast, while actual feasibility and
+execution remain grounded in their selected physical histories. These are
+subjective appraisal results, not claims that the forecast describes the
+actual household plan. `BehavioralChoices` proves purposeful household saving
+under the stated terminal preference and complete finite plan menu.
+`IntegratedResults` also proves that declining either marginal loan is a
+context-matched improvement over the actual default branch under the stated
+collateral-first preference. Beliefs and preferences remain explicit inputs.
+`BusinessCycle.Outcome` bundles
+physical holdings, delivered
+household services, and matched contract, repayment, default, and collateral
+records without identifying those records with behavioral evidence.
 `BusinessCycle.DefaultWitness` adds a concrete unpaid-maturity branch to the
 existing finite credit lifecycle. It derives the purposeful advance,
 unmatched later acceptance, absence of an intervening repayment, and continued

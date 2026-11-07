@@ -295,33 +295,6 @@ theorem S_opt_dominates_suboptimal_bundle {i : Agent} {t : Moment} {h : History}
   exact reg.strictly_ranked r s h_r_lt_s
 
 
-/- This internal legacy menu assumes h_opt_dominates, which contains the key
-  choice conclusion as a premise. It is not part of the public API and is not
-  evidence that purposeful choice derives optimal allocation. -/
-private structure LegacyBundleAllocationMenu
-    (i : Agent) (t : Moment) (h : History) {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N) where
-  bundle_of : Action → Finset Ends
-  bundle_all : ∀ α ∈ A_feas i t h, α ≠ α₀ →
-    bundle_of α ⊆ reg.all_ends ∧ ((bundle_of α).sum (fun e => requirement e m)) ≤ k
-  α_opt : Action
-  h_opt_feas : α_opt ∈ A_feas i t h
-  h_opt_bundle : bundle_of α_opt = S_opt reg k hk
-  bundle_stock : Action → (Means → ℕ)
-  h_end_eq_bundle : ∀ α, End_of i α t h = W.BundleEnd (bundle_stock α)
-  h_opt_dominates : ∀ α ∈ A_feas i t h, bundle_of α ≠ S_opt reg k hk →
-    W.SubjectiveTeleologicalDominates i t h (bundle_stock α_opt) (bundle_stock α)
-
-private theorem LegacyBundleAllocationMenu.mengerian_preference
-    {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    {reg : LegacyUnitRequirementSchedule i t h m N} {k : ℕ} {hk : k ≤ N}
-    (sys : LegacyBundleAllocationMenu i t h reg k hk)
-    (α : Action) (h_feas : α ∈ A_feas i t h) (h_sub : sys.bundle_of α ≠ S_opt reg k hk) :
-    Preference i t h (End_of i sys.α_opt t h) (End_of i α t h) := by
-  rw [sys.h_end_eq_bundle sys.α_opt, sys.h_end_eq_bundle α]
-  exact W.teleological_bundle_dominance_induces_preference i t h
-    (sys.bundle_stock sys.α_opt) (sys.bundle_stock α) (sys.h_opt_dominates α h_feas h_sub)
-
 /-- A bundle requiring at most `k` units has at most `k` ends. -/
 theorem atomic_bundle_card_le_of_req_le {i : Agent} {t : Moment} {h : History}
     {m : Means} {N : ℕ} (reg : LegacyUnitRequirementSchedule i t h m N)
@@ -331,35 +304,6 @@ theorem atomic_bundle_card_le_of_req_le {i : Agent} {t : Moment} {h : History}
   rw [atomic_bundle_requirement_eq_card reg S hS] at h_feas
   exact h_feas
 
-
-private theorem legacy_purposeful_act_forces_prefix_from_assumed_optimal_bundle
-    {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N)
-    (sys : LegacyBundleAllocationMenu i t h reg k hk)
-    (α_star : Action)
-    (h_purp : PurposefulAct i t h α_star)
-    (_h_active : α_star ≠ α₀) :
-    sys.bundle_of α_star = S_opt reg k hk := by
-  have h_feas := h_purp.1
-  by_contra h_ne
-  have h_pref := sys.mengerian_preference α_star h_feas h_ne
-  have h_undom := h_purp.2.2.2 sys.α_opt sys.h_opt_feas
-  exact h_undom h_pref
-
-
-private theorem legacy_purposeful_act_forces_endowment_prefix_from_assumed_optimal_bundle
-    {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (hk : reg.k ≤ N)
-    (sys : LegacyBundleAllocationMenu i t h reg reg.k hk)
-    (α_star : Action)
-    (h_purp : PurposefulAct i t h α_star)
-    (_h_active : α_star ≠ α₀) :
-    sys.bundle_of α_star = S_opt reg reg.k hk := by
-  have h_feas := h_purp.1
-  by_contra h_ne
-  have h_pref := sys.mengerian_preference α_star h_feas h_ne
-  have h_undom := h_purp.2.2.2 sys.α_opt sys.h_opt_feas
-  exact h_undom h_pref
 
 /-- The difference set contains only the end at index `k - 1`. -/
 theorem diff_S_opt_eq_singleton {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
@@ -444,31 +388,6 @@ theorem legacy_ranked_schedule_marginal_preference
   exact reg.strictly_ranked ⟨k1 - 1, by omega⟩ ⟨k2 - 1, by omega⟩ hr_lt
 
 
-private theorem legacy_purposeful_diminishing_marginal_utility
-    {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N)
-    (k1 k2 : ℕ) (hk1_pos : 1 ≤ k1) (hk2_le : k2 ≤ N) (hk_lt : k1 < k2)
-    (sys1 : LegacyBundleAllocationMenu i t h reg k1 (by omega))
-    (sys2 : LegacyBundleAllocationMenu i t h reg k2 hk2_le)
-    (α1 α2 : Action)
-    (h_purp1 : PurposefulAct i t h α1)
-    (h_purp2 : PurposefulAct i t h α2)
-    (h_active1 : α1 ≠ α₀)
-    (h_active2 : α2 ≠ α₀) :
-    sys1.bundle_of α1 = S_opt reg k1 (by omega) ∧
-    sys2.bundle_of α2 = S_opt reg k2 hk2_le ∧
-    Preference i t h
-      (MarginalUtility reg k1 hk1_pos (by omega))
-      (MarginalUtility reg k2 (by omega) hk2_le) := by
-  have h_eq1 := legacy_purposeful_act_forces_prefix_from_assumed_optimal_bundle
-    reg k1 (by omega) sys1 α1 h_purp1 h_active1
-  have h_eq2 := legacy_purposeful_act_forces_prefix_from_assumed_optimal_bundle
-    reg k2 hk2_le sys2 α2 h_purp2 h_active2
-  have h_dmu := legacy_ranked_schedule_marginal_preference
-    reg k1 k2 hk1_pos hk2_le hk_lt
-  exact ⟨h_eq1, h_eq2, h_dmu⟩
-
-
 theorem sunk_cost_irrelevant_to_purposeful_act
     (i : Agent) (t : Moment) (h : History)
     (α_boondoggle : Action)
@@ -479,83 +398,6 @@ theorem sunk_cost_irrelevant_to_purposeful_act
   rcases h_purp.2.2.1 with rfl | h_pref
   · exact h_ne rfl
   · exact h_no_unease h_pref
-
-
-private theorem legacy_mengerian_backward_value_imputation
-    {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N)
-    (sys : LegacyBundleAllocationMenu i t h reg k hk)
-    (α_lose_factor : Action)
-    (h_lose_feas : α_lose_factor ∈ A_feas i t h)
-    (h_lose_bundle : sys.bundle_of α_lose_factor = S_opt reg (k - 1) (by omega)) :
-    (sys.bundle_of sys.α_opt \ sys.bundle_of α_lose_factor) = {MarginalUtility reg k hk_pos hk} ∧
-    Preference i t h (End_of i sys.α_opt t h) (End_of i α_lose_factor t h) := by
-  have h_diff : sys.bundle_of sys.α_opt \ sys.bundle_of α_lose_factor =
-      {MarginalUtility reg k hk_pos hk} := by
-    rw [sys.h_opt_bundle, h_lose_bundle]
-    exact diff_S_opt_eq_singleton reg k hk_pos hk
-  refine ⟨h_diff, ?_⟩
-  have h_ne : sys.bundle_of α_lose_factor ≠ S_opt reg k hk := by
-    intro h_eq
-    have h_card1 : (sys.bundle_of α_lose_factor).card = k - 1 := by
-      rw [h_lose_bundle, card_S_opt reg (k - 1) (by omega)]
-    have h_card2 : (S_opt reg k hk).card = k := card_S_opt reg k hk
-    rw [h_eq, h_card2] at h_card1
-    omega
-  exact sys.mengerian_preference α_lose_factor h_lose_feas h_ne
-
-
-private theorem legacy_intertemporal_capital_value_imputation
-    {i : Agent} {t0 t1 t2 : Moment} {h_build h_cons : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t1 h_build m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N)
-    (sys : LegacyBundleAllocationMenu i t1 h_build reg k hk)
-    (α_build α_nonbuild α_lose_factor : Action)
-    (h_next_build : IsNextMoment Precedence W.mem_hist t0 t1 h_build)
-    (h_next_cons : IsNextMoment Precedence W.mem_hist t0 t2 h_cons)
-    (h_branches_separate : ∀ u, Precedence t0 u →
-      ¬ (W.mem_hist u h_build ∧ W.mem_hist u h_cons))
-    (h_not_tr_b : ¬ W.IsTradeAction α_build := by intro h; cases h)
-    (h_not_tr_c : ¬ W.IsTradeAction α_nonbuild := by intro h; cases h)
-    (h_exec_build : enacted i t0 h_build = α_build)
-    (h_exec_cons : enacted i t0 h_cons = α_nonbuild)
-    (h_init_build : W.omega i t0 h_build m = k - 1)
-    (h_init_cons : W.omega i t0 h_cons m = k - 1)
-    (h_use_build : W.use_means α_build m = 0)
-    (h_yield_build : W.yield_means α_build m = 1)
-    (h_use_nonbuild : W.use_means α_nonbuild m = 0)
-    (h_yield_nonbuild : W.yield_means α_nonbuild m = 0)
-    (h_opt_req : W.use_means sys.α_opt m = k)
-    (h_lose_feas : α_lose_factor ∈ A_feas i t1 h_build)
-    (h_lose_bundle : sys.bundle_of α_lose_factor = S_opt reg (k - 1) (by omega)) :
-    t1 ≠ t2 ∧
-    W.omega i t1 h_build m = k ∧
-    W.omega i t2 h_cons m = k - 1 ∧
-    sys.α_opt ∉ A_feas i t2 h_cons ∧
-    (sys.bundle_of sys.α_opt \ sys.bundle_of α_lose_factor) = {MarginalUtility reg k hk_pos hk} ∧
-    Preference i t1 h_build
-      (End_of i sys.α_opt t1 h_build) (End_of i α_lose_factor t1 h_build) := by
-  have ht_distinct : t1 ≠ t2 := by
-    intro h_eq
-    subst t2
-    exact h_branches_separate t1 h_next_build.2.2.1
-      ⟨h_next_build.2.1, h_next_cons.2.1⟩
-  have h_tr_b :=
-    W.law_in_re_transition i t0 t1 h_build α_build m h_not_tr_b h_exec_build h_next_build
-  rw [h_use_build, h_init_build, h_yield_build, Nat.add_zero] at h_tr_b
-  have h_om_b : W.omega i t1 h_build m = k := by omega
-  have h_tr_c :=
-    W.law_in_re_transition i t0 t2 h_cons α_nonbuild m h_not_tr_c h_exec_cons h_next_cons
-  rw [h_use_nonbuild, h_init_cons, h_yield_nonbuild, Nat.add_zero, Nat.add_zero] at h_tr_c
-  have h_om_c : W.omega i t2 h_cons m = k - 1 := by omega
-  have h_infeas : sys.α_opt ∉ A_feas i t2 h_cons := by
-    apply infeasible_of_insufficient_endowment i t2 h_cons sys.α_opt m
-    change W.omega i t2 h_cons m < W.use_means sys.α_opt m
-    rw [h_tr_c, h_opt_req]
-    omega
-  have ⟨h_diff, h_pref⟩ :=
-    legacy_mengerian_backward_value_imputation
-      reg k hk_pos hk sys α_lose_factor h_lose_feas h_lose_bundle
-  exact ⟨ht_distinct, h_om_b, h_om_c, h_infeas, h_diff, h_pref⟩
 
 
 theorem intertemporal_consumption_stock_and_service
@@ -892,46 +734,6 @@ theorem S_opt_teleo_dominates_suboptimal_bundle
     omega
   exact reg.strictly_ranked r s h_r_lt_s
 
-/-- Feasible actions have bundles in `all_ends` with total requirement ≤ `k * q_min`;
-    `α_opt` realizes `S_opt_teleo`. -/
-private structure LegacyTeleologicalBundleSystem (i : Agent) (t : Moment) (h : History)
-    {m : Means} {N q_min : ℕ}
-    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (hk : k ≤ N) where
-  bundle_of : Action → Finset Ends
-  bundle_all : ∀ α ∈ A_feas i t h, α ≠ α₀ →
-    bundle_of α ⊆ reg.all_ends ∧ ((bundle_of α).sum (fun e => requirement e m)) ≤ k * q_min
-  α_opt : Action
-  h_opt_feas : α_opt ∈ A_feas i t h
-  h_opt_bundle : bundle_of α_opt = S_opt_teleo reg k hk
-  bundle_stock : Action → (Means → ℕ)
-  h_end_eq_bundle : ∀ α, End_of i α t h = W.BundleEnd (bundle_stock α)
-  h_opt_dominates : ∀ α ∈ A_feas i t h, bundle_of α ≠ S_opt_teleo reg k hk →
-    W.SubjectiveTeleologicalDominates i t h (bundle_stock α_opt) (bundle_stock α)
-
-private theorem LegacyTeleologicalBundleSystem.mengerian_preference
-    {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    {reg : LegacyTeleologicalQuantumRegime i t h m N q_min} {k : ℕ} {hk : k ≤ N}
-    (sys : LegacyTeleologicalBundleSystem i t h reg k hk)
-    (α : Action) (h_feas : α ∈ A_feas i t h) (h_sub : sys.bundle_of α ≠ S_opt_teleo reg k hk) :
-    Preference i t h (End_of i sys.α_opt t h) (End_of i α t h) := by
-  rw [sys.h_end_eq_bundle sys.α_opt, sys.h_end_eq_bundle α]
-  exact W.teleological_bundle_dominance_induces_preference i t h
-    (sys.bundle_stock sys.α_opt) (sys.bundle_stock α) (sys.h_opt_dominates α h_feas h_sub)
-
-
-private theorem legacy_purposeful_act_forces_quantum_prefix_from_assumed_optimal_bundle
-    {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (hk : k ≤ N)
-    (sys : LegacyTeleologicalBundleSystem i t h reg k hk)
-    (α_star : Action)
-    (h_purp : PurposefulAct i t h α_star)
-    (_h_active : α_star ≠ α₀) :
-    sys.bundle_of α_star = S_opt_teleo reg k hk := by
-  have h_feas := h_purp.1
-  by_contra h_ne
-  have h_pref := sys.mengerian_preference α_star h_feas h_ne
-  have h_undom := h_purp.2.2.2 sys.α_opt sys.h_opt_feas
-  exact h_undom h_pref
 
 /-- The end at index `k - 1` in `reg.e_seq`. -/
 def TeleologicalMarginalUtility {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
@@ -954,31 +756,6 @@ theorem legacy_quantum_schedule_marginal_preference
     change k1 - 1 < k2 - 1
     omega
   exact reg.strictly_ranked ⟨k1 - 1, by omega⟩ ⟨k2 - 1, by omega⟩ hr_lt
-
-
-private theorem legacy_purposeful_quantum_diminishing_marginal_utility
-    {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min)
-    (k1 k2 : ℕ) (hk1_pos : 1 ≤ k1) (hk2_le : k2 ≤ N) (hk_lt : k1 < k2)
-    (sys1 : LegacyTeleologicalBundleSystem i t h reg k1 (by omega))
-    (sys2 : LegacyTeleologicalBundleSystem i t h reg k2 hk2_le)
-    (α1 α2 : Action)
-    (h_purp1 : PurposefulAct i t h α1)
-    (h_purp2 : PurposefulAct i t h α2)
-    (h_active1 : α1 ≠ α₀)
-    (h_active2 : α2 ≠ α₀) :
-    sys1.bundle_of α1 = S_opt_teleo reg k1 (by omega) ∧
-    sys2.bundle_of α2 = S_opt_teleo reg k2 hk2_le ∧
-    Preference i t h
-      (TeleologicalMarginalUtility reg k1 hk1_pos (by omega))
-      (TeleologicalMarginalUtility reg k2 (by omega) hk2_le) := by
-  have h_eq1 := legacy_purposeful_act_forces_quantum_prefix_from_assumed_optimal_bundle
-    reg k1 (by omega) sys1 α1 h_purp1 h_active1
-  have h_eq2 := legacy_purposeful_act_forces_quantum_prefix_from_assumed_optimal_bundle
-    reg k2 hk2_le sys2 α2 h_purp2 h_active2
-  have h_dmu := legacy_quantum_schedule_marginal_preference
-    reg k1 k2 hk1_pos hk2_le hk_lt
-  exact ⟨h_eq1, h_eq2, h_dmu⟩
 
 
 theorem quantum_capacity_bound_for_subquantum_remainder
@@ -1479,6 +1256,102 @@ theorem current_security_choice_is_purposeful
       rw [E.spending_action_end]
       exact pref_asymm i t h E.security_preferred_to_forgone_spending
     · exact E.saving_undominated_except_spending β hβ hspending
+
+end DMU_TimePreference
+
+section FiniteCurrentSecurityWitness
+
+local instance W : ActionFrame := FiniteBranchingModel
+
+/-- A concrete finite model witnesses the repaired current-security evidence.
+The chosen consume action is executed on history one, while the defer action
+is only a feasible forgone alternative. Security is evaluated at the decision
+and delivered at the action's immediate successor. -/
+def finiteCurrentSecurityChoiceEvidence :
+    CurrentSecurityChoiceEvidence (W := FiniteBranchingModel)
+      (0 : Fin 2) (0 : Fin 4) (1 : Fin 3) := by
+  refine
+    { savingAction := ModelAction.consume
+      spendingAction := ModelAction.defer
+      currentSecurity := ModelEnd.timed (ModelEnd.quantity 1 1) 0
+      saving_feasible := by decide
+      spending_feasible := by decide
+      saving_execution := by
+        change ActionFrame.mem_hist (self := FiniteBranchingModel)
+            (0 : Fin 4) (1 : Fin 3) ∧
+          ActionFrame.enacted (self := FiniteBranchingModel)
+            (0 : Fin 2) (0 : Fin 4) (1 : Fin 3) = ModelAction.consume
+        constructor
+        · change branch_incidence (0 : Fin 4) (1 : Fin 3)
+          exact Or.inl rfl
+        · change (if (0 : Fin 2) = 0 ∧ (0 : Fin 4) = 0 then
+            if (1 : Fin 3) = 0 then ModelAction.idle
+            else if (1 : Fin 3) = 1 then ModelAction.consume
+            else ModelAction.defer else ModelAction.idle) = ModelAction.consume
+          decide
+      savingSuccessor := (2 : Fin 4)
+      successor_is_immediate := by
+        change IsNextMoment finite_action_prec branch_incidence
+          (0 : Fin 4) (2 : Fin 4) (1 : Fin 3)
+        refine ⟨by simp [branch_incidence], by simp [branch_incidence],
+          by simp [finite_action_prec], ?_⟩
+        intro τ hτ hbetween
+        rcases hτ with hroot | hleaf
+        · subst τ
+          simp [finite_action_prec] at hbetween
+        · have hzero' : τ = (0 : Fin 4) := by
+            exact hbetween.2.1
+          rw [hzero'] at hleaf
+          have : (0 : Fin 4).val = 2 := hleaf
+          norm_num at this
+      security_matures_at_successor := by decide
+      security_outcome := by decide
+      security_is_valued := by trivial
+      saving_end_is_security := by rfl
+      spending_end := ModelEnd.timed (ModelEnd.quantity 1 1) 1
+      spending_action_end := by rfl
+      security_preferred_to_forgone_spending := by
+        change end_rank (ModelEnd.timed (ModelEnd.quantity 1 1) 1) <
+          end_rank (ModelEnd.timed (ModelEnd.quantity 1 1) 0)
+        decide
+      security_preferred_to_idle := by
+        change Preference (F := FiniteBranchingModel)
+          (0 : Fin 2) (0 : Fin 4) (1 : Fin 3)
+          (ModelEnd.timed (ModelEnd.quantity 1 1) 0)
+          (End_of (F := FiniteBranchingModel)
+            (0 : Fin 2) ModelAction.idle (0 : Fin 4) (1 : Fin 3))
+        change end_rank (ModelEnd.timed (ModelEnd.quantity 0 0) 0) <
+          end_rank (ModelEnd.timed (ModelEnd.quantity 1 1) 0)
+        decide
+      saving_undominated_except_spending := ?_ }
+  intro β hβ hne
+  change β ∈ ({ModelAction.idle, ModelAction.consume, ModelAction.defer} :
+    Finset ModelAction) at hβ
+  simp only [Finset.mem_insert, Finset.mem_singleton] at hβ
+  rcases hβ with rfl | rfl | rfl
+  · change ¬ (end_rank (ModelEnd.timed (ModelEnd.quantity 1 1) 0) <
+      end_rank (ModelEnd.timed (ModelEnd.quantity 0 0) 0))
+    decide
+  · have hEnd : End_of (F := FiniteBranchingModel)
+        (0 : Fin 2) ModelAction.consume (0 : Fin 4) (1 : Fin 3) =
+          ModelEnd.timed (ModelEnd.quantity 1 1) 0 := by rfl
+    rw [hEnd]
+    exact pref_irrefl (0 : Fin 2) (0 : Fin 4) (1 : Fin 3)
+      (ModelEnd.timed (ModelEnd.quantity 1 1) 0)
+  · exact (hne rfl).elim
+
+/-- The concrete current-security witness satisfies the one-purposefulness
+predicate from actual feasibility, execution, intended improvement, and menu
+undominatedness. -/
+theorem finite_current_security_choice_is_purposeful :
+    PurposefulAct (0 : Fin 2) (0 : Fin 4) (1 : Fin 3) ModelAction.consume :=
+  current_security_choice_is_purposeful finiteCurrentSecurityChoiceEvidence
+
+end FiniteCurrentSecurityWitness
+
+section DMU_TimePreference
+
+variable [W : ActionFrame]
 
 /-- These preference conclusions follow from the listed positive timing and
 security premises. The theorem does not derive a universal ranking of earlier

@@ -412,6 +412,73 @@ theorem ranked_prefix_marginal_preference
     omega
   simpa [r, s] using laws.higher_ranked_singleton_preferred r s hrs
 
+/-- Difference of adjacent ranked prefixes is the singleton of the marginal use. -/
+theorem diff_rankedPrefix_pred {N : ℕ} (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N) :
+    rankedPrefix k hk \ rankedPrefix (k - 1) (by omega) =
+      {⟨k - 1, by omega⟩} := by
+  ext r
+  rw [Finset.mem_sdiff, Finset.mem_singleton]
+  dsimp [rankedPrefix]
+  rw [Finset.mem_filter, Finset.mem_filter]
+  constructor
+  · rintro ⟨⟨_, hr_lt⟩, h_not⟩
+    have hr_ge : k - 1 ≤ r.val := by
+      by_contra hc
+      have hlt : r.val < k - 1 := by omega
+      exact h_not ⟨Finset.mem_univ _, hlt⟩
+    have hr_eq : r.val = k - 1 := by omega
+    exact Fin.ext hr_eq
+  · rintro rfl
+    refine ⟨⟨Finset.mem_univ _, by dsimp; omega⟩, ?_⟩
+    intro ⟨_, hbad⟩
+    dsimp at hbad
+    omega
+
+/-- Mengerian backward value imputation derived from local ordinal allocation laws:
+having capacity `k` strictly dominates capacity `k - 1`, and the loss of that unit of capacity
+is valued as the loss of the single marginal use `k - 1`. -/
+theorem ordinal_backward_value_imputation
+    {W : ActionFrame} {i : W.Agent} {t : W.Moment} {h : W.History}
+    {N : ℕ} {capacity : ℕ} (hk_pos : 1 ≤ capacity) (hk : capacity ≤ N)
+    (allocationEnd : Finset (Fin N) → W.Ends)
+    (laws : LocalOrdinalAllocationLaws i t h capacity allocationEnd) :
+    (rankedPrefix capacity hk \ rankedPrefix (capacity - 1) (by omega) =
+      {⟨capacity - 1, by omega⟩}) ∧
+    W.Preference i t h (allocationEnd (rankedPrefix capacity hk))
+      (allocationEnd (rankedPrefix (capacity - 1) (by omega))) := by
+  have hdiff := diff_rankedPrefix_pred capacity hk_pos hk
+  refine ⟨hdiff, ?_⟩
+  have h_le_N : capacity - 1 ≤ N := by omega
+  have hcard : (rankedPrefix (capacity - 1) h_le_N).card < capacity := by
+    rw [rankedPrefix_card (capacity - 1) h_le_N]
+    omega
+  have hnot : (⟨capacity - 1, by omega⟩ : Fin N) ∉
+      rankedPrefix (capacity - 1) h_le_N := by
+    dsimp [rankedPrefix]
+    rw [Finset.mem_filter]
+    rintro ⟨_, hbad⟩
+    dsimp at hbad
+    omega
+  have hadd := laws.add_unused (rankedPrefix (capacity - 1) h_le_N) hcard
+    ⟨capacity - 1, by omega⟩ hnot
+  have hinsert : insert (⟨capacity - 1, by omega⟩ : Fin N)
+      (rankedPrefix (capacity - 1) h_le_N) = rankedPrefix capacity hk := by
+    ext r
+    rw [Finset.mem_insert]
+    dsimp [rankedPrefix]
+    rw [Finset.mem_filter, Finset.mem_filter]
+    constructor
+    · rintro (rfl | ⟨_, hr_lt⟩)
+      · exact ⟨Finset.mem_univ _, by dsimp; omega⟩
+      · exact ⟨Finset.mem_univ _, by omega⟩
+    · rintro ⟨_, hr_lt⟩
+      by_cases hr : r.val = capacity - 1
+      · left; exact Fin.ext hr
+      · right; exact ⟨Finset.mem_univ _, by omega⟩
+  rw [hinsert] at hadd
+  exact hadd
+
+
 /-! ## Finite ordinal witness
 
 The existing finite branching frame has a concrete stock of two focal units.

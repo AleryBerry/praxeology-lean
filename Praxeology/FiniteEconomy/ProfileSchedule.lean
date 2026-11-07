@@ -204,14 +204,61 @@ finite cursor and the physical state produced so far. The cursor transition
 receives the profile actually selected in the generated stage and its
 interpreter-derived successor state, so a model can record only transfers
 that actually matched while consuming every instruction position. -/
+structure PhysicalProfileStep {Agent Means Operation Service : Type}
+    [Fintype Agent] [DecidableEq Agent] [Fintype Means]
+    [DecidableEq Means] [DecidableEq Operation]
+    (operations : OperationSemantics Operation Means Service)
+    (state : PhysicalState Agent Means Service) where
+  instruction : PhysicalProfileInstruction Agent Means Operation
+  profile : (instruction.stage operations state).choices.Profile
+
+namespace PhysicalProfileStep
+
+/-- Every typed generator step preserves the physical interpreter's exact
+inventory balance for each agent and good. -/
+theorem after_balance
+    {Agent Means Operation Service : Type}
+    [Fintype Agent] [DecidableEq Agent] [Fintype Means]
+    [DecidableEq Means] [DecidableEq Operation]
+    {operations : OperationSemantics Operation Means Service}
+    {state : PhysicalState Agent Means Service}
+    (step : PhysicalProfileStep operations state) (actor : Agent) (good : Means) :
+    ((step.instruction.stage operations state).advance step.profile).stock actor good +
+        effectiveUse operations step.profile.1 actor good =
+      state.stock actor good + effectiveYield operations step.profile.1 actor good := by
+  exact (step.instruction.stage operations state).advance_balance
+    step.profile actor good
+
+/-- Services in a typed generator step change only by the selected
+operation's declared service yield. -/
+theorem after_service_balance
+    {Agent Means Operation Service : Type}
+    [Fintype Agent] [DecidableEq Agent] [Fintype Means]
+    [DecidableEq Means] [DecidableEq Operation]
+    {operations : OperationSemantics Operation Means Service}
+    {state : PhysicalState Agent Means Service}
+    (step : PhysicalProfileStep operations state) (actor : Agent) (service : Service) :
+    ((step.instruction.stage operations state).advance step.profile).services actor service =
+      state.services actor service +
+        effectiveServiceYield operations step.profile.1 actor service := by
+  exact (step.instruction.stage operations state).advance_service_balance
+    step.profile actor service
+
+end PhysicalProfileStep
+
+/-- A fuel-bounded instruction source. The next instruction can depend on the
+finite cursor and the physical state produced so far. Cursor transitions
+receive the selected profile together with the proof that it belongs to the
+generated stage. -/
 structure PhysicalProfileGenerator (Agent Means Operation Service Cursor : Type)
     [Fintype Agent] [DecidableEq Agent] [Fintype Means]
-    [DecidableEq Means] [DecidableEq Operation] where
+    [DecidableEq Means] [DecidableEq Operation]
+    (operations : OperationSemantics Operation Means Service) where
   instruction : Cursor → PhysicalState Agent Means Service →
     PhysicalProfileInstruction Agent Means Operation
-  nextCursor : Cursor → PhysicalState Agent Means Service →
-    ActionProfile (Agent := Agent) (Means := Means) (Operation := Operation) →
-      PhysicalState Agent Means Service → Cursor
+  nextCursor : (cursor : Cursor) →
+    (state : PhysicalState Agent Means Service) →
+    PhysicalProfileStep operations state → Cursor
 
 /-- Compile a state-dependent instruction generator for a statically bounded
 number of stages. Each recursive branch advances the cursor exactly once,
@@ -220,7 +267,7 @@ def compilePhysicalProfileGenerator {Agent Means Operation Service Cursor : Type
     [Fintype Agent] [DecidableEq Agent] [Fintype Means]
     [DecidableEq Means] [DecidableEq Operation]
     (operations : OperationSemantics Operation Means Service)
-    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor) :
+    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor operations) :
     (fuel : ℕ) → Cursor → (state : PhysicalState Agent Means Service) →
       FinitePhysicalEconomyProgram Agent Means Operation Service fuel state
   | 0, _, _ => .halt
@@ -229,7 +276,7 @@ def compilePhysicalProfileGenerator {Agent Means Operation Service Cursor : Type
       let stage := instruction.stage operations state
       .decision (state := state) stage fun profile =>
         compilePhysicalProfileGenerator operations generator fuel
-          (generator.nextCursor cursor state profile.1 (stage.advance profile))
+          (generator.nextCursor cursor state ⟨instruction, profile⟩)
           (stage.advance profile)
 
 /-- The state-dependent compiler reuses the instruction's existing physical
@@ -239,7 +286,7 @@ theorem compilePhysicalProfileGenerator_stable
     [Fintype Agent] [DecidableEq Agent] [Fintype Means]
     [DecidableEq Means] [DecidableEq Operation]
     (operations : OperationSemantics Operation Means Service)
-    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor)
+    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor operations)
     (fuel : ℕ) (cursor : Cursor)
     (state : PhysicalState Agent Means Service) :
     FinitePhysicalEconomyProgram.HasStableOperationSemantics
@@ -261,7 +308,7 @@ def executePhysicalProfileGenerator {Agent Means Operation Service Cursor : Type
     [Fintype Agent] [DecidableEq Agent] [Fintype Means]
     [DecidableEq Means] [DecidableEq Operation]
     (operations : OperationSemantics Operation Means Service)
-    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor) :
+    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor operations) :
     (fuel : ℕ) → Cursor → PhysicalState Agent Means Service →
       PhysicalState Agent Means Service
   | 0, _, state => state
@@ -270,7 +317,7 @@ def executePhysicalProfileGenerator {Agent Means Operation Service Cursor : Type
       let stage := instruction.stage operations state
       let profile := instruction.selectedProfile operations state
       executePhysicalProfileGenerator operations generator fuel
-        (generator.nextCursor cursor state profile.1 (stage.advance profile))
+        (generator.nextCursor cursor state ⟨instruction, profile⟩)
         (stage.advance profile)
 
 /-- The generator's selected profiles form a history of its compiled
@@ -279,7 +326,7 @@ def physicalProfileGeneratorHistory {Agent Means Operation Service Cursor : Type
     [Fintype Agent] [DecidableEq Agent] [Fintype Means]
     [DecidableEq Means] [DecidableEq Operation]
     (operations : OperationSemantics Operation Means Service)
-    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor) :
+    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor operations) :
     (fuel : ℕ) → (cursor : Cursor) → (state : PhysicalState Agent Means Service) →
       FinitePhysicalEconomyProgram.History
         (compilePhysicalProfileGenerator operations generator fuel cursor state)
@@ -290,7 +337,7 @@ def physicalProfileGeneratorHistory {Agent Means Operation Service Cursor : Type
       let profile := instruction.selectedProfile operations state
       FiniteEconomyProgram.ProgramHistory.decision profile
         (physicalProfileGeneratorHistory operations generator fuel
-          (generator.nextCursor cursor state profile.1 (stage.advance profile))
+          (generator.nextCursor cursor state ⟨instruction, profile⟩)
           (stage.advance profile))
 
 /-- The generator history's terminal state is the interpreter result of the
@@ -300,11 +347,188 @@ theorem physicalProfileGeneratorHistory_terminalState
     [Fintype Agent] [DecidableEq Agent] [Fintype Means]
     [DecidableEq Means] [DecidableEq Operation]
     (operations : OperationSemantics Operation Means Service)
-    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor)
+    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor operations)
     (fuel : ℕ) (cursor : Cursor)
     (state : PhysicalState Agent Means Service) :
     (physicalProfileGeneratorHistory operations generator fuel cursor state).terminalState =
       executePhysicalProfileGenerator operations generator fuel cursor state := by
+  induction fuel generalizing cursor state with
+  | zero => rfl
+  | succ fuel ih => exact ih _ _
+
+/-- Execute the same state-dependent generator under an explicit profile
+selector. The selector receives the actual cursor and current physical state;
+the ordinary generator's selected profile remains a reusable specialization.
+-/
+def executePhysicalProfileGeneratorWithPolicy
+    {Agent Means Operation Service Cursor : Type}
+    [Fintype Agent] [DecidableEq Agent] [Fintype Means]
+    [DecidableEq Means] [DecidableEq Operation]
+    (operations : OperationSemantics Operation Means Service)
+    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor operations)
+    (selectProfile : ∀ cursor state,
+      ((generator.instruction cursor state).stage operations state).choices.Profile) :
+    (fuel : ℕ) → Cursor → PhysicalState Agent Means Service →
+      PhysicalState Agent Means Service
+  | 0, _, state => state
+  | fuel + 1, cursor, state =>
+      let instruction := generator.instruction cursor state
+      let stage := instruction.stage operations state
+      let profile := selectProfile cursor state
+      executePhysicalProfileGeneratorWithPolicy operations generator selectProfile fuel
+        (generator.nextCursor cursor state ⟨instruction, profile⟩)
+        (stage.advance profile)
+
+/-- A profile selector on the state-dependent generator also defines a typed
+history in the existing compiled physical program. Changed actions therefore
+continue through the same generator and transition interpreter. -/
+def physicalProfileGeneratorHistoryWithPolicy
+    {Agent Means Operation Service Cursor : Type}
+    [Fintype Agent] [DecidableEq Agent] [Fintype Means]
+    [DecidableEq Means] [DecidableEq Operation]
+    (operations : OperationSemantics Operation Means Service)
+    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor operations)
+    (selectProfile : ∀ cursor state,
+      ((generator.instruction cursor state).stage operations state).choices.Profile) :
+    (fuel : ℕ) → (cursor : Cursor) → (state : PhysicalState Agent Means Service) →
+      FinitePhysicalEconomyProgram.History
+        (compilePhysicalProfileGenerator operations generator fuel cursor state)
+  | 0, _, _ => FiniteEconomyProgram.ProgramHistory.halt
+  | fuel + 1, cursor, state =>
+      let instruction := generator.instruction cursor state
+      let stage := instruction.stage operations state
+      let profile := selectProfile cursor state
+      FiniteEconomyProgram.ProgramHistory.decision profile
+        (physicalProfileGeneratorHistoryWithPolicy operations generator selectProfile fuel
+          (generator.nextCursor cursor state ⟨instruction, profile⟩)
+          (stage.advance profile))
+
+/-- Select one feasible action at the root of a generated physical program.
+The supplied history is preserved when the actor already enacts the action;
+otherwise the suffix is regenerated from the resulting state and cursor with
+the same explicit profile policy. -/
+def physicalProfileGeneratorHistoryWithRootAction
+    {Agent Means Operation Service Cursor : Type}
+    [Fintype Agent] [DecidableEq Agent] [Fintype Means]
+    [DecidableEq Means] [DecidableEq Operation]
+    (operations : OperationSemantics Operation Means Service)
+    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor operations)
+    (selectProfile : ∀ cursor state,
+      ((generator.instruction cursor state).stage operations state).choices.Profile)
+    (fuel : ℕ) (cursor : Cursor) (state : PhysicalState Agent Means Service)
+    (history : FinitePhysicalEconomyProgram.History
+      (compilePhysicalProfileGenerator operations generator (fuel + 1) cursor state))
+    (actor : Agent) (action : EconomyAction Agent Means Operation)
+    (action_mem : action ∈
+      ((generator.instruction cursor state).stage operations state).choices.menu actor) :
+    FinitePhysicalEconomyProgram.History
+      (compilePhysicalProfileGenerator operations generator (fuel + 1) cursor state) := by
+  let instruction := generator.instruction cursor state
+  let stage := instruction.stage operations state
+  let continueWith := fun profile =>
+    physicalProfileGeneratorHistoryWithPolicy operations generator selectProfile fuel
+      (generator.nextCursor cursor state ⟨instruction, profile⟩)
+      (stage.advance profile)
+  exact history.selectActorAtRootWithContinuation actor action action_mem continueWith
+
+/-- Physical root selection enacts the requested action. -/
+theorem physicalProfileGeneratorHistoryWithRootAction_enacted
+    {Agent Means Operation Service Cursor : Type}
+    [Fintype Agent] [DecidableEq Agent] [Fintype Means]
+    [DecidableEq Means] [DecidableEq Operation]
+    (operations : OperationSemantics Operation Means Service)
+    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor operations)
+    (selectProfile : ∀ cursor state,
+      ((generator.instruction cursor state).stage operations state).choices.Profile)
+    (fuel : ℕ) (cursor : Cursor) (state : PhysicalState Agent Means Service)
+    (history : FinitePhysicalEconomyProgram.History
+      (compilePhysicalProfileGenerator operations generator (fuel + 1) cursor state))
+    (actor : Agent) (action : EconomyAction Agent Means Operation)
+    (action_mem : action ∈
+      ((generator.instruction cursor state).stage operations state).choices.menu actor) :
+    FiniteEconomyProgram.ProgramHistory.enactedAt
+      (physicalProfileGeneratorHistoryWithRootAction operations generator selectProfile
+        fuel cursor state history actor action action_mem)
+      FiniteEconomyProgram.ProgramMoment.root actor = action := by
+  exact FiniteEconomyProgram.ProgramHistory.selectActorAtRootWithContinuation_enacted
+    history actor action action_mem (fun profile =>
+      physicalProfileGeneratorHistoryWithPolicy operations generator selectProfile fuel
+        (generator.nextCursor cursor state
+          ⟨generator.instruction cursor state, profile⟩)
+        (((generator.instruction cursor state).stage operations state).advance profile))
+
+/-- Physical root selection preserves peers' simultaneous actions. -/
+theorem physicalProfileGeneratorHistoryWithRootAction_other
+    {Agent Means Operation Service Cursor : Type}
+    [Fintype Agent] [DecidableEq Agent] [Fintype Means]
+    [DecidableEq Means] [DecidableEq Operation]
+    (operations : OperationSemantics Operation Means Service)
+    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor operations)
+    (selectProfile : ∀ cursor state,
+      ((generator.instruction cursor state).stage operations state).choices.Profile)
+    (fuel : ℕ) (cursor : Cursor) (state : PhysicalState Agent Means Service)
+    (history : FinitePhysicalEconomyProgram.History
+      (compilePhysicalProfileGenerator operations generator (fuel + 1) cursor state))
+    (actor other : Agent) (action : EconomyAction Agent Means Operation)
+    (action_mem : action ∈
+      ((generator.instruction cursor state).stage operations state).choices.menu actor)
+    (hne : other ≠ actor) :
+    FiniteEconomyProgram.ProgramHistory.enactedAt
+      (physicalProfileGeneratorHistoryWithRootAction operations generator selectProfile
+        fuel cursor state history actor action action_mem)
+      FiniteEconomyProgram.ProgramMoment.root other =
+        FiniteEconomyProgram.ProgramHistory.enactedAt history
+          FiniteEconomyProgram.ProgramMoment.root other := by
+  exact FiniteEconomyProgram.ProgramHistory.selectActorAtRootWithContinuation_other
+    history actor other action action_mem hne (fun profile =>
+      physicalProfileGeneratorHistoryWithPolicy operations generator selectProfile fuel
+        (generator.nextCursor cursor state
+          ⟨generator.instruction cursor state, profile⟩)
+        (((generator.instruction cursor state).stage operations state).advance profile))
+
+/-- Physical root selection preserves the supplied continuation when it is
+already centered on the requested action. -/
+theorem physicalProfileGeneratorHistoryWithRootAction_centered
+    {Agent Means Operation Service Cursor : Type}
+    [Fintype Agent] [DecidableEq Agent] [Fintype Means]
+    [DecidableEq Means] [DecidableEq Operation]
+    (operations : OperationSemantics Operation Means Service)
+    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor operations)
+    (selectProfile : ∀ cursor state,
+      ((generator.instruction cursor state).stage operations state).choices.Profile)
+    (fuel : ℕ) (cursor : Cursor) (state : PhysicalState Agent Means Service)
+    (history : FinitePhysicalEconomyProgram.History
+      (compilePhysicalProfileGenerator operations generator (fuel + 1) cursor state))
+    (actor : Agent) (action : EconomyAction Agent Means Operation)
+    (action_mem : action ∈
+      ((generator.instruction cursor state).stage operations state).choices.menu actor)
+    (henacted : FiniteEconomyProgram.ProgramHistory.enactedAt history
+      FiniteEconomyProgram.ProgramMoment.root actor = action) :
+    physicalProfileGeneratorHistoryWithRootAction operations generator selectProfile
+      fuel cursor state history actor action action_mem = history := by
+  exact FiniteEconomyProgram.ProgramHistory.selectActorAtRootWithContinuation_centered
+    history actor action action_mem henacted (fun profile =>
+      physicalProfileGeneratorHistoryWithPolicy operations generator selectProfile fuel
+        (generator.nextCursor cursor state
+          ⟨generator.instruction cursor state, profile⟩)
+        (((generator.instruction cursor state).stage operations state).advance profile))
+
+/-- The policy-selected history and policy executor have the same terminal
+state because both use the same selected profile, cursor transition, and
+physical stage advance. -/
+theorem physicalProfileGeneratorHistoryWithPolicy_terminalState
+    {Agent Means Operation Service Cursor : Type}
+    [Fintype Agent] [DecidableEq Agent] [Fintype Means]
+    [DecidableEq Means] [DecidableEq Operation]
+    (operations : OperationSemantics Operation Means Service)
+    (generator : PhysicalProfileGenerator Agent Means Operation Service Cursor operations)
+    (selectProfile : ∀ cursor state,
+      ((generator.instruction cursor state).stage operations state).choices.Profile)
+    (fuel : ℕ) (cursor : Cursor) (state : PhysicalState Agent Means Service) :
+    (physicalProfileGeneratorHistoryWithPolicy operations generator selectProfile
+      fuel cursor state).terminalState =
+      executePhysicalProfileGeneratorWithPolicy operations generator selectProfile
+        fuel cursor state := by
   induction fuel generalizing cursor state with
   | zero => rfl
   | succ fuel ih => exact ih _ _
@@ -325,12 +549,13 @@ cursor is the remaining list, and the next instruction ignores state. -/
 def fixedPhysicalProfileGenerator {Agent Means Operation Service : Type}
     [Fintype Agent] [DecidableEq Agent] [Fintype Means]
     [DecidableEq Means] [DecidableEq Operation]
+    (operations : OperationSemantics Operation Means Service)
     (_instructions : List (PhysicalProfileInstruction Agent Means Operation)) :
     PhysicalProfileGenerator Agent Means Operation Service
-      (List (PhysicalProfileInstruction Agent Means Operation)) where
+      (List (PhysicalProfileInstruction Agent Means Operation)) operations where
   instruction := fun remaining _ =>
     (remaining.head?).getD idlePhysicalProfileInstruction
-  nextCursor := fun remaining _ _ _ => remaining.drop 1
+  nextCursor := fun remaining _ _ => remaining.drop 1
 
 /-- Compile a finite fixed list through the general fuel-bounded generator.
 Fuel equals the list length, so every listed instruction is consumed once. -/
@@ -340,8 +565,9 @@ def compilePhysicalProfileSchedule {Agent Means Operation Service : Type}
     (operations : OperationSemantics Operation Means Service)
     (state : PhysicalState Agent Means Service)
     (instructions : List (PhysicalProfileInstruction Agent Means Operation)) :=
-  compilePhysicalProfileGenerator operations
-    (fixedPhysicalProfileGenerator instructions) instructions.length instructions state
+  compilePhysicalProfileGenerator
+    operations (fixedPhysicalProfileGenerator operations instructions)
+    instructions.length instructions state
 
 /-- The compiled schedule uses the supplied operation semantics at every
 stage, so it supplies the stable-operation premise needed by the ActionFrame
@@ -355,8 +581,8 @@ theorem compilePhysicalProfileSchedule_stable
     (instructions : List (PhysicalProfileInstruction Agent Means Operation)) :
     (compilePhysicalProfileSchedule operations state instructions).HasStableOperationSemantics
       operations :=
-  compilePhysicalProfileGenerator_stable operations
-    (fixedPhysicalProfileGenerator instructions) instructions.length
+  compilePhysicalProfileGenerator_stable
+    operations (fixedPhysicalProfileGenerator operations instructions) instructions.length
     instructions state
 
 /-- Execute the scheduled affordable profile at each stage. This selects one
@@ -368,8 +594,9 @@ def executePhysicalProfileSchedule {Agent Means Operation Service : Type}
     (state : PhysicalState Agent Means Service)
     (instructions : List (PhysicalProfileInstruction Agent Means Operation)) :
     PhysicalState Agent Means Service :=
-  executePhysicalProfileGenerator operations
-    (fixedPhysicalProfileGenerator instructions) instructions.length instructions state
+  executePhysicalProfileGenerator
+    operations (fixedPhysicalProfileGenerator operations instructions)
+    instructions.length instructions state
 
 /-- The selected schedule is a history of the compiled branching program. -/
 def physicalProfileScheduleHistory {Agent Means Operation Service : Type}
@@ -378,8 +605,9 @@ def physicalProfileScheduleHistory {Agent Means Operation Service : Type}
     (operations : OperationSemantics Operation Means Service)
     (state : PhysicalState Agent Means Service)
     (instructions : List (PhysicalProfileInstruction Agent Means Operation)) :=
-  physicalProfileGeneratorHistory operations
-    (fixedPhysicalProfileGenerator instructions) instructions.length instructions state
+  physicalProfileGeneratorHistory
+    operations (fixedPhysicalProfileGenerator operations instructions)
+    instructions.length instructions state
 
 /-- The selected history's terminal stock is exactly the result of executing
 the same scheduled profiles through their physical stages. -/
@@ -392,8 +620,8 @@ theorem physicalProfileScheduleHistory_terminalState
     (instructions : List (PhysicalProfileInstruction Agent Means Operation)) :
     (physicalProfileScheduleHistory operations state instructions).terminalState =
       executePhysicalProfileSchedule operations state instructions :=
-  physicalProfileGeneratorHistory_terminalState operations
-    (fixedPhysicalProfileGenerator instructions) instructions.length
+  physicalProfileGeneratorHistory_terminalState
+    operations (fixedPhysicalProfileGenerator operations instructions) instructions.length
     instructions state
 
 end Praxeology

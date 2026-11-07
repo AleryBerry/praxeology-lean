@@ -1262,6 +1262,144 @@ def ProgramHistory.selectActorAtRoot {fuel : ℕ} {state : State}
         .decision (state := state) replaced
           (ProgramHistory.allIdle (continuation replaced))
 
+/-- Select a root action while taking the changed branch continuation from an
+explicit behavior policy. If the requested action is already enacted, keep
+the complete supplied history, including its original continuation. -/
+def ProgramHistory.selectActorAtRootWithContinuation {fuel : ℕ} {state : State}
+    {stage : FiniteChoiceStage Agent Means Operation}
+    {advance : stage.Profile → State}
+    {continuation : ∀ profile,
+      FiniteEconomyProgram State Agent Means Operation fuel (advance profile)}
+    (history : ProgramHistory
+      (FiniteEconomyProgram.decision (state := state) stage advance continuation))
+    (actor : Agent) (action : EconomyAction Agent Means Operation)
+    (action_mem : action ∈ stage.menu actor)
+    (continueWith : ∀ profile, ProgramHistory (continuation profile)) :
+    ProgramHistory
+      (FiniteEconomyProgram.decision (state := state) stage advance continuation) :=
+  match history with
+  | .decision profile tail =>
+      if action = profile.1 actor then
+        .decision profile tail
+      else
+        let replaced := stage.replaceProfile profile actor action action_mem
+        .decision replaced (continueWith replaced)
+
+/-- A behavior-supplied continuation selector realizes the requested root
+action. -/
+theorem ProgramHistory.selectActorAtRootWithContinuation_enacted {fuel : ℕ}
+    {state : State} {stage : FiniteChoiceStage Agent Means Operation}
+    {advance : stage.Profile → State}
+    {continuation : ∀ profile,
+      FiniteEconomyProgram State Agent Means Operation fuel (advance profile)}
+    (history : ProgramHistory
+      (FiniteEconomyProgram.decision (state := state) stage advance continuation))
+    (actor : Agent) (action : EconomyAction Agent Means Operation)
+    (action_mem : action ∈ stage.menu actor)
+    (continueWith : ∀ profile, ProgramHistory (continuation profile)) :
+    ProgramHistory.enactedAt
+      (history.selectActorAtRootWithContinuation actor action action_mem continueWith)
+      ProgramMoment.root actor = action := by
+  cases history with
+  | decision profile tail =>
+      by_cases hselected : action = profile.1 actor
+      · simp [ProgramHistory.selectActorAtRootWithContinuation, hselected,
+          ProgramHistory.enactedAt]
+      · simp [ProgramHistory.selectActorAtRootWithContinuation, hselected,
+          ProgramHistory.enactedAt, FiniteChoiceStage.replaceProfile_self]
+
+/-- Root selection with a behavior-supplied continuation preserves every
+peer's simultaneous action. -/
+theorem ProgramHistory.selectActorAtRootWithContinuation_other {fuel : ℕ}
+    {state : State} {stage : FiniteChoiceStage Agent Means Operation}
+    {advance : stage.Profile → State}
+    {continuation : ∀ profile,
+      FiniteEconomyProgram State Agent Means Operation fuel (advance profile)}
+    (history : ProgramHistory
+      (FiniteEconomyProgram.decision (state := state) stage advance continuation))
+    (actor other : Agent) (action : EconomyAction Agent Means Operation)
+    (action_mem : action ∈ stage.menu actor) (hne : other ≠ actor)
+    (continueWith : ∀ profile, ProgramHistory (continuation profile)) :
+    ProgramHistory.enactedAt
+      (history.selectActorAtRootWithContinuation actor action action_mem continueWith)
+      ProgramMoment.root other = ProgramHistory.enactedAt history ProgramMoment.root other := by
+  cases history with
+  | decision profile tail =>
+      by_cases hselected : action = profile.1 actor
+      · simp [ProgramHistory.selectActorAtRootWithContinuation, hselected,
+          ProgramHistory.enactedAt]
+      · simp [ProgramHistory.selectActorAtRootWithContinuation, hselected,
+          ProgramHistory.enactedAt, FiniteChoiceStage.replaceProfile_other, hne]
+
+/-- If the supplied history already enacts the requested action, this selector
+retains that history rather than replacing its continuation. -/
+theorem ProgramHistory.selectActorAtRootWithContinuation_centered {fuel : ℕ}
+    {state : State} {stage : FiniteChoiceStage Agent Means Operation}
+    {advance : stage.Profile → State}
+    {continuation : ∀ profile,
+      FiniteEconomyProgram State Agent Means Operation fuel (advance profile)}
+    (history : ProgramHistory
+      (FiniteEconomyProgram.decision (state := state) stage advance continuation))
+    (actor : Agent) (action : EconomyAction Agent Means Operation)
+    (action_mem : action ∈ stage.menu actor)
+    (henacted : ProgramHistory.enactedAt history ProgramMoment.root actor = action)
+    (continueWith : ∀ profile, ProgramHistory (continuation profile)) :
+    history.selectActorAtRootWithContinuation actor action action_mem continueWith = history := by
+  cases history with
+  | decision profile tail =>
+      have hselected : action = profile.1 actor := by
+        simpa [ProgramHistory.enactedAt] using henacted.symm
+      simp [ProgramHistory.selectActorAtRootWithContinuation, hselected]
+
+/-- The root selector's result is independent of which proof witnesses
+membership of the same action in the finite menu. -/
+@[simp] theorem ProgramHistory.selectActorAtRootWithContinuation_proof_irrel
+    {fuel : ℕ} {state : State} {stage : FiniteChoiceStage Agent Means Operation}
+    {advance : stage.Profile → State}
+    {continuation : ∀ profile,
+      FiniteEconomyProgram State Agent Means Operation fuel (advance profile)}
+    (history : ProgramHistory
+      (FiniteEconomyProgram.decision (state := state) stage advance continuation))
+    (actor : Agent) (action : EconomyAction Agent Means Operation)
+    (h₁ h₂ : action ∈ stage.menu actor)
+    (continueWith : ∀ profile, ProgramHistory (continuation profile)) :
+    history.selectActorAtRootWithContinuation actor action h₁ continueWith =
+      history.selectActorAtRootWithContinuation actor action h₂ continueWith := by
+  cases history with
+  | decision profile tail =>
+      by_cases hselected : action = profile.1 actor
+      · simp [ProgramHistory.selectActorAtRootWithContinuation, hselected]
+      · simp [ProgramHistory.selectActorAtRootWithContinuation, hselected]
+
+/-- Turning a feasible-action conditional into a root selector is
+independent of the proof witnessing feasibility. -/
+theorem ProgramHistory.selectActorAtRootWithContinuation_feasible_if {fuel : ℕ}
+    {state : State} {stage : FiniteChoiceStage Agent Means Operation}
+    {advance : stage.Profile → State}
+    {continuation : ∀ profile,
+      FiniteEconomyProgram State Agent Means Operation fuel (advance profile)}
+    (history : ProgramHistory
+      (FiniteEconomyProgram.decision (state := state) stage advance continuation))
+    (actor : Agent) (action : EconomyAction Agent Means Operation)
+    (hmenu : action ∈ stage.menu actor)
+    (continueWith : ∀ profile, ProgramHistory (continuation profile)) :
+    (if hactual : action ∈ stage.menu actor then
+      history.selectActorAtRootWithContinuation actor action hactual continueWith
+     else history) =
+      history.selectActorAtRootWithContinuation actor action hmenu continueWith := by
+  classical
+  by_cases hactual : action ∈ stage.menu actor
+  · calc
+      (if h : action ∈ stage.menu actor then
+        history.selectActorAtRootWithContinuation actor action h continueWith
+       else history) =
+          history.selectActorAtRootWithContinuation actor action hactual continueWith := by
+            simp [hactual]
+      _ = history.selectActorAtRootWithContinuation actor action hmenu continueWith :=
+        ProgramHistory.selectActorAtRootWithContinuation_proof_irrel
+          history actor action hactual hmenu continueWith
+  · exact False.elim (hactual hmenu)
+
 /-- Select one agent's feasible action at any generated moment, keeping the
 existing prefix and the peers' action profile intact. Only the continuation
 below a changed profile is replaced by the program's existing all-idle path.
@@ -1343,6 +1481,19 @@ def ProgramHistory.rootProfile {fuel : ℕ} {state : State}
     stage.Profile :=
   match history with
   | .decision profile _ => profile
+
+/-- The root profile records exactly the actions enacted at the root node. -/
+theorem ProgramHistory.rootProfile_enacts {fuel : ℕ} {state : State}
+    {stage : FiniteChoiceStage Agent Means Operation}
+    {advance : stage.Profile → State}
+    {continuation : ∀ profile,
+      FiniteEconomyProgram State Agent Means Operation fuel (advance profile)}
+    (history : ProgramHistory
+      (FiniteEconomyProgram.decision (state := state) stage advance continuation))
+    (actor : Agent) :
+    history.rootProfile.1 actor = ProgramHistory.enactedAt history ProgramMoment.root actor := by
+  cases history
+  rfl
 
 /-- The root profile of a history returned by `selectActorAtRoot` enacts the
 requested action for that agent. -/

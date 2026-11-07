@@ -37,14 +37,14 @@ feasible actions to allocations; and a realization action for every allocation
 that fits the stock. Feasibility of realized allocations follows from the
 ActionFrame resource-feasibility law, contemplation, exact costs, and the
 strict remainder bound. The theorem
-[`StockedAllocationContext.purposeful_choice_is_ranked_prefix`](../Praxeology/Marginal/AllocationChoice.lean#L1144)
+[`StockedAllocationContext.purposeful_choice_is_ranked_prefix`](../Praxeology/Marginal/AllocationChoice.lean#L1211)
 then derives the
 prefix for a purposeful action from the local ordinal laws.
 
 The repository now includes a finite ordinal witness in the existing
-`FiniteBranchingModel`: [`finiteModelRankedTechnology`](../Praxeology/Marginal/AllocationChoice.lean#L437),
-[`finite_model_ranked_stock_is_two_units`](../Praxeology/Marginal/AllocationChoice.lean#L488),
-and [`finite_model_top_two_beats_nonprefix`](../Praxeology/Marginal/AllocationChoice.lean#L548).
+`FiniteBranchingModel`: [`finiteModelRankedTechnology`](../Praxeology/Marginal/AllocationChoice.lean#L504),
+[`finite_model_ranked_stock_is_two_units`](../Praxeology/Marginal/AllocationChoice.lean#L555),
+and [`finite_model_top_two_beats_nonprefix`](../Praxeology/Marginal/AllocationChoice.lean#L615).
 Three distinct ends require one unit of the focal means, the frame gives the
 agent two units, and the model's ordinal preference ranks allocation `{0,1}`
 above `{0,2}`. The local ordinal laws are derived from the frame's explicit
@@ -71,13 +71,11 @@ exhausted or that every technology has homogeneous requirements.
 
 [`LegacyUnitRequirementSchedule`](../Praxeology/Marginal.lean#L164) combines end requirements, a stock equality,
 and the agent's ranking in one record.
-[`LegacyBundleAllocationMenu`](../Praxeology/Marginal.lean#L301) assumes
-that a designated prefix outcome is preferred to every other feasible
-allocation through its h_opt_dominates field. This helper is private; results
-using that field do not derive optimal allocation from purposeful choice and
-the helper is not part of the public API.
+The former private `LegacyBundleAllocationMenu` helper has been removed. Its
+old optimality premise was an input, so results built from it did not derive
+global optimal allocation from purposeful choice.
 
-[`LegacyTeleologicalQuantumRegime`](../Praxeology/Marginal.lean#L783) and
+[`LegacyTeleologicalQuantumRegime`](../Praxeology/Marginal.lean#L625) and
 the private `LegacyTeleologicalBundleSystem` have the same limitation: the
 latter assumes its designated prefix globally dominates each feasible
 alternative. The schedule lemmas remain, but the optimality-assuming helper
@@ -86,7 +84,7 @@ imputation lemmas also inherit that premise and should be read conditionally.
 
 ## 3. Marginal sacrifice and complementarity
 
-[`finite_preference_relation_has_least_element`](../Praxeology/Marginal.lean#L1026)
+[`finite_preference_relation_has_least_element`](../Praxeology/Marginal.lean#L803)
 is an order-theoretic result:
 transitivity on a finite nonempty set gives an element with no strictly
 preferred successor in that set. By itself it does not prove that reducing a
@@ -114,7 +112,7 @@ additionally assumes that the only valued end is one pair. The separate
 bounded-menu satiation witness is limited to wants of at most one pair.
 
 The arithmetic result
-[`quantum_capacity_bound_for_subquantum_remainder`](../Praxeology/Marginal.lean#L984)
+[`quantum_capacity_bound_for_subquantum_remainder`](../Praxeology/Marginal.lean#L761)
 says
 that a remainder smaller than q cannot finance an additional complete use
 when every listed end requires q units. This is an allocation-capacity bound,
@@ -122,13 +120,13 @@ not a theorem that the remainder has no economic use in every technology.
 
 ## 4. Time preference and interest
 
-[`causal_enacted_consumption_demonstrates_nonneg_time_pref`](../Praxeology/Marginal.lean#L1123)
+[`causal_enacted_consumption_demonstrates_nonneg_time_pref`](../Praxeology/Marginal.lean#L900)
 derives that, when a
 later same-end action remains feasible in the modeled open horizon, purposeful
 enactment rules out preferring that later outcome to the enacted outcome. It
 does not derive strict preference from purposefulness alone.
 
-[`strict_time_preference_from_distinct_end_dominance`](../Praxeology/Marginal.lean#L1178)
+[`strict_time_preference_from_distinct_end_dominance`](../Praxeology/Marginal.lean#L955)
 has stronger premises. It
 assumes the enacted action dominates every feasible action with a distinct
 outcome (DistinctEndDominantAct), an available later deferral, and injective
@@ -136,8 +134,8 @@ timed ends. Under those assumptions it derives strict preference for the
 nearer dated end. It is not a universal theorem about every act or every
 agent.
 
-[`positive_originary_interest`](../Praxeology/Marginal.lean#L1240) and
-[`purposeful_positive_originary_interest`](../Praxeology/Marginal.lean#L1272)
+[`positive_originary_interest`](../Praxeology/Marginal.lean#L1017) and
+[`purposeful_positive_originary_interest`](../Praxeology/Marginal.lean#L1049)
 derive a larger future repayment quantity in the specified exchange setup.
 Their conclusions depend on strict time preference, an accepted exchange,
 synchrony monotonicity, transitivity, or purposeful choice with a feasible
@@ -146,7 +144,7 @@ positive nominal rate in every monetary institution.
 
 ## 5. Seasonal saving and production
 
-[`winter_security_preference_consequences_of_explicit_premises`](../Praxeology/Marginal.lean#L1486)
+[`winter_security_preference_consequences_of_explicit_premises`](../Praxeology/Marginal.lean#L1359)
 assumes the relevant dated preferences and their ordering. It packages those
 premises into a consistency result; it does not derive seasonal saving from
 the ActionFrame axioms or establish that all saving expresses positive time

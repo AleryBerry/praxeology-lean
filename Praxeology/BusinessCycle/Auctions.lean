@@ -401,6 +401,24 @@ theorem two_unit_principal_subunit_expansion_no_entry_or_quote_change :
   rw [hresult]
   decide
 
+/-- Raising funds from four to five does not change the result when each
+standardized principal requires two units. Both balances still authorize two
+loans, so this calibration changes neither entry nor the marginal quote. -/
+theorem two_unit_principal_four_to_five_no_entry_or_quote_change :
+    (clearLoanMarket fiveProjectTwoUnitPrincipalMarket 4).funded.map
+        LoanReservationBid.borrower =
+      (clearLoanMarket fiveProjectTwoUnitPrincipalMarket 5).funded.map
+        LoanReservationBid.borrower ∧
+    (clearLoanMarket fiveProjectTwoUnitPrincipalMarket 4).quotedRepayment =
+      (clearLoanMarket fiveProjectTwoUnitPrincipalMarket 5).quotedRepayment := by
+  have hcapacity : 4 / fiveProjectTwoUnitPrincipalMarket.principal =
+      5 / fiveProjectTwoUnitPrincipalMarket.principal := by
+    norm_num [fiveProjectTwoUnitPrincipalMarket]
+  have hresult := clearLoanMarket_eq_of_equal_capacity
+    fiveProjectTwoUnitPrincipalMarket 4 5 hcapacity
+  rw [hresult]
+  decide
+
 /-- The current project filter passes a funded project only when its initial
 cash buffer covers the factor price and projected unit-price receipts
 strictly exceed the loan repayment plus that factor cost. This is the model's
@@ -505,6 +523,89 @@ def ascendingCompletionFactorPrice? (funded : List LoanReservationBid)
   (completionFactorPriceCandidates reservePrice greatestBuffer).find?
     (fun price => decide
       (completionFactorDemandAt funded quotedRepayment price ≤ supply))
+
+/-- Current-node factor eligibility uses the entrepreneur's actual money at
+the market node and projected output receipts. It requires current cash to
+cover the purchase and applies the existing terminal-money preference to the
+projected outcome: current cash plus output, less factor cost and repayment,
+must strictly exceed preserving current cash. -/
+def projectPassesCurrentCashAndReturnTest
+    (currentCash projectedOutput quotedRepayment price : ℕ) : Prop :=
+  price ≤ currentCash ∧ terminalMoneyPreferred
+    ((currentCash : ℤ) + projectedOutput - price - quotedRepayment)
+    (currentCash : ℤ)
+
+instance projectPassesCurrentCashAndReturnTestDecidable
+    (currentCash projectedOutput quotedRepayment price : ℕ) :
+    Decidable (projectPassesCurrentCashAndReturnTest currentCash projectedOutput
+      quotedRepayment price) := by
+  unfold projectPassesCurrentCashAndReturnTest terminalMoneyPreferred
+  infer_instance
+
+/-- The current-cash return screen is the existing terminal-money comparison
+expressed in the current market node's cash coordinate. Cash cancels from the
+strict return test; it remains separately required for physical purchase
+affordability. -/
+theorem projectPassesCurrentCashAndReturnTest_iff
+    (currentCash projectedOutput quotedRepayment price : ℕ) :
+    projectPassesCurrentCashAndReturnTest currentCash projectedOutput
+      quotedRepayment price ↔
+      price ≤ currentCash ∧ quotedRepayment + price < projectedOutput := by
+  unfold projectPassesCurrentCashAndReturnTest terminalMoneyPreferred
+  constructor <;> intro h <;> rcases h with ⟨haffordable, hreturn⟩ <;>
+    constructor <;> omega
+
+/-- Demand at the market node, parameterized by actual current cash and
+projected output for each funded bid. -/
+def factorDemandingProjectsAtCurrentCash (funded : List LoanReservationBid)
+    (quotedRepayment price : ℕ) (currentCash projectedOutput :
+      LoanReservationBid → ℕ) : List LoanReservationBid :=
+  funded.filter fun bid => decide
+    (projectPassesCurrentCashAndReturnTest (currentCash bid)
+      (projectedOutput bid) quotedRepayment price)
+
+/-- Ascending price clock using the same current-cash and projected-return
+eligibility rule as `factorDemandingProjectsAtCurrentCash`. -/
+def ascendingCompletionFactorPriceAtCurrentCash? (funded : List LoanReservationBid)
+    (quotedRepayment reservePrice supply greatestCurrentCash : ℕ)
+    (currentCash projectedOutput : LoanReservationBid → ℕ) : Option ℕ :=
+  (completionFactorPriceCandidates reservePrice greatestCurrentCash).find?
+    (fun price => decide
+      ((factorDemandingProjectsAtCurrentCash funded quotedRepayment price
+        currentCash projectedOutput).length ≤ supply))
+
+/-- Every returned current-cash clearing price satisfies the same quantity
+constraint used by the ascending clock. -/
+theorem ascendingCompletionFactorPriceAtCurrentCash?_clears
+    (funded : List LoanReservationBid) (quotedRepayment reservePrice supply
+      greatestCurrentCash price : ℕ)
+    (currentCash projectedOutput : LoanReservationBid → ℕ)
+    (hprice : ascendingCompletionFactorPriceAtCurrentCash? funded
+      quotedRepayment reservePrice supply greatestCurrentCash currentCash
+      projectedOutput = some price) :
+    (factorDemandingProjectsAtCurrentCash funded quotedRepayment price
+      currentCash projectedOutput).length ≤ supply := by
+  unfold ascendingCompletionFactorPriceAtCurrentCash? at hprice
+  have hclears := List.find?_some
+    (p := fun candidate => decide
+      ((factorDemandingProjectsAtCurrentCash funded quotedRepayment candidate
+        currentCash projectedOutput).length ≤ supply))
+    (a := price) hprice
+  exact of_decide_eq_true hclears
+
+/-- Current-cash factor demand cannot exceed the offered physical supply at
+any price returned by its clearing clock. -/
+theorem factorDemandingProjectsAtCurrentCash_length_le_supply
+    (funded : List LoanReservationBid) (quotedRepayment reservePrice supply
+      greatestCurrentCash price : ℕ)
+    (currentCash projectedOutput : LoanReservationBid → ℕ)
+    (hprice : ascendingCompletionFactorPriceAtCurrentCash? funded
+      quotedRepayment reservePrice supply greatestCurrentCash currentCash
+      projectedOutput = some price) :
+    (factorDemandingProjectsAtCurrentCash funded quotedRepayment price
+      currentCash projectedOutput).length ≤ supply :=
+  ascendingCompletionFactorPriceAtCurrentCash?_clears funded quotedRepayment
+    reservePrice supply greatestCurrentCash price currentCash projectedOutput hprice
 
 /-- The ascending clock returns a price when `greatestBuffer` really bounds
 every funded project's cash buffer. At a strictly higher candidate price no

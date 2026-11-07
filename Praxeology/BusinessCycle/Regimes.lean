@@ -13,13 +13,13 @@ public import Praxeology.BusinessCycle.Information
 
 These records expose the money and completion-factor sources for the baseline,
 fiduciary expansion, and household-funding comparison. The household amount is
-a cash transfer to the bank, bounded by an explicitly supplied household
+a proposed transfer to the bank, bounded by an explicitly supplied household
 money endowment; household factor consumption and offers exactly account for
-its factor stock. This scenario data and its physical executor represent the
-cash-transfer leg only: they do not record a deposit claim, a bank repayment
-obligation, or purposeful household choice. The derived outcomes compose the
-loan auction, the ascending factor clock, completion eligibility, and
-unit-price customer sales.
+its factor stock. This module computes source totals and projected market
+outcomes. `FactorExecution` interprets the named household transfer as an
+exchange for an identified deposit claim, and records the liability or its
+redemption only when the respective transfer matches. Neither module derives
+purposeful household choice from the resource data.
 
 The stated fixed example does not specify an initial household cash balance.
 `fiveProjectRegimeDataWithHouseholdMoney` therefore takes the household cash
@@ -31,11 +31,14 @@ purposeful household saving.
 This module is a scenario-accounting calculation over explicitly supplied
 resource and market data. It does not construct executed action histories or
 prove that household saving and entrepreneurial investment are purposeful.
-Its demand and revenue-plan theorems are conditional market calculations;
-`FactorExecution` separately runs factor transfers, completion operations,
-customer sales, and auction-quoted repayments for projects that physically
-complete. That execution does not establish default for excluded projects,
-legal foreclosure, or preference-grounded choice.
+Its demand and revenue-plan theorems are conditional market calculations.
+`FactorExecution` and `ProfileProgram` separately execute early-input
+purchases, capital conversion, factor transfers, completion operations,
+customer sales, repayment attempts, and the named deposit exchange. The
+cursor program also records unpaid maturity with retained collateral under
+the stipulated nonrecourse terms. This physical execution does not establish
+purposeful household or entrepreneurial choice, and legal foreclosure is not
+represented.
 -/
 
 @[expose] public section
@@ -45,10 +48,10 @@ namespace Praxeology
 inductive FiveProjectRegime where
   | baseline
   | fiduciaryExpansion
-  /-- Scenario data representing a household-to-bank cash transfer and
-  forgone factor consumption. The transfer is not yet paired with a recorded
-  deposit claim or bank repayment obligation, and this constructor does not
-  assert a voluntary or purposeful choice. -/
+  /-- Scenario data representing the amount proposed for household-to-bank
+  transfer and forgone factor consumption. `FactorExecution` pairs a matched
+  transfer with the stated deposit contract; this constructor alone asserts
+  neither execution nor purposeful choice. -/
   | householdTransfer
   deriving DecidableEq, Repr
 
@@ -58,11 +61,14 @@ structure FiveProjectRegimeData where
   fiduciaryNotesIssued : ℕ
   /-- Household money initially available before any scenario transfer. -/
   householdMoneyEndowment : ℕ
-  /-- Household cash transferred to the bank in the scenario. This records a
-  source of loanable funds, not the bank's deposit liability or the household's
-  claim to repayment. -/
+  /-- Household cash proposed for transfer to the bank. The scenario amount
+  supplies loan-market capacity; the physical executor separately records the
+  matching deposit claim and bank liability when the transfer executes. -/
   householdMoneyTransferred : ℕ
   transfer_affordable : householdMoneyTransferred ≤ householdMoneyEndowment
+  /-- The supplier's stated stock of the early input used to form project
+  capital before the later completion-factor market. -/
+  supplierEarlyInputStock : ℕ
   supplierFactorStock : ℕ
   householdFactorEndowment : ℕ
   householdFactorsConsumed : ℕ
@@ -83,6 +89,7 @@ def fiveProjectRegimeDataWithHouseholdMoney
         householdMoneyEndowment := householdMoneyEndowment
         householdMoneyTransferred := 0
         transfer_affordable := Nat.zero_le _
+        supplierEarlyInputStock := 5
         supplierFactorStock := 2
         householdFactorEndowment := 2
         householdFactorsConsumed := 2
@@ -94,6 +101,7 @@ def fiveProjectRegimeDataWithHouseholdMoney
         householdMoneyEndowment := householdMoneyEndowment
         householdMoneyTransferred := 0
         transfer_affordable := Nat.zero_le _
+        supplierEarlyInputStock := 5
         supplierFactorStock := 2
         householdFactorEndowment := 2
         householdFactorsConsumed := 2
@@ -105,6 +113,7 @@ def fiveProjectRegimeDataWithHouseholdMoney
         householdMoneyEndowment := householdMoneyEndowment
         householdMoneyTransferred := householdMoneyTransferred
         transfer_affordable := transfer_affordable
+        supplierEarlyInputStock := 5
         supplierFactorStock := 2
         householdFactorEndowment := 2
         householdFactorsConsumed := 0
@@ -133,7 +142,9 @@ def FiveProjectRegimeData.withSupplierFactorStock
   { D with supplierFactorStock := supplierStock }
 
 /-- Scenario loanable money is existing bank money plus issued notes plus the
-household cash transfer. Deposit liabilities are not represented here. -/
+household transfer amount. The projected funding calculation does not itself
+record a deposit liability; the physical executor does that on a matched
+exchange. -/
 def FiveProjectRegimeData.loanableMoney (D : FiveProjectRegimeData) : ℕ :=
   D.bankMoney + D.fiduciaryNotesIssued + D.householdMoneyTransferred
 
@@ -212,9 +223,9 @@ def fiveProjectLoanOutcomeFor (D : FiveProjectRegimeData) : LoanAuctionResult :=
 def fiveProjectLoanOutcome (r : FiveProjectRegime) : LoanAuctionResult :=
   fiveProjectLoanOutcomeFor (fiveProjectRegimeData r)
 
-/-- Projected factor price from a regime's source totals and offered supply.
-This preserves the initial-buffer participation rule; the state-dependent
-physical program separately clears from its branch's actual advances and
+/-- Projected factor price from a regime's stated source totals and offered
+supply, using the projected initial-buffer eligibility rule. The state-based
+physical program separately clears from matched advances, current cash, and
 offered stocks. A loan quote is not evidence of an accepted contract. -/
 def fiveProjectFactorPriceFor (D : FiveProjectRegimeData) : Option ℕ :=
   match (fiveProjectLoanOutcomeFor D).quotedRepayment with
@@ -504,13 +515,12 @@ def fiveProjectCustomerRevenuePlan (r : FiveProjectRegime) : Option ℕ :=
 def borrowerIdentities? (xs : Option (List LoanReservationBid)) : Option (List (Fin 5)) :=
   xs.map (List.map LoanReservationBid.borrower)
 
-/-- In the fiduciary scenario, the loan auction funds four borrowers at quote
-four and the explicit forecast policy gives them a factor price of one. Under
-the existing terminal-money preference, all four prefer the forecast plan to
-idling. The initial-buffer participation rule at price two excludes borrowers
-two and three even though the physical executor records two money units for
-each after the advances. Early input production and the investment actions
-remain outside this projected market calculation. -/
+/-- In the fiduciary scenario, the projected loan auction funds four borrowers
+at quote four and the explicit forecast policy gives them a factor price of
+one. Under the stated terminal-money relation, all four prefer that forecast
+to idling. The static projected factor calculation at price two excludes
+borrowers two and three by its buffer rule. The integrated physical run instead
+executes early input purchases and clears from actual cash and stocks. -/
 theorem fiveProject_fiduciary_forecast_preference_and_supply_squeeze :
     (fiveProjectLoanOutcome .fiduciaryExpansion).quotedRepayment = some 4 ∧
     fiveProjectFundingCapacityForecast.predictedFactorPrice?

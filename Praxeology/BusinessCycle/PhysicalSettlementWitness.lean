@@ -33,8 +33,7 @@ def entrepreneurPhysicalAdvance : AdvanceExecution
     change IsNextMoment lifecyclePrecedence lifecycleMemHist
       firstAdvanceMoment secondAdvanceMoment mainHistory
     exact lifecycleNextMoment_is_next firstAdvanceMoment mainHistory (by decide) (by decide)
-  settlesByMaturity := by
-    right
+  advanceBeforeMaturity := by
     change lifecyclePrecedence secondAdvanceMoment maturityMoment
     decide
   maturityOnHistory := by
