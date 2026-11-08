@@ -49,7 +49,7 @@ $$
 
 The comparison with the threatened outcome matters. Choosing compliance over punishment is a purposeful response to the threat, but it remains entirely distinct from voluntary gain relative to the unmolested baseline.
 
-### Theorem 12.1 (A Public-Service Quantity Does Not Alter the Specified Coercion Comparisons)
+### Theorem 12.1 (The Coercive Invariance of Public Services Theorem)
 
 Suppose a strictly positive quantity of public-service output accompanies compliance ( $0 < \text{publicGood}(\alpha_{\text{comply}}, \alpha_{\text{tax}})$ ). If the tax action is endogenously invasive against the subject's physical stock ( $\text{EndogenouslyInvasiveJ}(i, j, t, t', h, \alpha_{\text{tax}})$ ), the subject strictly prefers compliance to the threatened outcome, the subject strictly prefers the unmolested joint baseline to compliance, and the state strictly prefers the extraction outcome to the joint baseline, then:
 1. the interaction is a political means (coercive extortion);
@@ -61,7 +61,7 @@ Suppose a strictly positive quantity of public-service output accompanies compli
 
 This theorem is proven universally for all action frames. It establishes the exact conditions under which fiscal extraction constitutes coercive extortion: physical stock invasion paired with the victim's ordinal preference for unmolested property over extraction. Providing a public good represents an independent physical output, leaving the structural property invasion intact.
 
-### Proposition 12.1a (Majoritarian Coalition Extraction is Political Means)
+### Proposition 12.2 (Majoritarian Coalition Extraction is Political Means)
 
 Let a subject $i$ face a tax policy enacted by a majoritarian coalition $j$. If the policy is endogenously invasive of $i$'s physical endowment ( $\text{EndogenouslyInvasiveJ}(i, j, t, t', h, \alpha_{\text{tax}})$ ), compliance under threat beats punishment, $i$ strictly prefers the non-tax baseline to compliance, and the coalition strictly prefers extraction to the baseline, then:
 1. the interaction is a political means; and
@@ -79,7 +79,7 @@ The praxeological status of an act is determined strictly by physical invasion a
 
 We now ground the fiscal transfer system directly in the physical transitions of the `ActionFrame`. Let $\mathcal{W}$ be an Action Frame, and let $\text{Cohort} \subseteq \mathcal{I}$ be a finite set of agents.
 
-### Definition 12.1b (Fiscal Transfer System)
+### Definition 12.3 (Fiscal Transfer System)
 A **Fiscal Transfer System** $\mathcal{F}$ over an Action Frame $\mathcal{W}$ consists of:
 1. A finite cohort of agents $\text{Cohort} \subseteq \mathcal{I}$;
 2. Initial physical endowments $\omega_{\text{pre}} : \mathcal{I} \to \mathbb{N}$;
@@ -91,7 +91,7 @@ $$
 \left(\sum_{a \in \text{Cohort}} \omega_{\text{post}}(a)\right) + L = \sum_{a \in \text{Cohort}} \omega_{\text{pre}}(a)
 $$
 
-### Definition 12.1c (Calhoun Fiscal Classes: Taxpayers and Tax-Consumers)
+### Definition 12.4 (Calhoun Fiscal Classes: Taxpayers and Tax-Consumers)
 Under a fiscal transfer system $\mathcal{F}$, the cohort is partitioned into John C. Calhoun's two fundamental fiscal classes:
 1. **Net Tax-Consumer:** An agent $s \in \text{Cohort}$ whose post-transfer endowment strictly exceeds their initial endowment:
 
@@ -105,7 +105,7 @@ $$
 \text{IsNetTaxpayer}(\mathcal{F}, b) \iff b \in \text{Cohort} \wedge \omega_{\text{post}}(b) < \omega_{\text{pre}}(b)
 $$
 
-### Theorem 12.2 (Calhoun Fiscal Class Partition Theorem)
+### Theorem 12.5 (The Calhoun Fiscal Class Partition Theorem)
 In any fiscal transfer system over an Action Frame, if there exists at least one net tax-consumer, there strictly exists at least one net taxpayer:
 
 $$
@@ -120,7 +120,7 @@ $$
 \sum_{a \in \text{Cohort}} \omega_{\text{pre}}(a) < \sum_{a \in \text{Cohort}} \omega_{\text{post}}(a)
 $$
 
-However, by the conservation law of [Definition 12.1b](#definition-121b-fiscal-transfer-system) and nonnegativity of deadweight loss $L \ge 0$:
+However, by the conservation law of [Definition 12.3](#definition-123-fiscal-transfer-system) and nonnegativity of deadweight loss $L \ge 0$:
 
 $$
 \sum_{a \in \text{Cohort}} \omega_{\text{post}}(a) \le \left(\sum_{a \in \text{Cohort}} \omega_{\text{post}}(a)\right) + L = \sum_{a \in \text{Cohort}} \omega_{\text{pre}}(a)
@@ -128,7 +128,7 @@ $$
 
 This contradicts the strict inequality, proving that at least one net taxpayer $b \in \text{Cohort}$ must exist. $\blacksquare$
 
-### Theorem 12.2a (Tullock Rent-Seeking Dissipation Depletes Cohort)
+### Theorem 12.6 (The Tullock Rent-Seeking Dissipation Theorem)
 Let $\mathcal{F}$ be a fiscal transfer system over cohort $\text{Cohort}$. If the resources consumed in administrative friction, compliance, enforcement, or rent-seeking contest are strictly positive ($L > 0$), then the aggregate post-transfer physical endowment of the cohort is strictly less than the initial pre-transfer endowment:
 
 $$
@@ -137,9 +137,9 @@ $$
 
 **Proof.** Immediate from the conservation equation $\sum \omega_{\text{post}} + L = \sum \omega_{\text{pre}}$ and $L > 0$. $\blacksquare$
 
-[Theorem 12.2a](#theorem-122a-tullock-rent-seeking-dissipation-depletes-cohort) demonstrates that rent-seeking contests and coercive redistribution are physically negative-sum over the cohort. In the presence of dissipation, gains to net tax-consumers are strictly outweighed by the physical depletion imposed on taxpayers.
+[Theorem 12.6](#theorem-126-the-tullock-rent-seeking-dissipation-theorem) demonstrates that rent-seeking contests and coercive redistribution are physically negative-sum over the cohort. In the presence of dissipation, gains to net tax-consumers are strictly outweighed by the physical depletion imposed on taxpayers.
 
-### Theorem 12.2b (Calhoun Taxpayer Menu Stripping)
+### Theorem 12.7 (The Calhoun Taxpayer Menu Stripping Theorem)
 When the fiscal transfer system is induced by the `ActionFrame`'s physical inventory transition at $t \to t'$ on history $h$ with nontrade actions and zero physical yield in means $m$, the extraction of physical stock from a net taxpayer $b \in \text{Cohort}$ strictly strips previously feasible purposeful actions from $b$'s choice menu:
 
 $$
@@ -147,9 +147,9 @@ $$
 \left(\alpha \in \mathcal{A}_{\text{feas}}(b, t, h) \wedge \alpha \in \mathcal{A}_{\text{cont}}(b, t', h) \wedge \text{use}(\alpha, m) = \omega(b, t, h, m)\right) \implies \text{FeasibleMenuStripped}(b, t, t', h, \alpha)
 $$
 
-**Proof.** By [Theorem 12.2](#theorem-122-calhoun-fiscal-class-partition-theorem), the presence of a tax-consumer forces the existence of a net taxpayer $b$ whose stock contracts: $\omega(b, t', h, m) < \omega(b, t, h, m)$. Any action $\alpha$ requiring $b$'s full initial stock has $\text{use}(\alpha, m) = \omega(b, t, h, m) > \omega(b, t', h, m)$. By the feasibility coupling condition of the Action Frame, $\alpha$ is infeasible at $t'$, proving that the state's fiscal extraction forcibly strips $\alpha$ from the taxpayer's choice menu. $\blacksquare$
+**Proof.** By [Theorem 12.5](#theorem-125-the-calhoun-fiscal-class-partition-theorem), the presence of a tax-consumer forces the existence of a net taxpayer $b$ whose stock contracts: $\omega(b, t', h, m) < \omega(b, t, h, m)$. Any action $\alpha$ requiring $b$'s full initial stock has $\text{use}(\alpha, m) = \omega(b, t, h, m) > \omega(b, t', h, m)$. By the feasibility coupling condition of the Action Frame, $\alpha$ is infeasible at $t'$, proving that the state's fiscal extraction forcibly strips $\alpha$ from the taxpayer's choice menu. $\blacksquare$
 
-[Theorem 12.2](#theorem-122-calhoun-fiscal-class-partition-theorem) supplies a conservation result for one measured physical account: a net beneficiary entails a net payer. Identifying who paid requires individual-level or equivalent allocation data; classifying the transfer as coercive requires the relevant invasion and preference comparisons; and comparing welfare between persons requires a separate evaluative basis.
+[Theorem 12.5](#theorem-125-the-calhoun-fiscal-class-partition-theorem) supplies a conservation result for one measured physical account: a net beneficiary entails a net payer. Identifying who paid requires individual-level or equivalent allocation data; classifying the transfer as coercive requires the relevant invasion and preference comparisons; and comparing welfare between persons requires a separate evaluative basis.
 
 The same accounting conclusion applies to multi-moment inventory runs when every member's run has zero total yield in the means being tracked. Inventory balance then gives
 
@@ -160,7 +160,7 @@ $$
 
 where $t$ and $u$ are the initial and terminal moments. Thus an increase in that means for one cohort member requires a decrease for at least one member, provided the cohort is finite and the stated zero-yield condition holds. Uses account for any additional reduction in the cohort's total stock.
 
-### Proposition 12.3 (A Beneficiary Requires a Loss in a Zero-Yield Cohort)
+### Proposition 12.8 (A Beneficiary Requires a Loss in a Zero-Yield Cohort)
 Let $C$ be a finite cohort, and suppose each member's inventory run has zero total yield in means $m$. If an operator belongs to $C$ and its stock of $m$ strictly increases from $t$ to $u$, then some member of $C$ has a strictly smaller stock at $u$ than at $t$.
 
 **Proof.** Summing the inventory balance over the finite cohort, zero total yield gives
@@ -178,7 +178,7 @@ Let gross output be $Y$, a fiscal claim be $T$, and a leisure benchmark be $V$. 
 
 This result is a binary-choice module: given the stated appraisal rule, menu, and feasibility conditions, its integer comparison classifies production versus inaction. Applying it to other tax settings supplies the corresponding output, claim, benchmark, preference, and menu inputs.
 
-### Proposition 12.4a (Downsian Voter Non-Pivotality Blocks Purposeful Voting)
+### Proposition 12.9 (Downsian Voter Non-Pivotality Blocks Purposeful Voting)
 
 Let an agent $i$ face a binary fiscal decision between active political participation/voting ($D.\text{act} \neq \alpha_0$) and baseline abstention ($\alpha_0$). If the voting action yields a realized or expected return no greater than abstention ($a \le b$, e.g., because the individual vote has non-pivotal probability 0 of altering the electoral outcome), then active voting cannot be purposeful:
 
@@ -214,7 +214,7 @@ V+T_m < Y,
 Y\le V+T_h.
 $$
 
-### Proposition 12.4 (Purposeful Fiscal Choice under the Stated Bounds)
+### Proposition 12.10 (Purposeful Fiscal Choice under the Stated Bounds)
 
 Assume the two fiscal decisions each have only extraction and fiscal restraint as alternatives, and assume the modeled enactments: the stationary ruler enacts restraint and the caretaker enacts extraction. If $Gq_s < g < Gq_c$, then $q_s < q_c$, restraint is purposeful for the stationary ruler, and extraction is purposeful for the caretaker. The corresponding opposite choices are not purposeful.
 
@@ -224,13 +224,13 @@ The terms “stationary” and “caretaker” label the two roles in this scena
 
 ## Adjudication by the Interested Ruler
 
-### Proposition 12.5 (A Preferred Expansion Excludes the Limiting Decision)
+### Proposition 12.11 (A Preferred Expansion Excludes the Limiting Decision)
 
 Suppose a ruler's tribunal is the final arbiter in a dispute between the ruler and a subject. If an expansion action is feasible for the ruler and the ruler strictly prefers its outcome to the outcome of enforcing a limitation, then the limitation is not a purposeful action of that tribunal in the specified decision context.
 
 **Proof.** The tribunal's action is identified with the ruler's action by the adjudication condition. The feasible expansion then strictly dominates the proposed limitation, contradicting the undominatedness condition for purposeful action. $\square$
 
-[Proposition 12.5](#proposition-125-a-preferred-expansion-excludes-the-limiting-decision) composes the adjudication rule, which identifies the tribunal's action with the ruler's, with two decision inputs: the ruler's stated preference and the expansion's feasibility. Those inputs establish when the limiting decision fails the purposefulness condition.
+[Proposition 12.11](#proposition-1211-a-preferred-expansion-excludes-the-limiting-decision) composes the adjudication rule, which identifies the tribunal's action with the ruler's, with two decision inputs: the ruler's stated preference and the expansion's feasibility. Those inputs establish when the limiting decision fails the purposefulness condition.
 
 ## Protected Entry and Calculation Uncertainty
 
@@ -242,7 +242,7 @@ $$
 
 The following result uses a binary appraisal scenario: the operator compares continuing activity with an outside benchmark that includes an entry penalty; the entrant compares entry with its corresponding penalized benchmark. Execution and the two-action menus are explicit parts of the scenario.
 
-### Proposition 12.6 (Entry Penalty and Purposeful Continuation)
+### Proposition 12.12 (Entry Penalty and Purposeful Continuation)
 Suppose $z>0$ and
 
 $$
@@ -253,13 +253,13 @@ where $\Pi$ is the entry penalty. The operator's binary appraisal compares the o
 
 **Proof.** In the operator's binary appraisal, $U_s+\Pi > U_f$, so the executed active choice is preferred to its baseline and is purposeful. The entrant would need $U_f > U_s+\Pi$ for entry to be purposeful, contrary to the assumed inequality. $\square$
 
-[Proposition 12.6](#proposition-126-entry-penalty-and-purposeful-continuation) supplies a binary entry-and-continuation comparison under its stated appraisal and execution premises. An application to a particular firm supplies evidence for those premises; when its inventory run also has zero total yield in a tracked means and the protected operator's stock rises, [Proposition 12.3](#proposition-123-a-beneficiary-requires-a-loss-in-a-zero-yield-cohort) composes with it to establish a cohort loss.
+[Proposition 12.12](#proposition-1212-entry-penalty-and-purposeful-continuation) supplies a binary entry-and-continuation comparison under its stated appraisal and execution premises. An application to a particular firm supplies evidence for those premises; when its inventory run also has zero total yield in a tracked means and the protected operator's stock rises, [Proposition 12.8](#proposition-128-a-beneficiary-requires-a-loss-in-a-zero-yield-cohort) composes with it to establish a cohort loss.
 
 ## The State Monopoly Master Synthesis
 
 The chapter's derivations unite into an integrated master synthesis grounded directly in the Action Axiom:
 
-### Theorem 12.7 (State Monopoly Political Economy Master Synthesis)
+### Theorem 12.13 (The State Monopoly Political Economy Master Synthesis)
 
 Suppose an Action Frame combines:
 1. an endogenous property interaction between a subject and the state involving taxation with public goods; and
@@ -269,7 +269,7 @@ Then:
 1. Fiscal extraction is political, not economic: The fiscal interaction is a political means (coercive extortion) and cannot be an economic means (voluntary exchange).
 2. The monopoly arbiter cannot purposefully limit the ruler: The monopoly arbiter cannot purposefully enact a limiting decision against the ruler.
 
-**Proof.** By [Theorem 12.1](#theorem-121-a-public-service-quantity-does-not-alter-the-specified-coercion-comparisons), the endogenously invasive tax satisfies coercive extortion and contradicts voluntary exchange. By [Proposition 12.5](#proposition-125-a-preferred-expansion-excludes-the-limiting-decision), since the arbiter's action is identified with the ruler's and the expansion action is feasible and strictly preferred over the limitation, the limitation is strictly dominated and cannot be a purposeful act of the arbiter. $\square$
+**Proof.** By [Theorem 12.1](#theorem-121-the-coercive-invariance-of-public-services-theorem), the endogenously invasive tax satisfies coercive extortion and contradicts voluntary exchange. By [Proposition 12.11](#proposition-1211-a-preferred-expansion-excludes-the-limiting-decision), since the arbiter's action is identified with the ruler's and the expansion action is feasible and strictly preferred over the limitation, the limitation is strictly dominated and cannot be a purposeful act of the arbiter. $\square$
 
 ## Conclusion
 

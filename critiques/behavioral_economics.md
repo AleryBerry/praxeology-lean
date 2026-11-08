@@ -93,7 +93,7 @@ $$
 I_{j \to i}(\alpha_{\text{nudge}}) \implies \text{PoliticalMeans} \wedge \neg \text{EconomicMeans}
 $$
 
-**Proof.** Direct from Chapter 3, [Proposition 3.39](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-339-autonomous-self-precommitment-vs-external-menu-stripping) and Chapter 12, [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-a-public-service-quantity-does-not-alter-the-specified-coercion-comparisons). Paternalistic regulation cannot be justified as a "precommitment device," because it replaces the agent's voluntary self-discipline with unilateral physical coercion. $\blacksquare$
+**Proof.** Direct from Chapter 3, [Proposition 3.40](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-340-autonomous-precommitment-vs-coercive-menu-stripping) and Chapter 12, [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-the-coercive-invariance-of-public-services-theorem). Paternalistic regulation cannot be justified as a "precommitment device," because it replaces the agent's voluntary self-discipline with unilateral physical coercion. $\blacksquare$
 
 ---
 
@@ -103,7 +103,7 @@ $$
 Thaler and Sunstein advocate "libertarian paternalism," asserting that governments can "nudge" citizens toward choices they *would* have made if they possessed perfect information and self-control, without restricting freedom.
 
 This doctrine collapses on foundational praxeological grounds:
-1. **The Epistemic Conceit:** The government planner has no access to the citizen's true subjective scale of ends (Chapter 14, [Theorem 14.1](../natural_language/14_historical_observation_and_identification.md#theorem-141-non-identification-from-equal-records)). What the bureaucrat calls a "cognitive bias" (e.g., eating cake, smoking, or saving less) is the citizen's deliberate, demonstrated preference for immediate consumption over future health.
+1. **The Epistemic Conceit:** The government planner has no access to the citizen's true subjective scale of ends (Chapter 14, [Proposition 14.1](../natural_language/14_historical_observation_and_identification.md#proposition-141-non-identification-from-equal-records)). What the bureaucrat calls a "cognitive bias" (e.g., eating cake, smoking, or saving less) is the citizen's deliberate, demonstrated preference for immediate consumption over future health.
 2. **The Inevitability of Coercion:** Whenever a state nudge mandates default options, levies sin taxes, or bans product choices, it deploys the coercive machinery of territorial monopoly (Chapter 12). If the intervention is genuinely voluntary, it is redundant; if it is compulsory, it is political extortion.
 
 ### 4.2 The "Rationality as Conformity to Calculus" Error
@@ -120,4 +120,4 @@ Behavioral economics provided valuable empirical proof that the neoclassical mod
 Praxeology reconstructs behavioral phenomena on apodictic foundations:
 1. **Universal Purposefulness:** All human action is purposeful, directed toward the relief of felt unease within the actor's subjective horizon (Chapter 1; Chapter 3).
 2. **Context-Dependent Ordinal Posets:** Framing effects, reference points, and loss aversion reflect the situated, contextual nature of human consciousness, instantiated as mathematically valid strict partial orders across decision nodes (Chapter 3).
-3. **The Sovereign Individual:** Because subjective ends are known only to the acting individual, no state planner or behavioral architect can ever know what is "best" for another human being. True welfare maximization consists of unhampered voluntary exchange and absolute respect for clean-title boundaries (Chapter 8, [Theorem 8.15](../natural_language/08_social_interaction_property_and_exchange.md#theorem-815-the-three-stated-categories-are-pairwise-disjoint); Chapter 12, [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-a-public-service-quantity-does-not-alter-the-specified-coercion-comparisons)).
+3. **The Sovereign Individual:** Because subjective ends are known only to the acting individual, no state planner or behavioral architect can ever know what is "best" for another human being. True welfare maximization consists of unhampered voluntary exchange and absolute respect for clean-title boundaries (Chapter 8, [Theorem 8.19](../natural_language/08_social_interaction_property_and_exchange.md#theorem-819-the-three-interaction-categories-partition-theorem); Chapter 12, [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-the-coercive-invariance-of-public-services-theorem)).

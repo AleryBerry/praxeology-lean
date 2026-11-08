@@ -41,13 +41,13 @@ Because $D$ strictly dominates $C$ for each player ($T > R$ and $P > S$), the un
 Standard game theory specifies payoffs as real numbers $u_i(s) \in \mathbb{R}$, which are subsequently summed, averaged, or integrated against probability distributions.
 
 Praxeologically, this formulation commits foundational mathematical errors:
-1. As proved in Chapter 3 ([Assumption 3.3](../natural_language/03_preference_purpose_and_opportunity_cost.md#assumption-33-strict-asymmetry-of-preference) and [Proposition 3.4](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-34-derived-strict-irreflexivity-of-preference)), human preference is an ordinal ranking between concrete alternative ends at a specific decision node $\langle t, h \rangle$. Payoff numbers cannot be meaningfully compared, subtracted, or added across players ($u_i \not\sim u_j$).
+1. As proved in Chapter 3 ([Axiom 3.3](../natural_language/03_preference_purpose_and_opportunity_cost.md#axiom-33-strict-asymmetry-of-preference) and [Proposition 3.4](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-34-derived-strict-irreflexivity-of-preference)), human preference is an ordinal ranking between concrete alternative ends at a specific decision node $\langle t, h \rangle$. Payoff numbers cannot be meaningfully compared, subtracted, or added across players ($u_i \not\sim u_j$).
 2. Assigning arbitrary cardinal numbers (such as $(3,3)$ or $(0,5)$ ) to strategic matrix cells manufactures artificial "social dilemmas" that have no catallactic reality. When human beings act, they rank discrete prospective situations ordinal-wise; they do not calculate mathematical expectations over uncalibrated real-number indices.
 
 ### 2.2 Timeless Simultaneity vs. Historical Branching
 Normal-form games model strategic interaction as a timeless, simultaneous choice from an invariant matrix. 
 
-Praxeology demonstrates that all action occurs in real, irreversible historical time across branching histories (Chapter 2, [Proposition 2.2](../natural_language/02_time_histories_and_physical_execution.md#proposition-22-precedence-cannot-run-both-ways)):
+Praxeology demonstrates that all action occurs in real, irreversible historical time across branching histories (Chapter 2, [Proposition 2.2](../natural_language/02_time_histories_and_physical_execution.md#proposition-22-temporal-precedence-irreflexivity-and-asymmetry)):
 1. No two human beings act in an absolute physical instant without temporal duration. Actions unfold sequentially or asynchronously along concrete historical paths $h$.
 2. In an action frame, bilateral interaction is governed by co-agency branching (Chapter 8, [Proposition 8.5](../natural_language/08_social_interaction_property_and_exchange.md#proposition-85-a-unilateral-counterfactual-preserves-the-other-agents-present-choice)): when agent $i$ acts, their choice steers the system onto a specific history node, where agent $j$'s options and physical stock constraints are modified. Strategic interaction is a dynamic process of mutual plan adjustment, not a static matrix snapshot.
 
@@ -55,7 +55,7 @@ Praxeology demonstrates that all action occurs in real, irreversible historical 
 The central dogma of game theory—that decentralized self-interest leads to suboptimal defection (as in the Prisoner's Dilemma or Tragedy of the Commons)—relies on the assumption that the game matrix is immutable.
 
 Praxeologically, human action is creative and teleological:
-1. When actors face an unsatisfactory prospective outcome, they do not remain passively trapped inside an exogenous game matrix. They act purposefully to alter their physical environment, establish contractual ties, and define clean-title boundaries (Chapter 8, [Definition 8.13](../natural_language/08_social_interaction_property_and_exchange.md#definition-813-purposeful-lockean-homesteading-and-clean-title-traces); [Theorem 8.20](../natural_language/08_social_interaction_property_and_exchange.md#theorem-820-the-double-inequality-of-exchange)).
+1. When actors face an unsatisfactory prospective outcome, they do not remain passively trapped inside an exogenous game matrix. They act purposefully to alter their physical environment, establish contractual ties, and define clean-title boundaries (Chapter 8, [Definition 8.14](../natural_language/08_social_interaction_property_and_exchange.md#definition-814-purposeful-lockean-homesteading-and-clean-title-traces); [Theorem 8.24](../natural_language/08_social_interaction_property_and_exchange.md#theorem-824-the-double-inequality-of-voluntary-exchange-theorem)).
 2. Through matched bilateral exchange and enforceable commitments, human actors transform payoff structures, eliminating defection temptations and converting hypothetical "dilemmas" into mutually beneficial cooperation.
 
 ### 2.4 The Hyper-Rational Common Knowledge Contradiction
@@ -63,7 +63,7 @@ Nash equilibrium and Bayesian games assume "common knowledge of rationality": ea
 
 Praxeologically, this assumption is epistemically impossible:
 1. Human actors operate under finite contemplation sets $`\mathcal{A}_{\text{cont}}(i, t, h)`$ (Chapter 1, [Definition 1.4](../natural_language/01_agents_means_ends_and_feasibility.md#definition-14-action-menus-contemplation-and-feasibility); Chapter 3, [Proposition 3.37](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-337-bounded-contemplation-and-purposeful-action)). No human being contemplates the infinite set of all conceivable strategies.
-2. Subjective valuations and prospective plans are private to the actor's consciousness; they are never open to omniscient third-party inspection (Chapter 5; Chapter 14, [Theorem 14.1](../natural_language/14_historical_observation_and_identification.md#theorem-141-non-identification-from-equal-records)). Market order emerges not from omniscient game-theoretic equilibrium calculations, but from the communicative discovery of realized market prices (Chapter 9).
+2. Subjective valuations and prospective plans are private to the actor's consciousness; they are never open to omniscient third-party inspection (Chapter 5; Chapter 14, [Proposition 14.1](../natural_language/14_historical_observation_and_identification.md#proposition-141-non-identification-from-equal-records)). Market order emerges not from omniscient game-theoretic equilibrium calculations, but from the communicative discovery of realized market prices (Chapter 9).
 
 ---
 
@@ -78,7 +78,7 @@ $$
 
 Any strictly monotonic transformation of arbitrary numerical payoff indices leaves the set of purposeful responses and voluntary exchange conditions strictly invariant.
 
-**Proof.** Purposeful action and catallactic classification depend exclusively on the pairwise preference rankings $O_i(\alpha_i, \alpha_j) \succ_{i,t,h} O_i(\alpha_0, \alpha_0)$ and undominatedness over $`\mathcal{A}_{\text{feas}}`$ (Chapter 3, [Definitions 3.8](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-38-purposeful-choice-relative-to-a-relation)–[3.9](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-39-purposeful-choice-under-the-agents-preference); Chapter 8, [Theorem 8.15](../natural_language/08_social_interaction_property_and_exchange.md#theorem-815-the-three-stated-categories-are-pairwise-disjoint)). Because strict orderings are preserved under monotonic mappings, numerical cardinalization adds zero economic information. $\blacksquare$
+**Proof.** Purposeful action and catallactic classification depend exclusively on the pairwise preference rankings $O_i(\alpha_i, \alpha_j) \succ_{i,t,h} O_i(\alpha_0, \alpha_0)$ and undominatedness over $`\mathcal{A}_{\text{feas}}`$ (Chapter 3, [Definitions 3.8](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-38-purposeful-choice-relative-to-a-relation)–[3.9](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-39-purposeful-choice-under-the-agents-preference); Chapter 8, [Theorem 8.19](../natural_language/08_social_interaction_property_and_exchange.md#theorem-819-the-three-interaction-categories-partition-theorem)). Because strict orderings are preserved under monotonic mappings, numerical cardinalization adds zero economic information. $\blacksquare$
 
 ### Theorem 2 (Menu Transformation Resolves Dilemma Traps)
 Let $i$ and $j$ face an initial interaction where non-cooperative inaction is individually dominant. If the agents can execute a bilateral conditional trade action $\alpha_{\text{trade}}$ that binds clean-title transfers:
@@ -89,7 +89,7 @@ $$
 
 then enacting $\alpha_{\text{trade}}$ constitutes a purposeful voluntary exchange that physically transforms the feasible menu, eliminating the defection outcome.
 
-**Proof.** Direct from Chapter 8, [Theorem 8.20](../natural_language/08_social_interaction_property_and_exchange.md#theorem-820-the-double-inequality-of-exchange) and [Proposition 8.21](../natural_language/08_social_interaction_property_and_exchange.md#proposition-821-purposefulness-on-a-binary-trade-menu) (Catallactic Bilateral Exchange). By combining complementary factor transfers, voluntary exchange moves both agents to an undominated end relative to their autonomous clean-title baseline, rendering the uncooperative state counterfactually obsolete. $\blacksquare$
+**Proof.** Direct from Chapter 8, [Theorem 8.24](../natural_language/08_social_interaction_property_and_exchange.md#theorem-824-the-double-inequality-of-voluntary-exchange-theorem) and [Proposition 8.25](../natural_language/08_social_interaction_property_and_exchange.md#proposition-825-purposefulness-on-a-binary-trade-menu) (Catallactic Bilateral Exchange). By combining complementary factor transfers, voluntary exchange moves both agents to an undominated end relative to their autonomous clean-title baseline, rendering the uncooperative state counterfactually obsolete. $\blacksquare$
 
 ### Theorem 3 (Bounded Contemplation Precludes Hyper-Rational Common Knowledge)
 In any action frame with finite contemplated menus:
@@ -111,12 +111,12 @@ Game theorists routinely equate the defection strategy in a Prisoner's Dilemma w
 
 This conclusion is a catallactic fallacy:
 1. Defection is "optimal" only within a pathologically restricted model where communication, reputation, and property rights are artificially prohibited.
-2. In the real world, human actors establish property boundaries and social division of labor precisely because they recognize the higher physical productivity of cooperative factor combination (Chapter 4, [Definition 4.10](../natural_language/04_marginal_allocation_and_imputation.md#definition-410-comparison-of-two-allocated-sets); Chapter 8, [Theorem 8.15](../natural_language/08_social_interaction_property_and_exchange.md#theorem-815-the-three-stated-categories-are-pairwise-disjoint)). Cooperation is the foundational law of human society, not an exceptional equilibrium state.
+2. In the real world, human actors establish property boundaries and social division of labor precisely because they recognize the higher physical productivity of cooperative factor combination (Chapter 4, [Definition 4.10](../natural_language/04_marginal_allocation_and_imputation.md#definition-410-comparison-of-two-allocated-sets); Chapter 8, [Theorem 8.19](../natural_language/08_social_interaction_property_and_exchange.md#theorem-819-the-three-interaction-categories-partition-theorem)). Cooperation is the foundational law of human society, not an exceptional equilibrium state.
 
 ### 4.2 The Equating of Games with Market Competition
 Neoclassical models (e.g., Cournot and Bertrand oligopoly games) treat market competition as a zero-sum or negative-sum strategic conflict between rival firms.
 
-Praxeologically, market competition is the peaceful, non-invasive process of discovering how best to serve sovereign consumers (Chapter 8, [Proposition 8.14](../natural_language/08_social_interaction_property_and_exchange.md#proposition-814-peaceful-competition-excludes-anchored-extortion)):
+Praxeologically, market competition is the peaceful, non-invasive process of discovering how best to serve sovereign consumers (Chapter 8, [Proposition 8.18](../natural_language/08_social_interaction_property_and_exchange.md#proposition-818-peaceful-competition-excludes-anchored-extortion)):
 - Competitors do not invade each other's physical factors ($I_{j \to i} = 0$);
 - Competition takes place entirely through offering superior voluntary terms to third parties;
 - Rivalry on the market is an indispensable discovery procedure, not a static payoff-maximization game.
@@ -130,4 +130,4 @@ Game theory made notable contributions by formalizing the strategic interdepende
 Praxeology reconstructs strategic interaction on apodictic foundations:
 1. **Ordinal Action Frames:** Strategic interactions must be modeled as discrete posets over concrete ends, evaluating choice options within context-dependent menus $`\mathcal{A}_{\text{feas}}`$ (Chapter 3).
 2. **Dynamic Co-Agency Branching:** Interactions unfold along historical branching trees where each choice alters real physical factor stocks and modifies downstream choice menus (Chapter 2; Chapter 8, [Proposition 8.5](../natural_language/08_social_interaction_property_and_exchange.md#proposition-85-a-unilateral-counterfactual-preserves-the-other-agents-present-choice)).
-3. **Contractual Catallactics:** Strategic dilemmas are resolved through creative entrepreneurial action: defining clean titles, exchanging property titles, and engaging in voluntary division of labor (Chapter 8, [Theorem 8.20](../natural_language/08_social_interaction_property_and_exchange.md#theorem-820-the-double-inequality-of-exchange); Chapter 10).
+3. **Contractual Catallactics:** Strategic dilemmas are resolved through creative entrepreneurial action: defining clean titles, exchanging property titles, and engaging in voluntary division of labor (Chapter 8, [Theorem 8.24](../natural_language/08_social_interaction_property_and_exchange.md#theorem-824-the-double-inequality-of-voluntary-exchange-theorem); Chapter 10).

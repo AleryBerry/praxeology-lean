@@ -113,7 +113,7 @@ $$
 S_1 \succ_{\text{Menger}} S_2 \iff (S_1 \setminus S_2).\text{Nonempty} \wedge \forall x \in S_1 \setminus S_2, \forall y \in S_2 \setminus S_1, \quad x \succ_{i,t,h} y
 $$
 
-### Theorem 4.11 (The First $k$ Ends Dominate Any Other Feasible Set)
+### Theorem 4.11 (The Prefix Optimality Theorem)
 The bundle $S^{\ast}(k)$ uniquely Mengerian-dominates every other feasible atomic bundle $S \subseteq E_1(m)$ with $|S| \le k$:
 
 $$
@@ -129,7 +129,7 @@ $$
 \text{MU}_{i,t,h}(m, k) \equiv e_{\text{seq}}(k-1) \in \mathcal{E}
 $$
 
-### Theorem 4.13 (Earlier Units Add Higher-Ranked Ends)
+### Theorem 4.13 (The Law of Diminishing Marginal Utility)
 For $1\le k_1 < k_2\le N$, the end added at $k_1$ is strictly preferred to the end added at $k_2$:
 
 $$
@@ -170,7 +170,7 @@ $$
 
 Under this teleological grounding, purposeful action mathematically mandates the realization of the optimal bundle.
 
-### Theorem 4.14 (Purposeful Allocation Recovers the Ranked Sets)
+### Proposition 4.14 (Purposeful Allocation Recovers Ranked Prefix Sets)
 At a fixed decision situation, let $1\le k_1 < k_2\le N$. For each $`k\in\{k_1,k_2\}`$, let $`\mathcal{M}_{\text{bundle}}(k)`$ be a bundle allocation menu in which feasible nonpassive actions are assigned finite bundles from $E_1(m)$ requiring at most $k$ units, with action $\alpha_{\text{opt}}(k)$ attaining $S^{\ast}(k)$. Let action ends be grounded in commodity bundles whose optimal allocation teleologically dominates suboptimal alternatives. If $\alpha_1$ and $\alpha_2$ are purposeful nonpassive actions in the respective allocation systems, then:
 1. *Purposeful action uniquely forces the realization of the respective optimal bundles:*
 
@@ -184,13 +184,13 @@ $$
 \text{MU}_{i,t,h}(m, k_1) \succ_{i,t,h} \text{MU}_{i,t,h}(m, k_2)
 $$
 
-**Proof.** Fix either $k=k_1$ or $k=k_2$, and let $\alpha$ be the corresponding purposeful nonpassive action. By definition of the bundle allocation menu, $\text{bundleOf}(\alpha) \subseteq E_1(m)$ requires at most $k$ units. If $\text{bundleOf}(\alpha) \neq S^{\ast}(k)$, [Theorem 4.11](#theorem-411-the-first-k-ends-dominate-any-other-feasible-set) establishes that $S^{\ast}(k)$ strictly Mengerian-dominates it, so $\text{stockOf}(\alpha_{\text{opt}})$ teleologically dominates $\text{stockOf}(\alpha)$. By `teleological_bundle_dominance_induces_preference`, this teleological dominance induces strict preference:
+**Proof.** Fix either $k=k_1$ or $k=k_2$, and let $\alpha$ be the corresponding purposeful nonpassive action. By definition of the bundle allocation menu, $\text{bundleOf}(\alpha) \subseteq E_1(m)$ requires at most $k$ units. If $\text{bundleOf}(\alpha) \neq S^{\ast}(k)$, [Theorem 4.11](#theorem-411-the-prefix-optimality-theorem) establishes that $S^{\ast}(k)$ strictly Mengerian-dominates it, so $\text{stockOf}(\alpha_{\text{opt}})$ teleologically dominates $\text{stockOf}(\alpha)$. By `teleological_bundle_dominance_induces_preference`, this teleological dominance induces strict preference:
 
 $$
 \text{outcome}(i, \alpha_{\text{opt}}, t, h) \succ_{i,t,h} \text{outcome}(i, \alpha, t, h)
 $$
 
-Because $\alpha_{\text{opt}}$ is feasible, this strict preference contradicts the undominatedness clause of purposeful human action ( $\mathsf{P}(i, t, h, \alpha)$ ). Therefore, $\text{bundleOf}(\alpha) = S^{\ast}(k)$. Applying this to $k_1$ and $k_2$, the marginal-end comparison now follows directly from [Theorem 4.13](#theorem-413-earlier-units-add-higher-ranked-ends). $\blacksquare$
+Because $\alpha_{\text{opt}}$ is feasible, this strict preference contradicts the undominatedness clause of purposeful human action ( $\mathsf{P}(i, t, h, \alpha)$ ). Therefore, $\text{bundleOf}(\alpha) = S^{\ast}(k)$. Applying this to $k_1$ and $k_2$, the marginal-end comparison now follows directly from [Theorem 4.13](#theorem-413-the-law-of-diminishing-marginal-utility). $\blacksquare$
 
 ---
 
@@ -295,16 +295,16 @@ $$
 \text{MU}_{\text{teleo}}(m, k) \equiv e_{\text{seq}}(k-1) \in \mathcal{E}
 $$
 
-### Theorem 4.22 (Earlier Quanta Add Higher-Ranked Ends)
+### Theorem 4.22 (The Discrete Quanta Diminishing Utility Theorem)
 For any teleological quantum increments $1 \le k_1 < k_2 \le N$, the marginal end of the earlier quantum is strictly preferred to the marginal end of the later quantum:
 
 $$
 \text{MU}_{\text{teleo}}(m, k_1) \succ_{i,t,h} \text{MU}_{\text{teleo}}(m, k_2)
 $$
 
-**Proof.** Exactly identical to [Theorem 4.13](#theorem-413-earlier-units-add-higher-ranked-ends): $k_1 - 1 < k_2 - 1$, and the strict ranking of $e_{\text{seq}}$ ensures $e_{\text{seq}}(k_1 - 1) \succ_{i,t,h} e_{\text{seq}}(k_2 - 1)$. $\blacksquare$
+**Proof.** Exactly identical to [Theorem 4.13](#theorem-413-the-law-of-diminishing-marginal-utility): $k_1 - 1 < k_2 - 1$, and the strict ranking of $e_{\text{seq}}$ ensures $e_{\text{seq}}(k_1 - 1) \succ_{i,t,h} e_{\text{seq}}(k_2 - 1)$. $\blacksquare$
 
-### Theorem 4.23 (A Remainder Cannot Complete Another Listed Quantum)
+### Proposition 4.23 (Incomplete Quanta Yield Zero Additional Ends)
 Suppose an endowment contains $k$ complete quanta and a remainder $r < q_{\text{min}}$:
 
 $$
@@ -334,9 +334,9 @@ $$
 \text{MU}_{\text{teleo}}(m,1) \succ_{i,t,h} \text{MU}_{\text{teleo}}(m,2)
 $$
 
-**Proof.** Substitute $q_{\text{min}}=2$ into [Theorems 4.22](#theorem-422-earlier-quanta-add-higher-ranked-ends) and 4.23. $\blacksquare$
+**Proof.** Substitute $q_{\text{min}}=2$ into [Theorems 4.22](#theorem-422-the-discrete-quanta-diminishing-utility-theorem) and 4.23. $\blacksquare$
 
-### Theorem 4.25 (Attainability Inclusion Rules Out Strict Dominance)
+### Proposition 4.25 (Attainability Inclusion Rules Out Strict Dominance)
 If every finite end set attainable under $b_1$ is also attainable under $b_2$:
 
 $$
@@ -353,7 +353,7 @@ This implication is general for the stated attainability relation. The quantum a
 
 **Proof.** Suppose by contradiction that $\triangleright_{\mathrm{T}}(\rho, b_1, b_2)$. By [Definition 1.8](01_agents_means_ends_and_feasibility.md#definition-18-physical-and-attainability-based-bundle-orders), there exists an end-set $S^{\ast}$ such that $\text{attains}(\rho, b_1, S^{\ast}) \wedge \neg \text{attains}(\rho, b_2, S^{\ast})$. But the hypothesis asserts that any set attainable under $b_1$ is attainable under $b_2$, forcing $\text{attains}(\rho, b_2, S^{\ast})$, an immediate contradiction. $\blacksquare$
 
-### Theorem 4.26 (A Missing Complement Can Make Extra Stock Unproductive)
+### Proposition 4.26 (Missing Complements Render Extra Stock Unproductive)
 *Suppose every nonempty end requires both a left-shoe means and a right-shoe means. A bundle with one left shoe and no right shoe therefore attains no nonempty end, just as the zero bundle does. Under the attainability-based order:*
 
 $$
@@ -362,7 +362,7 @@ $$
 
 The two bundles differ physically, but the stated technology gives them the same attainable end sets. This is enough to block strict attainability-based dominance; it does not, by itself, order every preference over bundles.
 
-**Proof.** By hypothesis, no nonempty end-set is attainable under either bundle, while the empty set is attainable under both. Every end-set attainable under the first bundle is therefore attainable under the zero bundle. [Theorem 4.25](#theorem-425-attainability-inclusion-rules-out-strict-dominance) gives the conclusion. $\blacksquare$
+**Proof.** By hypothesis, no nonempty end-set is attainable under either bundle, while the empty set is attainable under both. Every end-set attainable under the first bundle is therefore attainable under the zero bundle. [Proposition 4.25](#proposition-425-attainability-inclusion-rules-out-strict-dominance) gives the conclusion. $\blacksquare$
 
 ---
 
@@ -370,7 +370,7 @@ The two bundles differ physically, but the stated technology gives them the same
 
 We now return to a choice at one decision situation. Past expenditure is absent from the purposeful-choice conditions, while current feasibility and preference remain relevant. We then compare two downstream allocations whose available stocks differ because of an earlier production step, and finish by distinguishing restricted uses from viable alternatives.
 
-### Theorem 4.27 (Purposefulness Depends on the Present Comparison)
+### Proposition 4.27 (Present Comparison Governs Purposefulness)
 Suppose a nonpassive action does not lead to an end preferred to inaction at the decision situation:
 
 $$
@@ -387,7 +387,7 @@ $$
 
 The next result compares two actions whose realized outcomes are commodity bundles. The difference in ends follows from the ranked schedule, while the preference conclusion is derived directly from the Action Frame's teleological bundle dominance.
 
-### Theorem 4.28 (The Marginal End Distinguishes the Two Allocations)
+### Proposition 4.28 (Marginal Ends Distinguish Competing Allocations)
 Let $1\le k\le N$. In a bundle allocation system, let feasible action $\alpha_{\text{opt}}$ realize bundle $S^{\ast}(k)$ and feasible action $\alpha_{\text{loseFactor}}$ realize bundle $S^{\ast}(k-1)$, with outcomes grounded in their respective commodity bundles. Then:
 1. Writing $B(\alpha)$ for the end bundle assigned to action $\alpha$, the net difference between the bundles is the singleton marginal consumer end:
 
@@ -405,15 +405,15 @@ $$
 1. By [Definition 4.12](#definition-412-the-end-added-by-the-k-th-unit), $`S^{\ast}(k) \setminus S^{\ast}(k-1) = \{ e_{\text{seq}}(k-1) \} = \{ \text{MU}_{i,t,h}(m, k) \}`$.
 2. The optimal bundle $S^{\ast}(k)$ strictly Mengerian-dominates $S^{\ast}(k-1)$: the set difference is the singleton marginal end by part 1, and the reverse difference is empty. The commodity bundle of $\alpha_{\text{opt}}$ therefore teleologically dominates that of $\alpha_{\text{loseFactor}}$. By `teleological_bundle_dominance_induces_preference`, this teleological dominance natively induces strict preference between the action outcomes. $\blacksquare$
 
-### Theorem 4.29 (An Earlier Production Step Changes a Later Menu)
+### Proposition 4.29 (Upstream Production Decisions Alter Downstream Menus)
 Suppose two histories $h_{\text{build}}$ and $h_{\text{cons}}$ share $t_0$ and then separate. At $t_0$ the agent has $k-1$ units of $m$ on both histories; Chapter 2's physical invariance condition accounts for the equality of these stocks. Let $t_1$ and $t_2$ be immediate successors of $t_0$ on the respective histories. The agent enacts a nontrade action at $t_0$ that uses zero and yields one unit of $m$ on $h_{\text{build}}$, and a nontrade action that uses and yields zero units of $m$ on $h_{\text{cons}}$. Suppose all other requirements of a later action are met on both histories, and that this action requires $k$ units of $m$:
 1. Along the capital-building trajectory, $\omega(i, t_1, h_{\text{build}}, m) = k$, making optimal action $\alpha_{\text{opt}}$ feasible at $t_1$.
 2. Along the history where no unit is produced, the stock remains $k-1$, so the action requiring $k$ units is infeasible.
-3. Under the separate allocation assumptions of [Theorem 4.28](#theorem-428-the-marginal-end-distinguishes-the-two-allocations), the difference between the downstream bundles is the end associated with the $k$-th unit.
+3. Under the separate allocation assumptions of [Proposition 4.28](#proposition-428-marginal-ends-distinguish-competing-allocations), the difference between the downstream bundles is the end associated with the $k$-th unit.
 
-**Proof.** Apply the inventory transition equation on each history. Production raises the stock from $k-1$ to $k$; the other action leaves it at $k-1$. The requirement is therefore met only on the production history. [Theorem 4.28](#theorem-428-the-marginal-end-distinguishes-the-two-allocations) identifies the bundle difference when its allocation premises also hold. $\blacksquare$
+**Proof.** Apply the inventory transition equation on each history. Production raises the stock from $k-1$ to $k$; the other action leaves it at $k-1$. The requirement is therefore met only on the production history. [Proposition 4.28](#proposition-428-marginal-ends-distinguish-competing-allocations) identifies the bundle difference when its allocation premises also hold. $\blacksquare$
 
-### Theorem 4.30 (Restricted Uses and Viable Alternatives)
+### Proposition 4.30 (Restricted Factor Uses and Viable Alternatives)
 We compare a specified use that no longer improves on inaction with an alternative use that remains feasible, improves on inaction, and is undominated:
 1. **Absolute Specificity**: If a dedicated capital factor is technologically restricted to producing a single consumer end $e_{\text{spec}}$ via action $\alpha_{\text{spec}}$, and $e_{\text{spec}}$ ceases to relieve felt unease over the baseline ( $\neg(e_{\text{spec}} \succ_{i,t,h} e_0)$ ), then $\alpha_{\text{spec}}$ is strictly disqualified from purposeful enactment:
 
@@ -434,7 +434,7 @@ provided $e_{\text{alt}} \succ_{i,t,h} e_0$ and the alternative is undominated a
 1. For $\alpha_{\text{spec}} \neq \alpha_0$, purposeful action requires $\text{outcome}(\alpha_{\text{spec}}) \succ e_0$. If $\neg(e_{\text{spec}} \succ e_0)$, the requirement fails, proving $\neg \mathsf{P}(i, t, h, \alpha_{\text{spec}})$.
 2. For $`\alpha_{\text{alt}}`$, the hypotheses provide feasibility, execution, relief of unease ( $`e_{\text{alt}} \succ e_0`$ ), and undominatedness against all $`\beta \in \mathcal{A}_{\text{feas}}`$. These satisfy all conditions of [Definition 3.8](03_preference_purpose_and_opportunity_cost.md#definition-38-purposeful-choice-relative-to-a-relation), establishing $`\mathsf{P}(i, t, h, \alpha_{\text{alt}})`$. $\blacksquare$
 
-### Theorem 4.31 (Attainability Inclusion Rules Out Strict Dominance)
+### Proposition 4.31 (Attainability Inclusion and Strict Dominance)
 Suppose a bundle $b_{stranded}$ and a comparison bundle $b_{zero}$ satisfy this explicit condition: every finite set of ends jointly attainable under $b_{stranded}$ is also jointly attainable under $b_{zero}$. Then:
 
 $$
@@ -443,9 +443,9 @@ $$
 
 One sufficient economic case is complement starvation: all ends using a particular capital good also require a complementary good, the stranded bundle falls below the required complement quantity, and the comparison bundle matches the stranded bundle in all other goods while removing the unusable capital. Those premises make the stated attainability inclusion transparent. Complement shortfall alone, without the comparison of other stocks and the requirements of all relevant ends, is not enough to establish the inclusion. This conclusion concerns the attainability order; it does not rank every physical use of the stock.
 
-**Proof.** The premise is exactly the inclusion hypothesis of [Theorem 4.25](#theorem-425-attainability-inclusion-rules-out-strict-dominance). Therefore strict attainability-based dominance is impossible. $\blacksquare$
+**Proof.** The premise is exactly the inclusion hypothesis of [Proposition 4.25](#proposition-425-attainability-inclusion-rules-out-strict-dominance). Therefore strict attainability-based dominance is impossible. $\blacksquare$
 
-### Theorem 4.32 (Present-Endowment Choice Invariance)
+### Theorem 4.32 (The Present-Endowment Sunk-Cost Sterility Theorem)
 In any action frame, suppose an agent at decision moment $t$ across two histories $`h_1`$ and $`h_2`$ possesses identical present physical inventories ( $`\forall m, \omega(i, t, h_1, m) = \omega(i, t, h_2, m)`$ ), faces identical contemplated action menus ( $`\mathcal{A}_{\text{cont}}(i, t, h_1) = \mathcal{A}_{\text{cont}}(i, t, h_2)`$ ), and evaluates prospective ends with identical preference relations. Then:
 1. Feasible action menus coincide: $`\mathcal{A}_{\text{feas}}(i, t, h_1) = \mathcal{A}_{\text{feas}}(i, t, h_2)`$.
 2. An action is undominated on $h_1$ if and only if it is undominated on $h_2$.

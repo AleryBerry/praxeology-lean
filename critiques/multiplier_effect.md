@@ -43,7 +43,7 @@ $$
 \omega(\text{state}, t', h, m_{\text{fiat}}) = \omega(\text{state}, t, h, m_{\text{fiat}}) + \Delta G
 $$
 
-Under physical inventory conservation (Chapter 2, [Theorem 2.13](../natural_language/02_time_histories_and_physical_execution.md#theorem-213-inaction-leaves-inventory-unchanged)), token creation yields zero physical capital, raw materials, or subsistence goods:
+Under physical inventory conservation (Chapter 2, [Proposition 2.13](../natural_language/02_time_histories_and_physical_execution.md#proposition-213-inaction-leaves-inventory-unchanged)), token creation yields zero physical capital, raw materials, or subsistence goods:
 
 $$
 \forall m \neq m_{\text{fiat}}, \quad u(\alpha_{\text{inject}}, m) = 0 \quad \wedge \quad y(\alpha_{\text{inject}}, m) = 0
@@ -71,7 +71,7 @@ The Keynesian model treats the respending cascade as an instantaneous or timeles
 Deficit-financed nominal token injections cannot multiply real physical goods. Newly created currency creates an asymmetric Cantillon wave that bids up factor prices and redistributes claims over existing physical stocks without expanding aggregate physical inventory.
 
 **Proof.**
-1. By Chapter 2 ([Theorem 2.13](../natural_language/02_time_histories_and_physical_execution.md#theorem-213-inaction-leaves-inventory-unchanged)), physical inventory transitions satisfy exact integer conservation:
+1. By Chapter 2 ([Proposition 2.13](../natural_language/02_time_histories_and_physical_execution.md#proposition-213-inaction-leaves-inventory-unchanged)), physical inventory transitions satisfy exact integer conservation:
 
 $$
 \omega(i, t', h, m) = \omega(i, t, h, m) - u(\alpha, m) + y(\alpha, m)
@@ -80,7 +80,7 @@ $$
 2. By Definition 1, fiat token injections yield zero physical goods: $\forall m_C \neq m_{\text{fiat}}, y(\alpha_{\text{inject}}, m_C) = 0$.
 3. An action $\alpha_{\text{expand}}$ that expands physical output of capital or consumer goods is feasible if and only if physical input factors exist in inventory: $\omega(i, t, h, m_C) \ge u(\alpha_{\text{expand}}, m_C)$ (Chapter 1, [Definition 1.4](../natural_language/01_agents_means_ends_and_feasibility.md#definition-14-action-menus-contemplation-and-feasibility)).
 4. Because $y(\alpha_{\text{inject}}, m_C) = 0$, creating nominal tokens $\Delta G$ leaves the aggregate physical stock of complementary capital goods $\sum_{i \in \mathcal{I}} \omega(i, t, h, m_C)$ identically unchanged.
-5. In Chapter 9 ([Proposition 9.14g](../natural_language/09_money_prices_and_calculation.md#proposition-914g-cantillon-network-purchasing-power-dilution), Cantillon Injection Wave), newly injected tokens enter circulation at specific geographic and institutional points. Early recipients at network distance $d(i) \le k$ spend their expanded token balances, bidding up prices of existing goods ($P_{\text{wave}} > P_{\text{baseline}}$).
+5. In Chapter 9 ([Proposition 9.23](../natural_language/09_money_prices_and_calculation.md#proposition-923-cantillon-network-purchasing-power-dilution), Cantillon Injection Wave), newly injected tokens enter circulation at specific geographic and institutional points. Early recipients at network distance $d(i) \le k$ spend their expanded token balances, bidding up prices of existing goods ($P_{\text{wave}} > P_{\text{baseline}}$).
 6. Downstream agents at distance $d(j) > k$ face elevated prices before their nominal receipts rise, suffering an unchosen reduction in real purchasing power.
 7. Token creation does not multiply physical wealth; it redistributes existing physical output from later recipients to earlier recipients through monetary debasement. $\blacksquare$
 
@@ -88,14 +88,14 @@ $$
 Keynesian multiplier theory commits an ontological category error by treating saving ($s = 1 - c$) as unspent hoarding that destroys aggregate demand. In an unhampered market, voluntary saving is the indispensable causal prerequisite for roundabout capital formation; treating savings as "leakage" confuses the accumulation of capital with the destruction of wealth.
 
 **Proof.**
-1. Under Chapter 7 ([Theorem 7.10](../natural_language/07_time_preference_interest_and_capital.md#theorem-710-immediate-delivery-dominates-equal-delayed-delivery), [Proposition 7.14](../natural_language/07_time_preference_interest_and_capital.md#proposition-714-a-larger-stock-can-add-a-feasible-action), and [Theorem 7.15](../natural_language/07_time_preference_interest_and_capital.md#theorem-715-current-security-and-saving-dominates-immediate-spending)) and Chapter 10 ([Proposition 10.21b](../natural_language/10_entrepreneurship_credit_and_investment.md#proposition-1021b-conditional-repayment-rate-comparison-under-fiduciary-origination)), voluntary saving is the purposeful decision to abstain from immediate consumption of first-order goods: $u(\alpha_{\text{save}}, m_{\text{cons}}) = 0$.
-2. Saved funds are not destroyed; by [Theorem 8.17 (Physical Balances of Matched Exchange)](../natural_language/08_social_interaction_property_and_exchange.md#theorem-817-physical-balances-of-matched-exchange), liquid cash savings deposited in banking or credit institutions are transferred to entrepreneurial borrowers through the loanable-funds market:
+1. Under Chapter 7 ([Theorem 7.10](../natural_language/07_time_preference_interest_and_capital.md#theorem-710-the-universal-positive-time-preference-theorem), [Proposition 7.14](../natural_language/07_time_preference_interest_and_capital.md#proposition-714-a-larger-stock-can-add-a-feasible-action), and [Theorem 7.15](../natural_language/07_time_preference_interest_and_capital.md#theorem-715-the-precautionary-saving-and-present-security-theorem)) and Chapter 10 ([Proposition 10.27](../natural_language/10_entrepreneurship_credit_and_investment.md#proposition-1027-conditional-repayment-rate-comparison-under-fiduciary-origination)), voluntary saving is the purposeful decision to abstain from immediate consumption of first-order goods: $u(\alpha_{\text{save}}, m_{\text{cons}}) = 0$.
+2. Saved funds are not destroyed; by [Proposition 8.21 (Physical Balances of Matched Exchange)](../natural_language/08_social_interaction_property_and_exchange.md#proposition-821-physical-balances-of-matched-exchange), liquid cash savings deposited in banking or credit institutions are transferred to entrepreneurial borrowers through the loanable-funds market:
 
 $$
 \omega(\text{saver}, t', h, m_{\text{money}}) = \omega(\text{saver}, t, h, m_{\text{money}}) - S, \quad \omega(\text{borrower}, t', h, m_{\text{money}}) = \omega(\text{borrower}, t, h, m_{\text{money}}) + S
 $$
 
-3. By Chapter 7 (Section 7.3) and Chapter 9 ([Proposition 9.20](../natural_language/09_money_prices_and_calculation.md#proposition-920-cost-reducing-factor-substitution-raises-net-return-and-return-ratio)), borrowers deploy these savings to purchase intermediate physical capital goods ($m_K$), fund raw materials, and pay wages to workers in higher-order stages ($t_0 \prec t_1 \prec \dots \prec t_{n-1}$).
+3. By Chapter 7 (Section 7.3) and Chapter 9 ([Proposition 9.29](../natural_language/09_money_prices_and_calculation.md#proposition-929-cost-reducing-factor-substitution-raises-net-return-and-return-ratio)), borrowers deploy these savings to purchase intermediate physical capital goods ($m_K$), fund raw materials, and pay wages to workers in higher-order stages ($t_0 \prec t_1 \prec \dots \prec t_{n-1}$).
 4. Money saved is not a "leakage" out of the economy; it is spent on capital goods and factor wages instead of retail consumer goods.
 5. In Chapter 2 and Chapter 7, lengthy roundabout production processes are physically impossible without a prior pool of saved subsistence goods to sustain workers during the gestation interval:
 
@@ -116,8 +116,8 @@ $$
 T_N = \sum_{n=1}^N \Delta t_n \to \infty \quad \text{as } N \to \infty
 $$
 
-3. During interval $T_N$, history branches ($h \prec h'$). Actors update subjective expectations (Chapter 5), revise reservation bids (Chapter 9, [Definition 9.11](../natural_language/09_money_prices_and_calculation.md#definition-911-reservation-bids-and-ordered-cohorts)), and encounter physical factor constraints (Chapter 1, [Definition 1.4](../natural_language/01_agents_means_ends_and_feasibility.md#definition-14-action-menus-contemplation-and-feasibility)).
-4. By Chapter 13 ([Proposition 13.12](../natural_language/13_business_cycles_and_crisis.md#proposition-1312-a-cash-shortfall-blocks-a-required-spot-factor-purchase), [Theorem 13.11](../natural_language/13_business_cycles_and_crisis.md#theorem-1311-a-conditional-credit-financed-starvation-cycle), and Master Theorem), as successive recipients attempt to spend newly injected tokens, the prices of intermediate goods and consumer necessities rise. Real purchasing power per nominal dollar strictly falls:
+3. During interval $T_N$, history branches ($h \prec h'$). Actors update subjective expectations (Chapter 5), revise reservation bids (Chapter 9, [Definition 9.13](../natural_language/09_money_prices_and_calculation.md#definition-913-reservation-bids-and-ordered-cohorts)), and encounter physical factor constraints (Chapter 1, [Definition 1.4](../natural_language/01_agents_means_ends_and_feasibility.md#definition-14-action-menus-contemplation-and-feasibility)).
+4. By Chapter 13 ([Proposition 13.13](../natural_language/13_business_cycles_and_crisis.md#proposition-1313-a-cash-shortfall-blocks-a-required-spot-factor-purchase), [Theorem 13.12](../natural_language/13_business_cycles_and_crisis.md#theorem-1312-the-fiduciary-factor-starvation-cycle-theorem), and Master Theorem), as successive recipients attempt to spend newly injected tokens, the prices of intermediate goods and consumer necessities rise. Real purchasing power per nominal dollar strictly falls:
 
 $$
 P_n > P_{n-1} \implies \frac{\Delta C_n^{\text{real}}}{\Delta C_0^{\text{real}}} < c^n
@@ -141,7 +141,7 @@ $$
 u(\alpha_{\text{comp}}, m_C) > \omega(i, t, h, m_C) \implies \alpha_{\text{comp}} \notin \mathcal{A}_{\text{feas}}(i, t, h)
 $$
 
-4. **Systemic Capital Consumption:** Gross physical replacement falls below physical depreciation ($I < \delta K$, Chapter 7, [Theorem 7.12](../natural_language/07_time_preference_interest_and_capital.md#theorem-712-combining-time-preference-with-the-quantity-comparison) and [Theorem 7.13](../natural_language/07_time_preference_interest_and_capital.md#theorem-713-a-purposeful-later-method-must-yield-more-under-the-stated-conditions)). The capital structure disintegrates: factories close, infrastructure rots, and capital is consumed to sustain an artificial consumption bubble. Stimulating consumption does not create wealth; it burns existing capital.
+4. **Systemic Capital Consumption:** Gross physical replacement falls below physical depreciation ($I < \delta K$, Chapter 7, [Proposition 7.12](../natural_language/07_time_preference_interest_and_capital.md#proposition-712-time-preference-and-physical-return-comparison) and [Proposition 7.13](../natural_language/07_time_preference_interest_and_capital.md#proposition-713-roundabout-production-superiority-under-positive-interest)). The capital structure disintegrates: factories close, infrastructure rots, and capital is consumed to sustain an artificial consumption bubble. Stimulating consumption does not create wealth; it burns existing capital.
 
 ---
 

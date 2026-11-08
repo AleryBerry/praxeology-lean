@@ -46,11 +46,13 @@ from typing import Dict, List, Optional, Set, Tuple
 
 
 VALID_TYPES = [
+    "Axiom",
     "Definition",
     "Theorem",
     "Proposition",
     "Lemma",
     "Corollary",
+    "Witness",
     "Assumption",
     "Example",
 ]
@@ -128,7 +130,7 @@ class NaturalLanguageIndexer:
     """Indexes all formal declarations in natural_language/*.md."""
 
     HEADING_PATTERN = re.compile(
-        r"^###\s+(Definition|Theorem|Proposition|Lemma|Corollary|Assumption|Example)\s+"
+        r"^###\s+(Axiom|Definition|Theorem|Proposition|Lemma|Corollary|Witness|Assumption|Example)\s+"
         r"([0-9]+(?:\.[0-9]+[a-z0-9]*)?)\s*\((.+?)\)\s*$"
     )
 
@@ -209,7 +211,7 @@ class ReferenceAuditor:
     # Definition 9.14g
     REF_PATTERN = re.compile(
         r"(?P<chap_prefix>Chapter\s+(?P<chap_num>\d+)[,\s:]+(?:and\s+Chapter\s+\d+[,\s:]+)?)?"
-        r"\b(?P<decl_type>Theorem|Proposition|Definition|Lemma|Corollary|Assumption|Example)s?\s+"
+        r"\b(?P<decl_type>Axiom|Theorem|Proposition|Definition|Lemma|Corollary|Witness|Assumption|Example)s?\s+"
         r"(?P<number>[0-9]+\.[0-9]+[a-z0-9]*)"
         r"(?:\s*\((?P<title>[^)]+)\))?",
         re.IGNORECASE,
@@ -217,7 +219,7 @@ class ReferenceAuditor:
 
     # Range pattern like Definitions 3.8–3.10 or Theorems 11.17-11.18
     RANGE_PATTERN = re.compile(
-        r"\b(?P<decl_type>Theorems|Propositions|Definitions|Lemmas|Corollaries|Assumptions|Examples)\s+"
+        r"\b(?P<decl_type>Axioms|Theorems|Propositions|Definitions|Lemmas|Corollaries|Witnesses|Assumptions|Examples)\s+"
         r"(?P<num1>[0-9]+\.[0-9]+[a-z0-9]*)[–-](?P<num2>[0-9]+\.[0-9]+[a-z0-9]*)",
         re.IGNORECASE,
     )

@@ -30,18 +30,18 @@ $$
 To evaluate minimum wage legislation against the operational laws of entrepreneurial calculation, marginal imputation, and human action, we formulate its mechanisms using the primitives of Chapters 1, 2, 3, 4, 7, 8, 9, 10, 11, and 12:
 
 ### Definition 1 (The Coercive Wage Floor Restriction)
-A statutory minimum wage is an institutional intervention (political means (coercive extortion), Chapter 8, [Definition 8.11](../natural_language/08_social_interaction_property_and_exchange.md#definition-811-coercive-extortion); Chapter 12, [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-a-public-service-quantity-does-not-alter-the-specified-coercion-comparisons)) whereby the territorial state coercively excises employment exchanges executed below wage rate $\underline{w}$ from the feasible action menus of all acting individuals:
+A statutory minimum wage is an institutional intervention (political means (coercive extortion), Chapter 8, [Definition 8.12](../natural_language/08_social_interaction_property_and_exchange.md#definition-812-coercive-extortion); Chapter 12, [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-the-coercive-invariance-of-public-services-theorem)) whereby the territorial state coercively excises employment exchanges executed below wage rate $\underline{w}$ from the feasible action menus of all acting individuals:
 
 $$
 \mathcal{A}_{\text{feas}}^{\text{restricted}}(i, t, h) = \mathcal{A}_{\text{feas}}(i, t, h) \setminus \{ \alpha \in \mathcal{A}_{\text{hire}} \mid \text{Wage}(\alpha) < \underline{w} \}
 $$
 
-enforced through coercive physical inspections, judicial penalties, and asset forfeiture (Chapter 12, [Theorem 12.2](../natural_language/12_state_and_fiscal_political_economy.md#theorem-122-calhoun-fiscal-class-partition-theorem)).
+enforced through coercive physical inspections, judicial penalties, and asset forfeiture (Chapter 12, [Theorem 12.5](../natural_language/12_state_and_fiscal_political_economy.md#theorem-125-the-calhoun-fiscal-class-partition-theorem)).
 
 ### Definition 2 (Discounted Marginal Value Product of Labor)
 In an intertemporal production process where physical output $m_{\text{out}}$ matures at terminal stage $t_n$ across temporal precedence chain $t_0 \prec t_n$ (Chapters 2 and 7), an entrepreneur evaluates hiring an additional unit of labor service $m_{\text{labor}}$ at moment $t_0$.
 
-By Chapter 4 ([Definition 4.12](../natural_language/04_marginal_allocation_and_imputation.md#definition-412-the-end-added-by-the-k-th-unit), [Theorem 4.13](../natural_language/04_marginal_allocation_and_imputation.md#theorem-413-earlier-units-add-higher-ranked-ends)) and Chapter 9 ([Definition 9.19](../natural_language/09_money_prices_and_calculation.md#definition-919-monetary-outlays-net-return-and-return-ratio)), the **Discounted Marginal Value Product** ($\text{DMVP}$) of labor is the expected marginal physical product multiplied by expected future output price, discounted to the present by the positive originary time preference rate $\iota > 0$ (Chapter 7, [Theorem 7.4](../natural_language/07_time_preference_interest_and_capital.md#theorem-74-universal-preference-for-delay-excludes-purposeful-immediate-choice), [Theorem 7.7](../natural_language/07_time_preference_interest_and_capital.md#theorem-77-comparability-turns-undominatedness-into-strict-dominance), [Theorem 7.16](../natural_language/07_time_preference_interest_and_capital.md#theorem-716-unified-positive-time-preference-saving-resolution-and-originary-interest-synthesis)):
+By Chapter 4 ([Definition 4.12](../natural_language/04_marginal_allocation_and_imputation.md#definition-412-the-end-added-by-the-k-th-unit), [Theorem 4.13](../natural_language/04_marginal_allocation_and_imputation.md#theorem-413-the-law-of-diminishing-marginal-utility)) and Chapter 9 ([Definition 9.28](../natural_language/09_money_prices_and_calculation.md#definition-928-monetary-outlays-net-return-and-return-ratio)), the **Discounted Marginal Value Product** ($\text{DMVP}$) of labor is the expected marginal physical product multiplied by expected future output price, discounted to the present by the positive originary time preference rate $\iota > 0$ (Chapter 7, [Proposition 7.4](../natural_language/07_time_preference_interest_and_capital.md#proposition-74-universal-preference-for-delay-excludes-purposeful-immediate-choice), [Proposition 7.7](../natural_language/07_time_preference_interest_and_capital.md#proposition-77-comparability-turns-undominatedness-into-strict-dominance), [Theorem 7.16](../natural_language/07_time_preference_interest_and_capital.md#theorem-716-the-master-positive-time-preference-and-originary-interest-synthesis)):
 
 $$
 \text{DMVP}(m_{\text{labor}}) = \frac{\mathbb{E}[P_{\text{out}}] \cdot \Delta y(\alpha_{\text{prod}}, m_{\text{out}})}{(1 + \iota)^{\Delta t}}
@@ -66,13 +66,13 @@ where $P_{\text{wage}}$ is the nominal monetary wage, while $m_{\text{training}}
 In purposeful entrepreneurial action, an entrepreneur executes an employment action $\alpha_{\text{hire}}$ if and only if the expected discounted marginal value product of the worker's labor weakly exceeds the monetary factor outlay. Paying a wage strictly greater than DMVP guarantees an expected economic loss, which is strictly dominated by non-hiring.
 
 **Proof.**
-1. By Chapter 9 ([Definition 9.17](../natural_language/09_money_prices_and_calculation.md#definition-917-monetary-input-cost) and [Definition 9.19](../natural_language/09_money_prices_and_calculation.md#definition-919-monetary-outlays-net-return-and-return-ratio)), the net monetary return from executing production action $\alpha_{\text{prod}}$ utilizing labor input $m_{\text{labor}}$ purchased at wage $P_{\text{wage}}$ is:
+1. By Chapter 9 ([Definition 9.26](../natural_language/09_money_prices_and_calculation.md#definition-926-monetary-input-cost) and [Definition 9.28](../natural_language/09_money_prices_and_calculation.md#definition-928-monetary-outlays-net-return-and-return-ratio)), the net monetary return from executing production action $\alpha_{\text{prod}}$ utilizing labor input $m_{\text{labor}}$ purchased at wage $P_{\text{wage}}$ is:
 
 $$
 \Pi(\alpha_{\text{prod}}) = \frac{\mathbb{E}[P_{\text{out}}] \cdot \Delta y(\alpha_{\text{prod}}, m_{\text{out}})}{(1 + \iota)^{\Delta t}} - P_{\text{wage}} = \text{DMVP}(m_{\text{labor}}) - P_{\text{wage}}
 $$
 
-2. By Chapter 3 ([Definitions 3.8](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-38-purposeful-choice-relative-to-a-relation)–[3.10](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-310-active-purposeful-choice), [Theorem 3.12](../natural_language/03_preference_purpose_and_opportunity_cost.md#theorem-312-an-active-choice-separates-future-branches), Axiom of Purposeful Action), an economizing actor executes an action only if it is purposefully viable, requiring $\text{End}(i, \alpha) \succeq \text{End}(i, \alpha_0)$, where $\alpha_0$ is the baseline of inaction.
+2. By Chapter 3 ([Definitions 3.8](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-38-purposeful-choice-relative-to-a-relation)–[3.10](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-310-active-purposeful-choice), [Proposition 3.12](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-312-active-choice-separates-future-branches), Axiom of Purposeful Action), an economizing actor executes an action only if it is purposefully viable, requiring $\text{End}(i, \alpha) \succeq \text{End}(i, \alpha_0)$, where $\alpha_0$ is the baseline of inaction.
 3. For the baseline of inaction (not hiring the worker), the net monetary outlay and marginal revenue are both zero: $\Pi(\alpha_0) = 0$.
 4. Whenever $P_{\text{wage}} > \text{DMVP}(m_{\text{labor}})$, net return is strictly negative: $\Pi(\alpha_{\text{prod}}) < 0$.
 5. An action yielding an expected monetary loss reduces available liquid capital balances ( $\omega(i, t', h, m_{\text{money}}) < \omega(i, t, h, m_{\text{money}})$ ) without generating compensatory ends. Therefore, hiring at a wage exceeding DMVP is strictly dominated by inaction:
@@ -139,7 +139,7 @@ $$
 
 ### Induced Mechanization and Factor Substitution
 When the state artificially raises the unit cost of human labor relative to reproducible capital goods ($P_{\text{wage}} / P_K \uparrow$):
-1. By [Proposition 9.20](../natural_language/09_money_prices_and_calculation.md#proposition-920-cost-reducing-factor-substitution-raises-net-return-and-return-ratio) (Chapter 9), entrepreneurs re-evaluate alternative technical schedules:
+1. By [Proposition 9.29](../natural_language/09_money_prices_and_calculation.md#proposition-929-cost-reducing-factor-substitution-raises-net-return-and-return-ratio) (Chapter 9), entrepreneurs re-evaluate alternative technical schedules:
 
 $$
 C(\alpha_{\text{manual}}, P) > C(\alpha_{\text{mechanized}}, P)
@@ -152,7 +152,7 @@ $$
 Far from being a shield for the vulnerable, minimum wage legislation operates catallactically as a coercive cartelization device (Chapters 11 and 12):
 1. **Exclusion of Competitors:** Established, high-skilled labor unions whose members earn well above the statutory floor are the most ardent advocates of minimum wage increases. By forcibly raising the price floor for unskilled labor, they eliminate the principal competitive advantage of low-skilled workers—namely, their willingness to undercut higher wages to gain initial employment.
 2. **Capital-Intensive Incumbents:** Large, capital-intensive firms with access to cheap credit can automate operations at scale, whereas small, labor-intensive competitors cannot. Incumbents actively lobby for higher minimum wages to drive smaller competitors out of the market.
-3. Under Chapter 12 ([Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-a-public-service-quantity-does-not-alter-the-specified-coercion-comparisons)), the minimum wage is an exercise of political power (political means (coercive extortion)) that insulates privileged producer cartels by legally outlawing competition from marginalized outsiders.
+3. Under Chapter 12 ([Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-the-coercive-invariance-of-public-services-theorem)), the minimum wage is an exercise of political power (political means (coercive extortion)) that insulates privileged producer cartels by legally outlawing competition from marginalized outsiders.
 
 ---
 

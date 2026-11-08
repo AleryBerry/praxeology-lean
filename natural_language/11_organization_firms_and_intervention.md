@@ -56,7 +56,7 @@ $$
 
 The bounds let us distinguish a ranking that holds at every admissible price from one that depends on the exact realization.
 
-### Theorem 11.4 (Robust Cost Separation)
+### Proposition 11.4 (Robust Cost Separation from Price Boxes)
 Suppose the worst-case cost of plan $x$ is below the best-case cost of plan $y$:
 
 $$
@@ -186,7 +186,7 @@ $$
 
 Coarsening formalizes interval inclusion: expanding the price bounds captures loss of information or increased dispersion across upstream production stages.
 
-### Theorem 11.12 (Coarsening Weakly Expands Indeterminacy)
+### Proposition 11.12 (Coarsening Weakly Expands Indeterminacy)
 If $B_2$ coarsens $B_1$, every pair indeterminate in $B_1$ remains indeterminate in $B_2$. The same two price witnesses still belong to the larger box, so the cost reversals remain available.
 
 **Proof.** Coarsening makes the original box a subset of the new box. The two admissible price vectors witnessing opposite cost rankings in $B_1$ therefore remain admissible in $B_2$. Thus every indeterminate pair in $B_1$ is indeterminate in $B_2$. The count over a finite menu is a sum of indicator values for these pairs, so it cannot decrease; it increases strictly if at least one new pair enters the cone. $\square$
@@ -252,7 +252,7 @@ $$
 
 If the price bounds narrow strictly for an input used in positive quantity, the corresponding cash requirement falls strictly. The proposition is conditional on the bounds being narrower; it does not infer price convergence from monetary coordination alone.
 
-A monetary disturbance can also change which agents can pay the prevailing price. In the modeled Cantillon network grounded in the Action Frame (`CantillonNetwork`), a downstream agent's physical cash balance $\omega(i, t_{\text{post}}, h, m_{\text{money}}) = \omega(i, t_{\text{pre}}, h, m_{\text{money}}) = M$ remains unchanged while the price moves from $P_0$ to $P_1$, with $0 < P_0 \le M < P_1$. By [Proposition 9.14g](09_money_prices_and_calculation.md#proposition-914g-cantillon-network-purchasing-power-dilution) (`cantillon_network_purchasing_power_dilution`), the division-free affordability conclusions are
+A monetary disturbance can also change which agents can pay the prevailing price. In the modeled Cantillon network grounded in the Action Frame (`CantillonNetwork`), a downstream agent's physical cash balance $\omega(i, t_{\text{post}}, h, m_{\text{money}}) = \omega(i, t_{\text{pre}}, h, m_{\text{money}}) = M$ remains unchanged while the price moves from $P_0$ to $P_1$, with $0 < P_0 \le M < P_1$. By [Proposition 9.23](09_money_prices_and_calculation.md#proposition-923-cantillon-network-purchasing-power-dilution) (`cantillon_network_purchasing_power_dilution`), the division-free affordability conclusions are
 
 $$
 1\cdot P_0\le M,\qquad
@@ -264,7 +264,7 @@ One unit is affordable before the price rise, while no positive integer quantity
 
 A further monetary choice arises when a purchaser can settle the same payment with either of two media. The relevant opportunity cost is the medium surrendered. If compulsory par acceptance makes either tender sufficient for the purchase, while the actor prefers to retain one medium, the undominatedness condition of purposeful choice, defined in Chapter 3, determines which tender is excluded.
 
-### Theorem 11.17 (Gresham Tender Exclusion)
+### Proposition 11.17 (Gresham Legal-Tender Market Deterrence)
 *Suppose an agent can feasibly tender bad money for a purchase, and the resulting end is strictly preferred to the end obtained by tendering good money. Then tendering good money cannot be purposeful.*
 
 **Proof.** If tendering good money were purposeful, no feasible alternative could yield a strictly preferred end. The feasible bad-money tender is such an alternative, contradicting undominatedness. $\blacksquare$
@@ -277,7 +277,7 @@ $$
 \mathcal{T}_C(m)=\{i\in C:\theta(i)=m\}.
 $$
 
-### Theorem 11.18 (Gresham Circulation Collapse)
+### Theorem 11.18 (The Gresham Circulation Collapse Theorem)
 For each agent $i$ in a finite cohort $C$, let $\alpha(i,m)$ be the action of tendering medium $m$. Suppose $\theta(i)$ is either $m_{\text{good}}$ or $m_{\text{bad}}$, the enacted tender action $\alpha(i,\theta(i))$ is purposeful, and $\alpha(i,m_{\text{bad}})$ is feasible. Suppose the bad-medium action yields an end strictly preferred at the decision situation to the end yielded by the good-medium action. Then:
 1. *Circulating tender of good money collapses completely:*
 
@@ -306,7 +306,7 @@ $$
 N_{\text{market}}(L,g)=L g.
 $$
 
-### Theorem 11.20 (Linear Lower Bound on Multi-Stage Noise)
+### Proposition 11.20 (Linear Lower Bound on Multi-Stage Noise)
 Under the stage-width premise of [Definition 11.19](#definition-1119-stage-width-and-total-quantization-noise),
 
 $$
@@ -332,7 +332,7 @@ $$
 
 The count includes the chain's boundary interface. The distinct count $L-K$ below measures the remaining inter-stage market relationships relevant to the calculation boundary.
 
-### Theorem 11.22 (Coalescence Reduces External Quantization Noise)
+### Proposition 11.22 (Coalescence Reduces External Quantization Noise)
 If $2\le K\le L$ and $g>0$, then
 
 $$
@@ -368,7 +368,7 @@ S_{\text{merge}}
 =S(\Delta P_{\text{out}},R_1R_2,d_{\text{u}}).
 $$
 
-### Theorem 11.24 (Critical Attenuation and Signal Restoration)
+### Proposition 11.24 (Critical Attenuation and Signal Restoration)
 Assume $R_1,R_2\ge1$ and the downstream price difference lies in the interval
 
 $$
@@ -408,7 +408,7 @@ $$
 U_{\text{firm}}=(b_{\text{up}}+b_{\text{joint}}+b_{\text{opp}})\Delta z.
 $$
 
-### Theorem 11.26 (Master Coalescence Inequality)
+### Theorem 11.26 (The Coase-Rothbard Firm Boundary Master Inequality Theorem)
 For $\Delta z>0$, internal coordination has strictly less modeled calculation uncertainty than the spot market exactly when
 
 $$
@@ -433,7 +433,7 @@ $$
 
 Thus the additive comparison can reverse under order-preserving reassignments. This witness shows that the proposed summation rule does not preserve the stated ordering of ends.
 
-### Theorem 11.27 (A Viable Coalescence Window)
+### Proposition 11.27 (A Viable Coalescence Window)
 Let $K_{\min}$ be a lower bound on the integration depth under consideration. If
 
 $$
@@ -448,9 +448,9 @@ N_{\text{firm}}(L,K,g) < N_{\text{market}}(L,g),
 \qquad 1\le L-K.
 $$
 
-**Proof.** The depth bounds imply $K\ge2$ and $K < L$. Since $g>0$, [Theorem 11.22](#theorem-1122-coalescence-reduces-external-quantization-noise) gives the strict reduction in noise. Positivity of the merged signal is assumed. Since $K < L$ are natural numbers, $1\le L-K$, so at least one inter-stage market relationship remains. $\square$
+**Proof.** The depth bounds imply $K\ge2$ and $K < L$. Since $g>0$, [Proposition 11.22](#proposition-1122-coalescence-reduces-external-quantization-noise) gives the strict reduction in noise. Positivity of the merged signal is assumed. Since $K < L$ are natural numbers, $1\le L-K$, so at least one inter-stage market relationship remains. $\square$
 
-Under the critical attenuation inequalities from [Theorem 11.24](#theorem-1124-critical-attenuation-and-signal-restoration), the same window combines split-signal extinction, merged-signal restoration, noise reduction, and a remaining external market relationship. At $K=L$, the model instead has $L-K=0$: all inter-stage market relationships have been absorbed. If the compared production plans are physically incomparable and no external market prices remain to compare them, Chapter 9's incommensurability result applies. The formulas therefore identify a region where integration can address an intermediate signal problem without eliminating every external comparison.
+Under the critical attenuation inequalities from [Proposition 11.24](#proposition-1124-critical-attenuation-and-signal-restoration), the same window combines split-signal extinction, merged-signal restoration, noise reduction, and a remaining external market relationship. At $K=L$, the model instead has $L-K=0$: all inter-stage market relationships have been absorbed. If the compared production plans are physically incomparable and no external market prices remain to compare them, Chapter 9's incommensurability result applies. The formulas therefore identify a region where integration can address an intermediate signal problem without eliminating every external comparison.
 
 These inequalities identify admissible integration scales for the specified chain and reporting mechanism. Selecting one scale from that range requires comparing available production methods, administrative resource use, external exchange terms, and the entrepreneur's valued outcomes.
 
@@ -517,7 +517,7 @@ At a node $\langle t,h\rangle$, an **entrepreneurial firm-boundary decision** sp
 
 The decision also specifies the parameter inequalities for the viable coalescence window, feasibility of the three organizational actions, enactment of partial integration, preference over passive retention, and the preference comparisons generated by the signal and noise differences. Every other feasible action must have one of the listed four ends. These premises account for every feasible rival in the purposeful-choice condition.
 
-### Theorem 11.31 (Purposeful Coalescence within the Viable Window)
+### Theorem 11.31 (Purposeful Firm Coalescence within the Viable Window)
 Under [Definition 11.30](#definition-1130-entrepreneurial-firm-boundary-decision) and the critical attenuation conditions, the partially integrated action is purposeful, while the split-market and full-socialization actions are not purposeful:
 
 $$
@@ -528,7 +528,7 @@ $$
 \neg\mathsf{P}(\alpha_{\text{socialize}}).
 $$
 
-**Proof.** By [Definition 11.30](#definition-1130-entrepreneurial-firm-boundary-decision), the merged action is feasible and enacted, and its end is strictly preferred to the passive end. The complete-menu premise and the stated preference comparisons rule out every feasible rival as strictly preferred to the merged end. Thus the merged action is purposeful. The merged end strictly dominates the split and socialization ends in preference, so each of those alternatives fails the undominatedness clause. The critical attenuation result supplies signal extinction under separation and a positive signal after integration; [Theorem 11.27](#theorem-1127-a-viable-coalescence-window) supplies lower noise and a remaining market relation. $\square$
+**Proof.** By [Definition 11.30](#definition-1130-entrepreneurial-firm-boundary-decision), the merged action is feasible and enacted, and its end is strictly preferred to the passive end. The complete-menu premise and the stated preference comparisons rule out every feasible rival as strictly preferred to the merged end. Thus the merged action is purposeful. The merged end strictly dominates the split and socialization ends in preference, so each of those alternatives fails the undominatedness clause. The critical attenuation result supplies signal extinction under separation and a positive signal after integration; [Proposition 11.27](#proposition-1127-a-viable-coalescence-window) supplies lower noise and a remaining market relation. $\square$
 
 ### Information-Grounded Derivation of the Preference Premises
 
@@ -586,7 +586,7 @@ The staged model distinguishes an unhampered stage, a first control of a consume
 
 This ordering applies to the three modeled stages under the stated planner preference.
 
-### Theorem 11.35 (Shortages in the Coupled Three-Sector Model)
+### Proposition 11.35 (Shortages in the Coupled Three-Sector Model)
 Suppose sellers purposefully supply in the unhampered stage, the first ceiling removes the consumer-sector seller's gain relative to retention, and the second-stage assumptions remove the gain in both the consumer and input sectors. Define a sector shortage as the absence of active purposeful supply. Then:
 
 1. there is no modeled shortage in the unhampered stage;
@@ -595,11 +595,11 @@ Suppose sellers purposefully supply in the unhampered stage, the first ceiling r
 
 **Proof.** In the unhampered stage, the premise supplies purposeful active supply, so there is no shortage by definition. Under the first control, the consumer seller's controlled-price outcome fails the improvement condition by [Proposition 11.33](#proposition-1133-a-ceiling-that-removes-the-sellers-gain-blocks-active-sale), so active purposeful supply is absent there. Under the second control, the same argument applies to both the consumer and input sellers. The stated stage assumptions therefore give the three shortage conclusions. The severity ranking records their order as zero, one, and two shortages. $\square$
 
-[Theorem 11.35](#theorem-1135-shortages-in-the-coupled-three-sector-model) composes the seller-choice condition from [Proposition 11.33](#proposition-1133-a-ceiling-that-removes-the-sellers-gain-blocks-active-sale) with the modeled controls and the severity ranking in [Definition 11.34](#definition-1134-regulatory-stages-and-shortage-severity). To use a price ceiling as an explanation of withheld supply, an application supplies evidence that the controlled-price outcome fails the seller's stated improvement comparison against retention.
+[Proposition 11.35](#proposition-1135-shortages-in-the-coupled-three-sector-model) composes the seller-choice condition from [Proposition 11.33](#proposition-1133-a-ceiling-that-removes-the-sellers-gain-blocks-active-sale) with the modeled controls and the severity ranking in [Definition 11.34](#definition-1134-regulatory-stages-and-shortage-severity). To use a price ceiling as an explanation of withheld supply, an application supplies evidence that the controlled-price outcome fails the seller's stated improvement comparison against retention.
 
 To show how withdrawal can make downstream production physically impossible, connect it to an input endowment and the transition law.
 
-### Theorem 11.36 (From Withheld Supply to Downstream Infeasibility)
+### Proposition 11.36 (Withheld Supply Produces Downstream Infeasibility)
 Suppose a seller begins with zero units of an input, executes inaction, and inaction neither consumes nor yields that input. If a downstream production action requires one unit, then at the next moment the seller still has zero units and that production action is infeasible.
 
 **Proof.** The causal transition law gives
@@ -611,7 +611,7 @@ $$
 
 Substituting the zero initial stock, zero use, and zero yield gives $\omega(i,t',h,m)=0$. The downstream action requires $1$, so its requirement exceeds the endowment. By the feasibility definition from Chapter 1, it is infeasible. $\blacksquare$
 
-[Theorem 11.36](#theorem-1136-from-withheld-supply-to-downstream-infeasibility) is a one-step stock-transition module: zero initial stock, no use or yield under inaction, and a downstream action requiring one unit imply infeasibility at the next moment. Its conclusion iterates along a finite supply chain when each upstream producer retains the input, each downstream stage begins without the required factor, and the corresponding transition and production premises are supplied at every stage.
+[Proposition 11.36](#proposition-1136-withheld-supply-produces-downstream-infeasibility) is a one-step stock-transition module: zero initial stock, no use or yield under inaction, and a downstream action requiring one unit imply infeasibility at the next moment. Its conclusion iterates along a finite supply chain when each upstream producer retains the input, each downstream stage begins without the required factor, and the corresponding transition and production premises are supplied at every stage.
 
 ## Credit Expansion and the Firm Boundary
 

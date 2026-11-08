@@ -31,7 +31,7 @@ $$
 Expected utility theory rests on multiplying utility numbers by probabilities and summing the products: $\sum p_i u(x_i)$.
 
 Praxeologically, this operation is mathematically invalid:
-1. Subjective utility is strictly ordinal (Chapter 3, [Assumption 3.3](../natural_language/03_preference_purpose_and_opportunity_cost.md#assumption-33-strict-asymmetry-of-preference)). An ordinal ranking expresses relative priority ($A \succ B$); it has no mathematical scale, zero-point, or unit of measurement.
+1. Subjective utility is strictly ordinal (Chapter 3, [Axiom 3.3](../natural_language/03_preference_purpose_and_opportunity_cost.md#axiom-33-strict-asymmetry-of-preference)). An ordinal ranking expresses relative priority ($A \succ B$); it has no mathematical scale, zero-point, or unit of measurement.
 2. Multiplying an ordinal rank by a probability number and adding them is a mathematical category mistake: ordinal ranks cannot be added or multiplied ($u_1 \times p_1 + u_2 \times p_2$ is meaningless). 
 3. The vNM "cardinal utility" derived from lottery choices is not a measure of psychic satisfaction or felt unease; it is merely an algebraic scaling factor concocted to make the expectation formula hold by construction.
 
@@ -89,7 +89,7 @@ $$
 
 even when the unchosen lottery payoffs diverge arbitrarily: $`\mathbb{E}_{\mu}[\beta] \neq \mathbb{E}_{\mu'}[\beta]`$.
 
-**Proof.** Direct from Chapter 14, [Theorem 14.1](../natural_language/14_historical_observation_and_identification.md#theorem-141-non-identification-from-equal-records) (Econometric Non-Identifiability). Econometric data record realized history branches, not subjective probability weights assigned to counterfactual paths. Multiple mutually contradictory probability structures generate identical historical actions. $\blacksquare$
+**Proof.** Direct from Chapter 14, [Proposition 14.1](../natural_language/14_historical_observation_and_identification.md#proposition-141-non-identification-from-equal-records) (Econometric Non-Identifiability). Econometric data record realized history branches, not subjective probability weights assigned to counterfactual paths. Multiple mutually contradictory probability structures generate identical historical actions. $\blacksquare$
 
 ---
 

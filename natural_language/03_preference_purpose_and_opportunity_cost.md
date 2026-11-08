@@ -28,7 +28,7 @@ $$
 
 We write $e_1\succ_{i,t,h}e_2$ when the agent ranks $e_1$ strictly above $e_2$ at that situation. The relation records order only, so its comparisons do not depend on numerical labels assigned to ends.
 
-### Assumption 3.3 (Strict Asymmetry of Preference)
+### Axiom 3.3 (Strict Asymmetry of Preference)
 We require preference to be asymmetric:
 
 $$
@@ -59,7 +59,7 @@ $$
 
 Chapter 1 defined a comparison between bundles by the ends they can attain. We now state how that comparison constrains preference: a bundle that supports every attainable combination of valued ends of another, and at least one additional set, is ranked strictly higher when bundles are represented as ends.
 
-### Assumption 3.6 (Preference for a Bundle That Attains More Valued Ends)
+### Axiom 3.6 (Teleological Bundle Preference)
 We represent bundles by ends through a map
 
 $$
@@ -76,7 +76,7 @@ This condition connects physical possibilities to subjective valuation: an agent
 
 ---
 
-### Theorem 3.7 (Direct Bundle Representation)
+### Proposition 3.7 (Direct Bundle Representation)
 *When a model represents each bundle directly by an end whose requirements equal that bundle, raw physical vector dominance strictly implies teleological bundle dominance over any domain containing those ends:*
 
 $$
@@ -103,7 +103,7 @@ $$
 
 The clauses have distinct roles:
 1. Feasibility: The action belongs to the physically available choice menu $`\mathcal{A}_{\text{feas}}(i, t, h)`$ ([Definition 1.4](01_agents_means_ends_and_feasibility.md#definition-14-action-menus-contemplation-and-feasibility)).
-2. Physical Execution: The action is enacted on history $h$ at moment $t$. Chapter 2 defines this through the choice cell ([Definition 2.11](02_time_histories_and_physical_execution.md#definition-211-physical-execution-and-guarantees)); enacted actions are recorded by [Definition 2.7](02_time_histories_and_physical_execution.md#definition-27-enacted-actions), and feasible alternatives have corresponding branches under [Assumption 2.10](02_time_histories_and_physical_execution.md#assumption-210-feasible-actions-have-corresponding-branches).
+2. Physical Execution: The action is enacted on history $h$ at moment $t$. Chapter 2 defines this through the choice cell ([Definition 2.11](02_time_histories_and_physical_execution.md#definition-211-physical-execution-and-guarantees)); enacted actions are recorded by [Definition 2.7](02_time_histories_and_physical_execution.md#definition-27-enacted-actions), and feasible alternatives have corresponding branches under [Axiom 2.10](02_time_histories_and_physical_execution.md#axiom-210-branch-realization-of-feasible-actions).
 3. Improvement over inaction: An active action must have an end ranked above the end of $\alpha_0$.
 4. Undominatedness: No feasible alternative may have an end ranked strictly above the chosen end.
 
@@ -121,7 +121,7 @@ $$
 \mathsf{P}_{\mathrm{act}}(i, t, h, \alpha^{\ast}) \equiv \mathsf{P}(i, t, h, \alpha^{\ast}) \wedge \text{outcome}(i, \alpha^{\ast}, t, h) \succ_{i,t,h} \text{outcome}(i, \alpha_0, t, h)
 $$
 
-### Theorem 3.11 (Consequences of Active Purposeful Choice)
+### Theorem 3.11 (The Action Axiom and Non-Passivity Theorem)
 Let $\alpha^{\ast} \in \mathcal{A}$ be a purposeful action for agent $i$ at decision node $\langle t, h \rangle$.
 1. If $\alpha^{\ast} \neq \alpha_0$, then its assigned end differs from that of inaction: $\text{outcome}(i, \alpha^{\ast}, t, h) \neq \text{outcome}(i, \alpha_0, t, h)$.
 2. If the assigned end of $\alpha^{\ast}$ is strictly preferred to the assigned end of inaction, then $\alpha^{\ast}$ is distinct from $\alpha_0$ and its assigned end differs from the end of inaction: $\alpha^{\ast} \neq \alpha_0 \wedge \text{outcome}(i, \alpha^{\ast}, t, h) \neq \text{outcome}(i, \alpha_0, t, h)$.
@@ -134,7 +134,7 @@ Let $\alpha^{\ast} \in \mathcal{A}$ be a purposeful action for agent $i$ at deci
 3. The forward direction follows immediately from Part 2. For the reverse direction, if $\mathsf{P}(\alpha^{\ast})$ and $\alpha^{\ast} \neq \alpha_0$, the disjunction $\alpha^{\ast} = \alpha_0 \vee \text{outcome}(\alpha^{\ast}) \succ \text{outcome}(\alpha_0)$ forces $\text{outcome}(\alpha^{\ast}) \succ \text{outcome}(\alpha_0)$, yielding $`\mathsf{P}_{\mathrm{act}}(\alpha^{\ast})`$.
 4. Suppose $\alpha^{\ast} = \alpha_0$. By undominatedness, no feasible alternative strictly dominates $\alpha^{\ast}$: $`\forall \beta \in \mathcal{A}_{\text{feas}}, \neg(\text{outcome}(\beta) \succ_{i,t,h} \text{outcome}(\alpha^{\ast}))`$. But this directly contradicts the hypothesis that some $`\beta \in \mathcal{A}_{\text{feas}}`$ satisfies $`\text{outcome}(\beta) \succ_{i,t,h} \text{outcome}(\alpha_0)`$. Hence $\alpha^{\ast} \neq \alpha_0$. $\blacksquare$
 
-### Theorem 3.12 (An Active Choice Separates Future Branches)
+### Proposition 3.12 (Active Choice Separates Future Branches)
 If an agent purposefully enacts an action other than $\alpha_0$ at $(t,h)$, then there is a history $h_0$ through $t$ on which the agent refrains. The two histories agree on the past of $t$, share no later moment, and have incomparable future moments:
 
 $$
@@ -152,16 +152,16 @@ $$
 
 The theorem makes the counterfactual concrete: refraining is represented by a branch with the same past, not by changing the action on the already realized history.
 
-### Theorem 3.13 (One Enacted Action per Decision Situation)
+### Proposition 3.13 (Unique Enacted Action per Situation)
 At a fixed decision situation, two purposeful actions must be the same action:
 
 $$
 \mathsf{P}(i, t, h, \alpha_1) \wedge \mathsf{P}(i, t, h, \alpha_2) \implies \alpha_1 = \alpha_2
 $$
 
-**Proof.** Suppose $\alpha_1 \neq \alpha_2$. By [Definition 3.8](#definition-38-purposeful-choice-relative-to-a-relation), physical execution requires $h \in \pi_i(t, \alpha_1)$ and $h \in \pi_i(t, \alpha_2)$. Hence $h \in \pi_i(t, \alpha_1) \cap \pi_i(t, \alpha_2)$. But by the disjointness clause in [Theorem 2.9](02_time_histories_and_physical_execution.md#theorem-29-choice-cells-cover-and-separate-histories-through-a-moment), the choice cells for distinct actions do not intersect. This is a contradiction, so $\alpha_1 = \alpha_2$. $\blacksquare$
+**Proof.** Suppose $\alpha_1 \neq \alpha_2$. By [Definition 3.8](#definition-38-purposeful-choice-relative-to-a-relation), physical execution requires $h \in \pi_i(t, \alpha_1)$ and $h \in \pi_i(t, \alpha_2)$. Hence $h \in \pi_i(t, \alpha_1) \cap \pi_i(t, \alpha_2)$. But by the disjointness clause in [Theorem 2.9](02_time_histories_and_physical_execution.md#theorem-29-the-choice-cell-partition-theorem), the choice cells for distinct actions do not intersect. This is a contradiction, so $\alpha_1 = \alpha_2$. $\blacksquare$
 
-### Theorem 3.14 (Multi-Option Demonstrated Consistency)
+### Theorem 3.14 (The Demonstrated Preference Consistency Theorem)
 Let the feasible menu be exactly $`\{\alpha_1,\alpha_2,\alpha_3\}`$. The passive baseline $`\alpha_0`$ supplies a comparison end but is not an additional fourth menu option. Suppose preference is transitive and asymmetric, with
 $\text{outcome}(\alpha_1)\succ\text{outcome}(\alpha_2)$,
 $\text{outcome}(\alpha_2)\succ\text{outcome}(\alpha_3)$, and
@@ -177,7 +177,7 @@ $$
 2. The feasible action $\alpha_1$ strictly dominates $\alpha_2$. Thus $\alpha_2$ fails the undominatedness condition and is not purposeful.
 3. The feasible action $\alpha_2$ strictly dominates $\alpha_3$. Thus $\alpha_3$ fails the undominatedness condition and is not purposeful. $\blacksquare$
 
-### Theorem 3.15 (Purposeful Choice Can Include Tied Actions)
+### Proposition 3.15 (Purposeful Choice with Indifferent Alternatives)
 In any action frame $F$, two distinct actions $\alpha_1 \neq \alpha_2$ can achieve the identical teleological end $\text{outcome}(i, \alpha_1, t, h) = \text{outcome}(i, \alpha_2, t, h)$ while $\alpha_1$ is purposefully enacted ( $\mathsf{P}(i, t, h, \alpha_1)$ ). Strict preference ranks ends; it does not require an injective correspondence between actions and ends.
 
 **Proof.** Let $i$ be an agent at decision node $\langle t, h \rangle$ with two distinct actions $\alpha_1 \neq \alpha_2$ in the feasible menu $`\mathcal{A}_{\text{feas}}(i, t, h)`$ having identical ends $\text{outcome}(i, \alpha_1, t, h) = \text{outcome}(i, \alpha_2, t, h)$. Suppose $\alpha_1$ is enacted, relieves felt unease over inaction ( $\alpha_1 = \alpha_0 \vee \text{outcome}(\alpha_1) \succ_{i,t,h} \text{outcome}(\alpha_0)$ ), and no feasible alternative $\beta$ satisfies $\text{outcome}(\beta) \succ_{i,t,h} \text{outcome}(\alpha_1)$. Because $\text{outcome}(\alpha_2) = \text{outcome}(\alpha_1)$, irreflexivity ([Proposition 3.4](#proposition-34-derived-strict-irreflexivity-of-preference)) guarantees $\neg(\text{outcome}(\alpha_2) \succ_{i,t,h} \text{outcome}(\alpha_1))$. Thus $\alpha_2$ cannot dominate $\alpha_1$, and $\mathsf{P}(i, t, h, \alpha_1)$ holds despite the tie. This condition is constructively witnessed on a finite branching model. $\blacksquare$
@@ -202,7 +202,7 @@ $$
 e_1 \triangleright_{\mathcal{E}, i, t, h} e_2 \iff e_1 \neq e_2 \wedge \exists \alpha^{\ast}, \beta \in \mathcal{A}_{\text{feas}}(i, t, h), \quad \mathsf{P}(i, t, h, \alpha^{\ast}) \wedge \text{outcome}(\alpha^{\ast}) = e_1 \wedge \text{outcome}(\beta) = e_2
 $$
 
-### Theorem 3.18 (A Purposeful Choice Rules Out a Preferred Rival)
+### Proposition 3.18 (Purposeful Choice Precludes Preferred Rivals)
 *Demonstrated preference on ends strictly reveals that the foregone end is not preferred to the chosen end:*
 
 $$
@@ -239,14 +239,14 @@ $$
 
 This is the required conclusion. $\blacksquare$
 
-### Theorem 3.19 (Recovering a Strict Ranking under Comparability)
+### Proposition 3.19 (Strict Ranking Recovery under Comparability)
 Let $e_1, e_2 \in \mathcal{E}$. Under local menu comparability ($e_1 \neq e_2 \implies e_1 \succ_{i,t,h} e_2 \vee e_2 \succ_{i,t,h} e_1$), demonstrated preference implies strict subjective preference:
 
 $$
 e_1 \triangleright_{\mathcal{E}, i, t, h} e_2 \implies e_1 \succ_{i,t,h} e_2
 $$
 
-**Proof.** By [Theorem 3.18](#theorem-318-a-purposeful-choice-rules-out-a-preferred-rival), $e_1 \triangleright_{\mathcal{E}} e_2 \implies \neg(e_2 \succ_{i,t,h} e_1)$. By local comparability, since $e_1 \neq e_2$, we have $e_1 \succ_{i,t,h} e_2 \vee e_2 \succ_{i,t,h} e_1$. Discharging the disjunction against $\neg(e_2 \succ_{i,t,h} e_1)$ leaves $e_1 \succ_{i,t,h} e_2$. $\blacksquare$
+**Proof.** By [Proposition 3.18](#proposition-318-purposeful-choice-precludes-preferred-rivals), $e_1 \triangleright_{\mathcal{E}} e_2 \implies \neg(e_2 \succ_{i,t,h} e_1)$. By local comparability, since $e_1 \neq e_2$, we have $e_1 \succ_{i,t,h} e_2 \vee e_2 \succ_{i,t,h} e_1$. Discharging the disjunction against $\neg(e_2 \succ_{i,t,h} e_1)$ leaves $e_1 \succ_{i,t,h} e_2$. $\blacksquare$
 
 ### Proposition 3.20 (Ties and Undominated Choice on Indifferent Alternatives)
 Demonstrated preference is formalized through undominated choice on a feasible menu, which preserves purposeful selection even when alternatives are tied or mutually unranked. In particular, when an agent in an action frame faces two distinct feasible actions $\alpha_1 \neq \alpha_2$ yielding the identical end $e^{\ast}$, neither action strictly dominates all other feasible rivals:
@@ -271,7 +271,7 @@ Since $`\alpha_2 \in \mathcal{A}_{\text{feas}}(i, t, h) \setminus \{\alpha_1\}`$
 
 When the two actions yield distinct unranked ends $e_1 \neq e_2$, if $\alpha_1$ is enacted and undominated, it is purposeful and demonstrates preference for $e_1$ over $e_2$ in the sense of [Definition 3.17](#definition-317-demonstrated-preference-over-ends). But because the ends are unranked, neither $e_1 \succ_{i,t,h} e_2$ nor $e_2 \succ_{i,t,h} e_1$ holds. Demonstrated preference proves only the absence of a preferred feasible rival, not positive strict preference. $\blacksquare$
 
-### Theorem 3.21 (Purposefulness Is Constant within a Choice Cell)
+### Proposition 3.21 (Choice-Cell Invariance of Purposefulness)
 Purposeful action is an invariant property of the agent's STIT choice cell: if two histories $h_1, h_2 \in H(t)$ belong to the same choice cell for agent $i$, then an action is purposeful at $\langle t, h_1 \rangle$ if and only if it is purposeful at $\langle t, h_2 \rangle$.
 
 $$
@@ -299,7 +299,7 @@ Since all four defining conjuncts of $\mathsf{P}$ in [Definition 3.8](#definitio
 
 We need one more finite-order fact before defining opportunity cost. A finite set with an irreflexive, transitive relation contains an undominated element, but it may contain several. This is why we keep the foregone frontier set-valued unless additional assumptions reduce it to one end.
 
-### Theorem 3.22 (A Finite Set Has an Undominated Element)
+### Lemma 3.22 (Existence of Undominated Elements in Finite Posets)
 Let $S$ be a finite, non-empty set equipped with an irreflexive and transitive binary relation $R$. Then $S$ contains at least one undominated (maximal) element:
 
 $$
@@ -318,14 +318,14 @@ $$
     - We claim $m$ is undominated in the entire set $S$. Suppose for contradiction that there exists $y \in S$ such that $R(y, m)$. Since $m \in S'$, we know $R(m, a)$. By transitivity of $R$, $R(y, m) \wedge R(m, a) \implies R(y, a)$. But this means $y \in S'$ by definition of $S'$. This contradicts the maximality of $m$ in $S'$.
     - Therefore, $\forall x \in S, \neg R(x, m)$, and $m \in S$ is undominated. $\blacksquare$
 
-### Theorem 3.23 (A Finite Set Has a Least Element in the Reverse Order)
+### Lemma 3.23 (Existence of Least-Urgent Ends in Finite Posets)
 Let $S$ be a finite, non-empty set equipped with an irreflexive and transitive binary relation $R$. Then $S$ contains at least one minimal (least-urgent) element:
 
 $$
 S \neq \emptyset \wedge \text{Irreflexive}(R) \wedge \text{Transitive}(R) \implies \exists m \in S, \quad \forall x \in S, \quad \neg R(m, x)
 $$
 
-**Proof.** The argument is the exact dual of [Theorem 3.22](#theorem-322-a-finite-set-has-an-undominated-element), inducting on cardinality using the lower filtering subset $`S' = \{ x \in S \mid R(a, x) \}`$. $\blacksquare$
+**Proof.** The argument is the exact dual of [Lemma 3.22](#lemma-322-existence-of-undominated-elements-in-finite-posets), inducting on cardinality using the lower filtering subset $`S' = \{ x \in S \mid R(a, x) \}`$. $\blacksquare$
 
 ### Definition 3.24 (Foregone Action Menus and Images)
 After an agent chooses $\alpha^{\ast}$, we can list the foregone options in two steps. First we collect the feasible rival actions; then we map them to their ends. Since two actions may have the same end, we separately record ends different from the chosen one.
@@ -372,7 +372,7 @@ $$
 \mathrm{OC}^{+}_{\mathrm{end}}(i, t, h, \alpha^{\ast}) \equiv \{ e \in C^{+}_{\mathrm{end}} \mid \forall e' \in C^{+}_{\mathrm{end}}, \neg(e' \succ_{i,t,h} e) \}
 $$
 
-### Theorem 3.27 (Basic Properties of the Opportunity-Cost Frontiers)
+### Proposition 3.27 (Basic Properties of Opportunity-Cost Frontiers)
 
 1. The chosen end is absent from the strict frontier:
 
@@ -397,7 +397,7 @@ $$
 2. The tied rival places the chosen end in the full foregone set. Purposefulness rules out any foregone end strictly above it, so it is undominated there.
 3. Under the no-tie premise, [Proposition 3.25](#proposition-325-removing-a-missing-end-changes-nothing) identifies the candidate sets. The same ranking on equal sets gives equal frontiers. $\blacksquare$
 
-### Theorem 3.28 (Nonempty Foregone Sets Have Nonempty Frontiers)
+### Proposition 3.28 (Non-emptiness of Opportunity-Cost Frontiers)
 Assume preference is transitive on each relevant finite set. A nonempty strict foregone-end set has a nonempty strict frontier, and a nonempty full foregone-end set has a nonempty full frontier:
 
 $$
@@ -407,16 +407,16 @@ C_{\mathrm{end}} \neq \emptyset & \implies \mathrm{OC}_{\mathrm{act}} \neq \empt
 \end{aligned}
 $$
 
-**Proof.** Asymmetry gives irreflexivity. Apply [Theorem 3.22](#theorem-322-a-finite-set-has-an-undominated-element) to each nonempty finite candidate set with preference restricted to that set. An undominated member is exactly a member of the corresponding frontier. $\blacksquare$
+**Proof.** Asymmetry gives irreflexivity. Apply [Lemma 3.22](#lemma-322-existence-of-undominated-elements-in-finite-posets) to each nonempty finite candidate set with preference restricted to that set. An undominated member is exactly a member of the corresponding frontier. $\blacksquare$
 
-### Theorem 3.29 (Connected Rankings Give Singleton Frontiers)
+### Theorem 3.29 (The Connected Opportunity-Cost Frontier Theorem)
 Assume both candidate sets are nonempty and preference is transitive and connected on each. Then each undominated frontier contains exactly one end:
 
 $$
 \text{Connected}(\succ_{i,t,h}) \wedge \text{Transitive}(\succ_{i,t,h}) \wedge C^{+}_{\mathrm{end}}\ne\emptyset \wedge C_{\mathrm{end}}\ne\emptyset \implies |\mathrm{OC}^{+}_{\mathrm{end}}| = 1 \wedge |\mathrm{OC}_{\mathrm{act}}| = 1
 $$
 
-**Proof.** [Theorem 3.28](#theorem-328-nonempty-foregone-sets-have-nonempty-frontiers) gives nonemptiness. If two distinct members of either frontier existed, connectedness would rank one above the other, contradicting the lower member's undominatedness. Thus each frontier has at most one member; nonemptiness makes its cardinality exactly one. $\blacksquare$
+**Proof.** [Proposition 3.28](#proposition-328-non-emptiness-of-opportunity-cost-frontiers) gives nonemptiness. If two distinct members of either frontier existed, connectedness would rank one above the other, contradicting the lower member's undominatedness. Thus each frontier has at most one member; nonemptiness makes its cardinality exactly one. $\blacksquare$
 
 ---
 
@@ -442,7 +442,7 @@ $$
 \wedge \; (\forall e, \neg(e \succ_{i,t,h} e)) \;\wedge\; (\forall e_1, e_2, e_1 \succ_{i,t,h} e_2 \implies \neg(e_2 \succ_{i,t,h} e_1))
 $$
 
-**Proof.** The relation $\succ_{i,t,h}$ satisfies irreflexivity and asymmetry by [Proposition 3.4](#proposition-34-derived-strict-irreflexivity-of-preference) and [Assumption 3.3](#assumption-33-strict-asymmetry-of-preference). The improvement and undominatedness requirements follow directly from the definition of purposeful action ([Definition 3.8](#definition-38-purposeful-choice-relative-to-a-relation)). $\blacksquare$
+**Proof.** The relation $\succ_{i,t,h}$ satisfies irreflexivity and asymmetry by [Proposition 3.4](#proposition-34-derived-strict-irreflexivity-of-preference) and [Axiom 3.3](#axiom-33-strict-asymmetry-of-preference). The improvement and undominatedness requirements follow directly from the definition of purposeful action ([Definition 3.8](#definition-38-purposeful-choice-relative-to-a-relation)). $\blacksquare$
 
 ### Proposition 3.32 (Framing Reversals Require Context Distinction)
 An apparent reversal of preference between two ends requires that the decision nodes (moment or history) be distinct:
@@ -451,7 +451,7 @@ $$
 e_1 \succ_{i, t_1, h_1} e_2 \quad \wedge \quad e_2 \succ_{i, t_2, h_2} e_1 \implies t_1 \neq t_2 \vee h_1 \neq h_2
 $$
 
-**Proof.** Suppose toward a contradiction that $t_1 = t_2$ and $h_1 = h_2$. Then both comparisons hold in the same decision situation: $e_1 \succ_{i, t_1, h_1} e_2$ and $e_2 \succ_{i, t_1, h_1} e_1$. This directly contradicts preference asymmetry ([Assumption 3.3](#assumption-33-strict-asymmetry-of-preference)). Hence at least one coordinate must differ. $\blacksquare$
+**Proof.** Suppose toward a contradiction that $t_1 = t_2$ and $h_1 = h_2$. Then both comparisons hold in the same decision situation: $e_1 \succ_{i, t_1, h_1} e_2$ and $e_2 \succ_{i, t_1, h_1} e_1$. This directly contradicts preference asymmetry ([Axiom 3.3](#axiom-33-strict-asymmetry-of-preference)). Hence at least one coordinate must differ. $\blacksquare$
 
 Apparent framing effects in empirical experiments are formalized as consistent evaluations across distinct decision situations $\langle t_1, h_1 \rangle \neq \langle t_2, h_2 \rangle$.
 
@@ -483,7 +483,7 @@ $$
 
 Predictable preference changes over time do not violate transitivity or asymmetry at any single moment; each ranking is a well-defined strict order at its own temporal stage.
 
-### Theorem 3.35 (Precommitment Prunes Feasible Menus)
+### Proposition 3.35 (Precommitment Pruning of Feasible Menus)
 Let $i$ be an agent facing a downstream evaluation moment $t_2$. Suppose an earlier commitment action steers the agent onto history $h_{\text{commit}}$ where the feasible menu is restricted to saving:
 
 $$
@@ -504,7 +504,7 @@ $$
 
 **Proof.** Because $\alpha_{\text{consume}} \neq \alpha_{\text{save}}$, $\alpha_{\text{consume}}$ cannot belong to the singleton set $`\{ \alpha_{\text{save}} \}`$, establishing the first clause. For the second clause, $\alpha_{\text{consume}}$ belongs to the two-element set $`\{ \alpha_{\text{save}}, \alpha_{\text{consume}} \}`$. $\blacksquare$
 
-### Proposition 3.36 (Constructive Witness of Precommitment Pruning)
+### Witness 3.36 (Constructive Model Witness of Precommitment Pruning)
 There exists a constructive action frame witness in which precommitment prunes downstream temptation while preserving earlier intertemporal choice:
 
 $$
@@ -530,7 +530,7 @@ $$
 
 Bounded contemplation does not violate human action: an actor economizes scarce cognitive attention within their finite contemplated set $`\mathcal{A}_{\text{cont}}`$. Uncontemplated options cannot be selected because they are outside the agent's mental model and cannot be evaluated against ends.
 
-### Definition 3.37b (Action Frame Majority Preference)
+### Definition 3.38 (Action Frame Majority Preference)
 Let $\mathcal{W}$ be an Action Frame. At decision moment $t$ on history $h$, for three agents $i_1, i_2, i_3 \in \mathcal{I}$ and alternative ends $e_1, e_2 \in \mathcal{E}$, the collective pairwise majority preference is defined by:
 
 $$
@@ -542,7 +542,7 @@ $$
 \end{aligned}
 $$
 
-### Proposition 3.38 (Condorcet Majority Cycles from Individual Strict Posets)
+### Theorem 3.39 (The Social Choice Condorcet Cycle Theorem)
 When each agent's individual preference relation $\succ_{i, t, h}$ over ends is a transitive strict partial order (inducing an individual strict poset), pairwise majority preference $\text{ActionFrameMajorityPref}$ can form a strict cycle over three ends $e_0, e_1, e_2 \in \mathcal{E}$:
 
 $$
@@ -569,10 +569,10 @@ $$
 
 Because majority voting cycles over transitive individual posets, voting outcomes cannot be interpreted as the purposeful choice of a collective mind, nor can they define a coherent "social welfare function" or "social utility." In praxeology, purposeful choice and ordinal preference are strictly individual categories. $\blacksquare$
 
-### Proposition 3.39 (Autonomous Self-Precommitment vs. External Menu Stripping)
+### Proposition 3.40 (Autonomous Precommitment vs. Coercive Menu Stripping)
 In an Action Frame, there is a fundamental praxeological distinction between autonomous self-precommitment and external coercive menu stripping:
 1. **Autonomous Self-Precommitment:** At moment $t_1$, an agent purposefully executes an action $\alpha_{\text{commit}}$ that steers their own future state into a branch $h_{\text{commit}}$ where a tempting action $\alpha_{\text{consume}}$ is pruned from $`\mathcal{A}_{\text{feas}}(i, t_2, h_{\text{commit}})`$. Both choices ($\alpha_{\text{commit}}$ at $t_1$ and $\alpha_{\text{save}}$ at $t_2$) are voluntary and purposeful, economizing scarce resources across the agent's own timeline.
-2. **External Coercive Menu Stripping:** An external actor $j$ enacts an invasive action $\alpha_j$ that physically contracts $i$'s endowment $\omega(i, t', \text{jointBranch}(i, j, t, h, \alpha_0, \alpha_j), m) < \omega(i, t, h, m)$ without $i$'s consent (`EndogenouslyInvasiveJ`), forcibly stripping previously feasible actions from $i$'s choice menu (`self_precommitment_vs_external_menu_stripping`, [Theorem 8.13b](08_social_interaction_property_and_exchange.md#theorem-813b-action-axiom-menu-stripping-equivalence)).
+2. **External Coercive Menu Stripping:** An external actor $j$ enacts an invasive action $\alpha_j$ that physically contracts $i$'s endowment $\omega(i, t', \text{jointBranch}(i, j, t, h, \alpha_0, \alpha_j), m) < \omega(i, t, h, m)$ without $i$'s consent (`EndogenouslyInvasiveJ`), forcibly stripping previously feasible actions from $i$'s choice menu (`self_precommitment_vs_external_menu_stripping`, [Theorem 8.16](08_social_interaction_property_and_exchange.md#theorem-816-the-coercive-menu-stripping-equivalence-theorem)).
 
 Paternalistic nudges or state regulations that coercively strip feasible actions cannot be justified as an externalized "precommitment device," because they replace the acting agent's own purposeful valuation with external physical compulsion (political means / coercive extortion). $\blacksquare$
 

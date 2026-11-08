@@ -128,7 +128,7 @@ $$
 
 This comparison says that the response is better than refraining while the other action remains fixed. It is only a conditional comparison; the full purposeful-choice condition also requires feasibility, enactment, and the absence of a strictly preferred feasible rival.
 
-### Proposition 8.8a (Purposeful Action Induces a Strictly Improving Conditional Response)
+### Proposition 8.9 (Purposeful Action Induces a Strictly Improving Conditional Response)
 If agent $i$'s enacted choice on the joint branch $h(\alpha_i, \alpha_j)$ is purposeful ($\mathsf{P}$) and differs from inaction ($\alpha_i \neq \alpha_i^0$), then $\alpha_i$ is necessarily a strictly improving conditional response to $\alpha_j$:
 
 $$
@@ -139,7 +139,7 @@ $$
 
 The conditional comparison supplies a reason to respond. To characterize a mutually beneficial interaction, we additionally compare the joint outcome with the outcome in which both agents refrain. For the grain holder and the cloth holder, this asks whether each prefers the result of their agreement to their autonomous baseline. The definition of catallactic exchange combines these two kinds of comparison for both participants.
 
-### Definition 8.9 (Catallactic Exchange at an Interaction Node)
+### Definition 8.10 (Catallactic Exchange at an Interaction Node)
 An action pair $(\alpha_i, \alpha_j)$ is a catallactic exchange when both conditional comparisons and both autonomous comparisons hold:
 
 $$
@@ -153,10 +153,10 @@ $$
 
 The first pair of inequalities describes each participant's reason to perform its part given the other participant's action. The second describes the gain from their joint interaction relative to autonomous non-intervention. All four comparisons are intrapersonal: each actor orders its own ends.
 
-### Proposition 8.10 (Mutual Gain in Catallactic Exchange)
+### Proposition 8.11 (Mutual Gain in Catallactic Exchange)
 *Every catallactic exchange places each participant strictly above its autonomous baseline in that participant's own preference relation.*
 
-**Proof.** The conclusion consists of the last two clauses of [Definition 8.9](#definition-89-catallactic-exchange-at-an-interaction-node). $\blacksquare$
+**Proof.** The conclusion consists of the last two clauses of [Definition 8.10](#definition-810-catallactic-exchange-at-an-interaction-node). $\blacksquare$
 
 The proposition is definitional, but its role is substantive: it specifies exactly which welfare claim the term *catallactic exchange* contains. It gives two ordinal improvements without measuring their sizes, comparing them across persons, or asserting a gain to an uninvolved third party.
 
@@ -166,7 +166,7 @@ The proposition is definitional, but its role is substantive: it specifies exact
 
 A response can be purposeful because it is preferable to a threatened alternative without being voluntary relative to the unmolested baseline. The definitions in this section keep those comparisons distinct and derive the physical conditions used to classify coercive invasion from the Action Axiom.
 
-### Definition 8.11 (Coercive Extortion)
+### Definition 8.12 (Coercive Extortion)
 Let $\alpha_j^{\text{threat}}$ be an action of $j$. An interaction is coercive extortion in the local outcome model when the victim's response improves upon refusal under the threat, the aggressor gains both conditionally and relative to its autonomous baseline, and the victim falls below its autonomous baseline:
 
 $$
@@ -180,7 +180,7 @@ b_i &\succ_i O_i(\alpha_i, \alpha_j^{\text{threat}})
 \end{aligned}
 $$
 
-### Proposition 8.12 (Conditional Improvement Does Not Imply Voluntary Gain)
+### Proposition 8.13 (Conditional Improvement Does Not Imply Voluntary Gain)
 *There exists a bilateral interaction in which the victim makes a strictly improving conditional response, yet the interaction is extortion and fails the catallactic-exchange condition.*
 
 **Proof.** Give the victim three ends ordered as follows:
@@ -191,20 +191,20 @@ $$
 \text{injury after refusal}
 $$
 
-Let the aggressor prefer receiving the victim's property to receiving nothing. Define the unthreatened outcome to be unmolested possession, compliance with a threat to give the middle victim outcome and the preferred aggressor outcome, and refusal under a threat to give the least victim outcome. Compliance then improves upon refusal conditional on the threat. Both aggressor comparisons in [Definition 8.11](#definition-811-coercive-extortion) hold, while the victim prefers its autonomous baseline to compliance. Hence the interaction satisfies extortion. The victim's autonomous-gain clause in [Definition 8.9](#definition-89-catallactic-exchange-at-an-interaction-node) fails. $\blacksquare$
+Let the aggressor prefer receiving the victim's property to receiving nothing. Define the unthreatened outcome to be unmolested possession, compliance with a threat to give the middle victim outcome and the preferred aggressor outcome, and refusal under a threat to give the least victim outcome. Compliance then improves upon refusal conditional on the threat. Both aggressor comparisons in [Definition 8.12](#definition-812-coercive-extortion) hold, while the victim prefers its autonomous baseline to compliance. Hence the interaction satisfies extortion. The victim's autonomous-gain clause in [Definition 8.10](#definition-810-catallactic-exchange-at-an-interaction-node) fails. $\blacksquare$
 
 This is the finite highwayman construction. The distinct baselines rigorously isolate the logic of extortion: an agent purposefully chooses the best available option under duress while strictly preferring the uninvaded autonomous state, proving that defensive response under threat is categorically distinct from voluntary catallactic exchange.
 
 The outcome comparison tells us that the victim is worse off than under the autonomous baseline, but subjective loss alone cannot distinguish coercive predation from peaceful market competition. A competing supplier may draw away customers and leave a rival worse off than before without touching the rival's person or property. To avoid misclassifying competitive loss as coercion, the Action Frame derives property, invasion, and title endogenously from initial appropriation and feasible menus.
 
-### Definition 8.13 (Purposeful Lockean Homesteading and Clean-Title Traces)
+### Definition 8.14 (Purposeful Lockean Homesteading and Clean-Title Traces)
 An action $\alpha$ is a pure Lockean homesteading action for commodity $m$ when it is non-trade, uses zero units of $m$, and yields a positive quantity of $m$:
 
 $$
 \neg \text{IsTradeAction}(\alpha) \wedge u(\alpha, m) = 0 \wedge 0 < y(\alpha, m)
 $$
 
-When an agent purposefully enacts Lockean homesteading ($\mathsf{P}$), the transition law ([Theorem 2.13](02_time_histories_and_physical_execution.md#theorem-213-inaction-leaves-inventory-unchanged) and [Proposition 2.14](02_time_histories_and_physical_execution.md#proposition-214-inventory-changes-reflect-inputs-and-outputs)) ensures:
+When an agent purposefully enacts Lockean homesteading ($\mathsf{P}$), the transition law ([Proposition 2.13](02_time_histories_and_physical_execution.md#proposition-213-inaction-leaves-inventory-unchanged) and [Proposition 2.14](02_time_histories_and_physical_execution.md#proposition-214-inventory-changes-reflect-inputs-and-outputs)) ensures:
 1. Appropriator improvement: Agent $i$ strictly improves over inaction ( $`\text{End\_of}(i, \alpha, t, h) \succ_{i, t, h} \text{End\_of}(i, \alpha_i^0, t, h)`$ ) and strictly increases its physical stock: $\omega(i, t', h, m) > \omega(i, t, h, m)$.
 2. Non-invasive appropriation: For every passive bystander $j$ enacting $\alpha_j^0$, $j$'s physical stock $\omega(j, t', h, \cdot)$ and resource-feasible menu are completely preserved: no previously feasible action is stripped from $j$'s menu. Any contemplated action of $j$ requiring $m$ was already infeasible at $t$ because $j$'s stock of $m$ was zero; first appropriation by $i$ strips no previously feasible action from $j$.
 
@@ -212,7 +212,7 @@ Path-dependent clean title $\text{title}(k, m)$ tracks legitimate property bound
 - Theft: Seizing goods non-consensually reduces the victim's physical stock below clean title ( $\omega(i, t', h, m) < \text{title}(i, m)$ ), constituting a physical invasion ($\text{IsPathDependentTitleInvasion}$).
 - Restitution (the Thief-and-Baker theorem): When rightful owner $i$ recovers stolen goods from possessor $j$ without $j$'s consent, $j$'s physical stock contracts, but because $\omega(j, t', h, m) \ge \text{title}(j, m)$, restitution restores possession to clean title and is non-invasive ($\neg \text{IsPathDependentTitleInvasion}$).
 
-### Definition 8.13a (Directed Physical Invasion and Action-Axiom Menu Stripping)
+### Definition 8.15 (Directed Physical Invasion and Action-Axiom Menu Stripping)
 In the Action Frame, physical invasion is formulated as an explicit directed inter-agent relation $I_{j \to i}(\alpha_j)$ indicating that action $\alpha_j$ of agent $j$ invades agent $i$'s clean title.
 
 At decision node $\langle t, h\rangle$, action $\alpha_j$ physically invades agent $i$ along transition $t \to t'$ when executing $\alpha_j$ on the unilateral non-consenting branch $h(\alpha_i^0, \alpha_j)$ (where $i$ refrains) strictly contracts $i$'s physical stock below clean title:
@@ -221,7 +221,7 @@ $$
 I_{j \to i}(\alpha_j) \iff \exists m \in \mathcal{M}, \quad \omega_i(t', h(\alpha_i^0, \alpha_j), m) < \text{title}_i(m) \ \wedge\ \omega_i(t', h(\alpha_i^0, \alpha_j), m) < \omega_i(t, h, m)
 $$
 
-### Theorem 8.13b (Action-Axiom Menu-Stripping Equivalence)
+### Theorem 8.16 (The Coercive Menu-Stripping Equivalence Theorem)
 Under clean initial title ( $`\text{title}_i(m) \le \omega_i(t, h, m)`$ ) and tight-action richness, $I_{j \to i}(\alpha_j)$ holds if and only if $j$'s action strips at least one feasible action from $i$'s feasible action menu:
 
 $$
@@ -230,7 +230,7 @@ $$
 
 *Physical invasion is thus derived directly from the Action Axiom:* an action invades another agent if and only if it forcibly destroys or seizes scarce means, stripping previously feasible purposeful actions from the victim's choice menu without consent.
 
-### Definition 8.13c (Voluntary Exchange, Anchored Extortion, and Peaceful Competition)
+### Definition 8.17 (Voluntary Exchange, Anchored Extortion, and Peaceful Competition)
 With directed physical invasion predicates $I_{i \to j}(\alpha_i)$ and $I_{j \to i}(\alpha_j)$ (shortened to $I_i, I_j$ when the counterparties are fixed):
 
 1. Voluntary exchange:
@@ -260,12 +260,12 @@ $$
 
 The competitor's action is non-invasive, improves the competitor's result relative to that competitor's inaction while the other action remains fixed, and leaves the rival below the autonomous baseline. Crucially, peaceful competition preserves all of $i$'s clean-title stocks and leaves $i$'s feasible menu $`\mathcal{A}_{\text{feas}}`$ completely intact; the rival's loss is purely ordinal and catallactic, not a physical deprivation of means.
 
-### Proposition 8.14 (Peaceful Competition Excludes Anchored Extortion)
+### Proposition 8.18 (Peaceful Competition Excludes Anchored Extortion)
 *An interaction satisfying the peaceful-competition predicate cannot satisfy the anchored-extortion predicate for the same action pair.*
 
 **Proof.** Peaceful competition entails $\neg I_j(\alpha_j)$. Anchored extortion entails $I_j(\alpha_j)$. Their conjunction is contradictory. $\blacksquare$
 
-### Theorem 8.15 (The Three Stated Categories Are Pairwise Disjoint)
+### Theorem 8.19 (The Three Interaction Categories Partition Theorem)
 *Under strict preference asymmetry, the three catallactic categories—Voluntary Exchange, Anchored Extortion, and Market Competition—are pairwise mutually exclusive:*
 
 $$
@@ -295,7 +295,7 @@ The three predicates separate voluntary exchange, extortion, and peaceful compet
 
 An offer by itself changes no inventory. We now require the matching acceptance and then apply the inventory equations. Only after determining the physical transfer can we state the separate preference inequalities that characterize purposeful exchange.
 
-### Definition 8.16 (Matched Offer and Acceptance)
+### Definition 8.20 (Matched Offer and Acceptance)
 Fix distinct goods $m_A, m_B$ and quantities $q_A, q_B \in \mathbb{N}$. Put
 
 $$
@@ -307,7 +307,7 @@ The trade is matched on $h$ at $t$ when the enacted actions of $i$ and $j$ are r
 
 We assume positive quantities when discussing a nontrivial exchange. The balance equations themselves remain meaningful when one quantity is zero.
 
-### Theorem 8.17 (Physical Balances of Matched Exchange)
+### Proposition 8.21 (Physical Balances of Matched Exchange)
 Suppose the offer and acceptance are matched, and $t'$ is the immediate successor of $t$ on $h$. Write $`\omega'_k(m) = \omega(k, t', h, m)`$. Then
 
 $$
@@ -325,7 +325,7 @@ We write each balance using addition so that all stocks and transfers remain nat
 
 Each matched offer and acceptance is one trade step in the operational trace of Chapter 2. Chaining such steps with production and unmatched actions gives a finite inventory run, whose total-use and total-yield balance accounts for repeated transfers without losing their order. An unmatched offer or acceptance remains a step with no inventory change; it cannot be counted as a completed physical exchange.
 
-### Corollary 8.18 (Conservation of the Joint Stock)
+### Corollary 8.22 (Conservation of the Joint Stock)
 *For either traded commodity, the two-agent total is unchanged:*
 
 $$
@@ -338,10 +338,10 @@ Exchange therefore changes the distribution of means while preserving the releva
 
 These equations establish the physical change but say nothing about whether either person prefers it. We now return to purposeful choice: each trade action must be feasible and enacted, must improve on inaction, and must be undominated in that person's own feasible menu.
 
-### Definition 8.19 (Purposeful Bilateral Exchange)
+### Definition 8.23 (Purposeful Bilateral Exchange)
 A matched offer and acceptance constitute purposeful bilateral exchange when both are purposeful in the sense of Chapter 3 and both differ from passive inertia. Each action must be feasible and executed, must improve upon inertia, and must be undominated among the acting agent's feasible alternatives.
 
-### Theorem 8.20 (The Double Inequality of Exchange)
+### Theorem 8.24 (The Double Inequality of Voluntary Exchange Theorem)
 *Purposeful bilateral exchange entails*
 
 $$
@@ -355,7 +355,7 @@ $$
 
 The theorem establishes that purposeful bilateral exchange requires mutual expected improvement over inaction, formally capturing the Double Inequality of Exchange within the choice structure.
 
-### Proposition 8.21 (Purposefulness on a Binary Trade Menu)
+### Proposition 8.25 (Purposefulness on a Binary Trade Menu)
 *Suppose each participant has only inertia and its trade action in its feasible menu. Suppose the trade actions are feasible, executed, distinct from inertia, and strictly preferred to inertia. Then both actions are purposeful, and the matched pair constitutes purposeful bilateral exchange.*
 
 **Proof.** Consider $i$. Feasibility, execution, and strict improvement are given. A feasible rival is either inertia or $\alpha_i$. Inertia cannot be strictly preferred to $\alpha_i$ by asymmetry; $\alpha_i$ cannot be strictly preferred to itself by irreflexivity. Thus no feasible rival dominates the trade action. The same argument applies to $j$. $\blacksquare$
@@ -374,7 +374,7 @@ This example satisfies the full choice conditions together with the matched tran
 
 We finish with a two-good production example. Relative labor requirements can make specialization advantageous even when one agent uses less labor in both activities. We first derive an interval in which each agent can obtain its import at a lower labor cost than producing it directly; then we add the production and budget conditions needed to compare complete consumption bundles with autarky.
 
-### Definition 8.22 (A Two-Agent Ricardian Economy)
+### Definition 8.26 (A Two-Agent Ricardian Economy)
 Let $L_i, L_j > 0$ be natural-number labor budgets, and let $a_i(g), a_j(g) > 0$ denote the labor requirements per unit of each good $`g \in \{0, 1\}`$. Agent $i$ has comparative advantage in good $0$ when
 
 $$
@@ -391,7 +391,7 @@ These ratios compare labor requirements, not preferences. In the natural-number 
 
 A difference in relative labor requirements suggests a division of tasks, but it does not yet establish a gain to either actor. A proof of gain needs two consumption bundles for each person: what that person can consume when producing independently, and what remains after specialization and exchange. We construct those bundles before choosing terms of trade.
 
-### Definition 8.23 (Autarky and Specialized Consumption)
+### Definition 8.27 (Autarky and Specialized Consumption)
 An autarky bundle $b_i^0=(b_i^0(0),b_i^0(1))$ is supported by an exact labor certificate: for some unused-labor remainder $r_i^0$,
 
 $$
@@ -411,7 +411,7 @@ Each production bundle also has an exact labor certificate, including its unused
 
 We now choose integer transfer quantities satisfying both labor-cost comparisons. The comparative-advantage inequality orders the two thresholds strictly, so we can select positive quantities between them using products and sums in $\mathbb{N}$.
 
-### Theorem 8.24 (A Strict Interval between Labor-Cost Thresholds)
+### Theorem 8.28 (The Law of Association and Comparative Advantage Theorem)
 Under the comparative-advantage inequality, there exist positive integer transfer quantities $x_0, x_1$ such that
 
 $$
@@ -437,7 +437,7 @@ $$
 
 They support the explicit production and transfer quantities while recording unused labor in the balance. The larger factor-of-four budgets appear in the separate universal construction that builds an economy from arbitrary positive comparative-advantage coefficients. These are sufficient bounds for the stated construction, not necessary conditions for every gain from trade. The example evaluates bundles by coordinatewise weak improvement with a strict gain in at least one good; for more complex goods, we use the end-requirement comparison from Chapter 1.
 
-### Example 8.25 (Association under Absolute Advantage)
+### Example 8.29 (Association under Absolute Advantage)
 Let $a_i=(1,2)$, $a_j=(6,3)$, $L_i=120$, and $L_j=240$. Agent $i$ requires less labor in both lines, while comparative advantage lies in good $0$ because $1\cdot3<6\cdot2$. The autarky certificates use bundles $(0,12)$ and $(6,0)$; each requires 24 and 36 units of labor respectively, with the remaining 96 and 204 units recorded as unused labor. Under specialization, production is $(24,0)$ for $i$ and $(0,12)$ for $j$, leaving 96 and 204 units unused.
 
 The trade quantities are $x_0=15$ and $x_1=12$. The post-trade bundles are $(9,12)$ and $(15,0)$, certified by $9+15=24$, $12=0+12$, $15=0+15$, and $0+12=12$. Each trader retains its baseline quantity of good $1$ and gains nine units of good $0$. This finite witness follows the exact balances in the formal example.
@@ -446,7 +446,7 @@ The trade quantities are $x_0=15$ and $x_1=12$. The post-trade bundles are $(9,1
 
 The formal development also gives a converse boundary: if the cross-multiplied opportunity costs are equal, the labor-cost inequalities for a feasible exchange cannot include the strict gain condition for agent $i$ that appears in the certificate. Equal opportunity costs therefore cannot supply the strict mutual-gain certificate used here. With unequal opportunity costs, a further certificate starts from an interior autarky bundle when $q_{i1}\ge a_i(0)a_j(0)$ and $q_{j0}\ge a_i(0)a_j(1)$. It constructs labor-balanced production and covered transfers such that agent $i$ strictly gains, agent $j$ retains its original bundle, total good $1$ is conserved, and aggregate good $0$ rises. The result is deliberately one-sided and requires those specific minimum components; it does not claim that every bundle with some positive output in both goods admits the same construction.
 
-### Proposition 8.26 (Bilateral Exchange in the Recursive Program Action Frame)
+### Witness 8.30 (Program Action Frame Bilateral Exchange Witness)
 The formal system provides a constructive witness (`Praxeology/Catallactics/ProgramExchangeWitness.lean`) that executes a matched two-good exchange inside the recursive physical `ProgramActionFrame`:
 1. **Physical Program Execution**: Two agents with initial endowments $\omega_0 = \langle 0, 1 \rangle$ and $\omega_1 = \langle 1, 0 \rangle$ simultaneously submit matched `.offer` and `.accept` actions exchanging one unit of good 1 for one unit of good 0. The physical transition balance conserves stocks and executes the transfer.
 2. **Autonomous Ordinal Preferences**: Each agent's preference is an independent, explicit ordinal ranking over the good they seek ($`\text{good}_0`$ for agent 0, $`\text{good}_1`$ for agent 1). Preferences are strictly independent of the physical transfer technology.

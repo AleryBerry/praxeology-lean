@@ -109,7 +109,7 @@ $$
 \min_{\pi}(\mathbf{P}, S) \equiv \{ h \in S \mid \forall h' \in S, h \le h' \}
 $$
 
-### Theorem 5.3 (A Finite Ranked Set Has a Minimal Stratum)
+### Proposition 5.3 (A Finite Ranked Set Has a Minimal Stratum)
 Let $\mathbf{P}$ be a total plausibility preorder with decidable comparison. Given an explicit nonempty list whose members are exactly the histories in $S \subseteq \mathcal{H}$, the minimal plausible stratum is nonempty:
 
 $$
@@ -127,7 +127,7 @@ $$
 
 Thus the signal determines the first comparison; the prior preorder settles comparisons between histories that either both satisfy the signal or both fail it.
 
-### Theorem 5.5 (Effect of the Signal on the Minimal Stratum)
+### Proposition 5.5 (Effect of the Signal on the Minimal Stratum)
 Let $S$ be the histories under consideration. The update has two cases:
 1. If no history in $S$ satisfies the signal, the minimal stratum is unchanged:
 
@@ -266,7 +266,7 @@ The choice partition groups histories by the action chosen. To evaluate regret u
 
 We can use the same correspondence to compare actions robustly before the event: within each plausible context, compare their outcomes for every admissible realization. This is stronger than comparing one selected branch. If all such comparisons agree with the original selector, the robust rule reduces to [Definition 5.8](#definition-58-ex-ante-purposeful-action). A finite example below shows why that agreement is an extra condition.
 
-### Theorem 5.12 (A Selected Alternative Gives a Regret Witness)
+### Witness 5.12 (Constructive Model Witness of Counterfactual Regret)
 Suppose the choice structure supplies, for each feasible alternative, a history through the decision moment on which that action is enacted. If $t$ lies on the actual history, $\beta$ is feasible there, and the selected outcome for $\beta$ is preferred to the realized outcome of the enacted reference action, then the projected model satisfies the cross-branch regret condition.
 
 **Proof.** The selection condition gives a history through the decision moment on which $\beta$ is enacted. The maturation condition supplies an evaluation moment on that history. Together with actual execution and the strict comparison, these objects satisfy each clause of [Definition 5.11](#definition-511-cross-branch-counterfactual-regret). $\blacksquare$
@@ -277,14 +277,14 @@ We have connected feasibility to an alternative branch and an evaluated outcome.
 
 Regret compares outcomes across branches. We next show why that comparison does not require preferences to change over time: the same ranking can favor one action under the anticipated branch and a different outcome after another branch occurs.
 
-### Theorem 5.13 (Matched Predictions Exclude Regret against Inaction)
+### Proposition 5.13 (Matched Predictions Exclude Regret against Inaction)
 Suppose $\alpha^{\ast}$ is ex-ante purposeful, $h_{\text{actual}}$ is minimally plausible, the anticipated outcome of $\alpha^{\ast}$ equals its realized outcome, preference is unchanged between choice and maturation, and the counterfactual outcome of $\alpha_0$ equals its ex-ante projected outcome. Then no counterfactual branch on which the agent refrains can yield an outcome strictly preferred to the realized outcome of $\alpha^{\ast}$.
 
 **Proof.** Ex-ante purposefulness says that on the actual history the chosen outcome is strictly preferred to the expected outcome of inaction. By the matching and stationarity assumptions, these are the realized outcomes used in the counterfactual comparison. Asymmetry of $\succ$ rules out the reverse strict preference. Hence regret against $\alpha_0$ is impossible under these assumptions. $\blacksquare$
 
 This is a conditional result about matching predictions and outcomes. If predictions are mistaken or branches produce different consequences, the contradiction in the proof no longer follows.
 
-### Theorem 5.14 (Stationary Preferences Can Accompany Branch Regret)
+### Theorem 5.14 (The Stationary Preference Branch-Regret Theorem)
 There is a finite branching model in which preferences are identical at every moment and history, an action is ex-ante purposeful, and inaction on another branch yields a strictly preferred outcome.
 
 The concrete witness has seven moments and four histories: a common root, two state-specific decision nodes, and one terminal leaf for each state–action pair. The selector changes the action coordinate while preserving the state. Projection maps the decision moment to the node on the plausible history. Let $\alpha_0$ be inaction and $\alpha_1$ the chosen action. The agent considers only a history on which $\alpha_1$ is expected to yield rank $2$, while inaction is expected to yield rank $1$. On the actual branch, $\alpha_1$ yields rank $0$; the counterfactual inaction branch yields rank $1$.
@@ -313,7 +313,7 @@ The first case characterizes **doxastic surprise**, where the realized branch la
 
 More information need not improve the outcome under every decision rule. The finite witness below identifies the assumptions under which an information update changes the relevant choice comparison, without asserting a general law that information is harmful.
 
-### Theorem 5.16 (A Finite Witness of Epistemic Non-Monotonicity)
+### Witness 5.16 (Finite Witness of Epistemic Non-Monotonicity)
 We now give a finite example where a true partial signal changes the selected action, but an unresolved factor makes that action worse on the actual state. Let the actual state be $(\text{true},\text{false})$. Inaction has rank $1$; intervention has rank $2$ only when both factors are true and rank $0$ otherwise.
 
 Under ignorance, the focal state is $(\text{false},\text{true})$, where inaction is preferred to intervention. After learning that the first factor is true, the focal state updates to $(\text{true},\text{true})$, making intervention preferred to inaction. Because the unresolved second factor is false on the actual state, intervention realizes rank $0$, whereas refraining would have secured rank $1$.
@@ -397,7 +397,7 @@ $$
 
 Separately, the **unanimous-appraisal condition** at a decision node says that a strict preference between intended ends implies the corresponding strict maturation preference at every history in $P$. This is an additional premise for the general equivalence theorem below; it is not a consequence of weak-Pareto dominance alone. When $P$ is a singleton, plausible support supplies this condition for the comparisons required by the bridge.
 
-### Theorem 5.20 (Doxastic Dominance Implies Purposeful Action)
+### Proposition 5.20 (Doxastic Dominance Implies Purposeful Action)
 Suppose $t\in h$, the node satisfies the unanimous-appraisal condition of [Definition 5.19](#definition-519-doxastic-teleological-bridges-and-unanimous-appraisal), and the enacted action is doxastically purposeful. Then it satisfies the purposeful-choice condition at $(i,t,h)$:
 
 $$
@@ -406,12 +406,12 @@ $$
 
 **Proof.** Doxastic purposefulness supplies feasibility and, with $t\in h$, physical execution. Its felt-unease clause gives strict preference for the enacted action's maturation outcome over the baseline throughout the nonempty plausible set. This yields weak-Pareto dominance, so the weak-Pareto bridge gives strict preference between the intended ends. For undominatedness, suppose a feasible $\beta$ had an intended end strictly preferred to that of the enacted action. Unanimous appraisal would make $\beta$ strictly preferred at every plausible history, contradicting the doxastic undominatedness clause. $\blacksquare$
 
-### Theorem 5.21 (Purposeful Action Implies Doxastic Purposefulness on a Singleton)
+### Proposition 5.21 (Purposeful Action Implies Doxastic Purposefulness on a Singleton)
 Suppose $`\min_{\pi}(i,t)=\{h_{\text{pl}}\}`$. If $`h\in H_t`$, the baseline is feasible and branch-feasible in $`H_t`$, and the enacted action is purposeful and strictly preferred to the baseline in intended-end terms, then the action is doxastically purposeful.
 
 **Proof.** Because the minimally plausible set is the singleton $`\{h_{\text{pl}}\}`$, a statement required at every minimally plausible history is exactly the statement at $`h_{\text{pl}}`$. The plausible-support bridge converts the strict intended-end comparison with inaction into the required strict maturation-outcome comparison there. Now suppose a feasible rival were strictly preferred to the enacted action at that sole plausible history. The same bridge would convert this outcome comparison into a strict preference for the rival's intended end, contradicting the purposeful action's undominatedness clause. The stated feasibility, inaction-branch, and nonemptiness premises supply the remaining clauses of doxastic purposefulness. $\blacksquare$
 
-### Theorem 5.22 (Purposeful and Doxastic Choice under Unanimous Appraisal)
+### Theorem 5.22 (The Unanimous Appraisal Doxastic-Teleological Alignment Theorem)
 At a node satisfying unanimous appraisal, with $t\in h$, $h\in H_t$, feasible and branch-feasible inaction, and strict improvement of the enacted end over the baseline, purposeful action and doxastic purposeful action are equivalent:
 
 $$
@@ -447,7 +447,7 @@ Each theorem uses only the relevant parts of this structure.
 
 We finish with finite examples because they answer a useful logical question: can the structural assumptions hold together?
 
-### Theorem 5.24 (A Finite Branching-Time Example)
+### Witness 5.24 (Finite Branching-Time Model Witness)
 The following finite structure satisfies moment coverage, backward linearity, and maximal-history conditions:
 
 Take moments $`\mathcal{T}=\{t_0,t_1,t_2\}`$ and histories $`\mathcal{H}=\{h_0,h_1\}`$. Let $`t_0\prec t_1`$ and $`t_0\prec t_2`$, with $`t_1`$ and $`t_2`$ incomparable.
@@ -457,7 +457,7 @@ Take moments $`\mathcal{T}=\{t_0,t_1,t_2\}`$ and histories $`\mathcal{H}=\{h_0,h
 
 **Verification.** Irreflexivity and transitivity hold because the only strict comparisons are from $`t_0`$ to a leaf. The two predecessors of any common later moment are either absent or both equal to $`t_0`$, so backward linearity holds. The only maximal chains are $`\{t_0,t_1\}`$ and $`\{t_0,t_2\}`$; these are exactly the two histories listed, and together they contain every moment.
 
-### Theorem 5.25 (A Finite Model Satisfies the Combined Conditions)
+### Witness 5.25 (Finite Model Witness of Combined Uncertainty)
 There is a finite model satisfying the branching-time, inventory-transition, choice-partition, preference, and bundle-appraisal conditions stated in this chapter.
 
 **Verification.** Take moments $r,a,b,c$ and histories $`\{r,a\}`$, $`\{r,b\}`$, and $`\{r,c\}`$. Let two agents have three means, with one unit of each means at every moment, and let every action use and yield zero units. Give one agent the root menu $`\{\alpha_0,\alpha_1,\alpha_2\}`$; let the three histories enact these actions respectively. Let the second agent enact $`\alpha_0`$ on all three histories. At the leaves only $`\alpha_0`$ is feasible and enacted. Set the first agent's ends to $`e_0,e_1,e_2`$ for $`\alpha_0,\alpha_1,\alpha_2`$, and let the only strict comparison be $`e_1\succ e_0`$. Make this relation the same at all histories. Take the sole minimally plausible history to be $`\{r,b\}`$ and let projected matured outcomes equal the corresponding action ends. Inaction has its own branch, the enacted $`\alpha_1`$ strictly improves on it, and no alternative dominates $`\alpha_1`$. Stocks are constant because every input and output is zero; hence no strict bundle dominance is asserted, and the preference bridge from a strict bundle-dominance premise holds vacuously. The three histories are maximal, extensional, and branch-selection can preserve the other agent's constant action. These assignments give a finite witness for the stated compatible conditions.
@@ -480,7 +480,7 @@ $$
 
 This decoupling is essential: it allows an agent to hold a mistaken or non-veridical forecast (such as expecting four units of a complementary factor to be available in an auction when physical nature only supplies two) without requiring a physically impossible history to exist within the physical `ActionFrame`.
 
-### Theorem 5.27 (Cross-Forecast Physical Invariance)
+### Theorem 5.27 (The Cross-Forecast Physical Invariance Theorem)
 In a veridical scenario system (`VeridicalScenarioSystem`), actual histories embed into scenarios (`embedHistory : \mathcal{H} \to \mathcal{S}`). 
 
 Suppose an agent's subjective forecast changes from scenario $s_1$ to scenario $s_2$ (where both scenarios are observation-equivalent with actual history $h$ at decision moment $t$), but the actor's enacted physical action $\alpha = \text{enacted}(i, t, h)$ remains unchanged. Then:
@@ -491,7 +491,7 @@ $$
 
 *Altering an agent's subjective beliefs, expectations, or conjectured scenarios without altering the physically enacted action has zero causal impact on actual physical stock transitions.*
 
-**Proof.** Physical inventory transitions are governed strictly by the transition balance equation $\omega(i, t', h, m) + u(\alpha, m) = \omega(i, t, h, m) + y(\alpha, m)$ ([Definition 2.12](02_time_histories_and_physical_execution.md#definition-212-the-inventory-transition-rule)). Because initial stocks $\omega(i, t, h, m)$, physical factor usage $u(\alpha, m)$, and yield $y(\alpha, m)$ depend solely on physical reality and the enacted action $\alpha$, subjective scenario labels exert zero causal pull on material stocks. $\blacksquare$
+**Proof.** Physical inventory transitions are governed strictly by the transition balance equation $\omega(i, t', h, m) + u(\alpha, m) = \omega(i, t, h, m) + y(\alpha, m)$ ([Axiom 2.12](02_time_histories_and_physical_execution.md#axiom-212-physical-matter-conservation-and-inventory-transition)). Because initial stocks $\omega(i, t, h, m)$, physical factor usage $u(\alpha, m)$, and yield $y(\alpha, m)$ depend solely on physical reality and the enacted action $\alpha$, subjective scenario labels exert zero causal pull on material stocks. $\blacksquare$
 
 ## Conclusion
 

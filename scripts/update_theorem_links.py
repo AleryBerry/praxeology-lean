@@ -190,9 +190,15 @@ class MarkdownLinkAuditor:
                 if len(exact) == 1:
                     decl = exact[0]
                 elif len(exact) > 1:
-                    issues.append(LinkIssue(md_path, line_no, symbol, old_link, "",
-                        f"ERROR: ambiguous declaration {symbol} in {self._display_target(target)}"))
-                    continue
+                    cited_match = re.search(r"#L(\d+)", full_url)
+                    cited_line = int(cited_match.group(1)) if cited_match else None
+                    line_matches = [d for d in exact if cited_line is not None and d.line_number == cited_line]
+                    if len(line_matches) == 1:
+                        decl = line_matches[0]
+                    else:
+                        issues.append(LinkIssue(md_path, line_no, symbol, old_link, "",
+                            f"ERROR: ambiguous declaration {symbol} in {self._display_target(target)}"))
+                        continue
                 elif len(decls) == 1:
                     decl = decls[0]
                 elif len(decls) > 1:

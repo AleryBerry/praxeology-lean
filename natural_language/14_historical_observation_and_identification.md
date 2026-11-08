@@ -27,7 +27,7 @@ $$
 
 This observation rule records the actual action and its realized outcome, not unchosen alternatives, subjective preferences, or counterfactual branches. An econometric estimator is a mapping from historical observations to a target parameter space $\Theta$. An estimator identifies a parameter function $f : \mathcal{M} \to \Theta$ over an admissible class $\mathcal{M}$ of interpretations at $(i, t, h)$ when $`\text{est}(\mathcal{O}_{\mathrm{obs}}(W, \text{interp}, i, t, h)) = f(\text{interp})`$ for all $\text{interp} \in \mathcal{M}$.
 
-### Theorem 14.1 (Non-identification from Equal Records)
+### Proposition 14.1 (Non-identification from Equal Records)
 Let $\mathcal{M}$ be an admissible class of interpretations and $f : \mathcal{M} \to \Theta$ a target structural parameter. If two interpretations $`\text{interp}_1, \text{interp}_2 \in \mathcal{M}`$ produce the same historical observation at $(i, t, h)$ but diverge in the target parameter:
 
 $$
@@ -44,7 +44,7 @@ The conclusion depends on the observation rule and the admissible model class. A
 
 The empirical record captures only the action enacted along the realized history. A counterfactual asks what an alternative choice would have produced.
 
-### Theorem 14.2 (Counterfactual Outcomes Can Vary without Changing the Record)
+### Proposition 14.2 (Counterfactual Outcomes Can Vary without Changing the Record)
 Let $\text{interp}$ be an interpretation where $\alpha^{\ast} = \text{enacted}(i, t, h)$ is purposeful at $(i, t, h)$. Let $`\beta \in \mathcal{A}_{\mathrm{feas}}(i, t, h)`$ be a distinct feasible action ($\beta \neq \alpha^{\ast}$). Then there exists an alternative interpretation $\text{interp}'$ such that:
 
 1. $\alpha^{\ast}$ remains purposeful at $(i, t, h)$ under $\text{interp}'$;
@@ -57,7 +57,7 @@ Let $\text{interp}$ be an interpretation where $\alpha^{\ast} = \text{enacted}(i
 
 An observed action can be purposeful in one structure and fail to be purposeful in another structure that shares the exact same realized action and outcome.
 
-### Proposition 14.3 (Lucas Critique: Feasible Improvement Removes Purposefulness)
+### Theorem 14.3 (The Praxeological Lucas Policy-Invariance Theorem)
 Suppose $\alpha^{\ast}$ is enacted at $(i, t, h)$ and purposeful under interpretation $\text{interp}$, and let $\beta \neq \alpha^{\ast}$ be a distinct feasible action. Construct an alternative interpretation $\text{interp}'$ that preserves the enacted action and its realized outcome:
 
 $$
@@ -107,7 +107,7 @@ The same identification argument applies when the parameter of interest is a reg
 ### Corollary 14.5 (Regime Non-identification)
 Let $r(\text{interp})$ assign a regime label to each interpretation. If $`\text{interp}_1`$ and $`\text{interp}_2`$ have equal records at $(i,t,h)$ but $`r(\text{interp}_1) \ne r(\text{interp}_2)`$, then no estimator based only on that record identifies the regime label for both interpretations.
 
-**Proof.** Apply [Theorem 14.1](#theorem-141-non-identification-from-equal-records) with the regime label $r$ as the parameter of interest. $\square$
+**Proof.** Apply [Proposition 14.1](#proposition-141-non-identification-from-equal-records) with the regime label $r$ as the parameter of interest. $\square$
 
 ## Macro-Aggregate Capital Regime Non-Identifiability
 
@@ -116,13 +116,13 @@ We can make the identification limit concrete for the absorption and liquidation
 ### Corollary 14.6 (Macro Aggregates Do Not Identify the Capital Regime)
 There exist two finite interpretations in an action frame that agree on the observed macro-aggregate action and realized output at an initial decision point but receive opposite absorption and liquidation labels from their structural factor paths. Consequently, no empirical estimator that uses only that initial macro aggregate can identify the capital regime correctly across a class containing both.
 
-**Proof.** Both interpretations share the identical initial enacted loan issuance and initial observed yield. In the absorption interpretation, complementary input stocks are sufficient, leading to successful maturation. In the liquidation interpretation, real complementary savings are deficient, leading to factor shortages and liquidation. Because their initial historical observations are identical, [Theorem 14.1](#theorem-141-non-identification-from-equal-records) precludes any estimator based solely on that initial record from identifying the regime. $\square$
+**Proof.** Both interpretations share the identical initial enacted loan issuance and initial observed yield. In the absorption interpretation, complementary input stocks are sufficient, leading to successful maturation. In the liquidation interpretation, real complementary savings are deficient, leading to factor shortages and liquidation. Because their initial historical observations are identical, [Proposition 14.1](#proposition-141-non-identification-from-equal-records) precludes any estimator based solely on that initial record from identifying the regime. $\square$
 
 ## Auxiliary Assumptions and Counterfactual Underdetermination
 
 Observed action-outcome agreement can also leave an auxiliary hypothesis undetermined. We can hold fixed the realized outcome and assign different outcomes to an action that was not taken.
 
-### Proposition 14.7 (Duhem-Quine Underdetermination of Auxiliary Claims)
+### Theorem 14.7 (The Duhem-Quine Econometric Underdetermination Theorem)
 Let $\alpha^{\ast}$ be the observed action and $\alpha'$ a distinct feasible alternative. There exist two outcome assignments that assign the same outcome to $\alpha^{\ast}$ at the observed decision point but assign different outcomes to $\alpha'$ there.
 
 **Proof.** Assign a common end to $\alpha^{\ast}$ in both functions. Assign distinct ends to $\alpha'$ in the two functions. Since $\alpha' \neq \alpha^{\ast}$, the change leaves the realized observation pair unchanged while altering the counterfactual property. $\square$

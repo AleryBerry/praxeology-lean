@@ -44,7 +44,7 @@ To evaluate indifference curve analysis against the operational laws of physical
 ### Definition 1 (Continuous Commodity Space vs. Discrete Physical Means)
 The neoclassical framework assumes consumption bundles are vectors in a continuous Euclidean space: $`\mathbf{x} \in \mathbb{R}_+^n`$.
 
-In praxeological reality (Chapter 1, [Definition 1.2](../natural_language/01_agents_means_ends_and_feasibility.md#definition-12-indexed-physical-endowments)), physical means $\mathcal{M}$ consist of discrete, indivisible physical objects and quantities (e.g., one loaf of bread, one automobile, one machine). The action space $\mathcal{A}$ operates over discrete quanta.
+In praxeological reality (Chapter 1, [Axiom 1.2](../natural_language/01_agents_means_ends_and_feasibility.md#axiom-12-indexed-physical-endowments-and-matter-balance)), physical means $\mathcal{M}$ consist of discrete, indivisible physical objects and quantities (e.g., one loaf of bread, one automobile, one machine). The action space $\mathcal{A}$ operates over discrete quanta.
 
 ### Definition 2 (The Indifference Binary Relation)
 Neoclassical theory posits a binary relation $\sim \subset X \times X$ satisfying:
@@ -75,7 +75,7 @@ $$
 
 where $\alpha_0$ is inaction.
 2. Consider an agent contemplating two physical bundles $A$ and $B$. Let $\alpha_A$ be the physical action of taking $A$, and $\alpha_B$ be the physical action of taking $B$.
-3. At discrete calendar moment $t$, the actor can execute at most one physical action from their feasible menu (Chapter 2, [Theorem 2.9](../natural_language/02_time_histories_and_physical_execution.md#theorem-29-choice-cells-cover-and-separate-histories-through-a-moment) and Chapter 3, [Theorem 3.13](../natural_language/03_preference_purpose_and_opportunity_cost.md#theorem-313-one-enacted-action-per-decision-situation)).
+3. At discrete calendar moment $t$, the actor can execute at most one physical action from their feasible menu (Chapter 2, [Theorem 2.9](../natural_language/02_time_histories_and_physical_execution.md#theorem-29-the-choice-cell-partition-theorem) and Chapter 3, [Proposition 3.13](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-313-unique-enacted-action-per-situation)).
 4. If the actor executes $\alpha_A$, the actor demonstrates in action that:
 
 $$
@@ -90,7 +90,7 @@ $$
 Physical means are discrete, indivisible quanta forming antichains that lack topological connectedness. Continuous partial derivatives $\partial U / \partial x_i$ and Marginal Rates of Substitution do not exist on discrete action frames.
 
 **Proof.**
-1. By Chapter 9 ([Definition 9.15](../natural_language/09_money_prices_and_calculation.md#definition-915-physical-input-order-and-antichains) and [Proposition 9.16](../natural_language/09_money_prices_and_calculation.md#proposition-916-physical-incomparability)), heterogeneous physical means $m \in \mathcal{M}$ form posets with antichains: physical capital goods and consumer goods satisfy $m_A \not\le m_B$ and $m_B \not\le m_A$.
+1. By Chapter 9 ([Definition 9.24](../natural_language/09_money_prices_and_calculation.md#definition-924-physical-input-order-and-antichains) and [Proposition 9.25](../natural_language/09_money_prices_and_calculation.md#proposition-925-physical-incomparability)), heterogeneous physical means $m \in \mathcal{M}$ form posets with antichains: physical capital goods and consumer goods satisfy $m_A \not\le m_B$ and $m_B \not\le m_A$.
 2. The neoclassical Marginal Rate of Substitution is defined as the limit of an infinitesimal calculus ratio:
 
 $$
@@ -107,14 +107,14 @@ The neoclassical optimality condition $MRS = P_1 / P_2$ conflates two categorica
 
 **Proof.**
 1. By Chapter 3 and Chapter 4, an individual evaluates physical means by assigning them to a discrete ranked value scale of prospective ends: $e_1 \succ e_2 \succ \dots \succ e_n$.
-2. By Chapter 8 ([Theorem 8.20](../natural_language/08_social_interaction_property_and_exchange.md#theorem-820-the-double-inequality-of-exchange), The Double Inequality of Exchange), an agent enters into a market purchase of good $m_1$ at monetary price $P_1$ if and only if:
+2. By Chapter 8 ([Theorem 8.24](../natural_language/08_social_interaction_property_and_exchange.md#theorem-824-the-double-inequality-of-voluntary-exchange-theorem), The Double Inequality of Exchange), an agent enters into a market purchase of good $m_1$ at monetary price $P_1$ if and only if:
 
 $$
 \text{End}(i, \text{acquire } m_1) \succ_{i,t,h} \text{End}(i, \text{retain } P_1 \text{ tokens})
 $$
 
 3. If the consumer valued the good and the money price equally—as the neoclassical condition $\frac{U_1}{P_1} = \frac{U_2}{P_2} = \lambda$ asserts—the consumer would have no incentive to incur the effort, transaction costs, and risks of trade. An equality of subjective value produces inaction $\alpha_0$, not trade.
-4. By Chapter 9 ([Theorem 9.13](../natural_language/09_money_prices_and_calculation.md#theorem-913-the-discrete-marginal-pair-bracket), The Discrete Marginal-Pair Bracket), market clearing prices $P_1, P_2$ are established not by an isolated individual's internal utility calculus, but by the catallactic intersection of conflicting reservation bids across the marginal buyer and seller cohorts:
+4. By Chapter 9 ([Theorem 9.15](../natural_language/09_money_prices_and_calculation.md#theorem-915-the-böhm-bawerk-discrete-marginal-pair-bracket-theorem), The Discrete Marginal-Pair Bracket), market clearing prices $P_1, P_2$ are established not by an isolated individual's internal utility calculus, but by the catallactic intersection of conflicting reservation bids across the marginal buyer and seller cohorts:
 
 $$
 v_{b, \text{marginal}} \ge P_1 \ge v_{s, \text{marginal}}
@@ -134,7 +134,7 @@ CS = \int_0^{Q^{\ast}} P(q) \, dq - P^{\ast} Q^{\ast}
 $$
 
 From the standpoint of praxeology:
-1. **Antichains of Ends:** In Chapter 4 ([Definition 4.10](../natural_language/04_marginal_allocation_and_imputation.md#definition-410-comparison-of-two-allocated-sets), [Theorem 4.13](../natural_language/04_marginal_allocation_and_imputation.md#theorem-413-earlier-units-add-higher-ranked-ends)), an actor acquires discrete units to satisfy discrete ends. The psychic gain derived from satisfying a higher-ranked end cannot be cardinally measured, divided, or integrated into a monetary sum.
+1. **Antichains of Ends:** In Chapter 4 ([Definition 4.10](../natural_language/04_marginal_allocation_and_imputation.md#definition-410-comparison-of-two-allocated-sets), [Theorem 4.13](../natural_language/04_marginal_allocation_and_imputation.md#theorem-413-the-law-of-diminishing-marginal-utility)), an actor acquires discrete units to satisfy discrete ends. The psychic gain derived from satisfying a higher-ranked end cannot be cardinally measured, divided, or integrated into a monetary sum.
 2. **The Illegitimacy of Monetary Surplus:** Money paid is a realized transfer of physical tokens; psychic gain is an unobservable ordinal preference rank. Subtracting a monetary expenditure from a psychological satisfaction is a mathematical impossibility.
 
 ### Buridan Ties Resolved via Undominated Choice

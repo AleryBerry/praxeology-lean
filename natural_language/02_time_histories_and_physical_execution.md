@@ -10,7 +10,7 @@ Irreflexivity and transitivity give us a strict order, but they do not determine
 
 For example, suppose $r\prec a$ and $r\prec b$, while neither $a\prec b$ nor $b\prec a$. We may treat $a$ and $b$ as separate continuations of $r$. Backward linearity rules out a moment $c$ with both $a\prec c$ and $b\prec c$: such a $c$ would have two incomparable predecessors. This example illustrates how tree-shaped temporal precedence models genuine branching futures while preserving a unique, unalterable past.
 
-### Definition 2.1 (Strict Temporal Precedence)
+### Axiom 2.1 (Strict Temporal Precedence)
 Let $\prec$ be a binary relation on moments $\mathcal{T}$. The relational structure $\langle \mathcal{T}, \prec \rangle$ is a **strict temporal precedence frame** if it satisfies the following three structural laws:
 1. **Irreflexivity**: No moment precedes itself:
 
@@ -34,8 +34,8 @@ $$
 
 Backward linearity establishes that each moment's past is linearly ordered, while the future branches into multiple mutually exclusive execution paths represented as histories.
 
-### Proposition 2.2 (Precedence Cannot Run Both Ways)
-Let the moments $\mathcal{T}$ carry the strict temporal precedence relation from [Definition 2.1](#definition-21-strict-temporal-precedence). Then precedence is asymmetric:
+### Proposition 2.2 (Temporal Precedence Irreflexivity and Asymmetry)
+Let the moments $\mathcal{T}$ carry the strict temporal precedence relation from [Axiom 2.1](#axiom-21-strict-temporal-precedence). Then precedence is asymmetric:
 
 $$
 \forall t_1, t_2 \in \mathcal{T}, \quad t_1 \prec t_2 \implies \neg(t_2 \prec t_1).
@@ -157,7 +157,7 @@ $$
 \pi_i(t, \alpha) \equiv \{ h \in \mathcal{H} \mid t \in h \wedge \text{enacted}(i, t, h) = \alpha \}
 $$
 
-### Theorem 2.9 (Choice Cells Cover and Separate Histories through a Moment)
+### Theorem 2.9 (The Choice-Cell Partition Theorem)
 Let $\pi_i(t, \alpha)$ be the choice cells derived from the enacted actions. Then:
 1. **Bundle Inclusion**: Every history in $\pi_i(t, \alpha)$ passes through $t$: $\pi_i(t, \alpha) \subseteq H(t)$.
 2. **Covering**: The choice cells cover the entire history bundle $H(t)$:
@@ -177,9 +177,9 @@ $$
 2. Let $h \in H(t)$. By the feasibility condition on enacted actions, $\alpha = \text{enacted}(i, t, h)$ belongs to $`\mathcal{A}_{\text{feas}}(i, t, h)`$. By construction, $h \in \pi_i(t, \alpha)$.
 3. If a history belonged to both cells, the enacted action on it would equal both $\alpha$ and $\beta$. Hence $\alpha=\beta$, contrary to the assumption that they are distinct. $\blacksquare$
 
-This theorem formally establishes that enacted actions partition the bundle of histories. To evaluate counterfactual alternatives, [Assumption 2.10](#assumption-210-feasible-actions-have-corresponding-branches) provides explicit branch-realization witnesses for all feasible actions.
+This theorem formally establishes that enacted actions partition the bundle of histories. To evaluate counterfactual alternatives, [Axiom 2.10](#axiom-210-branch-realization-of-feasible-actions) provides explicit branch-realization witnesses for all feasible actions.
 
-### Assumption 2.10 (Feasible Actions Have Corresponding Branches)
+### Axiom 2.10 (Branch Realization of Feasible Actions)
 For every history $h$ containing $t$ and every action $\alpha$ feasible for agent $i$ there, the model supplies a selected history
 $\sigma(i,t,\alpha,h)$ through $t$ on which $i$ enacts $\alpha$:
 
@@ -232,7 +232,7 @@ This condition has two parts. The first says that $\psi$ holds throughout the ch
 
 The final foundation connects action to subsequent physical states. Inputs deplete endowments and outputs augment them along an immediate successor. Inaction leaves stocks unchanged because its input and output schedules are zero.
 
-### Definition 2.12 (The Inventory Transition Rule)
+### Axiom 2.12 (Physical Matter Conservation and Inventory Transition)
 For a non-trade action accounted for by one agent's input and output schedules, physical endowments evolve across immediate temporal successors according to those flows. We state the law additively so that accounting does not hide the truncation of natural-number subtraction; feasibility supplies the required input. When we introduce trade in Chapter 8, we will give a paired transfer equation because one transaction changes two agents' stocks together.
 
 $$
@@ -241,7 +241,7 @@ $$
 
 The balance states that the next stock plus the units used equals the current stock plus the units produced. It accounts exactly for the action's physical inputs and outputs. Because quantities are natural numbers, this additive form avoids subtracting more than the current stock; the feasibility condition ensures that the required input is available.
 
-### Theorem 2.13 (Inaction Leaves Inventory Unchanged)
+### Proposition 2.13 (Inaction Leaves Inventory Unchanged)
 *The passive baseline action leaves physical endowments strictly unchanged across temporal transitions:*
 
 $$

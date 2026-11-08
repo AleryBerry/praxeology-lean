@@ -102,10 +102,10 @@ Because voluntary trade is motivated by opposite ordinal inequalities, Marx's se
 **Proposition.** Past labor hours expended in prior transitions are economically sterile; present market valuation and feasibility depend exclusively on present physical inventories and prospective ends.
 
 **Proof.**
-1. By [Theorem 4.32 (Present-Endowment Choice Invariance, Chapter 4)](../natural_language/04_marginal_allocation_and_imputation.md#theorem-432-present-endowment-choice-invariance), whenever two situations share identical present inventories $\omega(i, t, h, m)$, identical contemplated menus, and identical preference orders over prospective ends, feasible menus and undominated choices are identical.
+1. By [Theorem 4.32 (The Present-Endowment Sunk-Cost Sterility Theorem)](../natural_language/04_marginal_allocation_and_imputation.md#theorem-432-the-present-endowment-sunk-cost-sterility-theorem), whenever two situations share identical present inventories $\omega(i, t, h, m)$, identical contemplated menus, and identical preference orders over prospective ends, feasible menus and undominated choices are identical.
 2. Suppose commodity $m_1$ required $1,000$ hours of labor $(L(m_1) = 1,000)$, while an identical physical commodity $m_2$ was found on the ground with zero labor $(L(m_2) = 0)$.
 3. Because $m_1$ and $m_2$ have identical physical properties, their capacity to satisfy prospective ends is identical $(\text{End}(i, \alpha, m_1) = \text{End}(i, \alpha, m_2))$.
-4. By [Theorem 4.32](../natural_language/04_marginal_allocation_and_imputation.md#theorem-432-present-endowment-choice-invariance), an economizing actor evaluates both units identically. The historical difference $L(m_1) \neq L(m_2)$ exerts zero causal influence on present valuation. $\blacksquare$
+4. By [Theorem 4.32](../natural_language/04_marginal_allocation_and_imputation.md#theorem-432-the-present-endowment-sunk-cost-sterility-theorem), an economizing actor evaluates both units identically. The historical difference $L(m_1) \neq L(m_2)$ exerts zero causal influence on present valuation. $\blacksquare$
 
 ---
 
@@ -122,7 +122,7 @@ Marx characterizes the difference between output revenue and the wage bill $(s =
 
 This deduction ignores the inescapable temporal dimension of human action:
 - Production takes time: workers expend labor at moment $t_0$, but finished output matures only at a later moment $t_n$ across precedence chain $t_0 \prec t_n$ (Chapter 2).
-- Under Chapter 7 ([Theorem 7.16](../natural_language/07_time_preference_interest_and_capital.md#theorem-716-unified-positive-time-preference-saving-resolution-and-originary-interest-synthesis)), purposeful action exhibits universal preference for earlier attainment of fixed ends under open horizons and positive originary interest ($\delta \ge 1$) under explicit discounting premises.
+- Under Chapter 7 ([Theorem 7.16](../natural_language/07_time_preference_interest_and_capital.md#theorem-716-the-master-positive-time-preference-and-originary-interest-synthesis)), purposeful action exhibits universal preference for earlier attainment of fixed ends under open horizons and positive originary interest ($\delta \ge 1$) under explicit discounting premises.
 - The capitalist advances **present money** (immediate wages at $t_0$ ) to workers, long before the product is completed and sold at $t_n$.
 - Because present money strictly dominates deferred claims of equal nominal amount, wages and future revenue reflect an intertemporal discount under the explicit discounting and factor-market premises of Chapters 7 and 9. That ordinal discount reflects the universal category of originary interest, not coercive surplus value extraction.
 

@@ -68,7 +68,7 @@ By pairing general conditional theorems with concrete constructive witnesses, th
 
 We now connect actions to stocks of physical means. An inventory tells us what an agent has; an action's input schedule tells us what it requires; together they determine feasibility. We then use a separate requirement schedule to ask which ends a bundle could attain.
 
-### Definition 1.2 (Indexed Physical Endowments)
+### Axiom 1.2 (Indexed Physical Endowments and Matter Balance)
 We record the stock of each means for each agent, moment, and history by a function:
 
 $$
@@ -160,7 +160,7 @@ When $`\mathcal{E}_{\mathrm{val}} = \mathcal{E}`$, this coincides with global bu
 
 The two relations answer different questions: physical dominance compares quantities coordinate by coordinate, whereas attainability-based dominance evaluates the ultimate economic services of means. Because additional physical stock remains unusable whenever a required complementary input is absent, teleological dominance directly assesses which ends become physically and technologically realizable.
 
-### Theorem 1.9 (Attainability-Based Dominance Is a Strict Partial Order)
+### Theorem 1.9 (The Attainability Partial Order Theorem)
 Let $\rho : \mathcal{E} \times \mathcal{M} \to \mathbb{N}$ be a technological requirement schedule and $`\mathcal{E}_{\mathrm{val}} \subseteq \mathcal{E}`$ any set of ends. The relation $`\triangleright_{\mathrm{T}}(\rho, \mathcal{E}_{\mathrm{val}}, \cdot, \cdot)`$ on physical bundles $\mathcal{M} \to \mathbb{N}$ is a strict partial order: it is irreflexive, strictly asymmetric, and transitive.
 
 **Proof.**
@@ -189,7 +189,7 @@ $$
 
 **Proof.** For monotonicity, each requirement sum bounded by the smaller bundle is also bounded by the coordinatewise larger bundle. The empty collection has zero requirement in every coordinate, and the sum over a singleton is just that end's requirement. $\blacksquare$
 
-### Theorem 1.11 (A Directly Usable Good Adds an Attainable End)
+### Proposition 1.11 (Direct Usability and Attainability Expansion)
 When every commodity $m$ directly fulfills a distinct first-order atomic end $`e_{\text{atom}}(m)`$ with unit requirement $`\rho(e_{\text{atom}}(m), m') = \mathbf{1}_{\{m = m'\}}`$, possessing a positive quantity of $m^{\ast}$ ( $`b_1(m^{\ast}) \ge 1`$ ) strictly teleologically dominates the zero endowment $`b_0(m) = 0`$:
 
 $$

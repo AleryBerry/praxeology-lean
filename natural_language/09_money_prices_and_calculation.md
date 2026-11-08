@@ -35,7 +35,7 @@ $$
 
 This operator preserves existing acceptance and adds the agents satisfying the stated adoption rule. To ground adoption in purposeful human action, we evaluate candidate media through their downstream consumption bundles.
 
-### Definition 9.2b (Mengerian Adoption Decision)
+### Definition 9.3 (Mengerian Adoption Decision)
 In an Action Frame, a **Mengerian adoption decision** at decision node $\langle t, h \rangle$ specifies an adoption action $\alpha_{\text{adopt}}(m)$ yielding downstream commodity consumption bundle $\text{downstreamBundle}(m)$ for each candidate medium $m \in \mathcal{M}$, with baseline bundle $\text{holdBundle}$ under inaction:
 
 $$
@@ -49,14 +49,14 @@ $$
 \text{SubjectiveTeleologicalDominates}(i, t, h, \text{downstreamBundle}(m^{\ast}), \text{downstreamBundle}(m))
 $$
 
-### Theorem 9.2c (Purposeful Mengerian Money Adoption)
+### Theorem 9.4 (The Mengerian Money Emergence Theorem)
 Under a Mengerian adoption decision, adopting a strictly less marketable medium is disqualified from being purposeful:
 
 $$
 |\Gamma(m)| < |\Gamma(m^{\ast})| \implies \neg \mathsf{P}(i, t, h, \alpha_{\text{adopt}}(m))
 $$
 
-**Proof.** Suppose by contradiction that adopting the less marketable good $m$ were purposeful ( $\mathsf{P}(i, t, h, \alpha_{\text{adopt}}(m))$ ). Then $\alpha_{\text{adopt}}(m)$ is feasible. By [Definition 9.2b](#definition-92b-mengerian-adoption-decision), the downstream bundle of $m^{\ast}$ teleologically dominates that of $m$. By `teleological_bundle_dominance_induces_preference`, this teleological dominance natively induces strict preference:
+**Proof.** Suppose by contradiction that adopting the less marketable good $m$ were purposeful ( $\mathsf{P}(i, t, h, \alpha_{\text{adopt}}(m))$ ). Then $\alpha_{\text{adopt}}(m)$ is feasible. By [Definition 9.3](#definition-93-mengerian-adoption-decision), the downstream bundle of $m^{\ast}$ teleologically dominates that of $m$. By `teleological_bundle_dominance_induces_preference`, this teleological dominance natively induces strict preference:
 
 $$
 \text{outcome}(i, \alpha_{\text{adopt}}(m^{\ast}), t, h) \succ_{i,t,h} \text{outcome}(i, \alpha_{\text{adopt}}(m), t, h)
@@ -64,14 +64,14 @@ $$
 
 Since $\alpha_{\text{adopt}}(m^{\ast})$ is feasible, this strictly preferred alternative directly contradicts the undominatedness condition of purposeful action. Therefore, adopting a less marketable medium cannot be purposeful. $\blacksquare$
 
-### Lemma 9.3 (Inflationarity of Adoption)
+### Lemma 9.5 (Inflationarity of Adoption)
 For every profile, $\Gamma \sqsubseteq \Phi(\Gamma)$.
 
 **Proof.** For each good, $\Gamma(m)$ is a subset of its union with the newly adopting agents. $\blacksquare$
 
 Inflationarity governs the expansion of a profile along its own sequential trajectory, while cross-profile monotonicity evaluates comparative statics across different initial profiles. In competitive adoption, a good that is maximally marketable under one profile can face displaced demand when a competing good gains adopters, formalizing the dynamic rivalry of alternative media. The following example exhibits this obstruction to global monotonicity of $\Phi$.
 
-### Theorem 9.4 (Universal Acceptance of an Initially Dominant Medium)
+### Proposition 9.6 (Universal Acceptance of an Initially Dominant Medium)
 Suppose $m^{\ast}$ has strictly more acceptors than every competing good in $\Gamma_0$, every agent can use $m^{\ast}$ for indirect exchange, and no competing good is already universally accepted. Then $\Gamma^{\ast} = \Phi(\Gamma_0)$ satisfies
 
 $$
@@ -90,7 +90,7 @@ The theorem explains persistence after an initial marketability advantage under 
 
 Marketability also diffuses progressively across decentralized trading networks. Finite monotone iteration yields a verified fixed point, while topological connectivity governs network-wide adoption.
 
-### Definition 9.5 (Trading Network and Local Indirect Feasibility)
+### Definition 9.7 (Trading Network and Local Indirect Feasibility)
 A trading network is a symmetric adjacency relation $G(i, j)$ on agents. Let $S(j)$ be the good supplied by $j$, and let $D(i, m)$ mean that $i$ demands good $m$. Indirect exchange through medium $m$ is locally feasible for $i$ at profile $\Gamma$ when
 
 $$
@@ -106,7 +106,7 @@ $$
 
 An agent is added because an accessible supplier of a desired good accepts the medium. This rule differs from the maximum-cardinality rule of [Definition 9.2](#definition-92-marketability-adoption-operator): it does not require the medium to be globally maximal.
 
-### Theorem 9.6 (Failure of Knaster-Tarski Global Monotonicity for Argmax Marketability)
+### Theorem 9.8 (The Knaster-Tarski Argmax Monotonicity Failure Theorem)
 *The natural Mengerian operator that recruits adopters based on global argmax marketability is not globally monotone under profile inclusion:*
 
 $$
@@ -117,14 +117,14 @@ $$
 
 This example shows why inflationarity and monotonicity must be distinguished. The finite convergence result below uses only inflationarity and finiteness; it needs no monotonicity assumption.
 
-### Proposition 9.7 (Monotonicity of Network Adoption)
+### Proposition 9.9 (Monotonicity of Network Adoption)
 If $\Gamma_1 \sqsubseteq \Gamma_2$, then $\Phi_G(\Gamma_1) \sqsubseteq \Phi_G(\Gamma_2)$.
 
 **Proof.** An existing acceptor under $\Gamma_1$ remains an acceptor under $\Gamma_2$. If an agent is newly admitted under $\Gamma_1$, its witnessing supplier also belongs to the larger acceptance set under $\Gamma_2$. The same supplier therefore witnesses local indirect feasibility in the larger profile. $\blacksquare$
 
 Monotonicity compares the evolution of two different starting profiles. Our next question concerns a single starting profile: can acceptance continue to expand indefinitely? Since acceptance is retained and there are only finitely many agents and goods, there are only finitely many possible additions. This finiteness argument establishes stabilization before we ask how widely a particular medium has spread.
 
-### Theorem 9.8 (Finite Fixed-Point Convergence)
+### Theorem 9.10 (The Bourbaki-Witt Monetary Fixed-Point Convergence Theorem)
 *If both the agent set and the goods set are finite, iteration of an inflationary profile operator from any initial profile reaches a fixed point after finitely many steps.*
 
 **Proof.** Write $\Gamma_{n + 1} = \Psi(\Gamma_n)$, where $\Psi$ is inflationary. Then
@@ -139,7 +139,7 @@ This convergence theorem establishes stabilization purely from inflationarity an
 
 A stable profile may leave part of the population outside a medium's acceptance set. To obtain universal acceptance, we must exclude a proper group that already contains the initial acceptor but offers no reason for anyone outside it to join. The required connectivity condition therefore requires a demanded good to cross the boundary of such a group.
 
-### Definition 9.9 (Demand Connectivity Across Trading Links)
+### Definition 9.11 (Demand Connectivity Across Trading Links)
 Fix a seed agent $s$. The network is demand-connected from $s$ when every proper set $A \subsetneq \mathcal{I}$ containing $s$ admits an agent outside $A$ who demands a good supplied by an adjacent agent inside $A$:
 
 $$
@@ -151,16 +151,16 @@ $$
 
 Here demand is a relation between an agent and a good, not a separate domain of Wants. When demand is used to explain purposeful choice, it must be grounded in attainable valued ends. An undirected contact path by itself need not give each agent a reason to accept the medium.
 
-### Theorem 9.10 (Universal Money on a Demand-Connected Network)
+### Theorem 9.12 (The Network Demand-Connected Money Emergence Theorem)
 Suppose $s \in \Gamma_0(m^{\ast})$ and the finite network is demand-connected from $s$. Then some finite iterate $\Gamma^{\ast}$ of $\Phi_G$ satisfies
 
 $$
 \Phi_G(\Gamma^{\ast}) = \Gamma^{\ast}, \quad \Gamma^{\ast}(m^{\ast}) = \mathcal{I}
 $$
 
-**Proof.** Obtain a fixed iterate by [Theorem 9.8](#theorem-98-finite-fixed-point-convergence). Inflationarity preserves the seed's acceptance. Suppose its terminal acceptance set $A = \Gamma^{\ast}(m^{\ast})$ were proper. Demand-connectivity gives $k \notin A$ and $j \in A$ with $G(k, j)$ and $D(k, S(j))$. Thus $j$ witnesses local indirect feasibility for $k$, so the next iteration adds $k$. This contradicts fixedness. Therefore $A = \mathcal{I}$. $\blacksquare$
+**Proof.** Obtain a fixed iterate by [Theorem 9.10](#theorem-910-the-bourbaki-witt-monetary-fixed-point-convergence-theorem). Inflationarity preserves the seed's acceptance. Suppose its terminal acceptance set $A = \Gamma^{\ast}(m^{\ast})$ were proper. Demand-connectivity gives $k \notin A$ and $j \in A$ with $G(k, j)$ and $D(k, S(j))$. Thus $j$ witnesses local indirect feasibility for $k$, so the next iteration adds $k$. This contradicts fixedness. Therefore $A = \mathcal{I}$. $\blacksquare$
 
-[Theorem 9.10](#theorem-910-universal-money-on-a-demand-connected-network) supplies a diffusion result for the designated medium under its initial-acceptance and demand-connectivity premises. A selective-emergence result composes this acceptance module with additional conditions that exclude universal acceptance of competing goods.
+[Theorem 9.12](#theorem-912-the-network-demand-connected-money-emergence-theorem) supplies a diffusion result for the designated medium under its initial-acceptance and demand-connectivity premises. A selective-emergence result composes this acceptance module with additional conditions that exclude universal acceptance of competing goods.
 
 ---
 
@@ -176,19 +176,19 @@ Direct barter can fail even when traders are arranged in a connected network. In
 
 Once a medium is accepted, reservation bids can be ordered into buyer and seller cohorts. The discrete marginal pair bounds the price interval consistent with the specified quantities; it does not require a continuous Walrasian auctioneer.
 
-### Definition 9.11 (Reservation Bids and Ordered Cohorts)
+### Definition 9.13 (Reservation Bids and Ordered Cohorts)
 Let $v_b(r) \in \mathbb{N}$ be the bid of buyer $r$ and $v_s(r) \in \mathbb{N}$ the reservation price of seller $r$. Order buyers by non-increasing bids and sellers by non-decreasing reservations. A buyer is willing at price $P$ when $P \le v_b(r)$; a seller is willing when $v_s(r) \le P$.
 
 These inequalities describe monetary thresholds. To infer purposeful action from them, the threshold comparisons must be connected to the corresponding ends, feasible menus, and execution conditions.
 
-### Proposition 9.12 (Clearance of the Intra-Marginal Cohorts)
+### Proposition 9.14 (Clearance of the Intra-Marginal Cohorts)
 Suppose the ordered marginal pair $r^{\ast}$ satisfies $v_s(r^{\ast}) \le P \le v_b(r^{\ast})$. Then every pair $r \le r^{\ast}$ satisfies $v_s(r) \le P \le v_b(r)$.
 
 **Proof.** Seller ordering gives $v_s(r) \le v_s(r^{\ast}) \le P$. Buyer ordering gives $P \le v_b(r^{\ast}) \le v_b(r)$. $\blacksquare$
 
 The preceding proposition identifies the pairs willing to trade once the marginal pair is willing. To identify a boundary of trade, we must also exclude the next buyer and seller. On a discrete money grid, strict exclusion requires a gap of at least one monetary unit. This explains the unit increments in the following price bounds.
 
-### Theorem 9.13 (The Discrete Marginal-Pair Bracket)
+### Theorem 9.15 (The Böhm-Bawerk Discrete Marginal-Pair Bracket Theorem)
 Let $r^{\ast}$ be a buyer-seller pair whose next pair $r^{\ast}+1$ exists in both ordered cohorts. Let $P \in \mathbb{N}$ satisfy
 
 $$
@@ -231,7 +231,7 @@ In a multilateral setting, sorted cohorts and a clearing allocation determine th
 
 Money also serves as a reserve held against uncertain future purchases. Below, we introduce cash reservation under uncertainty and the cash-backed solvency profile under factor price bounds, which provides the microeconomic foundation for evaluating monetary supply and credit expansion in Chapter 10.
 
-### Definition 9.14 (Cash Reservation under Uncertainty)
+### Definition 9.16 (Cash Reservation under Uncertainty)
 Let $H_i^p$ be a finite collection of plausible histories, and let $E_i(h)$ be the expenditure required on history $h$. A balance $M_i \in \mathbb{N}$ covers the reservation demand when
 
 $$
@@ -242,7 +242,7 @@ A balance satisfying this condition covers the specified expenditures on every p
 
 For a producer acquiring multiple inputs under factor-price uncertainty, factor price boxes specify rigorous upper and lower price bounds across all inputs. The supremum prices determine the exact precautionary cash reserve sufficient to ensure project solvency across all admissible price realizations.
 
-### Definition 9.14a (Factor Price Box and Precautionary Cash Demand)
+### Definition 9.17 (Factor Price Box and Precautionary Cash Demand)
 For $d$ discrete production inputs, a **factor price box** $\mathcal{B}$ specifies lower and upper price bounds $P^{\inf}, P^{\sup} : \text{Fin}(d) \to \mathbb{N}$ such that
 
 $$
@@ -255,7 +255,7 @@ $$
 C^+(\mathcal{B}, x) = \sum_{k < d} P^{\sup}(k) \cdot x(k).
 $$
 
-### Proposition 9.14b (Factor Completion Infeasibility under Cash Shortfall)
+### Proposition 9.18 (Factor Completion Infeasibility under Cash Shortfall)
 Suppose a production project requires completing a factor purchase with outlay equal to the precautionary cash demand $C^+(\mathcal{B}, x)$. If the entrepreneur's physical cash endowment $\omega_i(t, h, m)$ satisfies
 
 $$
@@ -266,14 +266,14 @@ then the completion action is resource-infeasible and cannot be enacted as a pur
 
 **Proof.** An action requiring outlay $C^+(\mathcal{B}, x)$ uses that quantity of medium $m$. By the action-frame feasibility condition, an action is feasible only if its resource use does not exceed the actor's endowment. Since the cash held is strictly less than the required expenditure, the feasibility condition fails, ruling out purposeful execution. $\blacksquare$
 
-### Definition 9.14c (Cash-Backed Acceptance Profile)
+### Definition 9.19 (Cash-Backed Acceptance Profile)
 For a finite cohort of entrepreneurs $\text{Cohort} \subseteq \mathcal{I}$, each facing an input plan $x_i \in \mathbb{N}^d$ under factor price box $\mathcal{B}$, the **cash-backed acceptance profile** (or solvent buyer cohort) is the finite subset of entrepreneurs whose money endowments cover their precautionary cash demand:
 
 $$
 \mathcal{S}(\omega, m, \mathcal{B}, x, \text{Cohort}) = \left\lbrace i \in \text{Cohort} \;\middle|\; C^+(\mathcal{B}, x_i) \le \omega_i(m) \right\rbrace.
 $$
 
-### Proposition 9.14d (Price-Box Widening Contracts the Solvent Cohort)
+### Proposition 9.20 (Price-Box Widening Contracts the Solvent Cohort)
 Let $`\mathcal{B}_1`$ and $`\mathcal{B}_2`$ be two factor price boxes such that $`\mathcal{B}_2`$ represents wider price uncertainty than $`\mathcal{B}_1`$:
 
 $$
@@ -300,7 +300,7 @@ $$
 
 **Proof.** For every coordinate $k$, $`P^{\sup}_1(k) \le P^{\sup}_2(k)`$. Multiplying by the non-negative integer $x(k)$ preserves the inequality. Summing over all $k < d$ gives $`C^+(\mathcal{B}_1, x) \le C^+(\mathcal{B}_2, x)`$. Any agent $i \in \text{Cohort}$ satisfying $`C^+(\mathcal{B}_2, x_i) \le \omega_i(m)`$ therefore also satisfies $`C^+(\mathcal{B}_1, x_i) \le C^+(\mathcal{B}_2, x_i) \le \omega_i(m)`$, proving the subset inclusion. When a strictly positive input has a strictly higher upper price bound, the strict inequality at $k^{\ast}$ makes the sum strictly larger. $\blacksquare$
 
-### Theorem 9.14e (Network Money Emergence Narrows Price Spread and Expands Solvency)
+### Theorem 9.21 (The Network Money Solvency Expansion Theorem)
 Suppose indirect exchange through medium $m^{\ast}$ spreads across a finite demand-connected trading network $G$ from an initial seed adopter, transitioning from an initial barter-spread price schedule $`\mathcal{B}_0`$ to the terminal universal-money fixed point $\mathcal{B}^{\ast}$. If the price-box schedule contracts with expanding marketability:
 
 $$
@@ -313,7 +313,7 @@ $$
 \mathcal{S}(\omega, m^{\ast}, \mathcal{B}_0, x, \text{Cohort}) \subseteq \mathcal{S}(\omega, m^{\ast}, \mathcal{B}^{\ast}, x, \text{Cohort}).
 $$
 
-**Proof.** By [Theorem 9.10](#theorem-910-universal-money-on-a-demand-connected-network), the network adoption operator reaches a fixed point with universal acceptance of $m^{\ast}$ in finitely many steps. The contraction of price spreads makes $`P^{\sup}_{\ast}(k) \le P^{\sup}_0(k)`$ for all $k < d$. By [Proposition 9.14d](#proposition-914d-price-box-widening-contracts-the-solvent-cohort), precautionary cash demand satisfies $`C^+(\mathcal{B}^{\ast}, x_i) \le C^+(\mathcal{B}_0, x_i)`$ for every agent $i$. Any agent solvent under $`\mathcal{B}_0`$ satisfies $`C^+(\mathcal{B}^{\ast}, x_i) \le C^+(\mathcal{B}_0, x_i) \le \omega_i(m^{\ast})`$, establishing membership in the expanded solvent cohort $`\mathcal{S}(\omega, m^{\ast}, \mathcal{B}^{\ast}, x, \text{Cohort})`$. $\blacksquare$
+**Proof.** By [Theorem 9.12](#theorem-912-the-network-demand-connected-money-emergence-theorem), the network adoption operator reaches a fixed point with universal acceptance of $m^{\ast}$ in finitely many steps. The contraction of price spreads makes $`P^{\sup}_{\ast}(k) \le P^{\sup}_0(k)`$ for all $k < d$. By [Proposition 9.20](#proposition-920-price-box-widening-contracts-the-solvent-cohort), precautionary cash demand satisfies $`C^+(\mathcal{B}^{\ast}, x_i) \le C^+(\mathcal{B}_0, x_i)`$ for every agent $i$. Any agent solvent under $`\mathcal{B}_0`$ satisfies $`C^+(\mathcal{B}^{\ast}, x_i) \le C^+(\mathcal{B}_0, x_i) \le \omega_i(m^{\ast})`$, establishing membership in the expanded solvent cohort $`\mathcal{S}(\omega, m^{\ast}, \mathcal{B}^{\ast}, x, \text{Cohort})`$. $\blacksquare$
 
 ## Integer Scaling, Cantillon Networks, and Exact Affordability
 
@@ -321,7 +321,7 @@ All physical quantities, cash balances, and prices in these models are natural n
 
 The same discipline applies to comparative-advantage ratios and split quantities: either include the scale factor that makes the relevant products divisible, or formulate the theorem using equivalent cross-multiplied inequalities. Integer arithmetic makes discrete price brackets exact, but it does not license ignoring truncation in other calculations.
 
-### Definition 9.14f (Cantillon Network)
+### Definition 9.22 (Cantillon Network)
 In an Action Frame $\mathcal{W}$, a **Cantillon Network** models the sequential transmission of new money across time and space. A downstream agent $i_{\text{downstream}} \in \mathcal{I}$ holds physical cash balance $M_{\text{downstream}} = \omega(i_{\text{downstream}}, t_{\text{pre}}, h, m_{\text{money}})$. Between initial moment $t_{\text{pre}}$ and subsequent moment $t_{\text{post}}$:
 1. Money injection occurs upstream, while the downstream agent's physical cash balance remains unchanged:
 
@@ -342,7 +342,7 @@ $$
 M_{\text{downstream}} < P_{\text{post}}
 $$
 
-### Proposition 9.14g (Cantillon Network Purchasing-Power Dilution)
+### Proposition 9.23 (Cantillon Network Purchasing-Power Dilution)
 Under a Cantillon network, the downstream agent experiences purchasing-power dilution and complete market exclusion:
 1. **Pre-Injection Affordability:** The input was affordable prior to monetary injection:
 
@@ -368,7 +368,7 @@ $$
 
 Monetary prices provide a common accounting unit for physical factors that the componentwise order leaves incomparable. That cost comparison supplies an input to the information-boundary argument: the observer-side conclusion also depends on which prices and valuations the record contains and which decision rules are restricted to that record.
 
-### Definition 9.15 (Physical Input Order and Antichains)
+### Definition 9.24 (Physical Input Order and Antichains)
 For input vectors $x, y \in \mathbb{N}^d$, define
 
 $$
@@ -383,7 +383,7 @@ $$
 (\exists b < d, \ x_b < y_b)
 $$
 
-### Proposition 9.16 (Physical Incomparability)
+### Proposition 9.25 (Physical Incomparability)
 If $x, y$ form a physical antichain, neither $x\le_{\text{phys}}y$ nor $y\le_{\text{phys}}x$ holds.
 
 **Proof.** The first proposed inequality contradicts the coordinate $a$; the second contradicts the coordinate $b$. $\blacksquare$
@@ -392,14 +392,14 @@ For example, $(2, 1)$ and $(1, 2)$ require opposite economizing choices between 
 
 The antichain leaves the producer with a comparison between unlike quantities. If the two factors have market prices in the same monetary medium, each required quantity can instead be expressed as a monetary expenditure. Adding these expenditures constructs the common cost measure needed for comparison.
 
-### Definition 9.17 (Monetary Input Cost)
+### Definition 9.26 (Monetary Input Cost)
 Given prices $P_r \in \mathbb{N}$, define
 
 $$
 C_P(x) = \sum_{r < d}P_rx_r
 $$
 
-### Proposition 9.18 (Comparability of Monetary Costs)
+### Proposition 9.27 (Comparability of Monetary Costs)
 *For any two input vectors,*
 
 $$
@@ -408,7 +408,7 @@ $$
 
 **Proof.** Both costs are natural numbers, and the natural-number order is total. $\blacksquare$
 
-### Definition 9.19 (Monetary Outlays, Net Return, and Return Ratio)
+### Definition 9.28 (Monetary Outlays, Net Return, and Return Ratio)
 For a discrete production action $\alpha$ in an action frame $W$ with factor prices $p_A, p_B \in \mathbb{N}$ and output price $p_{\mathrm{out}} \in \mathbb{N}$, the factor outlays and gross revenue are determined by physical factor usage and product yields:
 
 $$
@@ -429,7 +429,7 @@ $$
 \Pi_{\text{old}} \cdot K_{\text{new}} < \Pi_{\text{new}} \cdot K_{\text{old}}.
 $$
 
-### Proposition 9.20 (Cost-Reducing Factor Substitution Raises Net Return and Return Ratio)
+### Proposition 9.29 (Cost-Reducing Factor Substitution Raises Net Return and Return Ratio)
 Suppose a production technique substitutes factor $A$ for factor $B$ ($K_{A, \text{old}} < K_{A, \text{new}}$ and $K_{B, \text{new}} < K_{B, \text{old}}$) while strictly reducing total monetary input cost ($K_{\text{new}} < K_{\text{old}}$) for at least the same gross revenue ($R_{\text{old}} \le R_{\text{new}}$). Then the factor-$A$ outlay ratio, the net monetary return, and the return-to-cost ratio all strictly increase:
 
 $$
@@ -440,11 +440,11 @@ Furthermore, if factor outlays subsequently adjust downward ($`K'_{A} \le K_{A, 
 
 **Proof.** The product inequality for the factor-$A$ ratio follows from multiplying $K_{A, \text{old}} < K_{A, \text{new}}$ by $K_{B, \text{new}} \le K_{B, \text{old}}$. Net return rises because $R_{\text{old}} - K_{\text{old}} < R_{\text{new}} - K_{\text{new}}$ whenever $K_{\text{new}} < K_{\text{old}}$ and $R_{\text{old}} \le R_{\text{new}}$. Cross-multiplying $\Pi_{\text{old}} \cdot K_{\text{new}} < \Pi_{\text{new}} \cdot K_{\text{new}} \le \Pi_{\text{new}} \cdot K_{\text{old}}$ establishes the strictly higher return ratio. Downstream factor price adjustment satisfies $K' \le K_{\text{new}} < K_{\text{old}}$, preserving the strict return ratio inequality. $\blacksquare$
 
-A physical antichain can therefore have comparable monetary costs. [Proposition 9.18](#proposition-918-comparability-of-monetary-costs) and [Proposition 9.20](#proposition-920-cost-reducing-factor-substitution-raises-net-return-and-return-ratio) supply the input-cost and net-return comparisons for given prices; ranking whole production plans composes that comparison with outputs, maturation, and uncertainty.
+A physical antichain can therefore have comparable monetary costs. [Proposition 9.27](#proposition-927-comparability-of-monetary-costs) and [Proposition 9.29](#proposition-929-cost-reducing-factor-substitution-raises-net-return-and-return-ratio) supply the input-cost and net-return comparisons for given prices; ranking whole production plans composes that comparison with outputs, maturation, and uncertainty.
 
 Could the actor construct the same comparison without factor prices by assigning numbers to the ends forgone? A strict preference order is unchanged when its elements are replaced by any order-preserving numerical labels. We test the proposed addition of ranks by keeping the ranking fixed and changing only those labels. If the sum comparison reverses, the ranking alone cannot determine it.
 
-### Theorem 9.21 (Non-Invariance of Additive Ordinal Ranks)
+### Theorem 9.30 (The Socialist Incommensurability Antichain Theorem)
 *The strict order of four ends does not determine the comparison between the sums of numerical ranks assigned to two bundles of those ends.*
 
 **Proof.** Let $`e_0 \succ e_1 \succ e_2 \succ e_3`$. Assign ranks first by $`\varphi_1 = (10, 4, 3, 1)`$ and then by $`\varphi_2 = (10, 9, 8, 1)`$. Both assignments preserve the same strict ranking. For bundles $`A = \{e_0, e_3\}`$ and $`B = \{e_1, e_2\}`$,
@@ -469,7 +469,7 @@ The difficulty arises before computational optimization: a sum of arbitrary rank
 
 A calculation rule can use only the information supplied to it. The theorem constructs economies with the same restricted record but opposite marginal preferences, so any rule based solely on that record fails to economize in at least one economy.
 
-### Definition 9.22 (Action Frame Socialist Economy and Preserved Marginal End)
+### Definition 9.31 (Action Frame Socialist Economy and Preserved Marginal End)
 In an action frame $W$, an *action frame socialist economy* $E$ at decision context $(i, t, h)$ specifies two distinct means $m_A \neq m_B$, two distinct ends $e_A \neq e_B$, two feasible production techniques $x_A, x_B \in \mathbb{N}^2$, a non-market statistical report $`R : \{0, 1\} \to \mathbb{N}`$, and means bundles $b_A, b_B$ satisfying subjective teleological dominance. Its non-market observable record is:
 
 $$
@@ -480,7 +480,7 @@ The non-market statistical record is strictly confined to technological coeffici
 
 A technique choice violates Mengerian economizing if the alternative feasible technique preserves a strictly preferred marginal end. A central planning rule selects one of the two feasible techniques, $A$ or $B$, as a function of $\mathcal{O}(E)$ alone.
 
-### Theorem 9.23 (Indistinguishable Records and Opposite Economizing Choices)
+### Theorem 9.32 (The Mises-Hayek Economic Calculation Impossibility Theorem)
 There exist two socialist economies in an action frame with the same observable record such that every rule based only on that record violates economizing in at least one of them.
 
 **Proof.** In both economies take $x_A = (2, 1)$, $x_B = (1, 2)$, which form a physical antichain, and the same non-market report $R$. Technique $A$ preserves $e_B$ and technique $B$ preserves $e_A$. In the first economy $E_1$, bundle $b_A$ dominates $b_B$ teleologically, so $e_A \succ_{i_1, t_1, h_1} e_B$. In the second economy $E_2$, bundle $b_B$ dominates $b_A$, so $e_B \succ_{i_2, t_2, h_2} e_A$. Thus choosing $A$ violates Mengerian economizing in $E_1$ (since $B$ preserves preferred $e_A$), while choosing $B$ violates it in $E_2$ (since $A$ preserves preferred $e_B$).
@@ -489,7 +489,7 @@ The observable non-market records are identical: $\mathcal{O}(E_1) = \mathcal{O}
 
 The conclusion quantifies over every decision function on the stated record, including rules that do not add numerical ranks. Its scope is determined by the information restriction: a richer record that distinguishes the two marginal valuations changes the premises. In this account of the economic calculation problem, the non-market record excludes the evaluative information that factor-market exchange is meant to communicate.
 
-[Theorem 9.23](#theorem-923-indistinguishable-records-and-opposite-economizing-choices) gives an information boundary for guarantees based on the specified record: a convention can select a technique, but no rule using that record can guarantee an economizing selection in both constructed economies. The result turns on the record's exclusion of the differing marginal valuations, not on a limit to the decision rule's computational power.
+[Theorem 9.32](#theorem-932-the-mises-hayek-economic-calculation-impossibility-theorem) gives an information boundary for guarantees based on the specified record: a convention can select a technique, but no rule using that record can guarantee an economizing selection in both constructed economies. The result turns on the record's exclusion of the differing marginal valuations, not on a limit to the decision rule's computational power.
 
 ---
 
@@ -503,7 +503,7 @@ These constructions establish that the stated configurations are inhabited. They
 
 The preceding network results describe the spread of acceptance. We can also specify a staged schedule under which an added balance enters an agent's effective bid only after the assigned hop distance from an injection point has been reached. Let $d(i)$ be that assigned distance and let $\delta>0$ be the increment. At stage $k$, define an agent's effective bid as its base bid plus $\delta$ exactly when $d(i)\le k$; otherwise its effective bid remains its base bid. The same convention may be used for effective cash. This is a stipulated schedule, not yet a derived sequence of transfers.
 
-### Proposition 9.24 (A Downstream Bid Can Remain below the Wave Price)
+### Proposition 9.33 (A Downstream Bid Can Remain below the Wave Price)
 
 Let agent $j$ lie beyond stage $k$, so $k < d(j)$. If its base bid satisfies
 
@@ -515,7 +515,7 @@ then its effective bid at stage zero is at least $P_{\mathrm{pre}}$, while its e
 
 **Proof.** Since $d(j) > k\ge0$, the added balance is not included in $j$'s effective bid at either stage zero or stage $k$. Both effective bids therefore equal $v_j$. The two inequalities follow from the assumed bounds on $v_j$. $\square$
 
-[Proposition 9.24](#proposition-924-a-downstream-bid-can-remain-below-the-wave-price) is a bid-response module for a stipulated hop schedule and two price thresholds: an agent beyond the current stage can meet the lower threshold while remaining below the wave price. A price-formation application composes it with a transfer process that generates the schedule, preference and feasibility premises for purposeful bids, and a market-clearing rule. Those interfaces determine whether the bid inequality contributes to a broader inflation path.
+[Proposition 9.33](#proposition-933-a-downstream-bid-can-remain-below-the-wave-price) is a bid-response module for a stipulated hop schedule and two price thresholds: an agent beyond the current stage can meet the lower threshold while remaining below the wave price. A price-formation application composes it with a transfer process that generates the schedule, preference and feasibility premises for purposeful bids, and a market-clearing rule. Those interfaces determine whether the bid inequality contributes to a broader inflation path.
 
 ## Conclusion
 

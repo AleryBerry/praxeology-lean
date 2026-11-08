@@ -56,7 +56,7 @@ This definition isolates the pure mathematical divergence between natural and cr
 
 To establish purposeful investment, rate comparisons are evaluated through projected bundles calculated from the contract's promised terms. Feasibility, enactment, and preferences are explicitly represented within the Action Frame. The finite program adapter defines the evaluation horizon, grounding comparisons in physical inventory bundles across specified decision horizons.
 
-### Theorem 13.2 (Conditional Credit-Rate Investment Comparison)
+### Proposition 13.2 (Conditional Credit-Rate Investment Comparison)
 
 Suppose a fiduciary credit origination supplies principal $P$ at suppressed gross repayment factor $r_c < r_n$, funding an investment action $\alpha$:
 1. At the natural rate $r_n$, the projected bundle after the promised repayment does not improve upon inaction, so $\alpha$ is not a purposeful active choice ( $\neg \mathsf{P}$ );
@@ -128,7 +128,7 @@ $$
 
 The two conditions are complements. They provide an explicit accounting rule within the action frame: the substitute stock contributes less to the requirement comparison as $p$ rises.
 
-### Proposition 13.6a (Liquidation Implies Primary Buffer Deficit)
+### Proposition 13.7 (Liquidation Implies Primary Buffer Deficit)
 
 Under any penalized substitution technology with penalty $p > 0$, if the technology is in the liquidation regime, the primary buffer stock alone strictly falls short of the requirement:
 
@@ -138,7 +138,7 @@ $$
 
 **Proof.** Suppose toward a contradiction that $b \ge q$. Then $b \cdot p \ge q \cdot p$. Since $s \ge 0$, we have $b \cdot p + s \ge q \cdot p$, which directly contradicts the strict inequality of the liquidation regime $b \cdot p + s < q \cdot p$. Hence $b < q$. $\square$
 
-### Theorem 13.7 (A Penalty Can Change the Completion Classification)
+### Proposition 13.8 (A Penalty Can Change the Completion Classification)
 
 For every natural-number penalty $p\ge2$, the stocks $b=2$, $s=4$, and $q=5$ meet the unpenalized absorption condition but satisfy penalized liquidation:
 
@@ -158,7 +158,7 @@ These two constructions model distinct aspects of production bottlenecks: the fi
 
 In this framework, regret compares an actual investment with a feasible safe action under one context correspondence. The correspondence must admit both action-history-maturity combinations in that context. In addition, outcomes must be grounded in physical endowments, and the safe bundle must teleologically dominate the actual bundle at the evaluation point. Under these conditions, teleological bundle dominance natively induces the relevant strict preference (`teleological_bundle_dominance_induces_preference`), and the common-context definition records regret.
 
-### Theorem 13.8 (Conditional Cycle Conclusion)
+### Theorem 13.9 (The Austrian Business Cycle Master Theorem)
 
 Suppose the signal pair holds; a transition forms one unit of capital; completion is blocked; the investment is purposeful at the investment decision; and the actual investment and safe alternative are admitted by a common compatible context. If outcomes are determined by physical endowments and the safe bundle dominates the actual bundle at the evaluation point, then the model entails contextual regret for the investment relative to the safe action.
 
@@ -170,7 +170,7 @@ This conclusion unites the rate signal, physical capital formation, purposeful c
 
 Suppose completion requires a monetary input equal to the precautionary cash demand calculated from a factor-price box and a vector of factor quantities. If the agent's cash stock is strictly below that amount, completion is infeasible. This follows from the definition of feasibility and the stated cost equality.
 
-### Proposition 13.9 (Cash Shortfall Blocks a Costed Completion)
+### Proposition 13.10 (Cash Shortfall Blocks a Costed Completion)
 
 Let $C$ be the monetary input required by a completion action, and suppose $C$ equals the precautionary cash demand associated with the stated price box and factor quantities. If available cash is less than that demand, the completion action is infeasible.
 
@@ -178,7 +178,7 @@ Let $C$ be the monetary input required by a completion action, and suppose $C$ e
 
 This proposition establishes an exact affordability threshold: when factor market prices rise to match precautionary demand, an entrepreneur with cash below that threshold is physically blocked from completing the factor purchase.
 
-When this cash shortfall supplies the blocked-completion premise in [Theorem 13.8](#theorem-138-conditional-cycle-conclusion), the contextual regret conclusion follows directly.
+When this cash shortfall supplies the blocked-completion premise in [Theorem 13.9](#theorem-139-the-austrian-business-cycle-master-theorem), the contextual regret conclusion follows directly.
 
 ### An Endogenous Two-Stage Price-Box Squeeze
 
@@ -194,7 +194,7 @@ The physical comparison can also be derived from end requirements. Suppose the s
 
 We now make the funding step explicit. A matched loan advance transfers principal to the borrower and collateral to the lender. To use that advance as evidence for a later investment, we must trace the borrower's money stock between the transfer and the investment decision.
 
-### Proposition 13.10 (An Unspent Advance Can Cover the Project's Money Input)
+### Proposition 13.11 (An Unspent Advance Can Cover the Project's Money Input)
 
 Suppose a lender transfers principal $P$ to a borrower at a moment on history $h$. Let the advance be followed by a later decision moment $t$ on that same history. If the borrower uses no units of the loan's money between receipt of the advance and $t$, then the borrower's money stock at $t$ is at least $P$. Consequently, if the investment requires at most $P$ units of that money and every other required input is available, a contemplated investment is feasible at $t$.
 
@@ -208,7 +208,7 @@ The business-cycle causal chain is formulated as an explicit, modular compositio
 
 Accordingly, the result below composes these links into a unified intertemporal cycle theorem. Each premise—the rate signal, the purposeful choice, the physical factor constraint, and the regret comparison—is stated explicitly to demonstrate how microeconomic choices and material limits jointly determine the systemic outcome.
 
-### Theorem 13.11 (A Conditional Credit-Financed Starvation Cycle)
+### Theorem 13.12 (The Fiduciary Factor Starvation Cycle Theorem)
 
 Consider an entrepreneur, an investment action, a completion action, a capital good, and a complementary factor in an Action Frame. Suppose:
 
@@ -226,11 +226,11 @@ Then:
 
 **Proof.** Premise 2 supplies the purposeful-choice comparison at the stated appraisal and horizon. The inventory transition in premise 3 records intermediate capital while complementary stock is zero. Since the completion action requires a positive quantity of that absent factor, feasibility fails. Premise 5 supplies the common-context, physical-grounding, and preference evidence for regret relative to the safe alternative. The theorem explicitly integrates these structural conditions, demonstrating how monetary loan terms, physical inventory scarcity, and teleological preference structures jointly produce the crisis dynamic. $\square$
 
-### Proposition 13.12 (A Cash Shortfall Blocks a Required Spot-Factor Purchase)
+### Proposition 13.13 (A Cash Shortfall Blocks a Required Spot-Factor Purchase)
 
 Suppose completion requires a factor that the entrepreneur does not hold, the factor is offered only through a spot purchase at price $P$, and the entrepreneur's available balance of the specified money good is less than $P$. Then the spot acceptance is infeasible; if that factor is a necessary completion input, completion is physically infeasible as well.
 
-**Proof.** Spot acceptance requires at least $P$ units of the specified money good. The stipulated balance is smaller, so the feasibility condition fails. If the factor is required for completion and is not otherwise available, the completion action also fails its input condition. This proposition isolates the exact physical-liquidity mechanism: an unbacked cash deficiency strictly prevents spot-factor acquisition and forces project cessation, which [Theorem 13.8](#theorem-138-conditional-cycle-conclusion) integrates with purposeful choice and contextual regret. $\square$
+**Proof.** Spot acceptance requires at least $P$ units of the specified money good. The stipulated balance is smaller, so the feasibility condition fails. If the factor is required for completion and is not otherwise available, the completion action also fails its input condition. This proposition isolates the exact physical-liquidity mechanism: an unbacked cash deficiency strictly prevents spot-factor acquisition and forces project cessation, which [Theorem 13.9](#theorem-139-the-austrian-business-cycle-master-theorem) integrates with purposeful choice and contextual regret. $\square$
 
 ## Organized Production and Finite Illustrations
 
