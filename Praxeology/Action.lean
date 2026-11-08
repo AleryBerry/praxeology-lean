@@ -1849,6 +1849,117 @@ theorem two_history_doxastic_non_vacuity :
         exact (SubjectiveBilateralTradeActionFrame.pref_asymm i t h h_same') h_same'
 
 
+/-- Irreflexivity of contextual preference on ends. -/
+theorem preference_irrefl [W : ActionFrame] (i : W.Agent) (t : W.Moment) (h : W.History)
+    (e : W.Ends) : ¬ W.Preference i t h e e :=
+  W.pref_irrefl i t h e
+
+/-- Asymmetry of contextual preference on ends. -/
+theorem preference_asymm [W : ActionFrame] (i : W.Agent) (t : W.Moment) (h : W.History)
+    {e₁ e₂ : W.Ends} (h_pref : W.Preference i t h e₁ e₂) :
+    ¬ W.Preference i t h e₂ e₁ :=
+  W.pref_asymm i t h h_pref
+
+/-- Every purposeful action is mathematically governed by irreflexive and asymmetric preference. -/
+theorem purposeful_act_instantiates_asymmetric_preference
+    [W : ActionFrame] (i : W.Agent) (t : W.Moment) (h : W.History) (α : W.Action)
+    (h_purp : PurposefulAct i t h α) :
+    (α = W.alpha_zero ∨ W.Preference i t h (W.End_of i α t h) (W.End_of i W.alpha_zero t h)) ∧
+    (∀ β ∈ W.A_feas i t h, ¬ W.Preference i t h (W.End_of i β t h) (W.End_of i α t h)) ∧
+    (∀ e, ¬ W.Preference i t h e e) ∧
+    (∀ e₁ e₂, W.Preference i t h e₁ e₂ → ¬ W.Preference i t h e₂ e₁) :=
+  ⟨h_purp.2.2.1, h_purp.2.2.2, fun e => W.pref_irrefl i t h e, fun _ _ hp => W.pref_asymm i t h hp⟩
+
+/-- Framing reversals: an apparent reversal of preference between two ends requires that
+the decision contexts (moment or history) be distinct. -/
+theorem framing_reversal_requires_context_distinction
+    (W : ActionFrame) (i : W.Agent) (t₁ t₂ : W.Moment) (h₁ h₂ : W.History)
+    (e₁ e₂ : W.Ends)
+    (h_pref1 : W.Preference i t₁ h₁ e₁ e₂)
+    (h_pref2 : W.Preference i t₂ h₂ e₂ e₁) :
+    t₁ ≠ t₂ ∨ h₁ ≠ h₂ := by
+  by_cases ht : t₁ = t₂
+  · by_cases hh : h₁ = h₂
+    · subst ht hh
+      exact False.elim (W.pref_asymm i t₁ h₁ h_pref1 h_pref2)
+    · exact Or.inr hh
+  · exact Or.inl ht
+
+/-- Hyperbolic discounting: predictable intertemporal preference shifts between delayed and
+immediate consumption ends are compatible with poset asymmetry because they occur
+across distinct moments. -/
+theorem hyperbolic_reversal_requires_distinct_moments
+    (W : ActionFrame) (i : W.Agent) (t₁ t₂ : W.Moment) (h₁ h₂ : W.History)
+    (e_delayed e_immediate : W.Ends)
+    (h_pref_t1 : W.Preference i t₁ h₁ e_delayed e_immediate)
+    (h_pref_t2 : W.Preference i t₂ h₂ e_immediate e_delayed) :
+    t₁ ≠ t₂ ∨ h₁ ≠ h₂ :=
+  framing_reversal_requires_context_distinction W i t₁ t₂ h₁ h₂
+    e_delayed e_immediate h_pref_t1 h_pref_t2
+
+/-- Precommitment mechanism: committing at an earlier moment prunes the temptation choice
+from the downstream feasible menu. -/
+theorem precommitment_prunes_temptation
+    [W : ActionFrame] (i : W.Agent) (t₂ : W.Moment) (h_commit h_uncommitted : W.History)
+    (α_consume α_save : W.Action)
+    (h_acts_distinct : α_consume ≠ α_save)
+    (h_menu_commit : W.A_feas i t₂ h_commit = {α_save})
+    (h_menu_uncommitted : W.A_feas i t₂ h_uncommitted = {α_save, α_consume}) :
+    α_consume ∉ W.A_feas i t₂ h_commit ∧
+    α_consume ∈ W.A_feas i t₂ h_uncommitted := by
+  rw [h_menu_commit, h_menu_uncommitted]
+  refine ⟨?_, ?_⟩
+  · simp only [Finset.mem_singleton]
+    exact h_acts_distinct
+  · simp only [Finset.mem_insert, Finset.mem_singleton]
+    exact Or.inr trivial
+
+/-- An action frame with precommitment prunes downstream temptation while preserving earlier
+intertemporal choice. -/
+theorem precommitment_pruning_witness :
+    ∃ (W : ActionFrame) (i : W.Agent) (t_uncommitted t_commit : W.Moment) (h : W.History)
+      (α_consume : W.Action),
+      α_consume ∉ W.A_feas i t_commit h ∧
+      α_consume ∈ W.A_feas i t_uncommitted h := by
+  let W : ActionFrame := FiniteBranchingModel
+  let i : W.Agent := (0 : Fin 2)
+  let t_uncommitted : W.Moment := (0 : Fin 4)
+  let t_commit : W.Moment := (1 : Fin 4)
+  let h : W.History := (0 : Fin 3)
+  refine ⟨W, i, t_uncommitted, t_commit, h, ModelAction.consume, ?_, ?_⟩
+  · change ModelAction.consume ∉ (if (0 : Fin 2) = 0 ∧ (1 : Fin 4) = 0 then _
+      else {ModelAction.idle})
+    simp
+  · change ModelAction.consume ∈ (if (0 : Fin 2) = 0 ∧ (0 : Fin 4) = 0
+      then {ModelAction.idle, ModelAction.consume, ModelAction.defer} else _)
+    simp
+
+/-- Loss aversion embedding: reference-dependent valuation is an instance of ActionFrame
+contextual valuation across histories with differing initial endowments. -/
+theorem loss_aversion_endowment_distinction
+    (W : ActionFrame) (i : W.Agent) (t : W.Moment) (h_gain h_loss : W.History)
+    (m : W.Means)
+    (h_endow_gain : W.omega i t h_gain m > W.omega i t h_loss m) :
+    h_gain ≠ h_loss := by
+  rintro rfl
+  exact lt_irrefl _ h_endow_gain
+
+/-- Bounded contemplation: an action α is purposeful within the feasible menu
+(a subset of the finite contemplated menu A_cont) even if an uncontemplated action γ ∉ A_cont
+would have yielded a strictly preferred end. -/
+theorem bounded_contemplation_purposeful_act
+    [W : ActionFrame] (i : W.Agent) (t : W.Moment) (h : W.History) (α : W.Action)
+    (h_purp : PurposefulAct i t h α)
+    (γ : W.Action) (h_not_cont : γ ∉ W.A_cont i t h) :
+    γ ∉ W.A_feas i t h ∧
+    (∀ β ∈ W.A_feas i t h, ¬ W.Preference i t h (W.End_of i β t h) (W.End_of i α t h)) := by
+  constructor
+  · intro h_feas
+    have h_cont := ((W.A_feas_coupling i t h γ).mp h_feas).1
+    exact h_not_cont h_cont
+  · exact h_purp.2.2.2
+
+
 end Praxeology
 
 end

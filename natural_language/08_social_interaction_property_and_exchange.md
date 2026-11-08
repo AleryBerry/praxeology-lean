@@ -449,7 +449,7 @@ The formal development also gives a converse boundary: if the cross-multiplied o
 ### Proposition 8.26 (Bilateral Exchange in the Recursive Program Action Frame)
 The formal system provides a constructive witness (`Praxeology/Catallactics/ProgramExchangeWitness.lean`) that executes a matched two-good exchange inside the recursive physical `ProgramActionFrame`:
 1. **Physical Program Execution**: Two agents with initial endowments $\omega_0 = \langle 0, 1 \rangle$ and $\omega_1 = \langle 1, 0 \rangle$ simultaneously submit matched `.offer` and `.accept` actions exchanging one unit of good 1 for one unit of good 0. The physical transition balance conserves stocks and executes the transfer.
-2. **Autonomous Ordinal Preferences**: Each agent's preference is an independent, explicit ordinal ranking over the good they seek ($\text{good}_0$ for agent 0, $\text{good}_1$ for agent 1). Preferences are strictly independent of the physical transfer technology.
+2. **Autonomous Ordinal Preferences**: Each agent's preference is an independent, explicit ordinal ranking over the good they seek ($`\text{good}_0`$ for agent 0, $`\text{good}_1`$ for agent 1). Preferences are strictly independent of the physical transfer technology.
 3. **Joint Purposefulness**: Both the offer and the acceptance are proved undominated and strictly improve over inaction, satisfying the Double Inequality of Exchange within the compiled action frame.
 
 ## Conclusion

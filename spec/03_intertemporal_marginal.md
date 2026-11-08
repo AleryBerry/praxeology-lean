@@ -67,24 +67,17 @@ tables for stocks zero through four, and unit-use satiation after the three
 listed ends. These are finite menu results, not claims that actual wants are
 exhausted or that every technology has homogeneous requirements.
 
-## 2. Legacy allocation results
+## 2. Endogenous allocation results
 
-[`LegacyUnitRequirementSchedule`](../Praxeology/Marginal.lean#L164) combines end requirements, a stock equality,
-and the agent's ranking in one record.
-The former private `LegacyBundleAllocationMenu` helper has been removed. Its
-old optimality premise was an input, so results built from it did not derive
-global optimal allocation from purposeful choice.
-
-[`LegacyTeleologicalQuantumRegime`](../Praxeology/Marginal.lean#L625) and
-the private `LegacyTeleologicalBundleSystem` have the same limitation: the
-latter assumes its designated prefix globally dominates each feasible
-alternative. The schedule lemmas remain, but the optimality-assuming helper
-is not public and is not the current allocation-choice result. Legacy
-imputation lemmas also inherit that premise and should be read conditionally.
+In [`Praxeology.Marginal.AllocationChoice`](../Praxeology/Marginal/AllocationChoice.lean),
+the choice-based allocation result [`ranked_prefix_marginal_preference`](../Praxeology/Marginal/AllocationChoice.lean#L400)
+derives the ranking of marginal ends from local strict improvements and transitivity,
+rather than embedding optimal prefixes into the definition of the schedule.
+Legacy schedule structures have been retired in favor of direct ActionFrame allocations.
 
 ## 3. Marginal sacrifice and complementarity
 
-[`finite_preference_relation_has_least_element`](../Praxeology/Marginal.lean#L803)
+[`finite_preference_relation_has_least_element`](../Praxeology/Marginal.lean#L551)
 is an order-theoretic result:
 transitivity on a finite nonempty set gives an element with no strictly
 preferred successor in that set. By itself it does not prove that reducing a
@@ -92,27 +85,28 @@ physical stock causes the actor to abandon that end. That economic conclusion
 also needs a feasible allocation, an actual stock change, and a preference
 bridge between the lost stock and the foregone end.
 
-[`Marginal/ComplementarityWitness.lean`](../Praxeology/Marginal/ComplementarityWitness.lean)
-specifies the pair technology directly: each pair requires one left shoe and
-one right shoe. [`unmatched_left_shoe_stock_does_not_attain_pair`](../Praxeology/Marginal/ComplementarityWitness.lean#L111)
-shows that two left shoes and no right shoe do not attain one pair. The named
-walking end has the same one-left-and-one-right requirement:
-[`extra_left_stock_does_not_enable_walking`](../Praxeology/Marginal/ComplementarityWitness.lean#L92)
-proves that two left shoes and no right shoe do not enable walking, and
-[`complementary_stock_enables_walking`](../Praxeology/Marginal/ComplementarityWitness.lean#L98)
-shows that one of each shoe suffices under the stated technology. The theorem
-[`unmatched_left_inventory_does_not_change_walking`](../Praxeology/Marginal/ComplementarityWitness.lean#L105)
-proves that adding a second left shoe while right stock remains zero does not
-change walking attainability. The theorem
-[`unmatched_left_inventory_same_attainable_pair_counts`](../Praxeology/Marginal/ComplementarityWitness.lean#L125)
-proves that increasing left stock from one to two leaves every pair count's
-attainment unchanged when right stock is zero. The subjective-gain result
-[`unmatched_left_inventory_no_subjective_teleological_gain`](../Praxeology/Marginal/ComplementarityWitness.lean#L163)
-additionally assumes that the only valued end is one pair. The separate
-bounded-menu satiation witness is limited to wants of at most one pair.
+In [`Praxeology/Marginal.lean`](../Praxeology/Marginal.lean),
+complementary factor requirements are formalized endogenously for any `ActionFrame`:
+[`ComplementaryEndsRequirement`](../Praxeology/Marginal.lean#L161) specifies that attainment
+requires positive amounts of two distinct means.
+[`complementary_attainment_requires_both_means`](../Praxeology/Marginal.lean#L166)
+proves that attaining the target end requires positive stock of both inputs.
+[`missing_complement_precludes_attainment`](../Praxeology/Marginal.lean#L176)
+shows that an unmatched stock expansion leaves the target end unattainable, and
+[`missing_complement_precludes_purposeful_act`](../Praxeology/Marginal.lean#L187)
+verifies that an agent with zero stock of a required complement cannot purposefully enact an action requiring it.
+[`complementary_stock_enables_purposeful_act`](../Praxeology/Marginal.lean#L203)
+proves that when stocks of both complements are available, purposeful attainment occurs
+provided the action is executed, improves over the passive baseline, and is undominated.
+The subjective-gain result
+[`unmatched_complement_no_subjective_teleological_gain`](../Praxeology/Marginal.lean#L226)
+proves that expanding an unmatched stock creates zero subjective teleological gain
+when all valued ends require the missing complement.
+Finite menu satiation is formalized by
+[`action_frame_attainable_ends_finite`](../Praxeology/Marginal.lean#L260).
 
-The arithmetic result
-[`quantum_capacity_bound_for_subquantum_remainder`](../Praxeology/Marginal.lean#L761)
+The discrete quantum result
+[`teleological_quantum_capacity_bound`](../Praxeology/Marginal.lean#L506)
 says
 that a remainder smaller than q cannot finance an additional complete use
 when every listed end requires q units. This is an allocation-capacity bound,
@@ -120,13 +114,13 @@ not a theorem that the remainder has no economic use in every technology.
 
 ## 4. Time preference and interest
 
-[`causal_enacted_consumption_demonstrates_nonneg_time_pref`](../Praxeology/Marginal.lean#L900)
+[`causal_enacted_consumption_demonstrates_nonneg_time_pref`](../Praxeology/Marginal.lean#L648)
 derives that, when a
 later same-end action remains feasible in the modeled open horizon, purposeful
 enactment rules out preferring that later outcome to the enacted outcome. It
 does not derive strict preference from purposefulness alone.
 
-[`strict_time_preference_from_distinct_end_dominance`](../Praxeology/Marginal.lean#L955)
+[`strict_time_preference_from_distinct_end_dominance`](../Praxeology/Marginal.lean#L703)
 has stronger premises. It
 assumes the enacted action dominates every feasible action with a distinct
 outcome (DistinctEndDominantAct), an available later deferral, and injective
@@ -134,8 +128,8 @@ timed ends. Under those assumptions it derives strict preference for the
 nearer dated end. It is not a universal theorem about every act or every
 agent.
 
-[`positive_originary_interest`](../Praxeology/Marginal.lean#L1017) and
-[`purposeful_positive_originary_interest`](../Praxeology/Marginal.lean#L1049)
+[`positive_originary_interest`](../Praxeology/Marginal.lean#L765) and
+[`purposeful_positive_originary_interest`](../Praxeology/Marginal.lean#L797)
 derive a larger future repayment quantity in the specified exchange setup.
 Their conclusions depend on strict time preference, an accepted exchange,
 synchrony monotonicity, transitivity, or purposeful choice with a feasible
@@ -144,7 +138,7 @@ positive nominal rate in every monetary institution.
 
 ## 5. Seasonal saving and production
 
-[`winter_security_preference_consequences_of_explicit_premises`](../Praxeology/Marginal.lean#L1402)
+[`winter_security_preference_consequences_of_explicit_premises`](../Praxeology/Marginal.lean#L1150)
 assumes the relevant dated preferences and their ordering. It packages those
 premises into a consistency result; it does not derive seasonal saving from
 the ActionFrame axioms or establish that all saving expresses positive time

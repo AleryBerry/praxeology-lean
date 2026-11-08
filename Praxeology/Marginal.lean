@@ -11,7 +11,6 @@ public import Praxeology.Production
 public import Praxeology.ExactNat
 public import Praxeology.Marginal.AllocationChoice
 public import Praxeology.Marginal.AllocationActionFrame
-public import Praxeology.Marginal.ComplementarityWitness
 public import Mathlib.Data.Finset.Basic
 public import Mathlib.Data.Finset.Card
 public import Mathlib.Data.Finset.Image
@@ -157,235 +156,115 @@ def JointlyFeasible (i : Agent) (t : Moment) (h : History) (S : Finset Ends) : P
   ∀ m : Means, (S.sum (fun e => requirement e m)) ≤ endowment i t h m
 
 
-/- This legacy record combines technology, stock equality, agent preference, and
-  ranking in one hypothesis. The finite ActionFrame witness now instantiates
-  HomogeneousUseTechnology, StockedAllocationContext, and
-  LocalOrdinalAllocationLaws separately. -/
-structure LegacyUnitRequirementSchedule (i : Agent) (t : Moment) (h : History)
-    (m : Means) (N : ℕ) where
-  k : ℕ
-  h_endow : endowment i t h m = k
-  h_k_lt_N : k < N
-  e_seq : Fin N → Ends
-  e_seq_inj : Function.Injective e_seq
-  unit_requirement : ∀ r : Fin N, requirement (e_seq r) m = 1
-  strictly_ranked : ∀ (r s : Fin N), r < s → Preference i t h (e_seq r) (e_seq s)
+/-- Complementary ends requirement: two distinct means are both required in positive quantities
+to attain end `e`. -/
+def ComplementaryEndsRequirement (W : ActionFrame) (e : W.Ends) (m₁ m₂ : W.Means) : Prop :=
+  m₁ ≠ m₂ ∧ 1 ≤ W.requirement e m₁ ∧ 1 ≤ W.requirement e m₂
 
-/-- All ends in the unit-requirement schedule. -/
-def LegacyUnitRequirementSchedule.all_ends {i : Agent} {t : Moment} {h : History}
-    {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) : Finset Ends :=
-  Finset.univ.image reg.e_seq
+/-- If two means are complementary for end `e`, then attaining `e` from an inventory bundle `b`
+requires positive stock of both means. -/
+theorem complementary_attainment_requires_both_means
+    (e : Ends) (m₁ m₂ : Means)
+    (h_comp : ComplementaryEndsRequirement W e m₁ m₂)
+    (b : Means → ℕ) (h_attains : AttainsEnd W.requirement b e) :
+    1 ≤ b m₁ ∧ 1 ≤ b m₂ := by
+  dsimp [AttainsEnd] at h_attains
+  exact ⟨le_trans h_comp.2.1 (h_attains m₁), le_trans h_comp.2.2 (h_attains m₂)⟩
 
-/-- The schedule contains `N` ends. -/
-theorem LegacyUnitRequirementSchedule.card_all_ends
-    {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) :
-    reg.all_ends.card = N := by
-  dsimp [LegacyUnitRequirementSchedule.all_ends]
-  rw [Finset.card_image_of_injective Finset.univ reg.e_seq_inj]
-  rw [Finset.card_univ, Fintype.card_fin]
+/-- When complement `m₂` is absent (`b m₂ = 0`), expanding `m₁` to any quantity
+never enables attainment of `e`. -/
+theorem missing_complement_precludes_attainment
+    (e : Ends) (m₁ m₂ : Means)
+    (h_comp : ComplementaryEndsRequirement W e m₁ m₂)
+    (b : Means → ℕ) (h_zero : b m₂ = 0) :
+    ¬ AttainsEnd W.requirement b e := by
+  intro h_attains
+  have h_both := complementary_attainment_requires_both_means e m₁ m₂ h_comp b h_attains
+  omega
 
+/-- Purposeful action cannot attain an end requiring missing complement `m₂` when
+the agent's endowment of `m₂` is zero. -/
+theorem missing_complement_precludes_purposeful_act
+    (i : Agent) (t : Moment) (h : History)
+    (α : Action) (e : Ends) (m₁ m₂ : Means)
+    (h_comp : ComplementaryEndsRequirement W e m₁ m₂)
+    (h_req : W.requirement e m₂ ≤ W.use_means α m₂)
+    (h_omega : endowment i t h m₂ = 0)
+    (h_feas : α ∈ A_feas i t h) :
+    False := by
+  have h_coupling := (W.A_feas_coupling i t h α).mp h_feas
+  have h_res : W.use_means α m₂ ≤ endowment i t h m₂ := h_coupling.2 m₂
+  have h_req_pos : 1 ≤ W.requirement e m₂ := h_comp.2.2
+  omega
 
--- Section 2: Ranked Ends and Feasible Bundles
+/-- When stock covers the joint requirement of complementary factors, action `α`
+attains `e` in a `PurposefulAct` when it is contemplated, executed, strictly improves
+over passive baseline (or is passive), and is undominated on the feasible menu. -/
+theorem complementary_stock_enables_purposeful_act
+    (i : Agent) (t : Moment) (h : History)
+    (α : Action) (e : Ends)
+    (h_cont : α ∈ A_cont i t h)
+    (h_stock : ∀ m, W.use_means α m ≤ endowment i t h m)
+    (h_exec : Exec i t α h)
+    (h_end : End_of i α t h = e)
+    (h_baseline : α = α₀ ∨ Preference i t h e (End_of i α₀ t h))
+    (h_undom : ∀ β ∈ A_feas i t h, ¬ Preference i t h (End_of i β t h) e) :
+    PurposefulAct i t h α := by
+  have h_feas : α ∈ A_feas i t h :=
+    (W.A_feas_coupling i t h α).mpr ⟨h_cont, h_stock⟩
+  refine ⟨h_feas, h_exec, ?_, ?_⟩
+  · rcases h_baseline with rfl | h_pref
+    · exact Or.inl rfl
+    · rw [h_end]
+      exact Or.inr h_pref
+  · intro β hβ
+    rw [h_end]
+    exact h_undom β hβ
 
-
-/-- The first `k` ranked ends. -/
-def S_opt {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (_hk : k ≤ N) : Finset Ends :=
-  (Finset.filter (fun (r : Fin N) => r.val < k) Finset.univ).image reg.e_seq
-
-/-- The selected ends belong to the schedule. -/
-theorem S_opt_subset {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N) :
-    S_opt reg k hk ⊆ reg.all_ends := by
-  dsimp [S_opt, LegacyUnitRequirementSchedule.all_ends]
-  apply Finset.image_subset_image
-  intro x _
-  exact Finset.mem_univ x
-
-
-/-- The selected set has `k` members. -/
-theorem card_S_opt {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N) :
-    (S_opt reg k hk).card = k := by
-  dsimp [S_opt]
-  rw [Finset.card_image_of_injective _ reg.e_seq_inj]
-  exact card_filter_fin_lt k hk
-
-/-- Each subset of the schedule requires one unit per end. -/
-theorem atomic_bundle_requirement_eq_card {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (S : Finset Ends) (hS : S ⊆ reg.all_ends) :
-    (S.sum (fun e => requirement e m)) = S.card := by
-  have h_const : ∀ e ∈ S, requirement e m = 1 := by
-    intro e he
-    have he_all : e ∈ reg.all_ends := hS he
-    dsimp [LegacyUnitRequirementSchedule.all_ends] at he_all
-    rcases Finset.mem_image.mp he_all with ⟨r, _, rfl⟩
-    exact reg.unit_requirement r
-  have h_sum := Finset.sum_congr rfl h_const
-  rw [h_sum, ← Finset.card_eq_sum_ones]
-
-/-- The first `k` ends require `k` units of `m`. -/
-theorem S_opt_requirement_eq_k {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N) :
-    ((S_opt reg k hk).sum (fun e => requirement e m)) = k := by
-  rw [atomic_bundle_requirement_eq_card reg (S_opt reg k hk) (S_opt_subset reg k hk)]
-  exact card_S_opt reg k hk
-
-/-- The first `k` ends fit within the endowment of `m`. -/
-theorem S_opt_is_jointly_feasible_on_m {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N)
-    (h_le_endow : k ≤ endowment i t h m) :
-    ((S_opt reg k hk).sum (fun e => requirement e m)) ≤ endowment i t h m := by
-  rw [S_opt_requirement_eq_k reg k hk]
-  exact h_le_endow
-
-/-- Any feasible subset has at most `reg.k` ends. -/
-theorem jointly_feasible_card_le_k {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (S : Finset Ends) (hS : S ⊆ reg.all_ends)
-    (h_feas : (S.sum (fun e => requirement e m)) ≤ endowment i t h m) :
-    S.card ≤ reg.k := by
-  rw [atomic_bundle_requirement_eq_card reg S hS] at h_feas
-  rw [reg.h_endow] at h_feas
-  exact h_feas
-
-
-theorem S_opt_dominates_suboptimal_bundle {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk : k ≤ N)
-    (S : Finset Ends) (hS_sub : S ⊆ reg.all_ends)
-    (hS_card : S.card ≤ k) (hS_ne : S ≠ S_opt reg k hk) :
-    (S_opt reg k hk \ S).Nonempty ∧
-    (∀ e_in ∈ S_opt reg k hk \ S, ∀ e_out ∈ S \ S_opt reg k hk, Preference i t h e_in e_out) := by
-  have h_nonempty : (S_opt reg k hk \ S).Nonempty := by
-    by_contra h_empty
-    rw [Finset.nonempty_iff_ne_empty, not_not] at h_empty
-    have h_sub : S_opt reg k hk ⊆ S := by
+/-- Expanding an unmatched complementary stock creates zero subjective teleological gain
+when all valued ends require the missing complement. -/
+theorem unmatched_complement_no_subjective_teleological_gain
+    (m₁ m₂ : Means) (target_e : Ends)
+    (h_comp : ComplementaryEndsRequirement W target_e m₁ m₂)
+    (b_stranded b_zero : Means → ℕ)
+    (h_zero_m2 : b_stranded m₂ = 0)
+    (h_zero_stock : ∀ m, b_zero m = 0) :
+    ¬ SubjectiveTeleologicalDominates W.requirement
+      (fun e' => e' = target_e) b_stranded b_zero := by
+  rintro ⟨_, ⟨S, h_val, h_stock, h_not⟩⟩
+  have h_empty : S = ∅ := by
+    by_contra h_ne
+    have h_nonempty : S.Nonempty := Finset.nonempty_iff_ne_empty.mpr h_ne
+    obtain ⟨e', he'⟩ := h_nonempty
+    have h_all : ∀ x ∈ S, W.requirement x m₂ = W.requirement target_e m₂ := by
       intro x hx
-      by_contra hx_not_in
-      have : x ∈ S_opt reg k hk \ S := Finset.mem_sdiff.mpr ⟨hx, hx_not_in⟩
-      rw [h_empty] at this
-      cases this
-    have h_card_opt : (S_opt reg k hk).card = k := card_S_opt reg k hk
-    have h_eq : S_opt reg k hk = S := Finset.eq_of_subset_of_card_le h_sub (by omega)
-    exact hS_ne h_eq.symm
-  refine ⟨h_nonempty, ?_⟩
-  intro e_in he_in e_out he_out
-  rw [Finset.mem_sdiff] at he_in he_out
-  have he_in_opt := he_in.1
-  have he_out_s := he_out.1
-  dsimp [S_opt] at he_in_opt
-  rcases Finset.mem_image.mp he_in_opt with ⟨r, hr_filt, rfl⟩
-  have hr_lt : r.val < k := (Finset.mem_filter.mp hr_filt).2
-  have he_out_all : e_out ∈ reg.all_ends := hS_sub he_out_s
-  dsimp [LegacyUnitRequirementSchedule.all_ends] at he_out_all
-  rcases Finset.mem_image.mp he_out_all with ⟨s, _, rfl⟩
-  have hs_not_opt := he_out.2
-  have hs_ge : k ≤ s.val := by
-    by_contra h_contra
-    have hs_lt : s.val < k := by omega
-    have hs_in_opt : reg.e_seq s ∈ S_opt reg k hk := by
-      dsimp [S_opt]
-      apply Finset.mem_image_of_mem
-      exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, hs_lt⟩
-    exact hs_not_opt hs_in_opt
-  have h_r_lt_s : r < s := by
-    apply Fin.mk_lt_mk.mpr
+      rw [h_val x hx]
+    have hsum : S.sum (fun e'' => W.requirement e'' m₂) = S.card * W.requirement target_e m₂ := by
+      rw [Finset.sum_congr rfl h_all, Finset.sum_const]
+      rfl
+    have h_bound : S.sum (fun e'' => W.requirement e'' m₂) ≤ b_stranded m₂ :=
+      h_stock m₂
+    rw [h_zero_m2, hsum] at h_bound
+    have h_card_pos : 0 < S.card := Finset.card_pos.mpr ⟨e', he'⟩
+    have h_req_pos : 0 < W.requirement target_e m₂ := h_comp.2.2
+    have h_prod_pos : 0 < S.card * W.requirement target_e m₂ := Nat.mul_pos h_card_pos h_req_pos
     omega
-  exact reg.strictly_ranked r s h_r_lt_s
+  rw [h_empty] at h_not
+  apply h_not
+  intro m
+  simp [h_zero_stock m]
 
-
-/-- A bundle requiring at most `k` units has at most `k` ends. -/
-theorem atomic_bundle_card_le_of_req_le {i : Agent} {t : Moment} {h : History}
-    {m : Means} {N : ℕ} (reg : LegacyUnitRequirementSchedule i t h m N)
-    (S : Finset Ends) (hS : S ⊆ reg.all_ends) (k : ℕ)
-    (h_feas : (S.sum (fun e => requirement e m)) ≤ k) :
-    S.card ≤ k := by
-  rw [atomic_bundle_requirement_eq_card reg S hS] at h_feas
-  exact h_feas
-
-
-/-- The difference set contains only the end at index `k - 1`. -/
-theorem diff_S_opt_eq_singleton {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N) :
-    S_opt reg k hk \ S_opt reg (k - 1) (by omega) = {reg.e_seq ⟨k - 1, by omega⟩} := by
-  ext x
-  rw [Finset.mem_singleton]
-  constructor
-  · intro hx
-    rw [Finset.mem_sdiff] at hx
-    rcases Finset.mem_image.mp hx.1 with ⟨r, hr_filt, rfl⟩
-    have hr_lt : r.val < k := (Finset.mem_filter.mp hr_filt).2
-    have h_not : ¬ (reg.e_seq r ∈ S_opt reg (k - 1) (by omega)) := hx.2
-    have hr_eq : r.val = k - 1 := by
-      by_contra h_ne
-      have hr_lt2 : r.val < k - 1 := by omega
-      have hr_in : reg.e_seq r ∈ S_opt reg (k - 1) (by omega) := by
-        dsimp [S_opt]
-        apply Finset.mem_image_of_mem
-        exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, hr_lt2⟩
-      exact h_not hr_in
-    have : r = ⟨k - 1, by omega⟩ := Fin.ext hr_eq
-    rw [this]
-  · intro hx
-    subst hx
-    dsimp [S_opt]
-    rw [Finset.mem_sdiff]
-    refine ⟨?_, ?_⟩
-    · apply Finset.mem_image_of_mem
-      rw [Finset.mem_filter]
-      refine ⟨Finset.mem_univ _, by dsimp; omega⟩
-    · intro h_in
-      rcases Finset.mem_image.mp h_in with ⟨r, hr_filter, h_eq⟩
-      have hr_lt : r.val < k - 1 := (Finset.mem_filter.mp hr_filter).2
-      have r_eq : r = ⟨k - 1, by omega⟩ := reg.e_seq_inj h_eq
-      have : r.val = k - 1 := congrArg Fin.val r_eq
-      omega
-
-/-- There is a unique end in the difference set. -/
-theorem diff_S_opt_exists_unique {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N) :
-    ∃! e : Ends, e ∈ S_opt reg k hk \ S_opt reg (k - 1) (by omega) := by
-  rw [diff_S_opt_eq_singleton reg k hk_pos hk]
-  exact ⟨reg.e_seq ⟨k - 1, by omega⟩, Finset.mem_singleton_self _, fun y hy =>
-    Finset.mem_singleton.mp hy⟩
-
-
-def MarginalUtility {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N) : Ends :=
-  reg.e_seq ⟨k - 1, by omega⟩
-
-/-- The marginal utility end belongs to the difference set. -/
-theorem marginal_utility_spec {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N) :
-    MarginalUtility reg k hk_pos hk ∈ S_opt reg k hk \ S_opt reg (k - 1) (by omega) := by
-  rw [diff_S_opt_eq_singleton reg k hk_pos hk]
-  exact Finset.mem_singleton_self _
-
-/-- The marginal utility end is the `(k - 1)` indexed schedule entry. -/
-theorem marginal_utility_eval {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N) (k : ℕ) (hk_pos : 1 ≤ k) (hk : k ≤ N) :
-    MarginalUtility reg k hk_pos hk = reg.e_seq ⟨k - 1, by omega⟩ :=
-  rfl
-
-
-/-- Legacy schedule consequence: the lower-indexed marginal end is preferred
-to the higher-indexed one because `strictly_ranked` is a premise of the
-schedule. The choice-based result is `ranked_prefix_marginal_preference` in
-`Praxeology.Marginal.AllocationChoice`. -/
-theorem legacy_ranked_schedule_marginal_preference
-    {i : Agent} {t : Moment} {h : History} {m : Means} {N : ℕ}
-    (reg : LegacyUnitRequirementSchedule i t h m N)
-    (k1 k2 : ℕ) (hk1_pos : 1 ≤ k1) (hk2_le : k2 ≤ N) (hk_lt : k1 < k2) :
-    Preference i t h
-      (MarginalUtility reg k1 hk1_pos (by omega))
-      (MarginalUtility reg k2 (by omega) hk2_le) := by
-  rw [marginal_utility_eval reg k1 hk1_pos (by omega)]
-  rw [marginal_utility_eval reg k2 (by omega) hk2_le]
-  have hr_lt : (⟨k1 - 1, by omega⟩ : Fin N) < ⟨k2 - 1, by omega⟩ := by
-    change k1 - 1 < k2 - 1
-    omega
-  exact reg.strictly_ranked ⟨k1 - 1, by omega⟩ ⟨k2 - 1, by omega⟩ hr_lt
+/-- Satiation on finite menu: for any decision node in an `ActionFrame`,
+the set of feasible actions is finite, so expanding endowments beyond maximum
+contemplated input requirements cannot expand the set of attainable valued ends. -/
+theorem action_frame_attainable_ends_finite
+    (i : Agent) (t : Moment) (h : History) :
+    ((A_feas i t h).image (End_of i · t h)).card ≤ (A_cont i t h).card := by
+  have h_sub : A_feas i t h ⊆ A_cont i t h := fun α hα =>
+    ((W.A_feas_coupling i t h α).mp hα).1
+  have h_card_feas : (A_feas i t h).card ≤ (A_cont i t h).card :=
+    Finset.card_le_card h_sub
+  exact le_trans (Finset.card_image_le) h_card_feas
 
 
 theorem sunk_cost_irrelevant_to_purposeful_act
@@ -619,153 +498,22 @@ section DMU_TimePreference
 
 variable [W : ActionFrame]
 
--- Section 2b: Fixed Unit Requirements
+-- Section 2b: Fixed Unit Requirements and Teleological Quanta
 
-
-structure LegacyTeleologicalQuantumRegime
-    (i : Agent) (t : Moment) (h : History) (m : Means) (N : ℕ) (q_min : ℕ) where
-  hq : 1 ≤ q_min
-  k : ℕ
-  h_endow : endowment i t h m = k * q_min
-  h_k_lt_N : k < N
-  e_seq : Fin N → Ends
-  e_seq_inj : Function.Injective e_seq
-  quantum_requirement : ∀ r : Fin N, requirement (e_seq r) m = q_min
-  strictly_ranked : ∀ (r s : Fin N), r < s → Preference i t h (e_seq r) (e_seq s)
-
-/-- The set of ends indexed by `Fin N`. -/
-def LegacyTeleologicalQuantumRegime.all_ends
-    {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) : Finset Ends :=
-  Finset.univ.image reg.e_seq
-
-/-- Ends in the schedule whose indices are below `k`. -/
-def S_opt_teleo {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (_hk : k ≤ N) : Finset Ends :=
-  (Finset.filter (fun (r : Fin N) => r.val < k) Finset.univ).image reg.e_seq
-
-/-- The selected ends belong to `all_ends`. -/
-theorem S_opt_teleo_subset {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (hk : k ≤ N) :
-    S_opt_teleo reg k hk ⊆ reg.all_ends := by
-  dsimp [S_opt_teleo, LegacyTeleologicalQuantumRegime.all_ends]
-  apply Finset.image_subset_image
-  intro x _
-  exact Finset.mem_univ x
-
-/-- Cardinality of S*(k) is exactly k. -/
-theorem card_S_opt_teleo {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (hk : k ≤ N) :
-    (S_opt_teleo reg k hk).card = k := by
-  dsimp [S_opt_teleo]
-  rw [Finset.card_image_of_injective _ reg.e_seq_inj]
-  exact card_filter_fin_lt k hk
-
-/-- Total means requirement of any bundle S ⊆ all_ends equals |S| * q_min. -/
-theorem teleological_bundle_requirement_eq_card_mul_q
-    {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min)
-    (S : Finset Ends) (hS : S ⊆ reg.all_ends) :
-    (S.sum (fun e => requirement e m)) = S.card * q_min := by
-  have h_const : ∀ e ∈ S, requirement e m = q_min := by
-    intro e he
-    have he_all : e ∈ reg.all_ends := hS he
-    dsimp [LegacyTeleologicalQuantumRegime.all_ends] at he_all
-    rcases Finset.mem_image.mp he_all with ⟨r, _, rfl⟩
-    exact reg.quantum_requirement r
-  have h_sum := Finset.sum_congr rfl h_const
-  rw [h_sum, Finset.sum_const]
-  rfl
-
-/-- Bounding the total physical means requirement by k * q_min forces cardinality |S| ≤ k. -/
-theorem teleological_quantum_bundle_card_le
-    {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) (S : Finset Ends)
-    (hS : S ⊆ reg.all_ends) (k : ℕ)
-    (h_feas : (S.sum (fun e => requirement e m)) ≤ k * q_min) :
+/-- Quantum capacity bound: when each end in `S` requires at least `q_min` units of `m`,
+an endowment of `k * q_min + r` with sub-quantum remainder `r < q_min` bounds the number
+of attainable ends in `S` to at most `k`. -/
+theorem teleological_quantum_capacity_bound
+    (m : Means) (q_min : ℕ)
+    (S : Finset Ends)
+    (h_req : ∀ e ∈ S, q_min ≤ W.requirement e m)
+    (k r : ℕ) (hr_lt : r < q_min)
+    (h_feas : (S.sum (fun e => W.requirement e m)) ≤ k * q_min + r) :
     S.card ≤ k := by
-  rw [teleological_bundle_requirement_eq_card_mul_q reg S hS] at h_feas
-  have hq_pos : 0 < q_min := reg.hq
-  exact Nat.le_of_mul_le_mul_right h_feas hq_pos
-
-
-theorem S_opt_teleo_dominates_suboptimal_bundle
-    {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) (k : ℕ) (hk : k ≤ N)
-    (S : Finset Ends) (hS_sub : S ⊆ reg.all_ends)
-    (hS_card : S.card ≤ k) (hS_ne : S ≠ S_opt_teleo reg k hk) :
-    (S_opt_teleo reg k hk \ S).Nonempty ∧
-    (∀ e_in ∈ S_opt_teleo reg k hk \ S, ∀ e_out ∈ S \ S_opt_teleo reg k hk,
-      Preference i t h e_in e_out) := by
-  have h_nonempty : (S_opt_teleo reg k hk \ S).Nonempty := by
-    by_contra h_empty
-    rw [Finset.nonempty_iff_ne_empty, not_not] at h_empty
-    have h_sub : S_opt_teleo reg k hk ⊆ S := by
-      intro x hx
-      by_contra hx_not_in
-      have : x ∈ S_opt_teleo reg k hk \ S := Finset.mem_sdiff.mpr ⟨hx, hx_not_in⟩
-      rw [h_empty] at this
-      cases this
-    have h_card_opt : (S_opt_teleo reg k hk).card = k := card_S_opt_teleo reg k hk
-    have h_eq : S_opt_teleo reg k hk = S := Finset.eq_of_subset_of_card_le h_sub (by omega)
-    exact hS_ne h_eq.symm
-  refine ⟨h_nonempty, ?_⟩
-  intro e_in he_in e_out he_out
-  rw [Finset.mem_sdiff] at he_in he_out
-  have he_in_opt := he_in.1
-  have he_out_s := he_out.1
-  dsimp [S_opt_teleo] at he_in_opt
-  rcases Finset.mem_image.mp he_in_opt with ⟨r, hr_filt, rfl⟩
-  have hr_lt : r.val < k := (Finset.mem_filter.mp hr_filt).2
-  have he_out_all : e_out ∈ reg.all_ends := hS_sub he_out_s
-  dsimp [LegacyTeleologicalQuantumRegime.all_ends] at he_out_all
-  rcases Finset.mem_image.mp he_out_all with ⟨s, _, rfl⟩
-  have hs_not_opt := he_out.2
-  have hs_ge : k ≤ s.val := by
-    by_contra h_contra
-    have hs_lt : s.val < k := by omega
-    have hs_in_opt : reg.e_seq s ∈ S_opt_teleo reg k hk := by
-      dsimp [S_opt_teleo]
-      apply Finset.mem_image_of_mem
-      exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, hs_lt⟩
-    exact hs_not_opt hs_in_opt
-  have h_r_lt_s : r < s := by
-    apply Fin.mk_lt_mk.mpr
-    omega
-  exact reg.strictly_ranked r s h_r_lt_s
-
-
-/-- The end at index `k - 1` in `reg.e_seq`. -/
-def TeleologicalMarginalUtility {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min) (k : ℕ)
-    (_hk_pos : 1 ≤ k) (_hk : k ≤ N) : Ends :=
-  reg.e_seq ⟨k - 1, by omega⟩
-
-
-/-- Legacy quantum-schedule consequence: the marginal-end preference follows
-from the schedule's assumed `strictly_ranked` field. -/
-theorem legacy_quantum_schedule_marginal_preference
-    {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min)
-    (k1 k2 : ℕ) (hk1_pos : 1 ≤ k1) (hk2_le : k2 ≤ N) (hk_lt : k1 < k2) :
-    Preference i t h
-      (TeleologicalMarginalUtility reg k1 hk1_pos (by omega))
-      (TeleologicalMarginalUtility reg k2 (by omega) hk2_le) := by
-  dsimp [TeleologicalMarginalUtility]
-  have hr_lt : (⟨k1 - 1, by omega⟩ : Fin N) < ⟨k2 - 1, by omega⟩ := by
-    change k1 - 1 < k2 - 1
-    omega
-  exact reg.strictly_ranked ⟨k1 - 1, by omega⟩ ⟨k2 - 1, by omega⟩ hr_lt
-
-
-theorem quantum_capacity_bound_for_subquantum_remainder
-    {i : Agent} {t : Moment} {h : History} {m : Means} {N q_min : ℕ}
-    (reg : LegacyTeleologicalQuantumRegime i t h m N q_min)
-    (S : Finset Ends) (hS : S ⊆ reg.all_ends) (k r : ℕ)
-    (hr_lt : r < q_min)
-    (h_feas : (S.sum (fun e => requirement e m)) ≤ k * q_min + r) :
-    S.card ≤ k := by
-  rw [teleological_bundle_requirement_eq_card_mul_q reg S hS] at h_feas
+  have h_sum_ge : S.card * q_min ≤ S.sum (fun e => W.requirement e m) := by
+    have h_le := Finset.sum_le_sum h_req
+    rw [Finset.sum_const, nsmul_eq_mul] at h_le
+    exact h_le
   by_contra h_gt
   have h_ge : k + 1 ≤ S.card := by omega
   have h_mul : (k + 1) * q_min ≤ S.card * q_min := Nat.mul_le_mul_right q_min h_ge

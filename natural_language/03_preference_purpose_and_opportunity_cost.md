@@ -425,30 +425,24 @@ $$
 For applications that require transitivity, we now examine strict preference structures grounded directly in an action frame. This refinement does not alter the fundamental asymmetry assumption; it demonstrates that apparent behavioral anomalies (contextual framing, loss aversion, hyperbolic discounting, and precommitment) are mathematically reconciled with strict partial orders when properly indexed by decision nodes $\langle t, h \rangle$.
 
 ### Definition 3.30 (Strict Preference and Strict Posets at a Decision Node)
-In any action frame $W$, an agent $i$'s subjective preference relation at a decision node $\langle t, h \rangle$ induces a strict preference structure on the end domain $\mathcal{E}$:
+In any action frame $W$, an agent $i$'s subjective preference relation $\succ_{i,t,h}$ at a decision node $\langle t, h \rangle$ on the end domain $\mathcal{E}$ satisfies strict irreflexivity ( $\forall e, \neg(e \succ_{i,t,h} e)$ ) and asymmetry ( $\forall e_1, e_2, e_1 \succ_{i,t,h} e_2 \implies \neg(e_2 \succ_{i,t,h} e_1)$ ). When node-local transitivity holds ($\forall e_1, e_2, e_3, e_1 \succ_{i,t,h} e_2 \wedge e_2 \succ_{i,t,h} e_3 \implies e_1 \succ_{i,t,h} e_3$), the relation forms a strict partial order (strict poset) on $\mathcal{E}$.
+
+### Proposition 3.31 (Purposeful Choice Instantiates Asymmetric Preference)
+Every purposeful action instantiates the frame's asymmetric preference relation, satisfying baseline improvement, feasibility undominatedness, irreflexivity, and asymmetry directly:
 
 $$
-\text{StrictPreference}(\mathcal{E}) = \langle \mathcal{E}, \succ_{i,t,h} \rangle
-$$
-
-satisfying strict irreflexivity ( $\forall e, \neg(e \succ_{i,t,h} e)$ ) and asymmetry ( $\forall e_1, e_2, e_1 \succ_{i,t,h} e_2 \implies \neg(e_2 \succ_{i,t,h} e_1)$ ). When node-local transitivity holds ($\forall e_1, e_2, e_3, e_1 \succ_{i,t,h} e_2 \wedge e_2 \succ_{i,t,h} e_3 \implies e_1 \succ_{i,t,h} e_3$), the structure forms a strict partial order (strict poset) on $\mathcal{E}$.
-
-### Proposition 3.31 (Purposeful Choice Instantiates a Strict Preference Structure)
-Every purposeful action is governed by an action frame strict preference structure:
-
-$$
-\mathsf{P}(i, t, h, \alpha) \implies \exists P : \text{StrictPreference}(\mathcal{E}), \quad P.\text{lt} = \succ_{i,t,h}
-$$
-
-$$
-\wedge \; (\alpha = \alpha_0 \vee \text{outcome}(i, \alpha, t, h) \succ_{i,t,h} \text{outcome}(i, \alpha_0, t, h))
+\mathsf{P}(i, t, h, \alpha) \implies (\alpha = \alpha_0 \vee \text{outcome}(i, \alpha, t, h) \succ_{i,t,h} \text{outcome}(i, \alpha_0, t, h))
 $$
 
 $$
 \wedge \; \forall \beta \in \mathcal{A}_{\text{feas}}(i, t, h), \quad \neg(\text{outcome}(i, \beta, t, h) \succ_{i,t,h} \text{outcome}(i, \alpha, t, h))
 $$
 
-**Proof.** The relation $\succ_{i,t,h}$ satisfies irreflexivity and asymmetry by [Proposition 3.4](#proposition-34-derived-strict-irreflexivity-of-preference) and [Assumption 3.3](#assumption-33-strict-asymmetry-of-preference). Taking $P.\text{lt} \equiv \succ_{i,t,h}$, the remaining clauses are exactly the improvement and undominatedness requirements of purposeful action ([Definition 3.8](#definition-38-purposeful-choice-relative-to-a-relation)). $\blacksquare$
+$$
+\wedge \; (\forall e, \neg(e \succ_{i,t,h} e)) \;\wedge\; (\forall e_1, e_2, e_1 \succ_{i,t,h} e_2 \implies \neg(e_2 \succ_{i,t,h} e_1))
+$$
+
+**Proof.** The relation $\succ_{i,t,h}$ satisfies irreflexivity and asymmetry by [Proposition 3.4](#proposition-34-derived-strict-irreflexivity-of-preference) and [Assumption 3.3](#assumption-33-strict-asymmetry-of-preference). The improvement and undominatedness requirements follow directly from the definition of purposeful action ([Definition 3.8](#definition-38-purposeful-choice-relative-to-a-relation)). $\blacksquare$
 
 ### Proposition 3.32 (Framing Reversals Require Context Distinction)
 An apparent reversal of preference between two ends requires that the decision nodes (moment or history) be distinct:

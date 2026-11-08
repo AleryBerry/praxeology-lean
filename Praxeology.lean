@@ -6,7 +6,6 @@ Authors: Alexander Etxeberria
 module
 
 public import Praxeology.Frame
-public import Praxeology.FiniteSupport
 public import Praxeology.FiniteEconomy
 public import Praxeology.FiniteEconomy.ActiveParticipation
 public import Praxeology.FiniteEconomy.BilateralPilot
@@ -25,7 +24,6 @@ public import Praxeology.FirmWitness
 public import Praxeology.BusinessCycle
 public import Praxeology.BusinessCycle.CreditLifecycleFrame
 public import Praxeology.EconometricLimits
-public import Praxeology.BehavioralPoset
 public import Praxeology.StateMonopoly
 
 
@@ -290,13 +288,17 @@ theorem ground_non_identifiability_of_divergent_models
     ¬ ∃ est : EconometricEstimator W Θ, Identifies W M f est i t h :=
   non_identifiability_of_divergent_models M f i t h interp₁ interp₂ hC₁ hC₂ h_obs h_diff
 
-/-- Ground instantiation of Theorem 10.6: Poset-theoretic behavioral anomaly embedding. -/
+/-- Ground instantiation of Theorem 10.6: Poset-theoretic behavioral anomaly embedding.
+When contextual preferences are transitive, they satisfy irreflexivity, asymmetry,
+and transitivity on ends. -/
 theorem ground_contextual_frame_induces_strict_poset
     (W : ActionFrame) (i : W.Agent) (t : W.Moment) (h : W.History)
     (h_trans : ∀ e₁ e₂ e₃, W.Preference i t h e₁ e₂ → W.Preference i t h e₂ e₃ →
       W.Preference i t h e₁ e₃) :
-    ∃ P : StrictPoset W.Ends, P.lt = W.Preference i t h :=
-  ⟨action_frame_strict_poset W i t h h_trans, rfl⟩
+    (∀ e, ¬ W.Preference i t h e e) ∧
+    (∀ e₁ e₂, W.Preference i t h e₁ e₂ → ¬ W.Preference i t h e₂ e₁) ∧
+    (∀ e₁ e₂ e₃, W.Preference i t h e₁ e₂ → W.Preference i t h e₂ e₃ → W.Preference i t h e₁ e₃) :=
+  ⟨fun e => W.pref_irrefl i t h e, fun _ _ hp => W.pref_asymm i t h hp, h_trans⟩
 
 /-- Ground instantiation of Theorem 4.4c: Market clearing with pairwise conservation. -/
 theorem ground_multilateral_cohort_market_clearing

@@ -111,6 +111,18 @@ class TestAuditAdHocPremises(unittest.TestCase):
         self.assertEqual(len(findings_declarations), 0)
         self.assertEqual(len(findings_payoffs), 0)
 
+    def test_newly_eradicated_standalone_structures_present(self):
+        """Verifies that the newly eradicated structures are included in ERADICATED_STRUCTURES."""
+        expected = [
+            "StrictPreference", "StrictPoset", "ShoeMeans", "ShoeEnd",
+            "shoePairRequirement", "ShoeEndAttained", "boundedShoeEndMenu",
+            "attainableBoundedShoeEnds", "CyclicPreferenceEnd", "cyclicPreferenceRelation",
+            "cyclicStrictPreference", "MajorityPref", "CondorcetP1", "CondorcetP2", "CondorcetP3",
+            "LegacyUnitRequirementSchedule", "LegacyTeleologicalQuantumRegime", "TeleologicalMarginalUtility",
+        ]
+        for name in expected:
+            self.assertIn(name, ERADICATED_STRUCTURES)
+
 
 if __name__ == "__main__":
     unittest.main()

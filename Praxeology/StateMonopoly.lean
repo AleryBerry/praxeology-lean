@@ -813,6 +813,27 @@ theorem state_monopoly_theorems_non_vacuous :
 
 end
 
+/-- Majority preference across three agents within an ActionFrame. -/
+def ActionFrameMajorityPref [W : ActionFrame] (t : W.Moment) (h : W.History)
+    (i₁ i₂ i₃ : W.Agent) (e₁ e₂ : W.Ends) : Prop :=
+  (W.Preference i₁ t h e₁ e₂ ∧ W.Preference i₂ t h e₁ e₂) ∨
+  (W.Preference i₁ t h e₁ e₂ ∧ W.Preference i₃ t h e₁ e₂) ∨
+  (W.Preference i₂ t h e₁ e₂ ∧ W.Preference i₃ t h e₁ e₂)
+
+/-- Condorcet majority voting cycle under three agents with individually transitive preferences. -/
+theorem action_frame_majority_cycle
+    [W : ActionFrame] (t : W.Moment) (h : W.History)
+    (i₁ i₂ i₃ : W.Agent) (e₀ e₁ e₂ : W.Ends)
+    (h₁_01 : W.Preference i₁ t h e₀ e₁) (h₁_12 : W.Preference i₁ t h e₁ e₂)
+    (h₂_12 : W.Preference i₂ t h e₁ e₂) (h₂_20 : W.Preference i₂ t h e₂ e₀)
+    (h₃_20 : W.Preference i₃ t h e₂ e₀) (h₃_01 : W.Preference i₃ t h e₀ e₁) :
+    ActionFrameMajorityPref t h i₁ i₂ i₃ e₀ e₁ ∧
+    ActionFrameMajorityPref t h i₁ i₂ i₃ e₁ e₂ ∧
+    ActionFrameMajorityPref t h i₁ i₂ i₃ e₂ e₀ := by
+  refine ⟨Or.inr (Or.inl ⟨h₁_01, h₃_01⟩),
+          Or.inl ⟨h₁_12, h₂_12⟩,
+          Or.inr (Or.inr ⟨h₂_20, h₃_20⟩)⟩
+
 end Praxeology
 
 end

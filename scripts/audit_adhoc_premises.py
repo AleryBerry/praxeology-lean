@@ -56,6 +56,25 @@ ERADICATED_STRUCTURES = [
     "RulerTimePreferenceScenario",
     "StatutoryMonopolyCostPolicyEvidence",
     "StatutoryMonopolyDecisionEvidence",
+    # Standalone proxy & legacy structures eradicated in favor of endogenous ActionFrame:
+    "StrictPreference",
+    "StrictPoset",
+    "ShoeMeans",
+    "ShoeEnd",
+    "shoePairRequirement",
+    "ShoeEndAttained",
+    "boundedShoeEndMenu",
+    "attainableBoundedShoeEnds",
+    "CyclicPreferenceEnd",
+    "cyclicPreferenceRelation",
+    "cyclicStrictPreference",
+    "MajorityPref",
+    "CondorcetP1",
+    "CondorcetP2",
+    "CondorcetP3",
+    "LegacyUnitRequirementSchedule",
+    "LegacyTeleologicalQuantumRegime",
+    "TeleologicalMarginalUtility",
 ]
 
 # Patterns for ad-hoc shock/squeeze/node declarations
@@ -97,7 +116,6 @@ DOMAIN_MODULES = [
     "Praxeology/BusinessCycle/Firms.lean",
     "Praxeology/BusinessCycle/Information.lean",
     "Praxeology/EconometricLimits.lean",
-    "Praxeology/BehavioralPoset.lean",
 ]
 
 # Pattern for detached ontological type parameters
@@ -308,7 +326,8 @@ def main():
     parser = argparse.ArgumentParser(
         description="Audit Lean codebase for ad-hoc premises, shock wrappers, and external bypass structures."
     )
-    parser.add_argument("--check", action="store_true", help="Deprecated compatibility flag; findings remain advisory.")
+    parser.add_argument("--check", action="store_true", help="Fail with exit code 1 if any pattern violations are detected.")
+    parser.add_argument("--strict", action="store_true", help="Fail with exit code 1 if any pattern violations are detected.")
     parser.add_argument("--verbose", action="store_true", help="Print detailed findings.")
     parser.add_argument("--json", action="store_true", help="Output results in JSON format.")
     args = parser.parse_args()
@@ -321,10 +340,12 @@ def main():
     if args.json:
         payload = {
             "total_findings": total_findings,
-            "advisory_only": True,
+            "advisory_only": not (args.check or args.strict),
             "results": results
         }
         print(json.dumps(payload, indent=2))
+        if (args.check or args.strict) and total_findings > 0:
+            sys.exit(1)
         return
 
     print("=" * 80)
@@ -355,6 +376,9 @@ def main():
         print(">> No configured patterns found. This does not establish semantic validity or completeness.")
     print("This report is advisory and never assigns semantic pass/fail status.")
     print("=" * 80)
+
+    if (args.check or args.strict) and total_findings > 0:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

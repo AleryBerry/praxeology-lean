@@ -470,8 +470,12 @@ In addition to history-indexed plausibility strata where anticipated outcomes ar
 A **Scenario System** (`ScenarioSystem`) introduces an independent carrier type $\mathcal{S}$ of conjectured scenarios distinct from actual historical paths $\mathcal{H}$:
 1. **Scenario Anchor**: Each scenario $s \in \mathcal{S}$ is anchored to a specific decision moment $t \in \mathcal{T}$ via $\text{anchor}(s) = t$.
 2. **Observation Agreement**: Deliberation at $(i, t, h)$ is constrained by observation equivalence: an actor only considers scenarios matching current local observations:
-   $$\text{observeScenario}(s) = \text{observeActual}(i, t, h)$$
-3. **Scenario Menus and Ends**: Each scenario assigns a contemplated menu $\mathcal{A}_{\mathrm{menu}}(i, s)$ and associates each action with an anticipated prospective end $\text{End}_{\mathrm{scen}}(i, \alpha, s) \in \mathcal{E}$.
+
+$$
+\text{observeScenario}(s) = \text{observeActual}(i, t, h)
+$$
+
+3. **Scenario Menus and Ends**: Each scenario assigns a contemplated menu $`\mathcal{A}_{\mathrm{menu}}(i, s)`$ and associates each action with an anticipated prospective end $`\text{End}_{\mathrm{scen}}(i, \alpha, s) \in \mathcal{E}`$.
 4. **Subjective Plausibility and Purposefulness**: The actor evaluates actions across a nonempty set of minimally plausible scenarios $\mathrm{MinPlausible}(i, t) \subseteq \mathcal{S}$ using unanimous appraisal (`Subjective.UnanimousAppraisalRule`) and executes a purposeful act (`Subjective.PurposefulAct`).
 
 This decoupling is essential: it allows an agent to hold a mistaken or non-veridical forecast (such as expecting four units of a complementary factor to be available in an auction when physical nature only supplies two) without requiring a physically impossible history to exist within the physical `ActionFrame`.
@@ -480,7 +484,11 @@ This decoupling is essential: it allows an agent to hold a mistaken or non-verid
 In a veridical scenario system (`VeridicalScenarioSystem`), actual histories embed into scenarios (`embedHistory : \mathcal{H} \to \mathcal{S}`). 
 
 Suppose an agent's subjective forecast changes from scenario $s_1$ to scenario $s_2$ (where both scenarios are observation-equivalent with actual history $h$ at decision moment $t$), but the actor's enacted physical action $\alpha = \text{enacted}(i, t, h)$ remains unchanged. Then:
-$$\forall m \in \mathcal{M}, \quad \omega(i, t', h, m; s_1) = \omega(i, t', h, m; s_2)$$
+
+$$
+\forall m \in \mathcal{M}, \quad \omega(i, t', h, m; s_1) = \omega(i, t', h, m; s_2)
+$$
+
 *Altering an agent's subjective beliefs, expectations, or conjectured scenarios without altering the physically enacted action has zero causal impact on actual physical stock transitions.*
 
 **Proof.** Physical inventory transitions are governed strictly by the transition balance equation $\omega(i, t', h, m) + u(\alpha, m) = \omega(i, t, h, m) + y(\alpha, m)$ ([Definition 2.12](02_time_histories_and_physical_execution.md#definition-212-the-inventory-transition-rule)). Because initial stocks $\omega(i, t, h, m)$, physical factor usage $u(\alpha, m)$, and yield $y(\alpha, m)$ depend solely on physical reality and the enacted action $\alpha$, subjective scenario labels exert zero causal pull on material stocks. $\blacksquare$

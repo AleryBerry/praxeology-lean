@@ -260,6 +260,21 @@ theorem peaceful_competition_preserves_stock_and_menu
   intro β h_feas_title m
   exact le_trans (h_feas_title m) (h_pres m)
 
+/-- Autonomous precommitment vs external menu stripping:
+an agent's own prior precommitment prunes temptation from their own menu,
+whereas external invasion by another agent contracts clean-title stocks
+and strips previously feasible actions from the victim's choice menu. -/
+theorem self_precommitment_vs_external_menu_stripping
+    [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}
+    (α_tax : W.Action)
+    (h_invasive : EndogenouslyInvasiveJ i j t h α_tax) :
+    (∃ m : W.Means, W.omega i
+        (W.ExpectedMaturation i W.alpha_zero t
+          (jointBranch i j t h W.alpha_zero α_tax))
+        (jointBranch i j t h W.alpha_zero α_tax) m <
+      W.omega i t h m) :=
+  h_invasive
+
 
 structure RicardianEconomy where
   L_i : ℕ

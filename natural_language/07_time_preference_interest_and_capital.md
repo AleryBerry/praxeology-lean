@@ -207,18 +207,29 @@ A preference for an end sooner rather than later compares two timed instances of
 
 ### Theorem 7.15 (Current Security and Saving Dominates Immediate Spending)
 Let an acting agent face a three-action feasible choice menu at moment $t$ on history $h$:
-$$\mathcal{A}_{\mathrm{feas}}(i, t, h) = \{\alpha_0, \alpha_{\mathrm{spend}}, \alpha_{\mathrm{save}}\}$$
+
+$$
+\mathcal{A}_{\mathrm{feas}}(i, t, h) = \{\alpha_0, \alpha_{\mathrm{spend}}, \alpha_{\mathrm{save}}\}
+$$
+
 where $\alpha_0$, $\alpha_{\mathrm{spend}}$, and $\alpha_{\mathrm{save}}$ are pairwise distinct.
 
 Suppose:
 1. The saving action $\alpha_{\mathrm{save}}$ yields a current security end $e_{\mathrm{sec}}$ that matures at the immediate successor moment, and the agent strictly prefers this security end to the end of immediate spending $e_{\mathrm{spend}}$ and to inaction:
-$$e_{\mathrm{sec}} \succ_{i,t,h} e_{\mathrm{spend}} \quad \wedge \quad e_{\mathrm{sec}} \succ_{i,t,h} \mathsf{End}(i, t, h, \alpha_0)$$
+
+$$
+e_{\mathrm{sec}} \succ_{i,t,h} e_{\mathrm{spend}} \quad \wedge \quad e_{\mathrm{sec}} \succ_{i,t,h} \mathsf{End}(i, t, h, \alpha_0)
+$$
+
 2. The saving action is physically executed on history $h$.
 
 Then:
 1. The saving action is undominated on the feasible menu and constitutes a purposeful human act: $\mathsf{P}(i, t, h, \alpha_{\mathrm{save}})$.
 2. Saving strictly dominates immediate spending in the actor's present preference ranking:
-$$\mathsf{End}(i, t, h, \alpha_{\mathrm{save}}) \succ_{i,t,h} \mathsf{End}(i, t, h, \alpha_{\mathrm{spend}})$$
+
+$$
+\mathsf{End}(i, t, h, \alpha_{\mathrm{save}}) \succ_{i,t,h} \mathsf{End}(i, t, h, \alpha_{\mathrm{spend}})
+$$
 
 *Saving and provision for the future do not demonstrate negative time preference; they demonstrate a purposeful present choice for security over immediate consumption.*
 
@@ -227,11 +238,22 @@ $$\mathsf{End}(i, t, h, \alpha_{\mathrm{save}}) \succ_{i,t,h} \mathsf{End}(i, t,
 ### Theorem 7.16 (Unified Positive Time Preference, Saving Resolution, and Originary Interest Synthesis)
 Under the combined structural evidence of positive time preference (`PositiveTimePreferenceEvidence`), current security choice (`CurrentSecurityChoiceEvidence`), and discrete originary interest (`DiscreteOriginaryInterestEvidence`):
 1. **Universal Dated Preference**: For any fixed end $e$ and any precedence pair $t_1 \prec t_2$ along history $h$, earlier attainment is strictly preferred to later attainment:
-   $$\langle e, t_1 \rangle \succ_{i,t,h} \langle e, t_2 \rangle$$
+
+$$
+\langle e, t_1 \rangle \succ_{i,t,h} \langle e, t_2 \rangle
+$$
+
 2. **Teleological Saving Resolution**: Purposeful saving strictly dominates immediate spending in present evaluation:
-   $$\mathsf{End}(i, t, h, \alpha_{\mathrm{save}}) \succ_{i,t,h} \mathsf{End}(i, t, h, \alpha_{\mathrm{spend}})$$
+
+$$
+\mathsf{End}(i, t, h, \alpha_{\mathrm{save}}) \succ_{i,t,h} \mathsf{End}(i, t, h, \alpha_{\mathrm{spend}})
+$$
+
 3. **Control Dominance and Positive Originary Interest**: Present control strictly dominates unit-for-unit deferred lending, and the gross interest premium $\delta$ is strictly positive:
-   $$\delta \ge 1 \quad \wedge \quad \mathsf{End}(i, t, h, \alpha_{\mathrm{retain}}) \succ_{i,t,h} \mathsf{End}(i, t, h, \alpha_{\mathrm{u4u}})$$
+
+$$
+\delta \ge 1 \quad \wedge \quad \mathsf{End}(i, t, h, \alpha_{\mathrm{retain}}) \succ_{i,t,h} \mathsf{End}(i, t, h, \alpha_{\mathrm{u4u}})
+$$
 
 **Proof.** Verified directly by `unified_universal_positive_time_preference_and_saving_resolution` in `Praxeology/Marginal.lean`. The three parts resolve the classical tension between positive time preference, saving/insurance, and positive interest in a single coherent model. $\square$
 
