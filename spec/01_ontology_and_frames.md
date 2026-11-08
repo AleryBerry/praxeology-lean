@@ -45,7 +45,7 @@ their particular actions and event sequences satisfy them.
 
 ## 4. Derived choice and modal notions
 
-[`ChoicePartition`](../Praxeology/Frame/Core.lean#L1460) groups histories on which an
+[`ChoicePartition`](../Praxeology/Frame/Core.lean#L1465) groups histories on which an
 agent enacts the same action at a moment. The covering and disjointness
 properties are proved from the frame's feasibility and realization laws.
 `Exec` is defined using that partition. `DynamicBox` universally quantifies

@@ -290,28 +290,6 @@ private theorem next_is_root_leaf {t t' : Moment} {h : History}
   yield_means := actionYield
   use_means_alpha_zero := by intro m; rfl
   yield_means_alpha_zero := by intro m; rfl
-  A_feas := fun i t h =>
-    if t = none then feasibleMenu i else {.idle}
-  A_feas_coupling := by
-    intro i t h a
-    cases t with
-    | none =>
-      change (a ∈ feasibleMenu i) ↔
-        a ∈ allocationMenu ∧ ∀ m, actionUse a m ≤ stock i
-      exact feasibleMenu_spec i a
-    | some h' =>
-      change (a ∈ ({Action.idle} : Finset Action)) ↔
-        a ∈ ({Action.idle} : Finset Action) ∧
-          ∀ m, actionUse a m ≤ stock i - actionUse (profileAction i h'.1) 0
-      constructor
-      · intro ha
-        simp only [Finset.mem_singleton] at ha
-        subst a
-        refine ⟨by simp, ?_⟩
-        intro m
-        simp [actionUse]
-      · rintro ⟨ha, _⟩
-        exact ha
   enacted := fun i t h =>
     match t with
     | none => profileAction i h.1
@@ -321,11 +299,13 @@ private theorem next_is_root_leaf {t t' : Moment} {h : History}
     cases t with
     | none =>
       have hmem := profileAction_feasible i h
-      simpa using hmem
+      simp only [Finset.mem_filter]
+      simpa [feasibleMenu] using hmem
     | some h' =>
       have heq : h' = h := by simpa [inHistory] using ht
       subst h'
-      simp
+      simp only [Finset.mem_filter]
+      simp [actionUse]
   no_choice_between_undivided := by
     intro i t u h₁ h₂ ht₁ ht₂ htu hu₁ hu₂
     cases u with
@@ -343,7 +323,9 @@ private theorem next_is_root_leaf {t t' : Moment} {h : History}
     intro i t h h' a ht hα ht'
     cases t with
     | none =>
-      have hα' : a ∈ feasibleMenu i := by simpa using hα
+      have hα' : a ∈ feasibleMenu i := by
+        rw [feasibleMenu, Finset.mem_filter]
+        simpa [Finset.mem_filter] using hα
       have hsigma : branchSelection i none a h' = updateHistory i a h' hα' := by
         simp [branchSelection, hα']
       rw [hsigma]
@@ -355,7 +337,8 @@ private theorem next_is_root_leaf {t t' : Moment} {h : History}
       have hh' : h₀ = h' := by simpa [inHistory] using ht'
       have hh' : h' = h₀ := hh'.symm
       subst h'
-      have ha : a = .idle := by simpa using hα
+      simp only [Finset.mem_filter] at hα
+      have ha : a = .idle := by simpa using hα.1
       subst a
       exact ⟨ht', by rfl⟩
   sigma_centering := by
@@ -379,7 +362,9 @@ private theorem next_is_root_leaf {t t' : Moment} {h : History}
     intro i j t h h' a hij ht hα ht'
     cases t with
     | none =>
-      have hα' : a ∈ feasibleMenu i := by simpa using hα
+      have hα' : a ∈ feasibleMenu i := by
+        rw [feasibleMenu, Finset.mem_filter]
+        simpa [Finset.mem_filter] using hα
       change profileAction j (branchSelection i none a h').1 = profileAction j h'.1
       simp only [branchSelection, updateHistory, updateProfile, profileAction,
         dite_eq_left hα']
@@ -479,13 +464,11 @@ private theorem next_is_root_leaf {t t' : Moment} {h : History}
       cases hOffer
   MinPlausible := fun _ t => {plausibleHistory t}
   min_plausible_nonempty := by intro i t; exact ⟨plausibleHistory t, by simp⟩
-  tau := fun _ t _ => t
   min_plausible_node_incidence := by
     intro i t h' hh'
     simp only [Set.mem_singleton_iff] at hh'
     subst h'
     cases t <;> simp [plausibleHistory, inHistory]
-  tau_centering := by intro i t h ht; rfl
   requirement := requirement
   ValuedEnd := fun _ _ _ _ => True
   valued_end_bundle_invariant := by intro i t h₁ h₂ e ht₁ ht₂; rfl

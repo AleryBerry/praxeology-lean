@@ -55,11 +55,11 @@ do not encode every subset allocation, so it cannot yet instantiate
 
 The separate [`AllocationActionFrame`](../Praxeology/Marginal/AllocationActionFrame.lean)
 does provide a complete menu and enacted purposeful choices inside an
-ActionFrame. [`allocationFrame_comparative_stock_witness`](../Praxeology/Marginal/AllocationActionFrame.lean#L829)
+ActionFrame. [`allocationFrame_comparative_stock_witness`](../Praxeology/Marginal/AllocationActionFrame.lean#L812)
 uses the same three-use technology and ordinal ranking at stocks one and two;
 the agents purposefully select `{0}` and `{0,1}`, and the next use is strictly
 lower ranked. The companion theorem
-[`allocationFrame_prefix_has_purposeful_execution`](../Praxeology/Marginal/AllocationActionFrame.lean#L876)
+[`allocationFrame_prefix_has_purposeful_execution`](../Praxeology/Marginal/AllocationActionFrame.lean#L859)
 constructs a realized history for either agent's ranked prefix.
 
 The finite allocation model also proves the q=2 capacity and purposeful-choice

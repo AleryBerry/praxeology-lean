@@ -286,6 +286,7 @@ class ActionFrame where
   [instNonemptyAction : Nonempty Action]
   [instDecidableEqAction : DecidableEq Action]
   Means : Type
+  [instFintypeMeans : Fintype Means]
   [instDecidableEqMeans : DecidableEq Means]
   Ends : Type
   [instDecidableEqEnds : DecidableEq Ends]
@@ -342,10 +343,13 @@ class ActionFrame where
   /-- The baseline action yields no means. -/
   yield_means_alpha_zero : ∀ m, yield_means alpha_zero m = 0
   /-- Feasible actions for agent `i` at `⟨t, h⟩`. -/
-  A_feas : Agent → Moment → History → Finset Action
+  A_feas : Agent → Moment → History → Finset Action :=
+    fun i t h => (A_cont i t h).filter (fun α => ∀ m, use_means α m ≤ omega i t h m)
   /-- Feasible actions are contemplated and meet the means requirements. -/
   A_feas_coupling : ∀ i t h α,
-    α ∈ A_feas i t h ↔ α ∈ A_cont i t h ∧ ∀ m, use_means α m ≤ omega i t h m
+    α ∈ A_feas i t h ↔ α ∈ A_cont i t h ∧ ∀ m, use_means α m ≤ omega i t h m := by
+    intro i t h α
+    simp only [Finset.mem_filter]
 
   /-- Action enacted by agent `i` at `⟨t, h⟩`. -/
   enacted : Agent → Moment → History → Action
@@ -447,13 +451,14 @@ class ActionFrame where
 
 
 
-  tau : Agent → Moment → History → Moment
+  tau : Agent → Moment → History → Moment := fun _ t _ => t
 
   /-- Each plausible history contains its projected moment. -/
   min_plausible_node_incidence : ∀ i t, ∀ h' ∈ MinPlausible i t, mem_hist (tau i t h') h'
 
   /-- The projected node is `t` on histories that contain `t`. -/
-  tau_centering : ∀ i t h, mem_hist t h → tau i t h = t
+  tau_centering : ∀ i t h, mem_hist t h → tau i t h = t := by
+    intros; rfl
 
   /-- Means required by each end. -/
   requirement : Ends → Means → ℕ
