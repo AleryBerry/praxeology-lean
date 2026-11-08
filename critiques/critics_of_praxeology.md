@@ -1,31 +1,52 @@
-# Praxeological Refutation of Anti-Praxeological Methodologies and Critiques
+# Methodological Critiques of Praxeology: Epistemology, Choice, and Macroeconomics
 
 ## Executive Summary
 
-Over the past century, critics adhering to logical positivism, Popperian falsificationism, mathematical formalism, behavioral psychology, Sraffian capital theory, and neoclassical equilibrium modeling have mounted nine foundational challenges against praxeology. 
+Over the past century, economists and philosophers from six major traditions have challenged Austrian praxeology.
 
-These challenges target the epistemology, axiomatic foundation, choice apparatus, and macro-structural theorems of human action. Far from undermining praxeology, constructive formalization demonstrates that each challenge either commits a mathematical category error, relies on unphysical assumptions (such as continuous utility manifolds, circular time, or scalar capital aggregations), or collapses into performative self-contradiction.
+These traditions include:
+- **Logical Positivism** (the Vienna Circle);
+- **Critical Rationalism** (Karl Popper and Hans Albert);
+- **Mathematical Economics** (Paul Samuelson, Gérard Debreu, Mark Blaug);
+- **Behavioral Psychology** (Daniel Kahneman, Amos Tversky, Richard Thaler);
+- **Sraffian Capital Theory** (Piero Sraffa, Joan Robinson); and
+- **Neoclassical Macroeconomics** (Robert Lucas, Bryan Caplan).
+
+Their challenges raise nine core questions about how we study human action:
+1. Must economic theories be tested with statistical data to be scientific?
+2. Does praxeology rely on an unchallengeable dogma to avoid philosophical skepticism?
+3. Can economic laws like diminishing marginal utility hold without continuous calculus?
+4. How do people choose between identical options without an indifference curve?
+5. Does consumer choice require calculating calculus derivatives on utility surfaces?
+6. Do psychological biases and impulse decisions refute purposeful human action?
+7. Can a policy be called "efficient" if it harms people without compensating them?
+8. Does capital reswitching disprove Austrian capital and interest theory?
+9. Why don't smart business owners anticipate central bank credit booms and avoid busts?
+
+Rather than dismissing these critics with polemics, this treatise examines each challenge in its strongest form.
+
+By grounding each problem in an action frame ([Definition 1.1](../natural_language/01_agents_means_ends_and_feasibility.md#definition-11-the-basic-vocabulary-of-an-action-frame)) and machine-checked logic in Lean 4, we show how praxeology provides clear, mathematically sound answers to all nine questions.
 
 ```mermaid
 graph TD
-    CP["Praxeological Refutation of Anti-Praxeological Methodologies"]
+    CP["Methodological Critiques of Praxeology and Formal Resolutions"]
     
     subgraph P1["Part I: Epistemological & Methodological Foundations"]
-        C1["1. Econometric Demarcation (Hutchison, Blaug, Samuelson)"]
-        C2["2. The Münchhausen Trilemma (Albert, Popper)"]
-        C3["3. The Continuous Calculus Dogma (Schuller, Blaug)"]
+        C1["1. Positivism, Falsificationism & Identification (Vienna Circle, Popper, Hutchison, Blaug)"]
+        C2["2. Critical Rationalism & The Münchhausen Trilemma (Albert, Popper, Apel, Hoppe)"]
+        C3["3. Mathematical Formalism & Discrete Utility (Schuller, Blaug, Menger)"]
     end
     
     subgraph P2["Part II: Microeconomic Theory & Action Primitives"]
-        C4["4. Buridan Ties & Indifference Curves (Nozick, Caplan, Hicks)"]
-        C5["5. Cardinal MRS & Gradient Fallacy (Debreu, Samuelson, Caplan)"]
-        C6["6. Behavioral Anomalies & Tautology (Kahneman & Tversky, Thaler)"]
-        C7["7. Kaldor-Hicks & Social Utility (Kaldor, Hicks, Posner)"]
+        C4["4. Indifference Curves & Buridan Ties (Edgeworth, Hicks, Nozick, Caplan)"]
+        C5["5. Utility Gradients & Discrete Antichains (Debreu, Samuelson, Caplan, Böhm-Bawerk)"]
+        C6["6. Behavioral Framing & Dynamic Consistency (Kahneman, Tversky, Thaler)"]
+        C7["7. Kaldor-Hicks Compensation & Demonstrated Preference (Kaldor, Hicks, Posner)"]
     end
     
     subgraph P3["Part III: Macroeconomics, Capital, & Coordination"]
-        C8["8. Sraffian Capital Reswitching (Sraffa, Robinson)"]
-        C9["9. Rational Expectations & Macro Neutrality (Lucas, Muth, Caplan)"]
+        C8["8. Sraffian Capital Reswitching & Multi-Stage Production (Sraffa, Robinson, Samuelson)"]
+        C9["9. Rational Expectations & Cantillon Transmission (Muth, Lucas, Caplan)"]
     end
 
     CP --> P1
@@ -38,125 +59,194 @@ graph TD
 ## Contents
 
 - [Executive Summary](#executive-summary)
-- [Index of Anti-Praxeological Challenges](#index-of-anti-praxeological-challenges)
 - [Part I: Epistemological & Methodological Foundations](#part-i-epistemological--methodological-foundations)
-  - [1. Logical Positivism and Econometric Demarcation](#1-logical-positivism-and-econometric-demarcation)
-  - [2. Critical Rationalism and the Münchhausen Trilemma](#2-critical-rationalism-and-the-münchhausen-trilemma)
-  - [3. Mathematical Formalism and the Continuous Calculus Dogma](#3-mathematical-formalism-and-the-continuous-calculus-dogma)
+  - [1. Logical Positivism, Falsificationism, and Econometric Identification](#1-logical-positivism-falsificationism-and-econometric-identification)
+  - [2. Critical Rationalism, the Münchhausen Trilemma, and Transcendental Retortion](#2-critical-rationalism-the-münchhausen-trilemma-and-transcendental-retortion)
+  - [3. Mathematical Formalism and Discrete Marginal Utility](#3-mathematical-formalism-and-discrete-marginal-utility)
 - [Part II: Microeconomic Theory & Action Primitives](#part-ii-microeconomic-theory--action-primitives)
   - [4. Indifference Curve Analysis and Buridan's Ties Dilemma](#4-indifference-curve-analysis-and-buridans-ties-dilemma)
-  - [5. Real-Valued Utility Representations and the Ordinal MRS Fallacy](#5-real-valued-utility-representations-and-the-ordinal-mrs-fallacy)
+  - [5. Real-Valued Utility Representations and the Marginal Rate of Substitution](#5-real-valued-utility-representations-and-the-marginal-rate-of-substitution)
   - [6. Behavioral Economics and the Tautology Dilemma](#6-behavioral-economics-and-the-tautology-dilemma)
   - [7. Kaldor-Hicks Efficiency and Potential Pareto Compensation](#7-kaldor-hicks-efficiency-and-potential-pareto-compensation)
 - [Part III: Macroeconomics, Capital, & Coordination](#part-iii-macroeconomics-capital--coordination)
   - [8. Sraffian Capital Reswitching and Production Structures](#8-sraffian-capital-reswitching-and-production-structures)
   - [9. Rational Expectations and Macro-Intertemporal Neutrality](#9-rational-expectations-and-macro-intertemporal-neutrality)
-- [Master Comparison Matrix: Orthodox Critiques vs. Praxeological Realities](#master-comparison-matrix-orthodox-critiques-vs-praxeological-realities)
 - [Conclusion](#conclusion)
 
 ---
 
 # Part I: Epistemological & Methodological Foundations
 
-## 1. Logical Positivism and Econometric Demarcation
+## 1. Logical Positivism, Falsificationism, and Econometric Identification
 
-### Target Doctrine & Historical Claims (Hutchison, Blaug, Samuelson)
-Originating in the Vienna Circle and popularized in economics by Terence Hutchison (1938), Mark Blaug (1980), and Paul Samuelson (1947), the positivist demarcation criterion demands that every proposition claiming empirical scientific validity must be subject to empirical falsification via observational data. 
+### The Core Dilemma
+Critics often ask: *If praxeology deduces economic laws from pure reasoning rather than statistical testing, isn't it unscientific?*
 
-Under this doctrine, economic laws must be formulated as quantitative statistical hypotheses testable through econometric regression models. Praxeology’s deduction of apodictic economic theorems from the self-evident Action Axiom is dismissed as unscientific scholasticism, armchair metaphysics, or unempirical dogma.
+This critique blends two distinct 20th-century movements that must be carefully untangled:
+
+1. **Logical Positivism (The Vienna Circle: Carnap, Schlick, Ayer):**
+   - Held that a statement is meaningful only if it is an analytical tautology (like math or pure logic) or empirically verifiable by sensory observation.
+   - Positivism collapsed under its own weight: the verification rule itself is neither an analytical tautology nor empirically verifiable, making it meaningless by its own standard.
+
+2. **Popperian Critical Rationalism (Karl Popper, Mark Blaug, Terence Hutchison):**
+   - Popper introduced *falsifiability* to dismantle logical positivism, not to defend it.
+   - For Popper, falsifiability is a rule of **demarcation** (drawing the boundary between empirical science and non-empirical fields), **not** a test of meaning.
+   - Popper explicitly acknowledged that mathematics, formal logic, metaphysics, and ethics are meaningful and truth-apt, even though they cannot be falsified by a laboratory test.
+   - Under this demarcation criterion, praxeology—like formal logic, Euclidean geometry, and axiomatic decision theory—is deductive rather than inductive: it formalizes the structural conditions of choice rather than statistical empirical generalizations.
 
 ### Formal Specification
-Let moments $\mathcal{T}$ be ordered by strict precedence $\prec$ with backward linearity, branching into maximal histories $\mathcal{H}$ in an action frame (Chapter 2, [Axiom 2.1](../natural_language/02_time_histories_and_physical_execution.md#axiom-21-strict-temporal-precedence)). An empirical econometric dataset is strictly confined to the single realized historical path $h \in \mathcal{H}$:
+In an action frame $W$ ([Definition 1.1](../natural_language/01_agents_means_ends_and_feasibility.md#definition-11-the-basic-vocabulary-of-an-action-frame)), time $\mathcal{T}$ flows forward along strict precedence $\prec$ ([Axiom 2.1](../natural_language/02_time_histories_and_physical_execution.md#axiom-21-strict-temporal-precedence)).
+
+Time branches into distinct histories $h \in \mathcal{H}$ ([Definition 2.3](../natural_language/02_time_histories_and_physical_execution.md#definition-23-histories-as-maximal-chains)).
+
+When an agent chooses an action $\alpha^{\ast} = \text{enacted}(i, t, h)$ ([Definition 2.7](../natural_language/02_time_histories_and_physical_execution.md#definition-27-enacted-actions)), empirical data record only the chosen action and its realized outcome:
 
 $$
-\mathcal{O}_{\text{hist}}(h) = \{(t, \alpha_t, \omega_t) \mid t \in h\}
+\mathcal{O}_{\mathrm{obs}}(W, \text{interp}, i, t, h) = \bigl(\text{enacted}(i, t, h),\; \mathcal{O}_{\text{interp}}(i, \text{enacted}(i, t, h), t, h)\bigr).
 $$
 
-Counterfactual branches $`h' \in \mathcal{H} \setminus \{h\}`$ associated with unchosen feasible alternatives $`\beta \in \mathcal{A}_{\text{feas}} \setminus \{\alpha^{\ast}\}`$ leave zero physical or statistical record.
+Two different theories are observationally equivalent if they produce the exact same historical record:
 
-### Proposition 1 (The Econometric Non-Identifiability Theorem)
-Because human action continuously branches historical time, any empirical dataset $`\mathcal{O}_{\text{hist}}(h)`$ records exclusively the single realized path. Distinct structural models that coincide along $h$ but specify contradictory unchosen counterfactual rankings on $h' \neq h$ produce identical econometric observations. Consequently, causal behavioral laws cannot be identified from econometric data alone without unprovable *a priori* restrictions. Furthermore, the positivist demarcation criterion is performatively self-refuting.
+$$
+\text{ObsEquiv}(W, \text{interp}_1, \text{interp}_2, i, t, h) \iff \mathcal{O}_{\mathrm{obs}}(W, \text{interp}_1, i, t, h) = \mathcal{O}_{\mathrm{obs}}(W, \text{interp}_2, i, t, h).
+$$
+
+The data never record unchosen options $`\beta \in \mathcal{A}_{\mathrm{feas}}(i, t, h) \setminus \{\alpha^{\ast}\}`$ ([Definition 1.4](../natural_language/01_agents_means_ends_and_feasibility.md#definition-14-action-menus-contemplation-and-feasibility)).
+
+### Proposition 1 (The Fundamental Problem of Causal Identification)
+Real-world data capture only the path actually taken. Because unchosen counterfactual alternatives leave zero physical record, observational data alone cannot identify true causal laws without explicit structural assumptions.
 
 **Proof.**
-1. By Chapter 14 ([Proposition 14.1](../natural_language/14_historical_observation_and_identification.md#proposition-141-non-identification-from-equal-records) and [Theorem 14.3](../natural_language/14_historical_observation_and_identification.md#theorem-143-the-praxeological-lucas-policy-invariance-theorem)), human action branches time: at moment $t$, an agent selects an undominated action $`\alpha^{\ast} \in \mathcal{A}_{\text{feas}}`$, actualizing history branch $h \in \pi_i(t, \alpha^{\ast})$.
-2. The agent's choice depends strictly on the counterfactual ranking: $\text{End}(i, \alpha^{\ast}, t, h) \succ_{i,t,h} \text{End}(i, \beta, t, h)$ for all unchosen alternatives $\beta \neq \alpha^{\ast}$.
-3. Econometric data records strictly the realized sequence $`\mathcal{O}_{\text{hist}}(h)`$. Counterfactual branches $h'$ associated with unchosen $\beta$ leave zero physical trace.
-4. Let $M_1$ and $M_2$ be two structural behavioral models that predict identical choices along $h$ but contradictory rankings on unchosen alternatives $\beta$. Both models generate the exact same likelihood on all observable data: $`\mathcal{L}(M_1 \mid \mathcal{O}_{\text{hist}}) = \mathcal{L}(M_2 \mid \mathcal{O}_{\text{hist}})`$. Hence, observational data cannot identify the true causal structure ([Theorem 14.7](../natural_language/14_historical_observation_and_identification.md#theorem-147-the-duhem-quine-econometric-underdetermination-theorem)).
-5. The positivist claim that *"only empirically falsifiable propositions are scientifically meaningful"* is itself neither an empirical observation nor a formal logical tautology. By its own standard, logical positivism is unscientific and self-refuting. $\blacksquare$
+1. **Equal Records Cannot Separate Models:** By [Proposition 14.1](../natural_language/14_historical_observation_and_identification.md#proposition-141-non-identification-from-equal-records), if two theories match on all realized data but disagree on underlying structural parameters $`f(\text{interp}_1) \neq f(\text{interp}_2)`$, no statistical estimator based only on that data can tell them apart.
+2. **Unobserved Counterfactuals Can Differ Freely:** By [Proposition 14.2](../natural_language/14_historical_observation_and_identification.md#proposition-142-counterfactual-outcomes-can-vary-without-changing-the-record), we can change the hypothetical outcome of an unchosen alternative $\beta \neq \alpha^{\ast}$ without altering the observed data $`\mathcal{O}_{\mathrm{obs}}`$ by a single bit.
+3. **The Lucas Policy Invariance Limit:** By [Theorem 14.3](../natural_language/14_historical_observation_and_identification.md#theorem-143-the-praxeological-lucas-policy-invariance-theorem), if a policy change alters the attractiveness of an unchosen alternative $\beta$, an action that was previously chosen may no longer be purposeful, even though the past historical record looked completely stable.
+4. **Underdetermination of Hypotheses:** By [Proposition 14.4](../natural_language/14_historical_observation_and_identification.md#proposition-144-observed-outcomes-need-not-determine-an-exclusion-restriction) and [Theorem 14.7](../natural_language/14_historical_observation_and_identification.md#theorem-147-the-duhem-quine-econometric-underdetermination-theorem), an empirical rejection of a composite hypothesis $\neg(H_1 \land \dots \land H_n)$ tells us that something failed, but data alone cannot pinpoint which specific assumption was wrong. $\blacksquare$
 
-### Catallactic & Epistemological Implications
-Econometrics is economic history, not economic theory. Regressions establish historical correlations across past realized trajectories; they cannot establish invariant causal laws governing unobservable counterfactual choices. Praxeology provides the indispensable axiomatic framework required to interpret historical data without committing identification fallacies.
+### In Plain Terms: The Bridge to Modern Econometrics
+This result directly matches the foundation of modern causal inference (Haavelmo 1944; Rubin 1974; Angrist & Imbens 1994; Heckman 2000, 2010):
+- **The Fundamental Problem of Causal Inference:** You can never observe both what happened when a patient took a medicine and what would have happened if they had not.
+- **Manski's Law of Decreasing Credibility:** As econometrician Charles Manski (*Identification Problems in the Social Sciences*, 1995) formulated: *"The credibility of inference decreases with the strength of the assumptions maintained."*
+- Raw data identify only the realized factual mixture. Point-identifying policy effects requires non-testable structural assumptions.
+
+Praxeology is not "anti-empirical." It simply insists on complete intellectual honesty: before you interpret past historical correlations as invariant causal laws, you must state your structural assumptions about purposeful human choice explicitly.
 
 ---
 
-## 2. Critical Rationalism and the Münchhausen Trilemma
+## 2. Critical Rationalism, the Münchhausen Trilemma, and Transcendental Retortion
 
-### Target Doctrine & Historical Claims (Albert, Popper)
-Drawing on the epistemology of Karl Popper, German critical rationalist Hans Albert (1968) formulated the **Münchhausen Trilemma**, asserting that any attempt to establish an absolute epistemological foundation for knowledge must inevitably fail by terminating in one of three unacceptable dead-ends:
-1. **Infinite Regress:** Every justifying premise requires a prior premise *ad infinitum*.
-2. **Logical Circularity:** The conclusion is smuggled into the justifying premises.
-3. **Dogmatic Stoppage:** The chain of justification is artificially halted at an arbitrary, ungrounded axiom (which critics claim is the case for Mises's Action Axiom).
+### The Core Dilemma
+Critics ask: *If praxeology claims its Action Axiom is self-evident and indubitable, isn't it guilty of dogmatism?*
+
+German critical rationalist Hans Albert (1968) introduced the **Münchhausen Trilemma**, named after the fictional Baron Münchhausen who pulled himself out of a swamp by his own hair. 
+
+Albert argued that every attempt to establish an infallible foundation for knowledge (*Letztbegründung*) must fail by hitting one of three dead-ends:
+1. **Infinite Regress:** Every justifying premise requires another premise, backwards forever.
+2. **Logical Circularity:** The conclusion is quietly assumed in the premises.
+3. **Dogmatic Stoppage:** The chain of reasons is arbitrarily stopped at a favored principle that is declared immune to criticism.
+
+### The Austrian Defense: Retortion
+Austrian economists (notably Hans-Hermann Hoppe, adapting discourse ethics from Karl-Otto Apel and Jürgen Habermas) answered with the **transcendental argument from retortion**:
+- Anyone trying to argue that "human action does not exist" must engage in debate.
+- But debating requires purposeful action: allocating scarce time, selecting words, and trying to achieve a goal.
+- Therefore, denying action creates an immediate *performative self-contradiction*.
+
+### Four Crucial Nuances
+While clever, this defense has four important limitations that critical rationalists emphasize:
+
+1. **Pragmatic Rules vs. Metaphysical Truth (The Albert–Apel Debate):**
+   - Proving that an opponent cannot deny a statement in debate without contradicting themselves shows a rule of human communication, not an infallible fact about physical reality.
+   - Declaring an axiom immune to criticism because it is presupposed in dialogue is what Albert calls a sophisticated form of **Dogmatic Stoppage** (Horn 3).
+
+2. **The Speech Act vs. Propositional Truth (Methodological Dualism):**
+   - Saying *"I am not speaking right now"* is a performative contradiction when spoken aloud. Yet the statement itself ("Person $i$ is not speaking at time $t$") is completely logical and true most of the time.
+   - An interlocutor arguing that human behavior is governed by deterministic brain chemistry uses vocal cords, but this pragmatic speech does not by itself disprove physical determinism.
+   - Mises understood this boundary well. In *Human Action*, he adopted **methodological dualism**: praxeology does not claim to solve the metaphysical mind-body problem; rather, because science does not know the exact physical bridge laws from brain states to conscious thoughts, economics must treat human action teleologically.
+
+3. **The Role of the ActionFrame vs. Contingent Historical Branches:**
+   - The bare sentence "Man acts" cannot by itself deduce the laws of banking, money, or business cycles.
+   - In this formalization, `ActionFrame` ([Definition 1.1](../natural_language/01_agents_means_ends_and_feasibility.md#definition-11-the-basic-vocabulary-of-an-action-frame)) is the constitutive ontology of action: time ([Axiom 2.1](../natural_language/02_time_histories_and_physical_execution.md#axiom-21-strict-temporal-precedence)), physical scarcity ([Definition 3.1](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-31-physical-scarcity-predicate)), matter conservation ([Axiom 2.12](../natural_language/02_time_histories_and_physical_execution.md#axiom-212-physical-matter-conservation-and-inventory-transition)), and preference asymmetry ([Axiom 3.3](../natural_language/03_preference_purpose_and_opportunity_cost.md#axiom-33-strict-asymmetry-of-preference)) are intrinsic to choice itself.
+   - Specific market institutions (like barter vs. money in [Definition 9.11](../natural_language/09_money_prices_and_calculation.md#definition-911-demand-connectivity-across-trading-links), or cash loans in [Proposition 10.10](../natural_language/10_entrepreneurship_credit_and_investment.md#proposition-1010-physical-effects-of-note-issuance)) are historical branches within the frame, not truths proved by speech-act retortion alone.
+
+4. **Foundationalism vs. Fallibilism:**
+   - Critical rationalists reject the search for absolute certainty.
+   - Lean 4 does not claim dogmatic perfection. Instead, it provides **auditable conditional deductions** ($H \vdash C$): every premise is declared explicitly, machine-checked, and open to public inspection.
 
 ### Formal Specification
-Let $\mathcal{P}$ be the set of propositions assertable by human actors. Let $\vdash$ denote formal logical derivation. A foundationalist claim posits an axiom $A_0 \in \mathcal{P}$ such that for any economic theorem $T$, $A_0 \vdash T$, with $A_0$ requiring no external deductive justification.
+Chapter 6 distinguishes the physical utterance of a sentence from its propositional meaning ([Definition 6.7](../natural_language/06_knowledge_ability_and_communication.md#definition-67-utterance-and-assertion)):
 
-### Proposition 2 (Performative Self-Refutation of the Denial of Action)
-The Action Axiom does not constitute a dogmatic stoppage within the Münchhausen Trilemma. Purposeful human action is a synthetic *a priori* prerequisite of communication and thought itself; any attempt to deny it results in immediate performative self-contradiction.
+$$
+\begin{aligned}
+\text{Utters}(i, t, h, \alpha) &\iff \alpha \in \mathcal{A}_{\mathrm{feas}}(i, t, h) \land \text{enacted}(i, t, h) = \alpha, \\
+\text{Asserts}(i, t, h, P, \alpha) &\iff \text{Utters}(i, t, h, \alpha) \land \text{content}(\alpha) = P.
+\end{aligned}
+$$
+
+When speaking has a different outcome than silence $\alpha_0$, it creates a single local pairwise preference $R_{\mathrm{ind}}$ between speaking and staying silent ([Definition 6.9](../natural_language/06_knowledge_ability_and_communication.md#definition-69-relation-generated-by-an-action-comparison)):
+
+$$
+R_{\mathrm{ind}}(e_1, e_2) \iff e_1 = \mathcal{O}(i, \alpha, t, h) \land e_2 = \mathcal{O}(i, \alpha_0, t, h) \land e_1 \neq e_2.
+$$
+
+### Proposition 2 (Conditional Scope of Retortion and Auditable Axiomatics)
+An enacted denial of purposeful action contradicts itself relative to the single decision to speak rather than remain silent. However, this local relation $R_{\mathrm{ind}}$ does not generate general consumer preferences, time preference, or economic laws. Substantive economic theorems follow from the constitutive structure of the ActionFrame combined with explicit institutional branch conditions.
 
 **Proof.**
-1. Let a critic formally state the negative proposition: $\neg \mathsf{Action}$ (*"Human action does not exist, or cannot serve as the axiomatic foundation of economics"*).
-2. The articulation, defense, and communication of $\neg \mathsf{Action}$ requires an acting mind who:
-   - Experiences a felt unease (dissatisfaction with praxeological epistemology);
-   - Consciously envisions a preferred future end (the intellectual refutation of praxeology);
-   - Allocates scarce physical means (time, neurobiological energy, vocal cords, keyboards) across an irreversible temporal interval $t \prec t'$ to attain that end;
-   - Prunes alternative feasible uses of those scarce means.
-3. These behavioral components satisfy all formal primitives of a purposeful act (purposeful choice $\mathsf{P}(i, t, h, \alpha)$, Chapter 1 and Chapter 3, [Definition 3.8](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-38-purposeful-choice-relative-to-a-relation)).
-4. Consequently, the physical enactment of denying human action performatively demonstrates the existence of human action. The proposition $\neg \mathsf{Action}$ is performatively self-refuting: $\text{Assert}(\neg \mathsf{Action}) \implies \mathsf{Action}$.
-5. The Action Axiom is not an arbitrary stoppage; it is an undeniable synthetic *a priori* foundation presupposed by all argumentation and scientific inquiry. $\blacksquare$
+1. **Local Action Comparison:** By [Proposition 6.10](../natural_language/06_knowledge_ability_and_communication.md#proposition-610-properties-of-the-generated-relation) and [Corollary 6.11](../natural_language/06_knowledge_ability_and_communication.md#corollary-611-purposeful-choice-relative-to-the-generated-relation), speaking rather than remaining silent satisfies purposeful choice relative to $R_{\mathrm{ind}}$.
+2. **Refutation of a Universal Denial:** By [Proposition 6.12](../natural_language/06_knowledge_ability_and_communication.md#proposition-612-conditional-inconsistency-of-a-universal-denial), asserting that *"no agent ever acts under any relation"* is false at the moment of assertion, because speaking is an active choice under $R_{\mathrm{ind}}$.
+3. **Explicit Limits:** This local proof does not recover an agent's broader subjective preferences $\succ_{i, t, h}$ ([Definition 3.2](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-32-subjective-ordinal-preference)), nor does internal belief coherence guarantee factual truth ([Definition 6.5](../natural_language/06_knowledge_ability_and_communication.md#definition-65-internal-doxastic-coherence), [Example 6.6](../natural_language/06_knowledge_ability_and_communication.md#example-66-nonveridical-but-internally-coherent-belief), [Proposition 6.13](../natural_language/06_knowledge_ability_and_communication.md#proposition-613-conditional-doxastic-inconsistency)).
+4. **Transparent Deductions:** Universal economic properties follow directly from the constitutive ActionFrame axioms ([Theorem 3.11](../natural_language/03_preference_purpose_and_opportunity_cost.md#theorem-311-the-action-axiom-and-non-passivity-theorem), [Theorem 3.14](../natural_language/03_preference_purpose_and_opportunity_cost.md#theorem-314-the-demonstrated-preference-consistency-theorem)). Applied catallactic results state their exact branch requirements openly, such as ranked allocations ([Definition 4.2](../natural_language/04_marginal_allocation_and_imputation.md#definition-42-a-finite-one-unit-allocation)) or network trade ([Definition 9.11](../natural_language/09_money_prices_and_calculation.md#definition-911-demand-connectivity-across-trading-links)). $\blacksquare$
 
-### Catallactic & Epistemological Implications
-Axioms that cannot be meaningfully denied without performative self-contradiction are not dogmas; they are the transcendental conditions of rational thought. Praxeology rests on an epistemological bedrock that critical rationalism can challenge only by inadvertently verifying.
+### In Plain Terms: How Lean 4 Disarms the Trilemma
+Rather than claiming dogmatic infallibility, the Lean 4 formalization takes a clean hypothetico-deductive approach:
+- Every theorem is verified by the Lean kernel as a conditional statement ($H \vdash C$).
+- There are no unstated assumptions or hidden verbal leaps.
+- A critic who disagrees with a conclusion can inspect the exact formal premises and point to whichever structural axiom or branch condition they dispute.
 
 ---
 
-## 3. Mathematical Formalism and the Continuous Calculus Dogma
+## 3. Mathematical Formalism and Discrete Marginal Utility
 
-### Target Doctrine & Historical Claims (Schuller, Blaug)
-Mainstream formalist critics—such as George J. Schuller (1949) and Mark Blaug (1992)—allege that Austrian verbal deductions conceal unstated mathematical assumptions. Specifically, they assert that fundamental economic theorems like the **Law of Diminishing Marginal Utility (DMU)** and downward-sloping demand curves cannot be derived without assuming smooth, continuous utility manifolds:
+### The Core Dilemma
+Critics ask: *Can fundamental economic laws like Diminishing Marginal Utility (DMU) be derived without multivariable calculus and continuous utility curves?*
+
+Textbook economics often relies on smooth, twice-differentiable utility functions:
 
 $$
-U \in C^2(\mathbb{R}^n), \quad \text{with negative definite Hessian: } \mathbf{z}^T \nabla^2 U(\mathbf{x}) \mathbf{z} < 0
+U \in C^2(\mathbb{R}^n), \quad \text{with a negative definite Hessian: } \mathbf{z}^T \nabla^2 U(\mathbf{x}) \mathbf{z} < 0.
 $$
 
-They argue that verbal praxeology simply uses clumsy language to approximate continuous multivariable differential calculus.
+Formalist critics like George Schuller (1949) and Mark Blaug (1992) argued that verbal Austrian deductions hide unstated mathematical assumptions about continuity and smoothness.
+
+### The Praxeological Reality: Real Goods Are Discrete
+In the physical world, people do not consume infinitesimal slices of goods; they allocate discrete units (apples, shirts, machines) to discrete ends (eating lunch, staying warm, building tools).
+
+Carl Menger (1871) derived diminishing marginal utility on discrete ranked uses without calculus.
 
 ### Formal Specification
-Let means be partitioned into discrete homogeneous units $m \in \mathcal{M}$. Let an actor have a finite set of atomic intended ends $`\mathcal{E} = \{e_0, e_1, \dots, e_n\}`$ strictly ordered by an asymmetric, transitive preference relation $\succ$:
+Let an actor allocate discrete units of a homogeneous good $m \in \mathcal{M}$ across a ranked list of $N$ ends ([Definition 4.2](../natural_language/04_marginal_allocation_and_imputation.md#definition-42-a-finite-one-unit-allocation), [Definition 4.3](../natural_language/04_marginal_allocation_and_imputation.md#definition-43-ends-in-the-ranked-list), [Proposition 4.4](../natural_language/04_marginal_allocation_and_imputation.md#proposition-44-the-list-contains-n-distinct-ends)):
 
 $$
-e_0 \succ e_1 \succ e_2 \succ \dots \succ e_n
+e_0 \succ e_1 \succ e_2 \succ \dots \succ e_{N-1}.
 $$
 
-Each allocation of physical stock $k \in \mathbb{N}$ maps to an attainable subset of ends $`\mathcal{E}_k \subseteq \mathcal{E}`$.
+Each end requires one physical unit of stock ([Lemma 4.5](../natural_language/04_marginal_allocation_and_imputation.md#lemma-45-requirement-equals-the-number-of-selected-ends)).
 
-### Proposition 3 (Constructive DMU on Discrete Allocations Without Calculus)
-Diminishing marginal utility can be rigorously derived and represented without continuous utility manifolds ($U \in C^2$), continuous derivatives, or negative definite Hessians. In constructive praxeology, DMU is a theorem of discrete economizing on finite ranked-use structures.
+### Proposition 3 (Constructive DMU on Discrete Ranked Allocations)
+Diminishing marginal utility is a direct mathematical consequence of economizing discrete stock across ranked ends. It does not require continuous utility functions, derivatives, or Hessian matrices.
 
 **Proof.**
-1. In Chapter 4 ([Theorem 4.13](../natural_language/04_marginal_allocation_and_imputation.md#theorem-413-the-law-of-diminishing-marginal-utility) and [Proposition 4.14](../natural_language/04_marginal_allocation_and_imputation.md#proposition-414-purposeful-allocation-recovers-ranked-prefix-sets)), an actor possesses homogeneous means units. Each unit satisfies an atomic end requiring exactly one unit of physical input.
-2. Given a stock of $k$ units, an economizing actor purposefully chooses the subset allocation that attains the most preferred ends. Under strict ordinal ranking, the unique undominated subset is the top-$k$ ranked prefix: $`\mathcal{E}_k = \{e_0, e_1, \dots, e_{k-1}\}`$.
-3. When endowed with an additional unit ($k+1$), the newly attainable end is strictly $e_k$.
-4. By preference asymmetry and derived irreflexivity (Chapter 3, [Axiom 3.3](../natural_language/03_preference_purpose_and_opportunity_cost.md#axiom-33-strict-asymmetry-of-preference) and [Proposition 3.4](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-34-derived-strict-irreflexivity-of-preference)), $e_k$ is strictly lower-ranked than all previously attained ends:
-   
+1. **Selecting the Most Urgent Uses:** Given a stock of $k$ units, an economizing actor purposefully selects the top-$k$ ranked ends $`\mathcal{E}_k = \{e_0, \dots, e_{k-1}\}`$ ([Definition 4.7](../natural_language/04_marginal_allocation_and_imputation.md#definition-47-the-first-k-ends), [Theorem 4.11](../natural_language/04_marginal_allocation_and_imputation.md#theorem-411-the-prefix-optimality-theorem), [Proposition 4.14](../natural_language/04_marginal_allocation_and_imputation.md#proposition-414-purposeful-allocation-recovers-ranked-prefix-sets)).
+2. **Successive Units Satisfy Lower-Ranked Ends:** Acquiring one more unit ($k+1$) allows the actor to attain the next end on their list, $e_k$ ([Definition 4.12](../natural_language/04_marginal_allocation_and_imputation.md#definition-412-the-end-added-by-the-k-th-unit), [Theorem 4.13](../natural_language/04_marginal_allocation_and_imputation.md#theorem-413-the-law-of-diminishing-marginal-utility)):
+
 $$
-\forall j < k, \quad e_j \succ e_k
+\forall j < k, \quad e_j \succ e_k.
 $$
 
-5. Conversely, if one unit of stock is surrendered, an economizing actor surrenders the least urgent fulfilled end, which is precisely $e_{k-1}$ (least-urgent end selection in a finite ordered set, Chapter 3, [Lemma 3.23](../natural_language/03_preference_purpose_and_opportunity_cost.md#lemma-323-existence-of-least-urgent-ends-in-finite-posets)).
-6. In Chapter 4 (Section 4.4, [Proposition 4.14](../natural_language/04_marginal_allocation_and_imputation.md#proposition-414-purposeful-allocation-recovers-ranked-prefix-sets)), this discrete ordinal ranking is formalized in an action frame endowed with discrete allocation menus. The derivation is exact, fully discrete, and uses zero calculus derivatives or Hessian determinants. $\blacksquare$
+3. **Loss Falls on the Least Urgent Use:** If one unit is lost, the actor gives up the least urgent fulfilled end $e_{k-1}$ ([Definition 4.15](../natural_language/04_marginal_allocation_and_imputation.md#definition-415-a-least-urgent-end), [Lemma 4.17](../natural_language/04_marginal_allocation_and_imputation.md#lemma-417-a-finite-set-contains-a-least-urgent-end)).
+4. **General Quanta:** This discrete logic holds equally for multi-unit production requirements ([Definition 4.19](../natural_language/04_marginal_allocation_and_imputation.md#definition-419-a-regime-of-fixed-size-requirements), [Theorem 4.22](../natural_language/04_marginal_allocation_and_imputation.md#theorem-422-the-discrete-quanta-diminishing-utility-theorem)). $\blacksquare$
 
-### Catallactic & Epistemological Implications
-Continuous calculus manifolds in consumer theory are an unphysical mathematical fiction. Human goods are discrete physical quanta; human ends are discrete ordinal rankings. Praxeology’s discrete derivation does not "conceal" calculus—it corrects the unphysical continuum assumptions of mathematical formalism.
+### In Plain Terms
+Calculus curves are an analytical approximation. Human action operates on discrete choices. Praxeology does not hide calculus; it derives economic laws directly on discrete physical goods.
 
 ---
 
@@ -164,134 +254,137 @@ Continuous calculus manifolds in consumer theory are an unphysical mathematical 
 
 ## 4. Indifference Curve Analysis and Buridan's Ties Dilemma
 
-### Target Doctrine & Historical Claims (Nozick, Caplan, Hicks)
-Neoclassical microeconomics builds consumer choice upon continuous **indifference curves** (Edgeworth 1881, Hicks & Allen 1934). Critics such as Robert Nozick (1977) and Bryan Caplan (1999) assert that praxeology’s rejection of indifference creates an insurmountable logical dilemma:
-- If an agent faces two physically symmetric alternatives (e.g., Buridan's ass situated equidistant between two identical bales of hay), an agent lacking an indifference relation must suffer infinite paralysis and starve.
-- If the agent chooses either bale, they have engaged in choice between items between which they were psychically indifferent, proving that indifference is an operational economic category.
+### The Core Dilemma
+Critics ask: *If an agent refuses to use indifference curves, what happens when they face two identical choices—like Buridan's donkey starving between two identical piles of hay?*
 
-> [!TIP]
-> For an exhaustive mathematical analysis of electronic arbiters, physical metastability, and teleological choice under symmetry, see the dedicated treatise: [`critiques/buridans_principle.md`](buridans_principle.md). For the foundational critique of continuous indifference manifolds, see [`critiques/indifference_curve_analysis.md`](indifference_curve_analysis.md).
+Philosopher Robert Nozick (1977) and economist Bryan Caplan (1999) noted that if praxeology claims that every choice demonstrates *strict preference* over all alternatives, choosing between two identical cans of soup on a grocery shelf seems impossible:
+- If you choose can $A$, did you strictly prefer it to can $B$?
+- If you didn't strictly prefer $A$ over $B$, weren't you indifferent?
+
+### The Praxeological Resolution: Undominated Choice
+In modern choice theory (Sen 1971), selecting an item does not require that it strictly beats every other item; it only requires that **no alternative is strictly better**.
+
+When choosing between two identical bales of hay, eating strictly beats starving, and neither bale beats the other. The actor simply picks an undominated option.
 
 ### Formal Specification
-Let an agent at decision index $\langle t, h \rangle$ face feasible menu $`\mathcal{A}_{\text{feas}} = \{\alpha_A, \alpha_B, \alpha_0\}`$, where $\alpha_A$ and $\alpha_B$ are two symmetric courses of action (eating Hay $A$ vs. Hay $B$), and $\alpha_0$ represents inaction (starvation).
+An agent faces three choices $`\mathcal{A}_{\mathrm{feas}}(i, t, h) = \{\alpha_A, \alpha_B, \alpha_0\}`$ ([Definition 1.4](../natural_language/01_agents_means_ends_and_feasibility.md#definition-14-action-menus-contemplation-and-feasibility)): eating Hay $A$, eating Hay $B$, or inaction $\alpha_0$ (starvation).
 
-### Proposition 4 (Resolution of Buridan Ties via Undominated Choice)
-Rejecting neoclassical indifference curves does not lead to Buridan paralysis. Purposeful action requires selecting an undominated action from the feasible menu (existence of an undominated end in finite choice menus, Chapter 3, [Lemma 3.22](../natural_language/03_preference_purpose_and_opportunity_cost.md#lemma-322-existence-of-undominated-elements-in-finite-posets)), which terminates choice in a single finite transition step ($t \prec t'$) without requiring an indifference relation.
+### Proposition 4 (Resolving Buridan Ties via Undominated Choice)
+Defining purposeful choice as selecting an undominated alternative that strictly beats inaction resolves symmetric ties in a single step without requiring a psychological indifference curve.
 
 **Proof.**
-1. In neoclassical economics, choice requires scalar maximization: an agent can choose between $A$ and $B$ only if $U(A) > U(B)$ or $U(A) = U(B)$ (indifference).
-2. In praxeology (Chapter 3, [Definitions 3.8](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-38-purposeful-choice-relative-to-a-relation)–[3.9](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-39-purposeful-choice-under-the-agents-preference)), purposeful action requires selecting an undominated option from $`\mathcal{A}_{\text{feas}}`$:
-   
+1. **Purposeful Choice Conditions:** An active choice $\alpha^{\ast} \neq \alpha_0$ is purposeful if it strictly beats doing nothing ( $\text{End}(\alpha^{\ast}) \succ \text{End}(\alpha_0)$ ) and is **undominated** ([Definitions 3.8](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-38-purposeful-choice-relative-to-a-relation)–[3.10](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-310-active-purposeful-choice)):
+
 $$
-\alpha^{\ast} \in \text{Undominated}(\mathcal{A}_{\text{feas}}) \iff \forall \beta \in \mathcal{A}_{\text{feas}}, \quad \neg (\text{End}(\beta) \succ \text{End}(\alpha^{\ast}))
+\forall \beta \in \mathcal{A}_{\mathrm{feas}}(i, t, h), \quad \neg \bigl(\text{End}(\beta) \succ \text{End}(\alpha^{\ast})\bigr).
 $$
 
-3. Both active choices strictly dominate inaction: $\text{End}(\alpha_A) \succ \text{End}(\alpha_0)$ and $\text{End}(\alpha_B) \succ \text{End}(\alpha_0)$.
-4. Under symmetry, neither active option dominates the other: $\neg(e_A \succ e_B) \wedge \neg(e_B \succ e_A)$.
-5. The undominated choice set is non-empty: $`\text{Undominated}(\mathcal{A}_{\text{feas}}) = \{\alpha_A, \alpha_B\}`$.
-6. Selecting either $\alpha_A$ or $\alpha_B$ terminates the decision node in a single transition step ($t \prec t'$), satisfying purposeful action. Demonstrated preference proves that eating strictly dominated starvation ($\alpha_0$); it does not demonstrate mathematical indifference between $A$ and $B$. $\blacksquare$
+2. **Both Active Choices Beat Starvation:** $e_A \succ e_0$ and $e_B \succ e_0$.
+3. **Neither Dominates the Other:** By symmetry, $\neg(e_A \succ e_B)$ and $\neg(e_B \succ e_A)$.
+4. **Undominated Choice Exists:** By [Lemma 3.22](../natural_language/03_preference_purpose_and_opportunity_cost.md#lemma-322-existence-of-undominated-elements-in-finite-posets), every finite menu contains at least one undominated option.
+5. **No Paralysis:** Choosing either $A$ or $B$ fulfills purposeful action in a single step ([Proposition 3.15](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-315-purposeful-choice-with-indifferent-alternatives), [Proposition 3.20](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-320-ties-and-undominated-choice-on-indifferent-alternatives)). $\blacksquare$
 
-### Catallactic & Epistemological Implications
-Action demonstrates preference, never indifference. When an actor chooses $A$ over $B$, they have chosen $A$. If an actor is genuinely indifferent between two outcomes, they do not act between them; they act on whatever margin breaks the symmetry. Indifference is an unobservable psychological state, not an economic category.
+### In Plain Terms
+Demonstrated preference proves that eating was strictly preferred to starving. It does not prove that Can $A$ was spiritually superior to Can $B$. Undominated choice solves the puzzle cleanly without imaginary smooth curves.
 
 ---
 
-## 5. Real-Valued Utility Representations and the Ordinal MRS Fallacy
+## 5. Real-Valued Utility Representations and the Marginal Rate of Substitution
 
-### Target Doctrine & Historical Claims (Debreu, Samuelson, Caplan)
-Neoclassical microeconomics argues that real-valued utility functions $U: \mathbb{R}^n \to \mathbb{R}$ are strictly ordinal because any strictly monotonic transformation $F(U)$ with $F' > 0$ preserves the preference ordering. 
+### The Core Dilemma
+Critics ask: *Isn't the Marginal Rate of Substitution (MRS) purely ordinal, proving that calculus derivatives are completely compatible with ordinal utility?*
 
-Bryan Caplan (1999) argues that because the **Marginal Rate of Substitution (MRS)** is strictly invariant under monotonic transformations:
+Bryan Caplan (1999) argued that because the ratio of partial derivatives is invariant under any strictly increasing transformation $F$:
 
 $$
-MRS = \frac{\partial (F \circ U) / \partial x_1}{\partial (F \circ U) / \partial x_2} = \frac{F'(U) \cdot U_1}{F'(U) \cdot U_2} = \frac{U_1}{U_2} = \frac{P_1}{P_2}
+\text{MRS}_{1,2} = \frac{F'(U) \cdot U_1}{F'(U) \cdot U_2} = \frac{U_1}{U_2} = \frac{P_1}{P_2},
 $$
 
-the ratio of marginal utilities is an ordinal property, refuting Murray Rothbard's objection that ordinal rankings cannot be divided, added, or multiplied.
+the slope of an indifference curve is an ordinal property, refuting Murray Rothbard's claim that ordinal ranks cannot be divided.
+
+### The Mathematical Truth on $\mathbb{R}^n$ vs. Discrete Physical Antichains
+Caplan's mathematical algebra on smooth Euclidean space $\mathbb{R}^n$ is correct: level-set slopes are preserved under monotonic shifts.
+
+The real economic disagreement is about physical reality:
+- Economic goods exist in **discrete, indivisible units** forming *antichains* (goods of different types that cannot be ordered without prices).
+- An isolated consumer does not set market prices by calculating derivatives in their head. Prices are set at the intersection of conflicting bids across distinct buyers and sellers.
 
 ### Formal Specification
-Let commodities $m \in \mathcal{M}$ be discrete goods. In consumer equilibrium, neoclassical theory equates the gradient ratio of a continuous utility function to the market price ratio: $\nabla U(\mathbf{x}) \parallel \mathbf{P}$.
+Commodities are discrete quanta forming antichains ([Definition 9.24](../natural_language/09_money_prices_and_calculation.md#definition-924-physical-input-order-and-antichains)). Market prices emerge from discrete reservation bids across buyer and seller cohorts ([Definition 9.13](../natural_language/09_money_prices_and_calculation.md#definition-913-reservation-bids-and-ordered-cohorts)).
 
-### Proposition 5 (Incommensurability of Utility Gradients on Discrete Antichains)
-Physical means are discrete, heterogeneous quanta forming antichains that lack topological connectedness. Continuous partial derivatives $\partial U / \partial x_i$ do not exist on discrete action frames. Equating the Marginal Rate of Substitution to market price ratios conflates an individual's subjective ordinal valuation with an objective cardinal exchange ratio established at the margin of bilateral market clearing.
+### Proposition 5 (Discrete Marginal Pairs vs. Calculus Gradients)
+Infinitesimal partial derivatives $\partial U / \partial x_i$ do not exist on discrete physical goods. Market prices are formed not by individual utility gradients, but by the discrete reservation bracket of Böhm-Bawerk's marginal pairs.
 
 **Proof.**
-1. By Chapter 9 ([Definition 9.24](../natural_language/09_money_prices_and_calculation.md#definition-924-physical-input-order-and-antichains), [Proposition 9.25](../natural_language/09_money_prices_and_calculation.md#proposition-925-physical-incomparability)), physical goods form discrete posets with antichains ($m_1 \not\le m_2$ and $m_2 \not\le m_1$). Discrete physical goods lack the topological connectedness of $\mathbb{R}^n$.
-2. In Chapter 9 ([Theorem 9.32](../natural_language/09_money_prices_and_calculation.md#theorem-932-the-mises-hayek-economic-calculation-impossibility-theorem)), it is proven that physical antichains cannot be projected onto scalar metrics without order-reversal anomalies under order-preserving scalings.
-3. The limit definition of the partial derivative:
-   
-$$
-\frac{\partial U}{\partial x_i} = \lim_{\Delta x_i \to 0} \frac{U(x_i + \Delta x_i, \mathbf{x}_{-i}) - U(x_i, \mathbf{x}_{-i})}{\Delta x_i}
-$$
+1. **Physical Goods Form Antichains:** Heterogeneous goods like steel, grain, and labor cannot be transformed into each other without exchange prices ([Definition 9.24](../natural_language/09_money_prices_and_calculation.md#definition-924-physical-input-order-and-antichains), [Proposition 9.25](../natural_language/09_money_prices_and_calculation.md#proposition-925-physical-incomparability)).
+2. **Prices Require Antichain Exchange:** Without market exchange prices, physical factor quantities cannot be scalarized ([Theorem 9.30](../natural_language/09_money_prices_and_calculation.md#theorem-930-the-socialist-incommensurability-antichain-theorem), [Theorem 9.32](../natural_language/09_money_prices_and_calculation.md#theorem-932-the-mises-hayek-economic-calculation-impossibility-theorem)).
+3. **Discrete Marginal Pairs:** In an actual market, prices fall within a discrete bracket established by the bids of the last buyer and seller who trade and the first who walk away ([Proposition 9.14](../natural_language/09_money_prices_and_calculation.md#proposition-914-clearance-of-the-intra-marginal-cohorts), [Theorem 9.15](../natural_language/09_money_prices_and_calculation.md#theorem-915-the-böhm-bawerk-discrete-marginal-pair-bracket-theorem)). $\blacksquare$
 
-   requires infinitesimal physical variations along one coordinate while holding others fixed. In physical reality, economic goods exist in discrete indivisible units; infinitesimal variations $\Delta x_i \to 0$ are physically infeasible.
-4. The equation $U_1 / U_2 = P_1 / P_2$ equates a subjective ratio to an objective monetary price ratio. By Chapter 9 ([Theorem 9.15](../natural_language/09_money_prices_and_calculation.md#theorem-915-the-böhm-bawerk-discrete-marginal-pair-bracket-theorem)), market prices $P_1, P_2$ are not determined by an isolated individual's internal utility derivatives; they are established at the intersection of conflicting reservation bids across distinct buyers and sellers.
-5. Ranks cannot be divided. Transforming an ordinal ranking into a continuous gradient is a mathematical convenience that misrepresents the discrete, branching nature of purposeful choice. $\blacksquare$
-
-### Catallactic & Epistemological Implications
-Ordinal numbers designate position (1st, 2nd, 3rd); they cannot be subjected to arithmetic operations. Dividing the 1st preference by the 2nd preference yields nonsense. Equating $MRS$ to $P_1/P_2$ smuggles cardinal utility into neoclassical consumer theory under the guise of ordinalism.
+### In Plain Terms
+Market prices come from competition between distinct people bidding against each other in discrete increments, not from a single consumer setting an equality between mental calculus derivatives.
 
 ---
 
 ## 6. Behavioral Economics and the Tautology Dilemma
 
-### Target Doctrine & Historical Claims (Kahneman & Tversky, Thaler)
-Behavioral economists (Daniel Kahneman, Amos Tversky, Richard Thaler) have documented widespread cognitive heuristics—including framing effects, loss aversion, status quo bias, and hyperbolic discounting (present bias). 
+### The Core Dilemma
+Critics present a two-horned dilemma:
+- **Horn 1 (Empirical Refutation):** If praxeology claims people are hyper-rational calculators, behavioral experiments on framing effects, loss aversion, and present bias have disproven it.
+- **Horn 2 (Empty Tautology):** If praxeology defines "purposeful action" so broadly that even irrational, impulsive, and framing-dependent choices are counted as "purposeful," isn't the theory an unfalsifiable tautology?
 
-Critics use these findings to construct a dilemma against praxeology:
-- **Horn 1 (Empirical Refutation):** If the Action Axiom asserts that human beings are cognitively rational, utility-maximizing calculators, empirical psychology has conclusively refuted it.
-- **Horn 2 (Empty Tautology):** If praxeology defines "action" so broadly that any observed behavior (including framing anomalies and addiction) is classified as "purposeful," the Action Axiom is an unfalsifiable linguistic tautology with zero empirical content.
-
-> [!TIP]
-> For a comprehensive formalization of framing effects, bounded contemplation, and paternalistic menu-stripping, see the dedicated treatise: [`critiques/behavioral_economics.md`](behavioral_economics.md).
+### Answering Both Horns
+1. **Answering Horn 1:** Praxeology never claimed humans are omniscient supercomputers. It only claims that humans act purposefully to ease felt discomfort within the options they contemplate. Framing effects simply mean that how a choice is presented changes the context $(t, h, c)$ of deliberation.
+2. **Answering Horn 2:** Local purposefulness provides the basic definition of choice at a single moment. Real, testable predictions about intertemporal choice—such as regret and the demand for commitment contracts—emerge when we state how preferences connect across time.
 
 ### Formal Specification
-Let $\mathcal{C}$ be the set of contextual decision frames. An agent's subjective preference is indexed to decision context $c \in \mathcal{C}$ at decision node $\langle t, h \rangle$: $\succ_{i, t, h, c}$.
+Preferences $\succ_{i, t, h}$ ([Definition 3.2](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-32-subjective-ordinal-preference)) and contemplated menus $`\mathcal{A}_{\mathrm{cont}}`$ ([Definition 1.4](../natural_language/01_agents_means_ends_and_feasibility.md#definition-14-action-menus-contemplation-and-feasibility)) are indexed to the decision context.
 
-### Proposition 6 (Teleological Rationality under Contextual Framing)
-Behavioral framing effects and dynamic inconsistency do not refute the Action Axiom. Praxeological rationality denotes purposeful striving to relieve felt unease within finite contemplated menus, not cognitive omniscience. Furthermore, dynamic inconsistency explains the teleological market demand for commitment devices.
+### Proposition 6 (Contextual Preferences, Regret, and Precommitment)
+Framing anomalies and intertemporal preference shifts are consistent with local preference asymmetry. Furthermore, anticipating temptation explains why agents deliberately restrict their future choices using commitment devices.
 
 **Proof.**
-1. By Chapter 3 and Chapter 5, purposeful action requires allocating scarce means toward subjectively chosen ends. Praxeological rationality does not mean omniscience or mathematical optimization; it means purposeful striving to relieve felt unease.
-2. Behavioral framing effects index an agent's preference poset to decision context $c \in \mathcal{C}$: $\succ_{i, t, h, c}$. An agent choosing under Frame 1 may rank $e_1 \succ e_2$, while under Frame 2 ranking $e_2 \succ e_1$. Each choice is purposeful within its specific historical moment.
-3. Present bias and hyperbolic discounting do not contradict praxeology: an agent acts purposefully at the planning moment ($t_0$), acts purposefully at the temptation moment ($t_1$), and experiences retrospective regret at the evaluation moment ($t_2$) along branching historical time (Chapter 5).
-4. The observed market demand for commitment devices $\alpha_{\text{commit}}$ (e.g., contractual penalties, illiquid savings) proves that agents purposefully anticipate dynamic inconsistency and prune future feasible menus ( $`\mathcal{A}_{\text{feas}}(t') \subsetneq \mathcal{A}_{\text{feas}}(t)`$ ) to bind their future actions. Far from refuting action, behavioral heuristics demonstrate teleological economizing in branching time. $\blacksquare$
+1. **Context Separates Reversals:** Ranking $e_1 \succ e_2$ in Context 1 and $e_2 \succ e_1$ in Context 2 violates asymmetry only if the contexts are identical ([Proposition 3.32](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-332-framing-reversals-require-context-distinction), [Proposition 3.34](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-334-hyperbolic-discounting-reversals-require-distinct-evaluation-moments)).
+2. **Bounded Contemplation:** People choose from finite contemplated menus rather than surveying infinite possibilities ([Proposition 3.37](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-337-bounded-contemplation-and-purposeful-action), [Theorem 10.9](../natural_language/10_entrepreneurship_credit_and_investment.md#theorem-109-the-kirznerian-alertness-discovery-expansion-theorem)).
+3. **Anticipated Regret and Precommitment:** When an actor anticipates that their future self may yield to temptation, they purposefully lock in their choices today ([Proposition 3.35](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-335-precommitment-pruning-of-feasible-menus), [Theorem 5.14](../natural_language/05_belief_uncertainty_and_regret.md#theorem-514-the-stationary-preference-branch-regret-theorem)). $\blacksquare$
 
-### Catallactic & Epistemological Implications
-The behavioral economics critique attacks a neoclassical strawman (Homo Economicus). Praxeology never posited a hyper-rational, mathematically calculating automaton; it posited human actors acting under uncertainty, bounded contemplation, and evolving subjective desires.
+### In Plain Terms
+People sign up for gym contracts with cancellation penalties or put money into locked retirement accounts precisely because they know their future desires will fluctuate. Far from refuting action, behavioral heuristics show purposeful actors managing their own limitations over time.
 
 ---
 
 ## 7. Kaldor-Hicks Efficiency and Potential Pareto Compensation
 
-### Target Doctrine & Historical Claims (Kaldor, Hicks, Posner, Caplan)
-Neoclassical welfare economics recognized that the Pareto unanimity criterion (an allocation is an improvement if and only if at least one person is made better off and no one is made worse off) paralyzes public policy evaluation, because almost every state intervention harms someone.
+### The Core Dilemma
+Critics ask: *If almost every public policy harms someone, can't we declare a policy efficient if the total dollar gains to the winners exceed the dollar losses to the losers?*
 
-To circumvent this, Nicholas Kaldor (1939) and John Hicks (1939)—later expanded by Richard Posner (1979)—formulated the **Kaldor-Hicks Compensation Principle**: an economic reallocation is socially efficient if total monetary gains exceed total monetary losses:
+This standard—the **Kaldor-Hicks Compensation Principle** (Kaldor 1939; Hicks 1939; Posner 1979)—declares a project efficient if:
 
 $$
-\sum_{i \in \mathcal{I}} \Delta W_i > 0
+\sum_{i \in \mathcal{I}} \Delta W_i > 0,
 $$
 
-Under this rule, winners could hypothetically compensate losers, even if no compensation is ever paid.
+under the idea that winners *could hypothetically* compensate losers, even if no penny is ever actually paid.
 
-> [!TIP]
-> For a rigorous analysis of the Scitovsky reversal paradox, interpersonal utility aggregation, and the political economy of cost-benefit analysis, see the dedicated treatise: [`critiques/kaldor_hicks_efficiency.md`](kaldor_hicks_efficiency.md).
+### The Flaw of Hypothetical Compensation
+Imagine a highway is built through someone's family farm. The state claims the highway creates \$10 million in travel time savings for commuters and causes \$2 million in property loss for the farmer. Under Kaldor-Hicks, the policy is "efficient" because \$10M > \$2M—even if the farmer is paid nothing.
+
+Praxeology points out two fatal problems with this reasoning:
+1. **You Cannot Add Subjective Values Across Different People:** A dollar is not a unit of utility. To the farmer, their ancestral home may have a value that no sum of money can replace.
+2. **Potential Compensation Is Not Actual Compensation:** If compensation is merely hypothetical, the loser suffers an uncompensated injury against their demonstrated preference.
 
 ### Formal Specification
-Let $\mathcal{I}$ be a finite cohort of distinct economic agents. Let $\Delta W_i \in \mathbb{R}$ represent the nominal monetary wealth change experienced by agent $i$ following a policy intervention.
+Let agents have distinct ordinal preferences $\succ_{i, t, h}$ ([Definition 3.2](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-32-subjective-ordinal-preference)). Matched bilateral trade requires mutual consent ([Definition 8.20](../natural_language/08_social_interaction_property_and_exchange.md#definition-820-matched-offer-and-acceptance)).
 
-### Proposition 7 (The Category Error of Kaldor-Hicks Compensation)
-Summing monetary gains and losses across distinct individuals treats nominal money tokens as cardinal utility quanta, resurrecting the mathematical category error of interpersonal utility comparison. Hypothetical compensation leaves losers uncompensated, violating demonstrated preference and converting welfare economics into an ideological defense of coercive state extraction.
+### Proposition 7 (The Invalidation of Hypothetical Compensation)
+Summing nominal dollar values across distinct individuals treats money as a cardinal utility metric, committing an interpersonal category error. Uncompensated takings violate demonstrated preference, placing them in the category of coercive redistribution rather than voluntary exchange.
 
 **Proof.**
-1. By Chapter 3 and Chapter 8 ([Theorem 8.24](../natural_language/08_social_interaction_property_and_exchange.md#theorem-824-the-double-inequality-of-voluntary-exchange-theorem)), utility is strictly ordinal and individual ($u_i \not\sim u_j$). There exists no cardinal metric or social welfare aggregator through which the subjective gain of agent $A$ can cancel the subjective loss of agent $B$.
-2. Nominal money balances $\Delta W_i$ do not represent utility quanta. By Chapter 4 ([Theorem 4.13](../natural_language/04_marginal_allocation_and_imputation.md#theorem-413-the-law-of-diminishing-marginal-utility)), the marginal utility of a monetary dollar depends entirely on the subjective rank of the marginal end it satisfies on that specific actor's value scale.
-3. If compensation is merely hypothetical, losers experience a genuine, uncompensated physical injury. By Chapter 3 (Axiom of Purposefulness), losers demonstrate preference against the policy.
-4. Coercively imposing a Kaldor-Hicks reallocation constitutes an act of political hegemony ([Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-the-coercive-invariance-of-public-services-theorem)). Wealth maximization fails as an objective efficiency standard; it is an analytical pretext for coercive property redistribution. $\blacksquare$
+1. **Ordinal Incommensurability:** Preferences cannot be added or subtracted across people ([Theorem 4.13](../natural_language/04_marginal_allocation_and_imputation.md#theorem-413-the-law-of-diminishing-marginal-utility)).
+2. **Voluntary Exchange Guarantees Mutual Gain:** Only voluntary exchange demonstrates that both parties expect to be better off ([Theorem 8.24](../natural_language/08_social_interaction_property_and_exchange.md#theorem-824-the-double-inequality-of-voluntary-exchange-theorem)).
+3. **Uncompensated Redistribution:** Forcibly taking property without compensation strips the victim's feasible choices ([Theorem 8.16](../natural_language/08_social_interaction_property_and_exchange.md#theorem-816-the-coercive-menu-stripping-equivalence-theorem)) and divides society into net beneficiaries and net taxpayers ([Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-the-coercive-invariance-of-public-services-theorem), [Theorem 12.5](../natural_language/12_state_and_fiscal_political_economy.md#theorem-125-the-calhoun-fiscal-class-partition-theorem)). $\blacksquare$
 
-### Catallactic & Epistemological Implications
-There is no such entity as "society" capable of experiencing utility gains. When the state seizes private property to build a highway, claiming that the "social gains exceed the costs," it has simply enriched some individuals at the expense of others. Only voluntary exchange satisfies demonstrated social efficiency.
+### In Plain Terms
+"Potential compensation" is like saying you can take your neighbor's car without asking as long as you could afford to pay them for it. Only actual voluntary agreement demonstrates genuine mutual benefit.
 
 ---
 
@@ -299,72 +392,79 @@ There is no such entity as "society" capable of experiencing utility gains. When
 
 ## 8. Sraffian Capital Reswitching and Production Structures
 
-### Target Doctrine & Historical Claims (Sraffa, Robinson)
-In the Cambridge Capital Controversy, Piero Sraffa (1960) and Joan Robinson demonstrated the phenomenon of **reswitching of techniques**: as the rate of profit varies, the exact same production technique can be cost-minimizing at a high rate of profit, become unviable at intermediate rates, and then *reswitch* back to being cost-minimizing at a low rate of profit.
+### The Core Dilemma
+Critics ask: *Didn't the Cambridge Capital Controversy prove that production techniques cannot be neatly ranked by "roundaboutness" or capital intensity as interest rates change?*
 
-Neo-Ricardian economists argued that reswitching completely destroys the concept of "roundaboutness" (Böhm-Bawerk) and proves that production stages cannot be ordered by physical capital intensity or temporal length.
+Piero Sraffa (1960) and Joan Robinson (1953) proved **reswitching**: as the interest rate falls, a production method can be cost-effective at a high rate (e.g., 15%), lose out at an intermediate rate (e.g., 10%), and *reswitch* back to being the cheapest method at a low rate (e.g., 5%).
 
-> [!TIP]
-> For an exhaustive mathematical derivation of Samuelson's 1966 canonical dated-labor example, switching roots ($r_1 = 50\%, r_2 = 100\%$), wage-profit curves, and factor conservation bounds, see the dedicated treatise: [`critiques/cambridge_capital_controversy.md`](cambridge_capital_controversy.md).
+Critics claimed this destroyed the Austrian idea of a multi-stage capital structure.
+
+### What Reswitching Actually Refutes
+Reswitching validly refutes two ideas:
+1. The neoclassical aggregate production function $Y = F(K, L)$, which treats capital as a single magic number $K$ ("jelly capital").
+2. Böhm-Bawerk's early attempt to compress all capital into a single scalar number called the "average period of production."
+
+Reswitching is simply the corporate finance reality of **multiple Internal Rates of Return (IRR)**: discounting complex cash flows that span multiple years can produce multiple mathematical switching points.
 
 ### Formal Specification
-Let production techniques be vectors of dated labor inputs. Let $\Delta C(r) = C_B(r) - C_A(r)$ be the unit cost difference between two techniques as a function of the interest rate $r$.
+Production techniques involve dated expenditure streams over discrete stages $t_0 \prec t_1 \prec \dots \prec t_n$ ([Axiom 2.1](../natural_language/02_time_histories_and_physical_execution.md#axiom-21-strict-temporal-precedence), [Definition 11.13](../natural_language/11_organization_firms_and_intervention.md#definition-1113-multi-stage-production-chain)). The cost difference is a polynomial $\Delta C(r) = \sum_{t=0}^n a_t (1+r)^t$.
 
-### Proposition 8 (Demystification of Reswitching and Forward Imputation)
-Reswitching validly refutes the neoclassical aggregate production function ( $Y = F(K, L)$ ), but does not undermine praxeological capital theory. Reswitching is an elementary mathematical consequence of discounting multi-period expenditure streams with compound interest $(1+r)^t$ (the multiple IRR problem). Production in an action frame (Chapter 2, [Axiom 2.1](../natural_language/02_time_histories_and_physical_execution.md#axiom-21-strict-temporal-precedence)) is strictly unidirectional in historical time, past costs are sterile, and interest is grounded in pure time preference, not physical capital productivity.
+### Proposition 8 (Demystification of Reswitching in Heterogeneous Capital Structures)
+Reswitching refutes aggregate scalar capital $K$, but it does not undermine Austrian capital theory. Interest is rooted in pure time preference, and capital is a network of heterogeneous, complementary tools evaluated at historical decision points.
 
 **Proof.**
-1. In Chapter 9 ([Proposition 9.25](../natural_language/09_money_prices_and_calculation.md#proposition-925-physical-incomparability) and [Theorem 9.32](../natural_language/09_money_prices_and_calculation.md#theorem-932-the-mises-hayek-economic-calculation-impossibility-theorem)), capital goods form heterogeneous antichains. Praxeology never posited an aggregate scalar measure of physical capital ("Jelly Capital"). The Cambridge UK refutation of scalar $K$ is fully endorsed by praxeology.
-2. Sraffa's model assumes a timeless, circular production system without money where commodities reproduce themselves via simultaneous linear equations. In actual human action, production is strictly unidirectional across branching historical time ($t_0 \prec t_1 \prec \dots \prec t_n$, Chapter 2). Sunk past labor costs are economically sterile ([Theorem 4.32](../natural_language/04_marginal_allocation_and_imputation.md#theorem-432-the-present-endowment-sunk-cost-sterility-theorem)).
-3. In Chapter 7 ([Definition 7.1](../natural_language/07_time_preference_interest_and_capital.md#definition-71-timed-ends) and [Theorem 7.16](../natural_language/07_time_preference_interest_and_capital.md#theorem-716-the-master-positive-time-preference-and-originary-interest-synthesis)), originary interest $\delta \ge 1$ is derived from universal positive time preference across dated ends, not from physical capital surplus.
-4. The cost difference $\Delta C(x) = \sum a_t x^t$ (where $x = 1+r$ ) is a polynomial in $x$. By Descartes' Rule of Signs, alternating expenditure profiles across time guarantee multiple positive real roots. Reswitching is mathematically identical to the multiple Internal Rates of Return (IRR) problem in corporate capital budgeting.
-5. In Chapter 13 ([Proposition 13.3](../natural_language/13_business_cycles_and_crisis.md#proposition-133-complementary-factor-starvation-blocks-completion) and [Theorem 13.9](../natural_language/13_business_cycles_and_crisis.md#theorem-139-the-austrian-business-cycle-master-theorem)), production is strictly bounded by physical factor scarcity across sequential stages. Reswitching simply reflects non-linear discounting of multi-period cash flows; it does not alter the temporal necessity of roundabout capital advances. $\blacksquare$
+1. **Capital Goods Form Antichains:** Heterogeneous tools cannot be aggregated into a price-independent physical scalar $K$ ([Definition 9.24](../natural_language/09_money_prices_and_calculation.md#definition-924-physical-input-order-and-antichains), [Theorem 9.30](../natural_language/09_money_prices_and_calculation.md#theorem-930-the-socialist-incommensurability-antichain-theorem)).
+2. **Multiple Switching Roots:** When cash flows alternate over time, Descartes' Rule of Signs guarantees that $\Delta C(r) = 0$ can have multiple positive roots ([Proposition 11.37](../natural_language/11_organization_firms_and_intervention.md#proposition-1137-credit-and-natural-rates-can-classify-the-same-return-differently), [Proposition 11.38](../natural_language/11_organization_firms_and_intervention.md#proposition-1138-a-credit-rate-boom-can-coexist-with-a-different-firm-cost-ranking)).
+3. **Interest Comes from Time Preference, Not Physical Tools:** Interest reflects the universal preference for present goods over future goods ([Definition 7.1](../natural_language/07_time_preference_interest_and_capital.md#definition-71-timed-ends), [Theorem 7.16](../natural_language/07_time_preference_interest_and_capital.md#theorem-716-the-master-positive-time-preference-and-originary-interest-synthesis)), not the physical productivity of a machine. Sunk past labor costs are economically sterile ([Theorem 4.32](../natural_language/04_marginal_allocation_and_imputation.md#theorem-432-the-present-endowment-sunk-cost-sterility-theorem)).
+4. **Physical Complementarity Governs Completion:** Whether multi-stage production succeeds depends on having all necessary physical complements at each stage ([Proposition 13.3](../natural_language/13_business_cycles_and_crisis.md#proposition-133-complementary-factor-starvation-blocks-completion), [Theorem 13.9](../natural_language/13_business_cycles_and_crisis.md#theorem-139-the-austrian-business-cycle-master-theorem)). $\blacksquare$
 
-### Catallactic & Epistemological Implications
-Sraffa dismantled neoclassical aggregate production functions, but Neo-Ricardians committed a category error by conflating Böhm-Bawerk’s early scalar index with the Austrian multidimensional structure of production. Capital is a heterogeneous, complementary lattice whose monetary valuation shifts dynamically with interest rates.
+### In Plain Terms
+Capital is not a single giant blob of money or machinery. It is a complex, interlocking puzzle of specific tools, buildings, and materials across time. Reswitching confirms that capital cannot be reduced to a single scalar number.
 
 ---
 
-## 9. Rational Expectations and Macro Intertemporal Neutrality
+## 9. Rational Expectations and Macro-Intertemporal Neutrality
 
-### Target Doctrine & Historical Claims (Lucas, Muth, Caplan)
-The New Classical / Rational Expectations (RE) critique—originated by John Muth (1961) and Robert Lucas (1972, 1976), and wielded against Austrian Business Cycle Theory by Bryan Caplan (1997)—asserts that if central banks expand credit according to a systematic policy rule, rational forward-looking economic agents will anticipate the resulting price inflation:
+### The Core Dilemma
+Critics ask: *If business owners are rational forward-looking actors, why don't they foresee that central bank credit expansions cause inflation, and simply refuse to overinvest?*
 
-$$
-E_t[P_{t+k} \mid \Omega_t]
-$$
+Under the **Rational Expectations** hypothesis (Muth 1961; Lucas 1972), systematic government stimulus cannot fool market participants because people factor predicted policy rules into their contracts. Bryan Caplan (1997) used this to argue that the Austrian Business Cycle Theory (ABCT) relies on assuming entrepreneurs make systematic, repetitive forecasting blunders.
 
-Critics argue that entrepreneurs will factor inflation into loan contracts and hurdle rates, neutralizing relative price distortions. Consequently, predictable monetary expansion allegedly cannot deceive entrepreneurs or cause systemic capital malinvestment clusters.
+### The Praxeological Answer: Cantillon Waves and Local Information
+Entrepreneurs do not fail because they are stupid; they fail because central bank money injection falsifies the price signals they rely on:
+1. **Money Injections Are Not Helicopter Drops:** New credit does not fall evenly across the population. It enters at specific institutional nodes (commercial banks, primary bond dealers) and flows outward in waves (Cantillon effects).
+2. **Macro Aggregates Hide Factor Bottlenecks:** Knowing that the total money supply grew by 5% tells a builder nothing about whether there will be enough physical copper, glass, and skilled labor to finish a 5-year skyscraper project.
+3. **Competitive Pressure:** A builder who refuses cheap credit while rivals accept it will lose market share and contracts today.
 
 ### Formal Specification
-Let the central bank inject unbacked fiduciary media into the economy at decision index $\langle t_0, h \rangle$ through commercial bank advances: $\Delta M_{\mathrm{fid}} > 0$. Let economic information be distributed across localized trading nodes in a network.
+Fiduciary credit enters at specific localized nodes ([Definition 9.22](../natural_language/09_money_prices_and_calculation.md#definition-922-cantillon-network)). Capital goods form heterogeneous antichains ([Definition 9.24](../natural_language/09_money_prices_and_calculation.md#definition-924-physical-input-order-and-antichains)).
 
-### Proposition 9 (Failure of RE Neutrality Under Cantillon Injection Waves)
-Rational expectations assumes an ergodic macro state space with uniform price adjustments. In real historical time, fiduciary credit expansion enters circulation through localized institutional injection points (Cantillon waves). Because heterogeneous capital antichains cannot be aggregated, entrepreneurs cannot calculate or hedge the path of relative price distortions. Systemic malinvestment occurs because accounting price signals are objectively falsified.
+### Proposition 9 (Malinvestment Under Localized Credit and Macro Non-Identifiability)
+Even with forward-looking entrepreneurs acting purposefully under local price forecasts, unbacked credit expansion induces systemic malinvestment because macro indicators cannot identify stage-specific physical factor shortages.
 
 **Proof.**
-1. By Chapter 9 ([Proposition 9.23](../natural_language/09_money_prices_and_calculation.md#proposition-923-cantillon-network-purchasing-power-dilution), Cantillon Network Dilution) and Chapter 10 ([Proposition 10.10](../natural_language/10_entrepreneurship_credit_and_investment.md#proposition-1010-physical-effects-of-note-issuance)), newly manufactured fiduciary credit enters circulation at specific institutional injection nodes (e.g., mortgage banks, primary dealers), not as a uniform, simultaneous helicopter drop.
-2. The initial injection bids up specific factor and asset prices long before downstream wages and consumer prices adjust.
-3. In Chapter 9 ([Theorem 9.32](../natural_language/09_money_prices_and_calculation.md#theorem-932-the-mises-hayek-economic-calculation-impossibility-theorem)) and Chapter 14 ([Corollary 14.6](../natural_language/14_historical_observation_and_identification.md#corollary-146-macro-aggregates-do-not-identify-the-capital-regime)), capital goods form heterogeneous antichains that cannot be aggregated into a single price index. Even if an entrepreneur anticipates that the aggregate money supply will expand by 5%, that macro figure contains zero information regarding which specific capital goods will experience input cost surges or demand contractions along the branching historical tree (Chapter 14).
-4. Competing entrepreneurs cannot unilaterally "refuse" low-interest credit: an entrepreneur who refuses to borrow at subsidized rates is outcompeted by rivals who do.
-5. In Chapter 13 ([Theorem 13.9](../natural_language/13_business_cycles_and_crisis.md#theorem-139-the-austrian-business-cycle-master-theorem) and [Theorem 13.12](../natural_language/13_business_cycles_and_crisis.md#theorem-1312-the-fiduciary-factor-starvation-cycle-theorem)), the resulting price-box squeeze and complementary-factor starvation are the objective consequences of distorted monetary accounting, not subjective cognitive irrationality. $\blacksquare$
+1. **Cantillon Network Waves:** Credit injections bid up specific early factor prices long before consumer prices adjust ([Proposition 9.23](../natural_language/09_money_prices_and_calculation.md#proposition-923-cantillon-network-purchasing-power-dilution), [Proposition 10.10](../natural_language/10_entrepreneurship_credit_and_investment.md#proposition-1010-physical-effects-of-note-issuance)).
+2. **Macro Non-Identifiability:** Two economies can exhibit identical aggregate bank lending while one has adequate physical savings and the other has a critical shortage. No macro estimator can distinguish them from the initial aggregate record ([Corollary 14.6](../natural_language/14_historical_observation_and_identification.md#corollary-146-macro-aggregates-do-not-identify-the-capital-regime)).
+3. **Factor Squeeze and Defaults:** Competing projects bid for physically scarce complementary inputs, escalating costs and forcing projects into default ([Theorem 10.29](../natural_language/10_entrepreneurship_credit_and_investment.md#theorem-1029-the-fiduciary-factor-price-solvency-contraction-theorem), [Proposition 13.3](../natural_language/13_business_cycles_and_crisis.md#proposition-133-complementary-factor-starvation-blocks-completion), [Proposition 13.10](../natural_language/13_business_cycles_and_crisis.md#proposition-1310-cash-shortfall-blocks-a-costed-completion)).
+4. **Master Cycle Synthesis:** Unbacked credit systematically distorts relative prices, leading to physical completion bottlenecks and ex-post regret ([Theorem 13.9](../natural_language/13_business_cycles_and_crisis.md#theorem-139-the-austrian-business-cycle-master-theorem), [Theorem 13.12](../natural_language/13_business_cycles_and_crisis.md#theorem-1312-the-fiduciary-factor-starvation-cycle-theorem)). $\blacksquare$
 
-### Catallactic & Epistemological Implications
-Rational expectations assumes that agents possess a true structural model of the economy. But under central bank manipulation, the price system transmits falsified information regarding the availability of real savings. When the yardstick of economic calculation is distorted, rational action within the market generates macroeconomic coordination failure.
+### In Plain Terms
+When the measuring stick of economic calculation (money prices) is distorted by subsidized credit, even the most rational entrepreneurs are misled. The boom-bust cycle is not caused by business ignorance; it is caused by systemic accounting falsification.
 
 ---
 
 ## Conclusion
 
-The nine foundational challenges to praxeology collapse upon rigorous constructive formalization:
-1. Econometric regressions cannot identify unchosen counterfactuals;
-2. Purposeful action is an undeniable synthetic *a priori* reality;
-3. Diminishing Marginal Utility holds constructively on discrete posets without calculus manifolds;
-4. Symmetric choices are resolved via undominated choice without unobservable indifference manifolds;
-5. Real-valued utility representations fail on discrete capital antichains;
-6. Behavioral heuristics reflect contextual posets and validate teleological commitment devices;
-7. Kaldor-Hicks compensation is a mathematical category error;
-8. Capital reswitching refutes neoclassical aggregates ( $Y = F(K, L)$ ) while leaving unidirectional, time-preference capital theory intact; and
-9. Rational expectations cannot overcome localized Cantillon credit waves and objective price-accounting falsification.
+When evaluated fairly and with mathematical precision, the nine classical critiques of praxeology reveal the strengths of both traditions:
 
-Grounded in the constructive primitives of human action, praxeology stands as the rigorous, apodictic foundation of economic science.
+| Domain | Orthodox Critique | Praxeological Resolution | Verified Formal Result |
+|---|---|---|---|
+| **1. Econometrics** | Non-falsifiable deductions are unscientific | Realized historical data underdetermine counterfactuals; causal identification requires explicit structural theory | [Theorem 14.3](../natural_language/14_historical_observation_and_identification.md#theorem-143-the-praxeological-lucas-policy-invariance-theorem), [Theorem 14.7](../natural_language/14_historical_observation_and_identification.md#theorem-147-the-duhem-quine-econometric-underdetermination-theorem) |
+| **2. Epistemology** | Action Axiom is a dogmatic stoppage in the Münchhausen Trilemma | Retortion proves local agency; Lean 4 formalization disarms the trilemma by establishing auditable conditional validity | [Proposition 6.12](../natural_language/06_knowledge_ability_and_communication.md#proposition-612-conditional-inconsistency-of-a-universal-denial), [Theorem 3.11](../natural_language/03_preference_purpose_and_opportunity_cost.md#theorem-311-the-action-axiom-and-non-passivity-theorem) |
+| **3. Utility Theory** | Diminishing utility requires smooth calculus curves | DMU is a discrete theorem of allocating stock across ranked uses without continuous manifolds | [Theorem 4.13](../natural_language/04_marginal_allocation_and_imputation.md#theorem-413-the-law-of-diminishing-marginal-utility), [Theorem 4.22](../natural_language/04_marginal_allocation_and_imputation.md#theorem-422-the-discrete-quanta-diminishing-utility-theorem) |
+| **4. Buridan Ties** | Rejecting indifference leads to infinite paralysis in symmetric ties | Choosing an undominated option that beats inaction terminates choice in a single step | [Proposition 3.15](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-315-purposeful-choice-with-indifferent-alternatives), [Proposition 3.20](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-320-ties-and-undominated-choice-on-indifferent-alternatives) |
+| **5. Price Formation** | Marginal Rate of Substitution is an ordinal calculus derivative | Indivisible goods form antichains; prices are formed by discrete competing bids in marginal pairs | [Theorem 9.15](../natural_language/09_money_prices_and_calculation.md#theorem-915-the-böhm-bawerk-discrete-marginal-pair-bracket-theorem), [Theorem 9.30](../natural_language/09_money_prices_and_calculation.md#theorem-930-the-socialist-incommensurability-antichain-theorem) |
+| **6. Behavioral Biases** | Framing effects and temptation disprove purposeful action | Context-indexed preferences explain framing; anticipating temptation explains demand for commitment tools | [Proposition 3.32](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-332-framing-reversals-require-context-distinction), [Proposition 3.35](../natural_language/03_preference_purpose_and_opportunity_cost.md#proposition-335-precommitment-pruning-of-feasible-menus) |
+| **7. Welfare Economics** | Policies are efficient if hypothetical gains exceed losses | Utility cannot be summed across people; only actual voluntary exchange demonstrates mutual gain | [Theorem 8.24](../natural_language/08_social_interaction_property_and_exchange.md#theorem-824-the-double-inequality-of-voluntary-exchange-theorem), [Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-the-coercive-invariance-of-public-services-theorem) |
+| **8. Capital Theory** | Reswitching destroys the concept of capital stages | Reswitching refutes aggregate $K$; capital is a heterogeneous network guided by time preference | [Theorem 7.16](../natural_language/07_time_preference_interest_and_capital.md#theorem-716-the-master-positive-time-preference-and-originary-interest-synthesis), [Proposition 13.3](../natural_language/13_business_cycles_and_crisis.md#proposition-133-complementary-factor-starvation-blocks-completion) |
+| **9. Business Cycles** | Forward-looking rational agents would avoid cluster errors | Credit enters unevenly via Cantillon waves; macro statistics cannot identify disaggregated bottlenecks | [Theorem 13.9](../natural_language/13_business_cycles_and_crisis.md#theorem-139-the-austrian-business-cycle-master-theorem), [Corollary 14.6](../natural_language/14_historical_observation_and_identification.md#corollary-146-macro-aggregates-do-not-identify-the-capital-regime) |
