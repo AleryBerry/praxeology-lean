@@ -44,7 +44,7 @@ strictly preferred action within the modeled feasible menu.
 derives membership and nonmembership from two stipulated downstream menus. Its
 finite witness instantiates a menu difference.
 
-[`action_frame_majority_cycle`](../Praxeology/StateMonopoly.lean#L824)
+[`action_frame_majority_cycle`](../Praxeology/StateMonopoly.lean#L825)
 shows that across three agents with individually transitive preferences,
 the aggregated majority relation `ActionFrameMajorityPref` can cycle.
 This is a social-choice result; the conclusion concerns the defined majority relation

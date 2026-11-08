@@ -38,8 +38,8 @@ structure PhysicalProfileInstruction (Agent Means Operation : Type)
 namespace PhysicalProfileInstruction
 
 variable {Agent Means Operation Service : Type}
-variable [Fintype Agent] [DecidableEq Agent] [Fintype Means]
-  [DecidableEq Means] [DecidableEq Operation]
+variable [DecidableEq Agent] [Fintype Means] [DecidableEq Means]
+  [DecidableEq Operation]
 
 /-- The proposed action when individually affordable, and idle otherwise. -/
 def affordableProfile (operations : OperationSemantics Operation Means Service)
@@ -50,7 +50,6 @@ def affordableProfile (operations : OperationSemantics Operation Means Service)
     if actionAffordable operations state actor (instruction.profile actor) then
       instruction.profile actor else .idle
 
-omit [Fintype Agent] in
 theorem affordableProfile_affordable
     (operations : OperationSemantics Operation Means Service)
     (state : PhysicalState Agent Means Service)
@@ -63,7 +62,6 @@ theorem affordableProfile_affordable
   · intro means
     simp [affordableProfile, h, rawActionUse]
 
-omit [Fintype Agent] in
 theorem affordableProfile_wellFormed
     (operations : OperationSemantics Operation Means Service)
     (state : PhysicalState Agent Means Service)
@@ -93,6 +91,8 @@ def stageMenu (operations : OperationSemantics Operation Means Service)
   insert EconomyAction.idle <| insert
     (instruction.affordableProfile operations state actor)
     (instruction.affordableAlternatives operations state actor)
+
+variable [Fintype Agent]
 
 /-- A scheduled profile becomes a physical choice stage. Only the listed
 alternatives are added; this does not assume a complete menu of every action. -/

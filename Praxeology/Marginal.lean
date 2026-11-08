@@ -279,7 +279,7 @@ theorem sunk_cost_irrelevant_to_purposeful_act
   · exact h_no_unease h_pref
 
 
-theorem intertemporal_consumption_stock_and_service
+theorem intertemporal_consumption_stock_and_service [BilateralExchangeFrame W]
     {Service : Type} {i : W.Agent} {t t' : W.Moment} {h : W.History}
     {m : W.Means} (A : ServiceAccounting W Service)
     (α_consume : W.Action) (k : ℕ) (s : Service)
@@ -564,6 +564,10 @@ theorem finite_preference_relation_has_least_element
 -- Section 4: Time Preference and Feasible Deferral
 
 
+section TimePreferenceFixedEnds
+
+variable [IntertemporalEnds W]
+
 /-- End `e` indexed by moment `τ`. -/
 abbrev TimedEnd : Ends → Moment → Ends :=
   W.TimedEnd
@@ -616,6 +620,8 @@ theorem causal_not_purposeful_immediate_consumption_of_negative_time_pref
   have h_undom := h_act.2.2.2 α_defer h_defer_feas
   exact h_undom h_pref_defer
 
+end TimePreferenceFixedEnds
+
 
 theorem post_horizon_no_action
     (i : Agent) (t : Moment) (h : History) (α : Action)
@@ -645,7 +651,7 @@ theorem post_horizon_no_active_action
 alternative for the same underlying end, rules out strict preference for that
 particular later outcome. This is a local revealed-choice result; it does not
 establish a universal time-preference ordering. -/
-theorem causal_enacted_consumption_demonstrates_nonneg_time_pref
+theorem causal_enacted_consumption_demonstrates_nonneg_time_pref [IntertemporalEnds W]
     (i : Agent) (t : Moment) (h : History) (e : Ends) (α_near : Action) (τ1 : Moment)
     (h_end : End_of i α_near t h = TimedEnd e τ1)
     (h_oeh : CausalDoxasticOpenHorizon i t h e α_near τ1)
@@ -700,7 +706,7 @@ distinct end, and a later timing alternative is feasible with a distinct
 timed end, the choice reveals preference for the nearer date in that pair.
 Injectivity of the timing map is explicit; the result does not assert a
 universal preference over all dates or ends. -/
-theorem strict_time_preference_from_distinct_end_dominance
+theorem strict_time_preference_from_distinct_end_dominance [IntertemporalEnds W]
     (i : Agent) (t : Moment) (h : History) (e : Ends) (α_near : Action) (τ1 : Moment)
     (h_end : End_of i α_near t h = TimedEnd e τ1)
     (h_oeh : CausalDoxasticOpenHorizon i t h e α_near τ1)
@@ -720,12 +726,17 @@ theorem strict_time_preference_from_distinct_end_dominance
 
 -- Section 5: Interest and Intertemporal Exchange
 
+section InterestIntertemporalExchange
+
+variable [IntertemporalEnds W]
+
 
 /-- End for holding or consuming `q` units of `m`. -/
 abbrev QuantityEnd (m : Means) (q : ℕ) : Ends :=
   W.QuantityEnd m q
 
 /-- End for consuming `q` units of `m` at `τ`. -/
+@[reducible]
 def timedQuantityEnd (m : Means) (q : ℕ) (τ : Moment) : Ends :=
   TimedEnd (QuantityEnd m q) τ
 
@@ -890,6 +901,8 @@ theorem capital_accumulation_unlocks_action_menu_epoch
     rw [h_round_end, h_prim_end]
     exact h_pref
   exact ⟨h_cap_t1, h_infeas_t0, h_ssub, h_phys_surplus, h_pref_ends⟩
+
+end InterestIntertemporalExchange
 
 
 /-! ## Security, Storage, and Explicit Choice Premises
@@ -1099,7 +1112,7 @@ end FiniteCurrentSecurityWitness
 
 section DMU_TimePreference
 
-variable [W : ActionFrame]
+variable [W : ActionFrame] [IntertemporalEnds W]
 
 /-- (Part A) Universal Dated Preference over Fixed Ends: For any end `e` and
 moments `τ1 < τ2`, whenever earlier realization is chosen over feasible
@@ -1232,8 +1245,8 @@ theorem finite_model_quantity_monotonicity
     (q q' : ℕ) (τ : FiniteBranchingModel.Moment)
     (hq : q' < q) :
     @Preference FiniteBranchingModel i t h
-      (@timedQuantityEnd FiniteBranchingModel m q τ)
-      (@timedQuantityEnd FiniteBranchingModel m q' τ) := by
+      (@timedQuantityEnd FiniteBranchingModel _ m q τ)
+      (@timedQuantityEnd FiniteBranchingModel _ m q' τ) := by
   change end_rank (ModelEnd.timed (ModelEnd.quantity m q') τ) <
          end_rank (ModelEnd.timed (ModelEnd.quantity m q) τ)
   dsimp [end_rank]
@@ -1246,17 +1259,17 @@ theorem causal_intertemporal_chain_non_vacuous :
       (q q' : ℕ) (α_cons : FiniteBranchingModel.Action) (τ1 : FiniteBranchingModel.Moment),
       @PurposefulAct FiniteBranchingModel i t h α_cons ∧
       @DistinctEndDominantAct FiniteBranchingModel i t h α_cons ∧
-      @CausalDoxasticOpenHorizon FiniteBranchingModel i t h
-        (@QuantityEnd FiniteBranchingModel m q) α_cons τ1 ∧
+      @CausalDoxasticOpenHorizon FiniteBranchingModel _ i t h
+        (@QuantityEnd FiniteBranchingModel _ m q) α_cons τ1 ∧
       ¬ @IsPostHorizon FiniteBranchingModel i t h ∧
       (∃ (τ2 : FiniteBranchingModel.Moment) (δ : ℕ),
         0 < q ∧ @LT.lt FiniteBranchingModel.Moment _ τ1 τ2 ∧ q < q' ∧ δ ≥ 1 ∧ q' = q + δ ∧
         @Preference FiniteBranchingModel i t h
-          (@TimedEnd FiniteBranchingModel (@QuantityEnd FiniteBranchingModel m q) τ1)
-          (@TimedEnd FiniteBranchingModel (@QuantityEnd FiniteBranchingModel m q) τ2) ∧
+          (@TimedEnd FiniteBranchingModel _ (@QuantityEnd FiniteBranchingModel _ m q) τ1)
+          (@TimedEnd FiniteBranchingModel _ (@QuantityEnd FiniteBranchingModel _ m q) τ2) ∧
         @Preference FiniteBranchingModel i t h
-          (@timedQuantityEnd FiniteBranchingModel m q τ1)
-          (@timedQuantityEnd FiniteBranchingModel m q τ2)) := by
+          (@timedQuantityEnd FiniteBranchingModel _ m q τ1)
+          (@timedQuantityEnd FiniteBranchingModel _ m q τ2)) := by
   let : ActionFrame := FiniteBranchingModel
   let i : Fin 2 := 0
   let t : Fin 4 := 0
@@ -1312,15 +1325,16 @@ theorem causal_intertemporal_chain_non_vacuous :
       ⟨⟨h_purp, (show end_rank (ModelEnd.timed (ModelEnd.quantity 0 0) 0) <
                       end_rank (ModelEnd.timed (ModelEnd.quantity 1 1) 0) by decide)⟩, h_comp⟩
   have h_end :
-    @End_of FiniteBranchingModel i α_cons t h = @timedQuantityEnd FiniteBranchingModel m q τ1 := rfl
+    @End_of FiniteBranchingModel i α_cons t h =
+      @timedQuantityEnd FiniteBranchingModel _ m q τ1 := rfl
   have h_causal_oeh :
-    @CausalDoxasticOpenHorizon FiniteBranchingModel i t h
-      (@QuantityEnd FiniteBranchingModel m q) α_cons τ1 := by
+    @CausalDoxasticOpenHorizon FiniteBranchingModel _ i t h
+      (@QuantityEnd FiniteBranchingModel _ m q) α_cons τ1 := by
     intro _ _
     refine ⟨Or.inl rfl, ModelAction.defer, (1 : Fin 4), by decide,
       ⟨rfl, show (1 : Fin 4) ≠ 0 by decide⟩, rfl⟩
   have h_distinct : ∀ τ2 : Fin 4, @LT.lt FiniteBranchingModel.Moment _ τ1 τ2 →
-      @TimedEnd FiniteBranchingModel (@QuantityEnd FiniteBranchingModel m q) τ2 ≠
+      @TimedEnd FiniteBranchingModel _ (@QuantityEnd FiniteBranchingModel _ m q) τ2 ≠
       @End_of FiniteBranchingModel i ModelAction.idle t h := by
     intro τ2 _ heq
     change ModelEnd.timed (ModelEnd.quantity 1 1) τ2 =
@@ -1329,33 +1343,33 @@ theorem causal_intertemporal_chain_non_vacuous :
     injection hq with _ hq'
     exact Nat.zero_ne_one hq'.symm
   have h_not_post :=
-    @causal_doxastic_open_horizon_implies_not_post_horizon FiniteBranchingModel i t h
-    (@QuantityEnd FiniteBranchingModel m q) α_cons τ1 h_causal_oeh (by decide) h_end h_distinct
+    @causal_doxastic_open_horizon_implies_not_post_horizon FiniteBranchingModel _ i t h
+    (@QuantityEnd FiniteBranchingModel _ m q) α_cons τ1 h_causal_oeh (by decide) h_end h_distinct
   have h_timed_inj : ∀ t1 t2 : FiniteBranchingModel.Moment, t1 ≠ t2 →
-      @TimedEnd FiniteBranchingModel (@QuantityEnd FiniteBranchingModel m q) t1 ≠
-      @TimedEnd FiniteBranchingModel (@QuantityEnd FiniteBranchingModel m q) t2 := by
+      @TimedEnd FiniteBranchingModel _ (@QuantityEnd FiniteBranchingModel _ m q) t1 ≠
+      @TimedEnd FiniteBranchingModel _ (@QuantityEnd FiniteBranchingModel _ m q) t2 := by
     intro (t1 : Fin 4) (t2 : Fin 4) hne heq
     have : t1 = t2 := ModelEnd.timed.inj heq |>.2
     exact hne this
   obtain ⟨τ2, h_lt, h_pos_tp⟩ :=
-    @strict_time_preference_from_distinct_end_dominance FiniteBranchingModel i t h
-      (@QuantityEnd FiniteBranchingModel m q) α_cons τ1 h_end h_causal_oeh h_dom h_timed_inj
+    @strict_time_preference_from_distinct_end_dominance FiniteBranchingModel _ i t h
+      (@QuantityEnd FiniteBranchingModel _ m q) α_cons τ1 h_end h_causal_oeh h_dom h_timed_inj
   have h_u4u : @Preference FiniteBranchingModel i t h
-      (@timedQuantityEnd FiniteBranchingModel m q τ1)
-      (@timedQuantityEnd FiniteBranchingModel m q τ2) :=
+      (@timedQuantityEnd FiniteBranchingModel _ m q τ1)
+      (@timedQuantityEnd FiniteBranchingModel _ m q τ2) :=
     h_pos_tp
   have h_accept : @Preference FiniteBranchingModel i t h
-      (@timedQuantityEnd FiniteBranchingModel m q' τ2)
-      (@timedQuantityEnd FiniteBranchingModel m q τ1) := by
+      (@timedQuantityEnd FiniteBranchingModel _ m q' τ2)
+      (@timedQuantityEnd FiniteBranchingModel _ m q τ1) := by
     change end_rank (ModelEnd.timed (ModelEnd.quantity 1 1) 0) <
            end_rank (ModelEnd.timed (ModelEnd.quantity 1 2) τ2)
     dsimp [end_rank]
     split_ifs <;> omega
   have h_sync_mono : q' ≤ q →
-      @Preference FiniteBranchingModel i t h (@timedQuantityEnd FiniteBranchingModel m q τ2)
-        (@timedQuantityEnd FiniteBranchingModel m q' τ2) ∨
-      @timedQuantityEnd FiniteBranchingModel m q τ2 =
-        @timedQuantityEnd FiniteBranchingModel m q' τ2 := by
+      @Preference FiniteBranchingModel i t h (@timedQuantityEnd FiniteBranchingModel _ m q τ2)
+        (@timedQuantityEnd FiniteBranchingModel _ m q' τ2) ∨
+      @timedQuantityEnd FiniteBranchingModel _ m q τ2 =
+        @timedQuantityEnd FiniteBranchingModel _ m q' τ2 := by
     intro h_le
     rcases Nat.lt_or_eq_of_le h_le with h_lt_q | h_eq_q
     · exact Or.inl (finite_model_quantity_monotonicity i t h m q q' τ2 h_lt_q)
@@ -1367,7 +1381,7 @@ theorem causal_intertemporal_chain_non_vacuous :
     intro e1 e2 e3 h12 h23
     exact Nat.lt_trans h23 h12
   obtain ⟨hq_lt, ⟨δ, hδ_ge, hq'_eq⟩⟩ :=
-    @positive_originary_interest FiniteBranchingModel i t h m q q' Nat.zero_lt_one τ1 τ2
+    @positive_originary_interest FiniteBranchingModel _ i t h m q q' Nat.zero_lt_one τ1 τ2
       h_pos_tp h_accept h_sync_mono h_trans
   exact ⟨i, t, h, m, q, q', α_cons, τ1, h_purp, h_dom, h_causal_oeh, h_not_post,
          ⟨τ2, δ, Nat.zero_lt_one, h_lt, hq_lt, hδ_ge, hq'_eq, h_pos_tp, h_u4u⟩⟩

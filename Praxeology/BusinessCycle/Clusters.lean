@@ -22,7 +22,7 @@ namespace Praxeology
 
 /-- One entrepreneur's credit-financed project, funding, and purposeful action,
 without an assumption that completion is later blocked. -/
-structure CreditProjectEvidence (W : ActionFrame) (Context : Type) where
+structure CreditProjectEvidence (W : ActionFrame) [BilateralExchangeFrame W] (Context : Type) where
   cycle : EntrepreneurialCycleScenario W Context
   fundingRate : ℕ
   funding : EntrepreneurialCreditFunding cycle.investment.i cycle.investment.x fundingRate
@@ -35,7 +35,7 @@ structure CreditProjectEvidence (W : ActionFrame) (Context : Type) where
 namespace CreditProjectEvidence
 
 /-- Separate credit funding and purposeful choice yields an active investment choice. -/
-theorem purposeful_at_credit_rate {W : ActionFrame} {Context : Type}
+theorem purposeful_at_credit_rate {W : ActionFrame} [BilateralExchangeFrame W] {Context : Type}
     (P : CreditProjectEvidence W Context) :
     PurposefulAct P.cycle.investment.i P.cycle.investment.x.moment
       P.cycle.investment.x.history P.cycle.investment.investment :=
@@ -47,7 +47,7 @@ end CreditProjectEvidence
 issuance. Unlike `FiduciaryOrigination`, this allows the common note issue to
 fund several loans at later moments on the same history. The cohort separately
 bounds their aggregate principal by the amount issued. -/
-structure FiduciaryIssueBackedAdvance {W : ActionFrame}
+structure FiduciaryIssueBackedAdvance {W : ActionFrame} [BilateralExchangeFrame W]
     (T : PawnLoanTerms W) (I : FiduciaryNoteIssuance (W := W))
     (A : CreditAdvance T) where
   lender_is_issuer : T.lender = I.issuer
@@ -59,7 +59,7 @@ structure FiduciaryIssueBackedAdvance {W : ActionFrame}
 /-- A note-backed advance still records the borrower's actual matched
 collateralized transfer. -/
 theorem FiduciaryIssueBackedAdvance.borrower_receives_principal
-    {W : ActionFrame} {T : PawnLoanTerms W}
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {I : FiduciaryNoteIssuance (W := W)} {A : CreditAdvance T}
     (_F : FiduciaryIssueBackedAdvance T I A) :
     W.omega T.borrower A.nextMoment A.history T.money =
@@ -71,7 +71,8 @@ member's loan is backed by that issuance on the same history, after the notes
 are issued; aggregate principal cannot exceed the amount issued. Members may
 have different project terms, while the lender, observation
 map, and response policy are shared. -/
-structure CreditShockCohort (W : ActionFrame) (Context Entrepreneur : Type)
+structure CreditShockCohort (W : ActionFrame) [BilateralExchangeFrame W]
+    (Context Entrepreneur : Type)
     [DecidableEq Entrepreneur] where
   entrepreneurs : Finset Entrepreneur
   project : Entrepreneur → CreditProjectEvidence W Context
@@ -133,7 +134,8 @@ namespace CreditShockCohort
 /-- Each exposed loan's origination is recorded on one ActionFrame history:
 the shared issue precedes the advance, and the advance precedes the investment
 decision. No repayment outcome is part of this ordering result. -/
-theorem credit_lifecycle_ordered {W : ActionFrame} {Context Entrepreneur : Type}
+theorem credit_lifecycle_ordered {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
@@ -148,7 +150,7 @@ theorem credit_lifecycle_ordered {W : ActionFrame} {Context Entrepreneur : Type}
 
 /-- If repayment is separately supplied, project completion can be ordered
 before it without making successful repayment a premise of the cohort. -/
-theorem credit_lifecycle_ordered_with_repayment {W : ActionFrame}
+theorem credit_lifecycle_ordered_with_repayment {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (_he : e ∈ C.entrepreneurs)
@@ -161,7 +163,7 @@ theorem credit_lifecycle_ordered_with_repayment {W : ActionFrame}
 
 /-- The issue, project, and advance are tied to the same ActionFrame history;
 later settlement evidence remains separately indexed by the advance. -/
-theorem credit_lifecycle_same_history {W : ActionFrame}
+theorem credit_lifecycle_same_history {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
@@ -175,7 +177,7 @@ theorem credit_lifecycle_same_history {W : ActionFrame}
 /-- Origination changes actual ActionFrame balances: issuance adds the note
 principal and the borrower receives the matched advance. This conclusion
 does not depend on a later repayment outcome. -/
-theorem credit_lifecycle_balance_changes {W : ActionFrame}
+theorem credit_lifecycle_balance_changes {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
@@ -202,7 +204,7 @@ theorem credit_lifecycle_balance_changes {W : ActionFrame}
 
 /-- A separately supplied matched repayment changes lender cash and returns
 pledged collateral to the borrower. -/
-theorem credit_lifecycle_repayment_balance_changes {W : ActionFrame}
+theorem credit_lifecycle_repayment_balance_changes {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs)
@@ -235,7 +237,7 @@ theorem credit_lifecycle_repayment_balance_changes {W : ActionFrame}
 /-- Full account-level cash and collateral movements for a cohort member with
 separately supplied repayment evidence. This records both sides of the
 issuance, advance, and repayment transfers. -/
-theorem credit_lifecycle_full_transfer {W : ActionFrame}
+theorem credit_lifecycle_full_transfer {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs)
@@ -323,7 +325,7 @@ theorem credit_lifecycle_full_transfer {W : ActionFrame}
 
 /-- Each regime's observation is read from its ActionFrame node. The no-shock
 baseline is an enacted loan quote at the natural rate. -/
-def observation {W : ActionFrame} {Context Entrepreneur : Type}
+def observation {W : ActionFrame} [BilateralExchangeFrame W] {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur) :
     Entrepreneur → CreditRegime → CreditObservation := fun e regime =>
@@ -338,7 +340,7 @@ def observation {W : ActionFrame} {Context Entrepreneur : Type}
 
 /-- Observation-based regime knowledge is induced by the cohort's actual
 ActionFrame-indexed Catallactics readings. -/
-def observationKnowledge {W : ActionFrame} {Context Entrepreneur : Type}
+def observationKnowledge {W : ActionFrame} [BilateralExchangeFrame W] {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur) :
     KnowledgeRelation Entrepreneur CreditRegime where
@@ -349,7 +351,7 @@ def observationKnowledge {W : ActionFrame} {Context Entrepreneur : Type}
 
 /-- If two ActionFrame-derived regime observations agree, they are
 indistinguishable by that observation. -/
-theorem same_observation_indistinguishable {W : ActionFrame}
+theorem same_observation_indistinguishable {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     (e : Entrepreneur) (r s : CreditRegime)
@@ -358,7 +360,7 @@ theorem same_observation_indistinguishable {W : ActionFrame}
 
 /-- Regime nodes are the enacted saving-side quote, fiduciary-backed credit
 advance, and enacted natural-rate baseline quote. -/
-def regimeNode {W : ActionFrame} {Context Entrepreneur : Type}
+def regimeNode {W : ActionFrame} [BilateralExchangeFrame W] {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     (e : Entrepreneur) : CreditRegime → W.DecisionIndex
@@ -369,7 +371,7 @@ def regimeNode {W : ActionFrame} {Context Entrepreneur : Type}
 /-- A disclosed funding-source record distinguishes otherwise identical
 market observations. The disclosure is extra evidence; equality of market
 signals alone does not supply it. -/
-def observationWithSourceDisclosure {W : ActionFrame}
+def observationWithSourceDisclosure {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur) :
     Entrepreneur → CreditRegime →
@@ -377,7 +379,7 @@ def observationWithSourceDisclosure {W : ActionFrame}
   fun e regime =>
     (C.signalReader (C.agent e) (C.regimeNode e regime), regime)
 
-def disclosedKnowledge {W : ActionFrame} {Context Entrepreneur : Type}
+def disclosedKnowledge {W : ActionFrame} [BilateralExchangeFrame W] {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur) :
     KnowledgeRelation Entrepreneur CreditRegime where
@@ -387,7 +389,8 @@ def disclosedKnowledge {W : ActionFrame} {Context Entrepreneur : Type}
   symm := by intro _ _ _ h; exact h.symm
   trans := by intro _ _ _ _ h₁ h₂; exact h₁.trans h₂
 
-theorem source_disclosure_distinguishes_saving_and_credit {W : ActionFrame}
+theorem source_disclosure_distinguishes_saving_and_credit
+    {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur) (e : Entrepreneur) :
     ¬ C.disclosedKnowledge.indistinguishable e .genuineSaving .fiduciaryExpansion := by
@@ -397,7 +400,7 @@ theorem source_disclosure_distinguishes_saving_and_credit {W : ActionFrame}
 
 /-- Market-rate knowledge is induced by the cohort's ActionFrame-indexed
 Catallactics signal reader, with no separate regime label in the observation. -/
-def marketKnowledge {W : ActionFrame} {Context Entrepreneur : Type}
+def marketKnowledge {W : ActionFrame} [BilateralExchangeFrame W] {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur) :
     KnowledgeRelation Entrepreneur CreditRegime :=
@@ -405,7 +408,7 @@ def marketKnowledge {W : ActionFrame} {Context Entrepreneur : Type}
 
 /-- The shared issuer/lender is distinct from each exposed borrower, as
 required by the underlying PawnLoanTerms. -/
-theorem lender_distinct_from_exposed_borrower {W : ActionFrame}
+theorem lender_distinct_from_exposed_borrower {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
@@ -419,7 +422,7 @@ theorem lender_distinct_from_exposed_borrower {W : ActionFrame}
 
 /-- The no-shock node reads its enacted loan quote, whose factor is tied to the
 natural rate; the rate classifier therefore returns the unchanged baseline. -/
-theorem no_shock_observed_as_unchanged {W : ActionFrame}
+theorem no_shock_observed_as_unchanged {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
@@ -436,7 +439,7 @@ theorem no_shock_observed_as_unchanged {W : ActionFrame}
 
 /-- The credit node's enacted Catallactics quote is classified as lower from
 the rate comparison. -/
-theorem credit_observation_is_lower_rate {W : ActionFrame}
+theorem credit_observation_is_lower_rate {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
@@ -454,7 +457,7 @@ theorem credit_observation_is_lower_rate {W : ActionFrame}
 /-- The shared Catallactic market derives equal loan-rate signals; the signal
 reader then yields equal saving and credit observations at their ActionFrame
 decision nodes. -/
-theorem saving_and_credit_observationally_equal {W : ActionFrame}
+theorem saving_and_credit_observationally_equal {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     (e : Entrepreneur) :
@@ -469,7 +472,7 @@ theorem saving_and_credit_observationally_equal {W : ActionFrame}
 
 /-- The saving-side and credit-side contracts have the same derived repayment
 factor when their rates are quoted in the cohort's shared Catallactic market. -/
-theorem saving_rate_equals_credit_rate {W : ActionFrame}
+theorem saving_rate_equals_credit_rate {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur) (e : Entrepreneur) :
     (C.rateQuotes e).savingTerms.grossRepaymentFactor =
@@ -478,7 +481,7 @@ theorem saving_rate_equals_credit_rate {W : ActionFrame}
 
 /-- The credit node's enacted Catallactics quote is classified as the
 lower-rate observation used by the shared response policy. -/
-theorem credit_situation_observed_as_lower_rate {W : ActionFrame}
+theorem credit_situation_observed_as_lower_rate {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
@@ -489,7 +492,7 @@ theorem credit_situation_observed_as_lower_rate {W : ActionFrame}
   exact C.credit_observation_is_lower_rate he
 
 /-- The matched saving-side contract is observed as the same lower rate. -/
-theorem saving_situation_observed_as_lower_rate {W : ActionFrame}
+theorem saving_situation_observed_as_lower_rate {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
@@ -499,7 +502,7 @@ theorem saving_situation_observed_as_lower_rate {W : ActionFrame}
 
 /-- The no-shock node is distinguishable from the matched lower-rate saving
 observation under the cohort's stated signal classifications. -/
-theorem no_shock_distinguished_from_saving {W : ActionFrame}
+theorem no_shock_distinguished_from_saving {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
@@ -514,7 +517,8 @@ theorem no_shock_distinguished_from_saving {W : ActionFrame}
 the genuine-saving and fiduciary-credit quotes share the lower-rate signal,
 while the enacted natural-rate baseline produces the unchanged-rate signal.
 -/
-theorem observation_signature {W : ActionFrame} {Context Entrepreneur : Type}
+theorem observation_signature {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
@@ -528,7 +532,7 @@ theorem observation_signature {W : ActionFrame} {Context Entrepreneur : Type}
 /-- In the exposed cohort, each saving-side contract's gross rate equals the
 common credit rate: Catallactic clearing derives equality with the credit
 loan's quoted rate. -/
-theorem saving_rate_is_common_credit_rate {W : ActionFrame}
+theorem saving_rate_is_common_credit_rate {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
@@ -542,7 +546,7 @@ theorem saving_rate_is_common_credit_rate {W : ActionFrame}
 /-- Since a shared Catallactic market derives the same observed rate, the
 cohort's signal alone does not let an entrepreneur identify saving versus
 fiduciary expansion. -/
-theorem market_rate_does_not_identify_credit_regime {W : ActionFrame}
+theorem market_rate_does_not_identify_credit_regime {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur) (e : Entrepreneur) :
     ¬ Knows C.observationKnowledge e .genuineSaving
@@ -555,7 +559,7 @@ theorem market_rate_does_not_identify_credit_regime {W : ActionFrame}
 /-- Under the shared policy, the same saving and credit signal selects the
 same plan. This result does not say the plan is available or enacted in the
 saving regime. -/
-theorem saving_signal_selects_credit_plan {W : ActionFrame}
+theorem saving_signal_selects_credit_plan {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
@@ -574,7 +578,8 @@ theorem saving_signal_selects_credit_plan {W : ActionFrame}
 
 /-- Each cohort member's stated credit evidence yields purposeful investment.
 -/
-theorem purposeful_choices {W : ActionFrame} {Context Entrepreneur : Type}
+theorem purposeful_choices {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (_he : e ∈ C.entrepreneurs) :
     PurposefulAct (C.project e).cycle.investment.i
@@ -588,7 +593,7 @@ shared policy selects the same investment under the saving signal, while the
 credit appraisal separately establishes that investment as purposeful in the
 credit scenario. This does not establish saving-regime feasibility or
 execution. -/
-theorem saving_signal_selects_credit_purposeful_plan {W : ActionFrame}
+theorem saving_signal_selects_credit_purposeful_plan {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
@@ -684,7 +689,8 @@ theorem one_unit_shortfall_can_leave_exactly_one_project_unfunded :
 /-- A shared pool tied to the ActionFrame balances of a credit-exposed cohort.
 The stock bound is aggregate accounting after consumer retention; unit
 completion requirements turn zero allocations into blocked projects. -/
-structure SharedInputShortage {W : ActionFrame} {Context Entrepreneur : Type}
+structure SharedInputShortage {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] [DecidableEq W.Agent]
     (C : CreditShockCohort W Context Entrepreneur) where
   next : W.Moment
@@ -724,7 +730,8 @@ structure SharedInputShortage {W : ActionFrame} {Context Entrepreneur : Type}
 
 namespace SharedInputShortage
 
-theorem accessible_after_retention {W : ActionFrame} {Context Entrepreneur : Type}
+theorem accessible_after_retention {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] [DecidableEq W.Agent]
     {C : CreditShockCohort W Context Entrepreneur}
     (S : SharedInputShortage C) :
@@ -733,7 +740,7 @@ theorem accessible_after_retention {W : ActionFrame} {Context Entrepreneur : Typ
     S.gross_supply_is_inventory, S.resourceActors_partition]
   rw [Finset.sum_union S.accessible_consumer_disjoint]
 
-theorem aggregate_holdings_bounded {W : ActionFrame}
+theorem aggregate_holdings_bounded {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur] [DecidableEq W.Agent]
     {C : CreditShockCohort W Context Entrepreneur}
     (S : SharedInputShortage C) :
@@ -757,19 +764,20 @@ theorem aggregate_holdings_bounded {W : ActionFrame}
       intro a ha hnot
       exact Nat.zero_le _
 
-def allocation {W : ActionFrame} {Context Entrepreneur : Type}
+def allocation {W : ActionFrame} [BilateralExchangeFrame W] {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] [DecidableEq W.Agent]
     {C : CreditShockCohort W Context Entrepreneur}
     (S : SharedInputShortage C) : Entrepreneur → ℕ :=
   fun e => W.omega (C.agent e) S.next S.history S.input
 
-def failed {W : ActionFrame} {Context Entrepreneur : Type}
+def failed {W : ActionFrame} [BilateralExchangeFrame W] {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] [DecidableEq W.Agent]
     {C : CreditShockCohort W Context Entrepreneur}
     (S : SharedInputShortage C) : Finset Entrepreneur :=
   ZeroAllocations C.entrepreneurs S.allocation
 
-theorem at_least_minimum_failures {W : ActionFrame} {Context Entrepreneur : Type}
+theorem at_least_minimum_failures {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] [DecidableEq W.Agent]
     {C : CreditShockCohort W Context Entrepreneur}
     (S : SharedInputShortage C) : S.failed.card ≥ S.minimumFailures := by
@@ -777,7 +785,8 @@ theorem at_least_minimum_failures {W : ActionFrame} {Context Entrepreneur : Type
     S.accessibleSupply S.minimumFailures S.supply_shortfall
   exact S.aggregate_holdings_bounded
 
-theorem completion_blocked {W : ActionFrame} {Context Entrepreneur : Type}
+theorem completion_blocked {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] [DecidableEq W.Agent]
     {C : CreditShockCohort W Context Entrepreneur}
     (S : SharedInputShortage C) {e : Entrepreneur}
@@ -801,7 +810,7 @@ theorem completion_blocked {W : ActionFrame} {Context Entrepreneur : Type}
 regret is then derived from that project's separate safe-action, valuation,
 and counterfactual-evaluation evidence. -/
 theorem contextual_regret_for_failed_project
-    {W : ActionFrame} {Context Entrepreneur : Type}
+    {W : ActionFrame} [BilateralExchangeFrame W] {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] [DecidableEq W.Agent]
     {C : CreditShockCohort W Context Entrepreneur}
     (S : SharedInputShortage C) {e : Entrepreneur}
@@ -822,7 +831,8 @@ theorem contextual_regret_for_failed_project
 /-- The shortage mechanism yields a finite cluster of at least
 `minimumFailures` projects with proved cycle conclusions, not just a count of
 projects that lack the shared input. -/
-theorem contextual_regret_cluster {W : ActionFrame} {Context Entrepreneur : Type}
+theorem contextual_regret_cluster {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] [DecidableEq W.Agent]
     {C : CreditShockCohort W Context Entrepreneur}
     (S : SharedInputShortage C) :
@@ -832,7 +842,8 @@ theorem contextual_regret_cluster {W : ActionFrame} {Context Entrepreneur : Type
   exact ⟨S.failed, S.at_least_minimum_failures,
     fun e he => S.contextual_regret_for_failed_project he⟩
 
-theorem at_least_two_regretful {W : ActionFrame} {Context Entrepreneur : Type}
+theorem at_least_two_regretful {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] [DecidableEq W.Agent]
     {C : CreditShockCohort W Context Entrepreneur}
     (S : SharedInputShortage C) :
@@ -845,7 +856,7 @@ theorem at_least_two_regretful {W : ActionFrame} {Context Entrepreneur : Type}
 /-- The shortage result identifies two distinct exposed entrepreneurs, hence
 two different ActionFrame agents, whose projects each satisfy the cycle
 conclusion. -/
-theorem two_distinct_regretful_entrepreneurs {W : ActionFrame}
+theorem two_distinct_regretful_entrepreneurs {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     [DecidableEq W.Agent] {C : CreditShockCohort W Context Entrepreneur}
     (S : SharedInputShortage C) :
@@ -922,7 +933,7 @@ theorem post_cost_strictly_higher {d : ℕ}
 
 /-- The factor-price signal at the bottleneck changes when the response raises
 its upper price bound by a positive amount. -/
-theorem bottleneck_market_signal_changes {W : ActionFrame} {d : ℕ}
+theorem bottleneck_market_signal_changes {W : ActionFrame} [BilateralExchangeFrame W] {d : ℕ}
     (R : CommonFactorPriceResponse d) (factorOf : Fin d → W.Means) :
     R.preBox.marketSignal factorOf R.bottleneck ≠
       R.postBox.marketSignal factorOf R.bottleneck := by
@@ -943,7 +954,8 @@ end CommonFactorPriceResponse
 /-- A cohort price squeeze tied to ActionFrame cash balances and project
 completion costs. The price response is shared; project quantities, buffers,
 and appraisals may differ. -/
-structure PriceSqueezeCohort {W : ActionFrame} {Context Entrepreneur : Type}
+structure PriceSqueezeCohort {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] (C : CreditShockCohort W Context Entrepreneur)
     (d : ℕ) where
   next : W.Moment
@@ -994,7 +1006,8 @@ namespace PriceSqueezeCohort
 
 /-- The same ActionFrame reader distinguishes the pre- and post-response
 bottleneck prices. -/
-theorem bottleneck_price_observable {W : ActionFrame} {Context Entrepreneur : Type}
+theorem bottleneck_price_observable {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] {C : CreditShockCohort W Context Entrepreneur}
     {d : ℕ} (S : PriceSqueezeCohort C d) {e : Entrepreneur}
     (he : e ∈ S.affected) :
@@ -1004,7 +1017,8 @@ theorem bottleneck_price_observable {W : ActionFrame} {Context Entrepreneur : Ty
   rw [S.pre_price_signal_read e he, S.post_price_signal_read e he]
   exact S.response.bottleneck_market_signal_changes S.factorOf
 
-theorem post_cost_unaffordable {W : ActionFrame} {Context Entrepreneur : Type}
+theorem post_cost_unaffordable {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] {C : CreditShockCohort W Context Entrepreneur}
     {d : ℕ} (S : PriceSqueezeCohort C d) {e : Entrepreneur}
     (he : e ∈ S.affected) :
@@ -1016,7 +1030,7 @@ theorem post_cost_unaffordable {W : ActionFrame} {Context Entrepreneur : Type}
 /-- A shared price response makes every member of the specified affected set
 unable to cover its completion bill; hence at least `minimumFailures` are
 unaffordable. -/
-theorem at_least_minimum_failures_unaffordable {W : ActionFrame}
+theorem at_least_minimum_failures_unaffordable {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     {C : CreditShockCohort W Context Entrepreneur} {d : ℕ}
     (S : PriceSqueezeCohort C d) :
@@ -1036,7 +1050,7 @@ defined by having insufficient cash. The concrete sufficient-real-input
 execution is recorded in `fiveProject_sufficient_real_inputs_output_sales_execute`.
 -/
 theorem completion_feasible_with_sufficient_current_cash
-    {W : ActionFrame} (agent : W.Agent) (moment : W.Moment)
+    {W : ActionFrame} [BilateralExchangeFrame W] (agent : W.Agent) (moment : W.Moment)
     (history : W.History) (money : W.Means) (completion : W.Action)
     (cashCost : ℕ)
     (h_contemplated : completion ∈ W.A_cont agent moment history)
@@ -1054,7 +1068,8 @@ theorem completion_feasible_with_sufficient_current_cash
     exact h_cash
   · exact h_other_inputs m hm
 
-theorem completion_blocked {W : ActionFrame} {Context Entrepreneur : Type}
+theorem completion_blocked {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] {C : CreditShockCohort W Context Entrepreneur}
     {d : ℕ} (S : PriceSqueezeCohort C d) {e : Entrepreneur}
     (he : e ∈ S.affected) :
@@ -1070,7 +1085,7 @@ theorem completion_blocked {W : ActionFrame} {Context Entrepreneur : Type}
 cycle's separate safe alternative and valuation evidence then yield regret.
 -/
 theorem contextual_regret_for_affected_project
-    {W : ActionFrame} {Context Entrepreneur : Type}
+    {W : ActionFrame} [BilateralExchangeFrame W] {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] {C : CreditShockCohort W Context Entrepreneur}
     {d : ℕ} (S : PriceSqueezeCohort C d) {e : Entrepreneur}
     (he : e ∈ S.affected) :
@@ -1088,7 +1103,8 @@ theorem contextual_regret_for_affected_project
 
 /-- Every project in the price-squeezed group has its own contextual-regret
 conclusion, so at least the affected cohort size forms a proved cluster. -/
-theorem contextual_regret_cluster {W : ActionFrame} {Context Entrepreneur : Type}
+theorem contextual_regret_cluster {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] {C : CreditShockCohort W Context Entrepreneur}
     {d : ℕ} (S : PriceSqueezeCohort C d) :
     ∃ projects : Finset Entrepreneur,
@@ -1098,7 +1114,8 @@ theorem contextual_regret_cluster {W : ActionFrame} {Context Entrepreneur : Type
   exact ⟨S.affected, S.cluster_size, fun _ he => he,
     fun e he => S.contextual_regret_for_affected_project he⟩
 
-theorem at_least_two_regretful {W : ActionFrame} {Context Entrepreneur : Type}
+theorem at_least_two_regretful {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type}
     [DecidableEq Entrepreneur] {C : CreditShockCohort W Context Entrepreneur}
     {d : ℕ} (S : PriceSqueezeCohort C d) :
     ∃ projects : Finset Entrepreneur,
@@ -1112,7 +1129,7 @@ theorem at_least_two_regretful {W : ActionFrame} {Context Entrepreneur : Type}
 /-- The price-squeeze result identifies two distinct exposed entrepreneurs,
 hence two different ActionFrame agents, with contextual-regret conclusions.
 -/
-theorem two_distinct_regretful_entrepreneurs {W : ActionFrame}
+theorem two_distinct_regretful_entrepreneurs {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     {C : CreditShockCohort W Context Entrepreneur} {d : ℕ}
     (S : PriceSqueezeCohort C d) :

@@ -32,7 +32,7 @@ frame can witness without extending its ActionFrame. -/
 theorem workshop_bilateral_exchange_moment
     (i j : WorkshopAgent) (t : WMoment) (h : WorkshopHist)
     (qA : ℕ) (mA : WorkshopMeans) (qB : ℕ) (mB : WorkshopMeans)
-    (exchange : @BilateralExchange WorkshopActionFrame i j t h qA mA qB mB) :
+    (exchange : BilateralExchange (W := WorkshopActionFrame) i j t h qA mA qB mB) :
     t = .transfer ∨ t = .sale := by
   have ⟨h_offer, h_accept⟩ := bilateral_exchange_enacted_actions
     (W := WorkshopActionFrame) i j t h qA mA qB mB exchange
@@ -52,7 +52,7 @@ at transfer and entrepreneur-to-customer at sale. -/
 theorem workshop_bilateral_exchange_roles
     (i j : WorkshopAgent) (t : WMoment) (h : WorkshopHist)
     (qA : ℕ) (mA : WorkshopMeans) (qB : ℕ) (mB : WorkshopMeans)
-    (exchange : @BilateralExchange WorkshopActionFrame i j t h qA mA qB mB) :
+    (exchange : BilateralExchange (W := WorkshopActionFrame) i j t h qA mA qB mB) :
     (t = .transfer ∧ i = .operator ∧ j = .entrepreneur) ∨
       (t = .sale ∧ i = .entrepreneur ∧ j = .customer) := by
   have ⟨h_offer, _⟩ := bilateral_exchange_enacted_actions
@@ -161,7 +161,7 @@ theorem workshop_repayment_evidence_incompatible
 
 /-- Physical evidence for interpreting an accepted delegation transfer as a
 capital-accumulation step and a later blocked completion. -/
-structure DelegatedTransferCapitalEvidence {W : ActionFrame}
+structure DelegatedTransferCapitalEvidence {W : ActionFrame} [BilateralExchangeFrame W]
     {V : DelegationVocabulary W} {D : AcceptedDelegation V}
     (T : DelegatedInternalTransfer D) where
   postTransfer : W.Moment
@@ -180,7 +180,7 @@ structure DelegatedTransferCapitalEvidence {W : ActionFrame}
 /-- Interpret an accepted internal transfer as the entrepreneur's observed
 capital-formation transition using the bundled physical evidence. -/
 def DelegatedInternalTransfer.toEntrepreneurialCapitalFormation
-    {W : ActionFrame} {V : DelegationVocabulary W}
+    {W : ActionFrame} [BilateralExchangeFrame W] {V : DelegationVocabulary W}
     {D : AcceptedDelegation V} (T : DelegatedInternalTransfer D)
     (E : DelegatedTransferCapitalEvidence T) :
     EntrepreneurialCapitalFormation D.principal D.history T.transferMoment
@@ -201,7 +201,7 @@ def DelegatedInternalTransfer.toEntrepreneurialCapitalFormation
 
 /-- The complementary factor remains absent after the internal transfer. -/
 theorem DelegatedTransferCapitalEvidence.postTransferComplementary
-    {W : ActionFrame} {V : DelegationVocabulary W}
+    {W : ActionFrame} [BilateralExchangeFrame W] {V : DelegationVocabulary W}
     {D : AcceptedDelegation V} (T : DelegatedInternalTransfer D)
     (E : DelegatedTransferCapitalEvidence T) :
     W.omega D.principal E.postTransfer D.history E.complementary = 0 := by
@@ -223,7 +223,7 @@ theorem DelegatedTransferCapitalEvidence.postTransferComplementary
 /-- All evidence for an organized-firm cycle, with the internal transfer,
 downstream market, physical transition, and contextual appraisal tied together
 in one scenario. -/
-structure DelegatedFirmCycleScenario [W : ActionFrame]
+structure DelegatedFirmCycleScenario [W : ActionFrame] [BilateralExchangeFrame W]
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     (Context : Type) where
   delegation : AcceptedDelegation V
@@ -258,7 +258,7 @@ structure DelegatedFirmCycleScenario [W : ActionFrame]
     (W.omega delegation.principal actualMaturity delegation.history)
 
 /-- Named outputs of an organized-firm entrepreneurial cycle. -/
-structure DelegatedFirmCycleConclusion [W : ActionFrame]
+structure DelegatedFirmCycleConclusion [W : ActionFrame] [BilateralExchangeFrame W]
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     {Context : Type}
     (S : DelegatedFirmCycleScenario (W := W) (V := V) (M := M) Context) : Prop where
@@ -286,7 +286,7 @@ general entrepreneur cycle theorem. The three-stage organization network is
 constructed from the same delegation and market witnesses, so the firm's
 internal and external edges remain tied to the cycle evidence. -/
 theorem delegated_firm_cycle_regret
-    [W : ActionFrame] {V : DelegationVocabulary W}
+    [W : ActionFrame] [BilateralExchangeFrame W] {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} {Context : Type}
     (S : DelegatedFirmCycleScenario (W := W) (V := V) (M := M) Context) :
     DelegatedFirmCycleConclusion S := by
@@ -654,9 +654,10 @@ theorem workshop_delegated_firm_cycle_regret :
     actualAdmitted := by
       simpa [workshopCycleDecision, workshopCycleInvestment,
         workshopDelegatedInternalTransfer, AcceptedDelegation.principal,
-        AcceptedDelegation.operator, AcceptedDelegation.history, workshopAcceptedDelegation,
-        workshopProposal, workshopExecution, workshopEntrepreneur,
-        workshopOperator, ActionFrame.Accept] using h_actual
+        AcceptedDelegation.operator, AcceptedDelegation.history,
+        workshopAcceptedDelegation, workshopProposal, workshopExecution,
+        workshopEntrepreneur, workshopOperator,
+        ActionFrame.Accept, BilateralExchangeFrame.Accept] using h_actual
     safeFeasible := by decide
     safeAdmitted := by
       simpa [workshopCycleDecision, workshopDelegatedInternalTransfer,
@@ -680,7 +681,8 @@ theorem workshop_delegated_firm_cycle_regret :
 accepted internal transfer is the entrepreneurial capital step. This result
 explicitly retains the organization-network and market-boundary witnesses,
 then applies the general entrepreneurial theorem to the principal. -/
-structure OperationalFirmCycleScenario [W : ActionFrame] (Context : Type) where
+structure OperationalFirmCycleScenario [W : ActionFrame] [BilateralExchangeFrame W]
+    (Context : Type) where
   actor : W.Agent
   moment : W.Moment
   history : W.History
@@ -741,7 +743,7 @@ structure OperationalFirmCycleScenario [W : ActionFrame] (Context : Type) where
 
 /-- Network, choice, transfer, and contextual-regret witnesses supplied by a
 completed operational-firm cycle scenario. -/
-def OperationalFirmCycleWitness [W : ActionFrame] {Context : Type}
+def OperationalFirmCycleWitness [W : ActionFrame] [BilateralExchangeFrame W] {Context : Type}
     (S : OperationalFirmCycleScenario (W := W) Context) : Prop :=
   ∃ h_principal : @PurposefulAct W S.decision.proposal.principal
       S.decision.proposal.decisionMoment S.decision.proposal.history
@@ -780,13 +782,14 @@ def OperationalFirmCycleWitness [W : ActionFrame] {Context : Type}
           S.decision.compensation.compensationQuantity
           S.decision.compensation.compensationGood) S.safeAction)
 
-structure OperationalFirmCycleConclusion [W : ActionFrame] {Context : Type}
+structure OperationalFirmCycleConclusion [W : ActionFrame] [BilateralExchangeFrame W]
+    {Context : Type}
     (S : OperationalFirmCycleScenario (W := W) Context) : Prop where
   boundary : OperationalFirmBoundaryConclusion S.decision
   firmCycle : OperationalFirmCycleWitness S
 
 theorem operational_firm_cycle_regret
-    [W : ActionFrame] {Context : Type}
+    [W : ActionFrame] [BilateralExchangeFrame W] {Context : Type}
     (S : OperationalFirmCycleScenario (W := W) Context) :
     OperationalFirmCycleConclusion S := by
   let dec := S.decision

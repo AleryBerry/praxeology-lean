@@ -23,8 +23,8 @@ namespace Praxeology
 /-- A finite journal row for a quote delivery on a selected generated history.
 The row stores finite node indices and profile actions; `instantiate` maps
 those entries into the general ActionFrame delivery record. -/
-structure FiniteMessageJournal {W : ActionFrame} {T : FiniteTreeSpec}
-    {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
+structure FiniteMessageJournal {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : FiniteTreeSpec} {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     {good paymentGood : W.Means}
     (S : FiniteEconomySpec W T)
     (R : UnitPriceQuoteRegistry V M good paymentGood)
@@ -64,7 +64,7 @@ namespace FiniteMessageJournal
 record. All economic meaning and purpose obligations remain in the generic
 record; only its node indices and enacted profile actions come from the
 finite scenario. -/
-def instantiate {W : ActionFrame} {T : FiniteTreeSpec}
+def instantiate {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     {good paymentGood : W.Means}
     {S : FiniteEconomySpec W T}
@@ -106,7 +106,7 @@ def instantiate {W : ActionFrame} {T : FiniteTreeSpec}
       _ = P.receive J.source.observer J.recipient J.messageId := J.receive_profile
 
 /-- The compiled quote retains the registered observation's unit price. -/
-theorem price_eq_source {W : ActionFrame} {T : FiniteTreeSpec}
+theorem price_eq_source {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     {good paymentGood : W.Means}
     {S : FiniteEconomySpec W T}
@@ -120,8 +120,8 @@ end FiniteMessageJournal
 /-- A finite quote-envelope journal contains its initial observation and all
 message rows intended for one recipient. Its compiled output is the generic
 ActionFrame price envelope from Organization.lean. -/
-structure FiniteMessageEnvelopeJournal {W : ActionFrame} {T : FiniteTreeSpec}
-    {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
+structure FiniteMessageEnvelopeJournal {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : FiniteTreeSpec} {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     {good paymentGood : W.Means}
     (S : FiniteEconomySpec W T)
     (R : UnitPriceQuoteRegistry V M good paymentGood)
@@ -134,7 +134,7 @@ namespace FiniteMessageEnvelopeJournal
 
 /-- Compile all message rows into ActionFrame delivery witnesses and assemble
 the general price envelope. -/
-def instantiate {W : ActionFrame} {T : FiniteTreeSpec}
+def instantiate {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     {good paymentGood : W.Means}
     {S : FiniteEconomySpec W T}
@@ -151,7 +151,7 @@ def instantiate {W : ActionFrame} {T : FiniteTreeSpec}
 
 /-- Every generated delivery retains the generic purpose, enactment, and
 precedence certificate; adding it can only widen the ActionFrame envelope. -/
-theorem add_widens {W : ActionFrame} {T : FiniteTreeSpec}
+theorem add_widens {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     {good paymentGood : W.Means}
     {S : FiniteEconomySpec W T}

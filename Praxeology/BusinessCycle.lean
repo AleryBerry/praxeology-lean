@@ -91,7 +91,7 @@ namespace Praxeology
 /-- A credit cohort with two distinct borrowers necessarily contains three
 distinct ActionFrame agents: the common lender and both borrowers. This lower
 bound is independent of any particular finite frame. -/
-theorem CreditShockCohort.requires_three_agents {W : ActionFrame}
+theorem CreditShockCohort.requires_three_agents {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e₁ e₂ : Entrepreneur}
@@ -112,6 +112,7 @@ theorem CreditShockCohort.requires_three_agents {W : ActionFrame}
 /-- The cohort's injective borrower map and its separate common lender require
 one more ActionFrame agent than the number of exposed entrepreneurs. -/
 theorem CreditShockCohort.requires_one_more_agent_than_cohort {W : ActionFrame}
+    [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur) :
     C.entrepreneurs.card + 1 ≤ Fintype.card W.Agent := by
@@ -204,7 +205,7 @@ theorem workshop_repayment_evidence_is_incompatible_with_credit_shock_member
 
 /-- A shared-input cluster with at least two regretful projects requires two
 distinct borrowers and their common lender in the underlying ActionFrame. -/
-theorem shared_input_cluster_requires_three_agents {W : ActionFrame}
+theorem shared_input_cluster_requires_three_agents {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     [DecidableEq W.Agent] (C : CreditShockCohort W Context Entrepreneur)
     (S : SharedInputShortage C) : 3 ≤ Fintype.card W.Agent := by
@@ -214,7 +215,7 @@ theorem shared_input_cluster_requires_three_agents {W : ActionFrame}
 
 /-- A price-squeeze cluster likewise requires two distinct borrowers and a
 separate common lender in the underlying ActionFrame. -/
-theorem price_squeeze_cluster_requires_three_agents {W : ActionFrame}
+theorem price_squeeze_cluster_requires_three_agents {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur) {d : ℕ}
     (S : PriceSqueezeCohort C d) : 3 ≤ Fintype.card W.Agent := by

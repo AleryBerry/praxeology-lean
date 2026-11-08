@@ -432,29 +432,6 @@ def finite_model_maturation (i : Fin 2) (α : ModelAction) (t : Fin 4) (h : Fin 
       subst h_enact
       rfl
     }
-  Offer := ModelAction.offer
-  Accept := ModelAction.accept
-  use_means_offer := by intro _ _ _ _ _ _ _; rfl
-  yield_means_offer := by intro _ _ _ _ _ _ _; rfl
-  use_means_accept := by intro _ _ _ _ _ _ _; rfl
-  yield_means_accept := by intro _ _ _ _ _ _ _; rfl
-  offer_inj := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; exact ModelAction.offer.inj h
-  accept_inj := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; exact ModelAction.accept.inj h
-  offer_ne_accept := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; cases h
-  alpha_zero_ne_offer := by intro _ _ _ _ _ _ h; cases h
-  alpha_zero_ne_accept := by intro _ _ _ _ _ _ h; cases h
-  unilateral_offer_noop := by
-    intro i j qA mA qB mB t t' h m h_enact _ _
-    fin_cases i <;> fin_cases t <;> fin_cases h <;>
-      { dsimp [ActionFrame.enacted] at h_enact; cases h_enact }
-  unilateral_accept_noop := by
-    intro j i qA mA qB mB t t' h m h_enact _ _
-    fin_cases j <;> fin_cases t <;> fin_cases h <;>
-      { dsimp [ActionFrame.enacted] at h_enact; cases h_enact }
-  bilateral_transfer_law := by
-    intro i j qA mA qB mB t t' h m _ h_enact _ _
-    fin_cases i <;> fin_cases t <;> fin_cases h <;>
-      { dsimp [ActionFrame.enacted] at h_enact; cases h_enact }
   MinPlausible := fun _ t => { h : Fin 3 | branch_incidence t h }
   tau := fun _ t _ => t
   min_plausible_node_incidence := by
@@ -519,6 +496,8 @@ def finite_model_maturation (i : Fin 2) (α : ModelAction) (t : Fin 4) (h : Fin 
       (subjective_teleological_dominates_iff_teleological_of_universal
         finite_model_requirement (fun _ : ModelEnd => True) (fun _ => trivial) b1 b2).mp h_dom
     exact teleological_bundle_dominates_end_rank_lt b1 b2 h_global
+
+instance : IntertemporalEnds FiniteBranchingModel where
   TimedEnd := ModelEnd.timed
   QuantityEnd := ModelEnd.quantity
   timed_end_inj := by intro _ _ _ _ h; exact ModelEnd.timed.inj h
@@ -1088,6 +1067,14 @@ theorem bilateral_subjective_trade_dominance (i : Fin 2) :
   expected_maturation_mem_future := by
     intro i α t h ht _h_enact
     refine ⟨ht, Or.inl rfl⟩
+  IsTradeAction := fun α =>
+    (∃ i j qA mA qB mB, α = ModelAction.offer i j qA mA qB mB) ∨
+    (∃ j i qA mA qB mB, α = ModelAction.accept j i qA mA qB mB)
+  alpha_zero_not_trade := by
+    intro h
+    rcases h with ⟨i, j, qA, mA, qB, mB, h_eq⟩ | ⟨j, i, qA, mA, qB, mB, h_eq⟩
+    · cases h_eq
+    · cases h_eq
   law_in_re_transition := by
     intro i t t' h α m h_not_tr h_enact h_next
     rcases bilateral_next_moment_cases h_next with
@@ -1126,6 +1113,50 @@ theorem bilateral_subjective_trade_dominance (i : Fin 2) :
         exfalso
         apply h_not_tr
         exact Or.inr ⟨1, 0, 1, 0, 1, 1, rfl⟩
+  MinPlausible := fun _ t => { h : Fin 4 | bilateral_mem_hist t h }
+  tau := fun _ t _ => t
+  min_plausible_node_incidence := by intro _ _ h hh; exact hh
+  tau_centering := by intro _ _ _ _; rfl
+  min_plausible_nonempty := by
+    intro _ t
+    cases t
+    · exact ⟨0, trivial⟩
+    · exact ⟨0, rfl⟩
+    · exact ⟨1, rfl⟩
+    · exact ⟨2, rfl⟩
+    · exact ⟨3, rfl⟩
+  requirement := bilateral_requirement
+  ValuedEnd := fun _ _ _ _ => True
+  valued_end_bundle_invariant := by intro _ _ _ _ _ _ _; rfl
+  OutcomeOf := fun _ _ _ _ _ => BilateralEnd.baseline
+  ExpectedMaturation := fun _ _ t _ => t
+  End_of := fun _ _ _ _ => BilateralEnd.baseline
+  End_of_bundle_invariant := by intro _ _ _ _ _ _ _; rfl
+  Preference := fun _ _ _ e1 e2 => bilateral_end_rank e2 < bilateral_end_rank e1
+  Preference_bundle_invariant := by intro _ _ _ _ _ _; rfl
+  pref_asymm := by intro _ _ _ _ _ h1 h2; exact Nat.lt_asymm h1 h2
+  doxastic_sure_thing_bridge := by
+    intro i α β t h _ _ ⟨h', _, h_pref⟩
+    exact h_pref
+  doxastic_plausible_support := by
+    intro i α β t h _ h_pref
+    have ⟨h_pl, hh_pl⟩ : ∃ h_pl, bilateral_mem_hist t h_pl := by
+      cases t
+      · exact ⟨0, trivial⟩
+      · exact ⟨0, rfl⟩
+      · exact ⟨1, rfl⟩
+      · exact ⟨2, rfl⟩
+      · exact ⟨3, rfl⟩
+    exact ⟨h_pl, hh_pl, h_pref⟩
+  BundleEnd := BilateralEnd.bundle
+  teleological_bundle_dominance_induces_preference := by
+    intro _ _ _ b1 b2 h_dom
+    have h_global : TeleologicalBundleDominates bilateral_requirement b1 b2 :=
+      (subjective_teleological_dominates_iff_teleological_of_universal
+        bilateral_requirement (fun _ : BilateralEnd => True) (fun _ => trivial) b1 b2).mp h_dom
+    exact bilateral_teleological_bundle_dominates_end_rank_lt b1 b2 h_global
+
+instance : BilateralExchangeFrame BilateralTradeActionFrame where
   Offer := ModelAction.offer
   Accept := ModelAction.accept
   use_means_offer := by intro _ _ _ _ _ _ _; rfl
@@ -1188,48 +1219,9 @@ theorem bilateral_subjective_trade_dominance (i : Fin 2) :
         fin_cases m <;> decide
       · dsimp [bilateral_enacted] at h_enact_i; cases h_enact_i
       · exact (h_ne rfl).elim
-  MinPlausible := fun _ t => { h : Fin 4 | bilateral_mem_hist t h }
-  tau := fun _ t _ => t
-  min_plausible_node_incidence := by intro _ _ h hh; exact hh
-  tau_centering := by intro _ _ _ _; rfl
-  min_plausible_nonempty := by
-    intro _ t
-    cases t
-    · exact ⟨0, trivial⟩
-    · exact ⟨0, rfl⟩
-    · exact ⟨1, rfl⟩
-    · exact ⟨2, rfl⟩
-    · exact ⟨3, rfl⟩
-  requirement := bilateral_requirement
-  ValuedEnd := fun _ _ _ _ => True
-  valued_end_bundle_invariant := by intro _ _ _ _ _ _ _; rfl
-  OutcomeOf := fun _ _ _ _ _ => BilateralEnd.baseline
-  ExpectedMaturation := fun _ _ t _ => t
-  End_of := fun _ _ _ _ => BilateralEnd.baseline
-  End_of_bundle_invariant := by intro _ _ _ _ _ _ _; rfl
-  Preference := fun _ _ _ e1 e2 => bilateral_end_rank e2 < bilateral_end_rank e1
-  Preference_bundle_invariant := by intro _ _ _ _ _ _; rfl
-  pref_asymm := by intro _ _ _ _ _ h1 h2; exact Nat.lt_asymm h1 h2
-  doxastic_sure_thing_bridge := by
-    intro i α β t h _ _ ⟨h', _, h_pref⟩
-    exact h_pref
-  doxastic_plausible_support := by
-    intro i α β t h _ h_pref
-    have ⟨h_pl, hh_pl⟩ : ∃ h_pl, bilateral_mem_hist t h_pl := by
-      cases t
-      · exact ⟨0, trivial⟩
-      · exact ⟨0, rfl⟩
-      · exact ⟨1, rfl⟩
-      · exact ⟨2, rfl⟩
-      · exact ⟨3, rfl⟩
-    exact ⟨h_pl, hh_pl, h_pref⟩
-  BundleEnd := BilateralEnd.bundle
-  teleological_bundle_dominance_induces_preference := by
-    intro _ _ _ b1 b2 h_dom
-    have h_global : TeleologicalBundleDominates bilateral_requirement b1 b2 :=
-      (subjective_teleological_dominates_iff_teleological_of_universal
-        bilateral_requirement (fun _ : BilateralEnd => True) (fun _ => trivial) b1 b2).mp h_dom
-    exact bilateral_teleological_bundle_dominates_end_rank_lt b1 b2 h_global
+  is_trade_action_def := by intro α; rfl
+
+instance : IntertemporalEnds BilateralTradeActionFrame where
   TimedEnd := BilateralEnd.timed
   QuantityEnd := BilateralEnd.quantity
   timed_end_inj := by intro _ _ _ _ h; exact BilateralEnd.timed.inj h
@@ -1297,6 +1289,77 @@ theorem bilateral_subjective_trade_dominance (i : Fin 2) :
     teleological_bundle_dominance_induces_preference := by
       intro i t h b1 b2 hdom
       exact hdom }
+
+instance : BilateralExchangeFrame SubjectiveBilateralTradeActionFrame where
+  Offer := ModelAction.offer
+  Accept := ModelAction.accept
+  use_means_offer := by intro _ _ _ _ _ _ _; rfl
+  yield_means_offer := by intro _ _ _ _ _ _ _; rfl
+  use_means_accept := by intro _ _ _ _ _ _ _; rfl
+  yield_means_accept := by intro _ _ _ _ _ _ _; rfl
+  offer_inj := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; exact ModelAction.offer.inj h
+  accept_inj := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; exact ModelAction.accept.inj h
+  offer_ne_accept := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; cases h
+  alpha_zero_ne_offer := by intro _ _ _ _ _ _ h; cases h
+  alpha_zero_ne_accept := by intro _ _ _ _ _ _ h; cases h
+  unilateral_offer_noop := by
+    intro i j qA mA qB mB t t' h m h_enact h_not_acc h_next
+    rcases bilateral_next_moment_cases h_next with
+      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩
+    · fin_cases i <;> { dsimp [bilateral_enacted] at h_enact; cases h_enact }
+    · fin_cases i
+      · dsimp [bilateral_enacted] at h_enact
+        cases h_enact
+        fin_cases m <;> decide
+      · dsimp [bilateral_enacted] at h_enact; cases h_enact
+    · fin_cases i <;> { dsimp [bilateral_enacted] at h_enact; cases h_enact }
+    · fin_cases i
+      · dsimp [bilateral_enacted] at h_enact
+        cases h_enact
+        exfalso
+        apply h_not_acc
+        decide
+      · dsimp [bilateral_enacted] at h_enact; cases h_enact
+  unilateral_accept_noop := by
+    intro j i qA mA qB mB t t' h m h_enact h_not_off h_next
+    rcases bilateral_next_moment_cases h_next with
+      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩
+    · fin_cases j <;> { dsimp [bilateral_enacted] at h_enact; cases h_enact }
+    · fin_cases j <;> { dsimp [bilateral_enacted] at h_enact; cases h_enact }
+    · fin_cases j
+      · dsimp [bilateral_enacted] at h_enact; cases h_enact
+      · dsimp [bilateral_enacted] at h_enact
+        cases h_enact
+        fin_cases m <;> decide
+    · fin_cases j
+      · dsimp [bilateral_enacted] at h_enact; cases h_enact
+      · dsimp [bilateral_enacted] at h_enact
+        cases h_enact
+        exfalso
+        apply h_not_off
+        decide
+  bilateral_transfer_law := by
+    intro i j qA mA qB mB t t' h m h_ne h_enact_i h_enact_j h_next
+    rcases bilateral_next_moment_cases h_next with
+      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩
+    · fin_cases i <;> { dsimp [bilateral_enacted] at h_enact_i; cases h_enact_i }
+    · fin_cases j <;> { dsimp [bilateral_enacted] at h_enact_j; cases h_enact_j }
+    · fin_cases i <;> { dsimp [bilateral_enacted] at h_enact_i; cases h_enact_i }
+    · fin_cases i <;> fin_cases j
+      · exact (h_ne rfl).elim
+      · dsimp [bilateral_enacted] at h_enact_i h_enact_j
+        cases h_enact_i
+        cases h_enact_j
+        fin_cases m <;> decide
+      · dsimp [bilateral_enacted] at h_enact_i; cases h_enact_i
+      · exact (h_ne rfl).elim
+  is_trade_action_def := by intro α; rfl
+
+instance : IntertemporalEnds SubjectiveBilateralTradeActionFrame where
+  TimedEnd := BilateralEnd.timed
+  QuantityEnd := BilateralEnd.quantity
+  timed_end_inj := by intro _ _ _ _ h; exact BilateralEnd.timed.inj h
+  quantity_end_inj := by intro _ _ _ _ h; exact BilateralEnd.quantity.inj h
 
 /-- The agents' actions can be selected independently at the root. -/
 theorem bilateral_trade_model_stit_independent :

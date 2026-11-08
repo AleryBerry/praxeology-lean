@@ -20,7 +20,7 @@ parties' purposeful-action proofs.
 namespace Praxeology
 namespace CreditLifecycleTree
 
-local instance physicalSettlementActionFrame : ActionFrame := creditLifecycleActionFrame
+attribute [local instance] creditLifecycleActionFrame
 
 /-- Matched advance actions on the main lifecycle history, without a
 purposefulness certificate. -/

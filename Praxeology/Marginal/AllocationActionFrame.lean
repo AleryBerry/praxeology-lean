@@ -31,8 +31,6 @@ abbrev Allocation := Finset Use
 inductive Action where
   | idle : Action
   | allocate : Allocation → Action
-  | offer (i j : Agent) (qA : ℕ) (mA : Means) (qB : ℕ) (mB : Means) : Action
-  | accept (j i : Agent) (qA : ℕ) (mA : Means) (qB : ℕ) (mB : Means) : Action
   deriving DecidableEq, Inhabited
 
 def stock : Agent → ℕ
@@ -47,14 +45,10 @@ def allocationScore (S : Allocation) : ℕ :=
 def actionUse : Action → Means → ℕ
   | .idle, _ => 0
   | .allocate S, _ => S.card
-  | .offer _ _ qA mA _ _, m => if m = mA then qA else 0
-  | .accept _ _ _ _ qB mB, m => if m = mB then qB else 0
 
 def actionYield : Action → Means → ℕ
   | .idle, _ => 0
   | .allocate _, _ => 0
-  | .offer _ _ _ _ qB mB, m => if m = mB then qB else 0
-  | .accept _ _ qA mA _ _, m => if m = mA then qA else 0
 
 def allocationMenu : Finset Action :=
   insert .idle (Finset.univ.image Action.allocate)
@@ -118,8 +112,6 @@ def profileMoment (h : History) : Moment := some h
 def endOfAction : Action → End
   | .idle => .allocation ∅
   | .allocate S => .allocation S
-  | .offer .. => .baseline
-  | .accept .. => .baseline
 
 def preference (_i : Agent) (_t : Moment) (_h : History) (e₁ e₂ : End) : Prop :=
   endScore e₂ < endScore e₁
@@ -145,15 +137,6 @@ def branchSelection (i : Agent) (t : Moment) (a : Action) (h : History) : Histor
   if t = none then
     if ha : a ∈ feasibleMenu i then updateHistory i a h ha else h
   else h
-
-private theorem mem_allocationMenu_not_trade (a : Action) (ha : a ∈ allocationMenu)
-    (htrade : (∃ i j qA mA qB mB, a = Action.offer i j qA mA qB mB) ∨
-      (∃ j i qA mA qB mB, a = Action.accept j i qA mA qB mB)) : False := by
-  simp only [allocationMenu, Finset.mem_insert, Finset.mem_image, Finset.mem_univ,
-    true_and] at ha
-  rcases ha with rfl | ⟨S, rfl⟩
-  · rcases htrade with ⟨i, j, qA, mA, qB, mB, h⟩ | ⟨j, i, qA, mA, qB, mB, h⟩ <;> cases h
-  · rcases htrade with ⟨i, j, qA, mA, qB, mB, h⟩ | ⟨j, i, qA, mA, qB, mB, h⟩ <;> cases h
 
 private theorem feasibleMenu_spec (i : Agent) (a : Action) :
     a ∈ feasibleMenu i ↔ a ∈ allocationMenu ∧ ∀ m, actionUse a m ≤ stock i := by
@@ -370,25 +353,8 @@ private theorem next_is_root_leaf {t t' : Moment} {h : History}
         dite_eq_left hα']
       fin_cases i <;> fin_cases j <;> simp_all
     | some h₀ => rfl
-  Offer := Action.offer
-  Accept := Action.accept
-  use_means_offer := by intros; rfl
-  yield_means_offer := by intros; rfl
-  use_means_accept := by intros; rfl
-  yield_means_accept := by intros; rfl
-  offer_inj := by
-    intro i₁ j₁ qA₁ mA₁ qB₁ mB₁ i₂ j₂ qA₂ mA₂ qB₂ mB₂ h
-    cases h
-    exact ⟨rfl, rfl, rfl, rfl, rfl, rfl⟩
-  accept_inj := by
-    intro j₁ i₁ qA₁ mA₁ qB₁ mB₁ j₂ i₂ qA₂ mA₂ qB₂ mB₂ h
-    cases h
-    exact ⟨rfl, rfl, rfl, rfl, rfl, rfl⟩
-  offer_ne_accept := by intros i j qA mA qB mB j' i' qA' mA' qB' mB' h; cases h
-  alpha_zero_ne_offer := by intros i j qA mA qB mB h; cases h
-  alpha_zero_ne_accept := by intros j i qA mA qB mB h; cases h
   law_in_re_transition := by
-    intro i t t' h a m hnontrade hen hnext
+    intro i t t' h a m _hnontrade hen hnext
     have ⟨ht, ht'⟩ := next_is_root_leaf hnext
     subst t
     subst t'
@@ -416,52 +382,6 @@ private theorem next_is_root_leaf {t t' : Moment} {h : History}
       rw [hact]
       simp [actionUse, actionYield]
       omega
-    | offer i' j qA mA qB mB =>
-      have htrade : (∃ i₀ j₀ qA₀ mA₀ qB₀ mB₀,
-          Action.offer i' j qA mA qB mB = Action.offer i₀ j₀ qA₀ mA₀ qB₀ mB₀) :=
-        ⟨i', j, qA, mA, qB, mB, rfl⟩
-      exact False.elim (hnontrade (Or.inl htrade))
-    | accept j i' qA mA qB mB =>
-      have htrade : (∃ j₀ i₀ qA₀ mA₀ qB₀ mB₀,
-          Action.accept j i' qA mA qB mB = Action.accept j₀ i₀ qA₀ mA₀ qB₀ mB₀) :=
-        ⟨j, i', qA, mA, qB, mB, rfl⟩
-      exact False.elim (hnontrade (Or.inr htrade))
-  unilateral_offer_noop := by
-    intro i j qA mA qB mB t t' h m hOffer hNotAccept hnext
-    cases t with
-    | none =>
-      change profileAction i h.1 = Action.offer i j qA mA qB mB at hOffer
-      have hmem : profileAction i h.1 ∈ allocationMenu :=
-        (feasibleMenu_spec i _).mp (profileAction_feasible i h) |>.1
-      exact False.elim (mem_allocationMenu_not_trade _ hmem
-        (Or.inl ⟨i,j,qA,mA,qB,mB,hOffer⟩))
-    | some h' =>
-      change Action.idle = Action.offer i j qA mA qB mB at hOffer
-      cases hOffer
-  unilateral_accept_noop := by
-    intro j i qA mA qB mB t t' h m hAccept hNotOffer hnext
-    cases t with
-    | none =>
-      change profileAction j h.1 = Action.accept j i qA mA qB mB at hAccept
-      have hmem : profileAction j h.1 ∈ allocationMenu :=
-        (feasibleMenu_spec j _).mp (profileAction_feasible j h) |>.1
-      exact False.elim (mem_allocationMenu_not_trade _ hmem
-        (Or.inr ⟨j,i,qA,mA,qB,mB,hAccept⟩))
-    | some h' =>
-      change Action.idle = Action.accept j i qA mA qB mB at hAccept
-      cases hAccept
-  bilateral_transfer_law := by
-    intro i j qA mA qB mB t t' h m hij hOffer hAccept hnext
-    cases t with
-    | none =>
-      change profileAction i h.1 = Action.offer i j qA mA qB mB at hOffer
-      have hmem : profileAction i h.1 ∈ allocationMenu :=
-        (feasibleMenu_spec i _).mp (profileAction_feasible i h) |>.1
-      exact False.elim (mem_allocationMenu_not_trade _ hmem
-        (Or.inl ⟨i,j,qA,mA,qB,mB,hOffer⟩))
-    | some h' =>
-      change Action.idle = Action.offer i j qA mA qB mB at hOffer
-      cases hOffer
   MinPlausible := fun _ t => {plausibleHistory t}
   min_plausible_nonempty := by intro i t; exact ⟨plausibleHistory t, by simp⟩
   min_plausible_node_incidence := by
@@ -515,8 +435,12 @@ private theorem next_is_root_leaf {t t' : Moment} {h : History}
     have hlt : b₂ 0 < b₁ 0 := by omega
     change endScore (End.bundle b₂) < endScore (End.bundle b₁)
     simpa [endScore] using Nat.mul_lt_mul_of_pos_left hlt (by decide : 0 < 10)
-  TimedEnd := End.timed
-  QuantityEnd := End.quantity
+
+end AllocationActionFrame
+
+instance : IntertemporalEnds AllocationActionFrame.allocationChoiceFrame where
+  TimedEnd := AllocationActionFrame.End.timed
+  QuantityEnd := AllocationActionFrame.End.quantity
   timed_end_inj := by
     intro e₁ τ₁ e₂ τ₂ h
     cases h
@@ -525,8 +449,6 @@ private theorem next_is_root_leaf {t t' : Moment} {h : History}
     intro m₁ q₁ m₂ q₂ h
     cases h
     exact ⟨rfl, rfl⟩
-
-end AllocationActionFrame
 
 def allocationFrameTechnology :
     HomogeneousUseTechnology (W := AllocationActionFrame.allocationChoiceFrame)
@@ -603,8 +525,6 @@ def allocationFrameRealize (S : AllocationActionFrame.Allocation) :
 def allocationFrameOfAction : AllocationActionFrame.Action → AllocationActionFrame.Allocation
   | AllocationActionFrame.Action.idle => ∅
   | AllocationActionFrame.Action.allocate S => S
-  | AllocationActionFrame.Action.offer .. => ∅
-  | AllocationActionFrame.Action.accept .. => ∅
 
 def allocationFrameStockedContext (i : AllocationActionFrame.Agent)
     (h : AllocationActionFrame.History) :

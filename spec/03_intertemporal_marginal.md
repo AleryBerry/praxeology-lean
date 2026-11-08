@@ -55,11 +55,11 @@ do not encode every subset allocation, so it cannot yet instantiate
 
 The separate [`AllocationActionFrame`](../Praxeology/Marginal/AllocationActionFrame.lean)
 does provide a complete menu and enacted purposeful choices inside an
-ActionFrame. [`allocationFrame_comparative_stock_witness`](../Praxeology/Marginal/AllocationActionFrame.lean#L812)
+ActionFrame. [`allocationFrame_comparative_stock_witness`](../Praxeology/Marginal/AllocationActionFrame.lean#L732)
 uses the same three-use technology and ordinal ranking at stocks one and two;
 the agents purposefully select `{0}` and `{0,1}`, and the next use is strictly
 lower ranked. The companion theorem
-[`allocationFrame_prefix_has_purposeful_execution`](../Praxeology/Marginal/AllocationActionFrame.lean#L859)
+[`allocationFrame_prefix_has_purposeful_execution`](../Praxeology/Marginal/AllocationActionFrame.lean#L779)
 constructs a realized history for either agent's ranked prefix.
 
 The finite allocation model also proves the q=2 capacity and purposeful-choice
@@ -114,13 +114,13 @@ not a theorem that the remainder has no economic use in every technology.
 
 ## 4. Time preference and interest
 
-[`causal_enacted_consumption_demonstrates_nonneg_time_pref`](../Praxeology/Marginal.lean#L648)
+[`causal_enacted_consumption_demonstrates_nonneg_time_pref`](../Praxeology/Marginal.lean#L654)
 derives that, when a
 later same-end action remains feasible in the modeled open horizon, purposeful
 enactment rules out preferring that later outcome to the enacted outcome. It
 does not derive strict preference from purposefulness alone.
 
-[`strict_time_preference_from_distinct_end_dominance`](../Praxeology/Marginal.lean#L703)
+[`strict_time_preference_from_distinct_end_dominance`](../Praxeology/Marginal.lean#L709)
 has stronger premises. It
 assumes the enacted action dominates every feasible action with a distinct
 outcome (DistinctEndDominantAct), an available later deferral, and injective
@@ -128,8 +128,8 @@ timed ends. Under those assumptions it derives strict preference for the
 nearer dated end. It is not a universal theorem about every act or every
 agent.
 
-[`positive_originary_interest`](../Praxeology/Marginal.lean#L765) and
-[`purposeful_positive_originary_interest`](../Praxeology/Marginal.lean#L797)
+[`positive_originary_interest`](../Praxeology/Marginal.lean#L776) and
+[`purposeful_positive_originary_interest`](../Praxeology/Marginal.lean#L808)
 derive a larger future repayment quantity in the specified exchange setup.
 Their conclusions depend on strict time preference, an accepted exchange,
 synchrony monotonicity, transitivity, or purposeful choice with a feasible
@@ -138,7 +138,7 @@ positive nominal rate in every monetary institution.
 
 ## 5. Seasonal saving and production
 
-[`winter_security_preference_consequences_of_explicit_premises`](../Praxeology/Marginal.lean#L1150)
+[`winter_security_preference_consequences_of_explicit_premises`](../Praxeology/Marginal.lean#L1163)
 assumes the relevant dated preferences and their ordering. It packages those
 premises into a consistency result; it does not derive seasonal saving from
 the ActionFrame axioms or establish that all saving expresses positive time

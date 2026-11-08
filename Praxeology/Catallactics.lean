@@ -868,6 +868,16 @@ theorem purposeful_action_beats_conditional_baseline
 def BilateralExchangeAction (i j : Agent) (t : Moment) (h : History) (α_i α_j : Action) : Prop :=
   i ≠ j ∧ PurposefulAct i t h α_i ∧ α_i ≠ α₀ ∧ PurposefulAct j t h α_j ∧ α_j ≠ α₀
 
+/-- Both exchange actions are active purposeful actions. -/
+theorem bilateral_exchange_active (i j : Agent) (t : Moment) (h : History) (α_i α_j : Action)
+    (h_act : BilateralExchangeAction i j t h α_i α_j) :
+    ActivePurposefulAct i t h α_i ∧ ActivePurposefulAct j t h α_j := by
+  have ⟨_, hi, hne_i, hj, hne_j⟩ := h_act
+  exact ⟨(active_purposeful_act_iff_ne_alpha_zero i t h α_i).mpr ⟨hi, hne_i⟩,
+         (active_purposeful_act_iff_ne_alpha_zero j t h α_j).mpr ⟨hj, hne_j⟩⟩
+
+variable [BilateralExchangeFrame W]
+
 /-- Action of offering an exchange:
     agent i offers qA units of mA to agent j in exchange for qB units of mB. -/
 abbrev Offer (i j : Agent) (qA : ℕ) (mA : Means) (qB : ℕ) (mB : Means) : Action :=
@@ -949,14 +959,6 @@ structure BilateralTradeConclusion (T : BilateralTradeTerms) : Prop where
     (End_of T.seller T.offer T.moment T.history) (End_of T.seller α₀ T.moment T.history)
   buyerPrefers : Preference T.buyer T.moment T.history
     (End_of T.buyer T.accept T.moment T.history) (End_of T.buyer α₀ T.moment T.history)
-
-/-- Both exchange actions are active purposeful actions. -/
-theorem bilateral_exchange_active (i j : Agent) (t : Moment) (h : History) (α_i α_j : Action)
-    (h_act : BilateralExchangeAction i j t h α_i α_j) :
-    ActivePurposefulAct i t h α_i ∧ ActivePurposefulAct j t h α_j := by
-  have ⟨_, hi, hne_i, hj, hne_j⟩ := h_act
-  exact ⟨(active_purposeful_act_iff_ne_alpha_zero i t h α_i).mpr ⟨hi, hne_i⟩,
-         (active_purposeful_act_iff_ne_alpha_zero j t h α_j).mpr ⟨hj, hne_j⟩⟩
 
 
 theorem double_inequality_of_exchange (i j : Agent) (t : Moment) (h : History)
@@ -1141,6 +1143,8 @@ end BilateralActionFrameCatallactics
 section SubjectiveBilateralTradeWitness
 
 @[reducible] local instance : ActionFrame := SubjectiveBilateralTradeActionFrame
+@[reducible] local instance : BilateralExchangeFrame SubjectiveBilateralTradeActionFrame :=
+  inferInstance
 
 abbrev tradeAgent0 : Fin 2 := 0
 abbrev tradeAgent1 : Fin 2 := 1
@@ -2571,6 +2575,8 @@ theorem multilateral_extra_marginal_deterrence_of_actions
   · intro s hs hact
     exact h_seller_unease s hs hact.2
 
+
+variable [BilateralExchangeFrame W]
 
 /-- An observed clearing event: the selected seller offers the good for money,
 the selected buyer accepts, extra-marginal appraisals are supplied, and all

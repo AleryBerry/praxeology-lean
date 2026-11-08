@@ -180,8 +180,8 @@ theorem DelegationExecution.task_in_accepted_scope {W : ActionFrame}
   X.task_in_scope
 
 
-structure DelegationCompensationEvidence {W : ActionFrame} {V : DelegationVocabulary W}
-    (P : DelegationProposal V) (X : DelegationExecution P) where
+structure DelegationCompensationEvidence {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W} (P : DelegationProposal V) (X : DelegationExecution P) where
   transferMoment : W.Moment
   deliveredQuantity : ℕ
   deliveredGood : W.Means
@@ -207,7 +207,7 @@ structure DelegationCompensationEvidence {W : ActionFrame} {V : DelegationVocabu
   no_opening_delivery_stock : W.omega P.operator X.workMoment P.history deliveredGood = 0
   task_does_not_consume_delivered_good : W.use_means X.task deliveredGood = 0
   delivered_from_task : deliveredQuantity ≤ W.yield_means X.task deliveredGood
-  exchange : @BilateralExchange W P.operator P.principal transferMoment P.history
+  exchange : BilateralExchange (W := W) P.operator P.principal transferMoment P.history
     deliveredQuantity deliveredGood compensationQuantity compensationGood
   compensation_matches_contract : compensationQuantity = P.compensationQuantity ∧
     compensationGood = P.compensationMeans
@@ -219,7 +219,7 @@ structure DelegationCompensationEvidence {W : ActionFrame} {V : DelegationVocabu
 
 
 theorem DelegationCompensationEvidence.delivered_stock_from_task
-    {W : ActionFrame} {V : DelegationVocabulary W}
+    {W : ActionFrame} [BilateralExchangeFrame W] {V : DelegationVocabulary W}
     {P : DelegationProposal V} {X : DelegationExecution P}
     (E : DelegationCompensationEvidence P X) :
     E.deliveredQuantity ≤ W.omega P.operator E.transferMoment P.history E.deliveredGood := by
@@ -232,7 +232,8 @@ theorem DelegationCompensationEvidence.delivered_stock_from_task
   exact E.delivered_from_task
 
 
-structure DelegatedInternalTransfer {W : ActionFrame} {V : DelegationVocabulary W}
+structure DelegatedInternalTransfer {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     (D : AcceptedDelegation V) where
   transferMoment : W.Moment
   qA : ℕ
@@ -259,7 +260,7 @@ structure DelegatedInternalTransfer {W : ActionFrame} {V : DelegationVocabulary 
   task_does_not_consume_delivered_good : W.use_means D.task mA = 0
   produced_delivery : qA ≤ W.yield_means D.task mA
   delivered_stock_at_transfer : qA ≤ W.omega D.operator transferMoment D.history mA
-  trade : @BilateralExchange W D.operator D.principal transferMoment D.history qA mA qB mB
+  trade : BilateralExchange (W := W) D.operator D.principal transferMoment D.history qA mA qB mB
   compensation_settled : qB = D.proposal.compensationQuantity ∧
     mB = D.proposal.compensationMeans
   terms_authorized : V.authorizesTerms D.assignment
@@ -270,7 +271,7 @@ structure DelegatedInternalTransfer {W : ActionFrame} {V : DelegationVocabulary 
 accepted from the operator. The successor moment is supplied explicitly
 because an exchange at `transferMoment` changes stocks at the next moment. -/
 theorem DelegatedInternalTransfer.principal_receives_delivered_good
-    {W : ActionFrame} {V : DelegationVocabulary W}
+    {W : ActionFrame} [BilateralExchangeFrame W] {V : DelegationVocabulary W}
     {D : AcceptedDelegation V} (T : DelegatedInternalTransfer D)
     (postTransfer : W.Moment)
     (h_next : IsNextMoment W.Precedence W.mem_hist T.transferMoment
@@ -285,7 +286,8 @@ theorem DelegatedInternalTransfer.principal_receives_delivered_good
   exact hflow.2.1
 
 
-def DelegatedInternalTransfer.ofEvidence {W : ActionFrame} {V : DelegationVocabulary W}
+def DelegatedInternalTransfer.ofEvidence {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     (P : DelegationProposal V) (X : DelegationExecution P)
     (hprincipal : @PurposefulAct W P.principal P.decisionMoment P.history P.assignment)
     (hinstruction : @PurposefulAct W P.principal X.instructionMoment P.history X.instruction)
@@ -327,7 +329,8 @@ structure GovernanceRole {W : ActionFrame} (V : DelegationVocabulary W) where
         D.principal = principal ∧ D.operator = actor ∧ decision ∈ D.proposal.taskScope
 
 
-structure IndependentMarketInterface {W : ActionFrame} (V : DelegationVocabulary W)
+structure IndependentMarketInterface {W : ActionFrame} [BilateralExchangeFrame W]
+    (V : DelegationVocabulary W)
     (M : MarketBargainingMeaning W) where
   seller : W.Agent
   buyer : W.Agent
@@ -347,12 +350,13 @@ structure IndependentMarketInterface {W : ActionFrame} (V : DelegationVocabulary
   buyer_role_actor : buyerRole.actor = buyer
   buyer_role_principal : buyerRole.principal = buyerPrincipal
   buyer_role_decision : buyerRole.decision = W.Accept buyer seller qA mA qB mB
-  exchange : @BilateralExchange W seller buyer moment history qA mA qB mB
+  exchange : BilateralExchange (W := W) seller buyer moment history qA mA qB mB
   principals_distinct : sellerPrincipal ≠ buyerPrincipal
   independently_governed : M.independentGovernance sellerPrincipal buyerPrincipal moment history
 
 
-structure ObservedUnitPriceRecord {W : ActionFrame} (V : DelegationVocabulary W)
+structure ObservedUnitPriceRecord {W : ActionFrame} [BilateralExchangeFrame W]
+    (V : DelegationVocabulary W)
     (M : MarketBargainingMeaning W) (observer : W.Agent) (good paymentGood : W.Means) where
   transaction : IndependentMarketInterface V M
   observer_is_party : observer = transaction.sellerPrincipal ∨
@@ -362,19 +366,22 @@ structure ObservedUnitPriceRecord {W : ActionFrame} (V : DelegationVocabulary W)
   unit_quantity : transaction.qA = 1
 
 /-- The observed unit price is the payment quantity in the matched transaction. -/
-def ObservedUnitPriceRecord.price {W : ActionFrame} {V : DelegationVocabulary W}
+def ObservedUnitPriceRecord.price {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} {observer : W.Agent} {good paymentGood : W.Means}
     (Q : ObservedUnitPriceRecord V M observer good paymentGood) : ℕ := Q.transaction.qB
 
 /-- A registered price observation that may be named by a communication event. -/
-structure UnitPriceQuoteSource {W : ActionFrame} (V : DelegationVocabulary W)
+structure UnitPriceQuoteSource {W : ActionFrame} [BilateralExchangeFrame W]
+    (V : DelegationVocabulary W)
     (M : MarketBargainingMeaning W) (good paymentGood : W.Means) where
   observer : W.Agent
   record : ObservedUnitPriceRecord V M observer good paymentGood
 
 /-- A finite registry maps each message identifier to the source observation
 whose transaction determines the quoted price. -/
-structure UnitPriceQuoteRegistry {W : ActionFrame} (V : DelegationVocabulary W)
+structure UnitPriceQuoteRegistry {W : ActionFrame} [BilateralExchangeFrame W]
+    (V : DelegationVocabulary W)
     (M : MarketBargainingMeaning W) (good paymentGood : W.Means) where
   MessageId : Type
   [instFintypeMessageId : Fintype MessageId]
@@ -400,7 +407,8 @@ structure UnitPriceMessageProtocol {W : ActionFrame} (MessageId : Type) where
 /-- A quote is delivered only when its registered source transaction is
 observed by a party, the source is settled, and purposeful send/receive actions
 occur on the same history before the recipient's decision. -/
-structure DeliveredUnitPriceRecord {W : ActionFrame} {V : DelegationVocabulary W}
+structure DeliveredUnitPriceRecord {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} {good paymentGood : W.Means}
     (R : UnitPriceQuoteRegistry V M good paymentGood)
     (P : UnitPriceMessageProtocol R.MessageId) where
@@ -427,7 +435,8 @@ structure DeliveredUnitPriceRecord {W : ActionFrame} {V : DelegationVocabulary W
     (P.receive source.observer recipient messageId)
 
 /-- The delivered price is read from its registered source transaction. -/
-def DeliveredUnitPriceRecord.price {W : ActionFrame} {V : DelegationVocabulary W}
+def DeliveredUnitPriceRecord.price {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} {good paymentGood : W.Means}
     {R : UnitPriceQuoteRegistry V M good paymentGood}
     {P : UnitPriceMessageProtocol R.MessageId}
@@ -435,7 +444,8 @@ def DeliveredUnitPriceRecord.price {W : ActionFrame} {V : DelegationVocabulary W
 
 /-- A recipient's price envelope starts from one observed source and records
 only delivered price observations thereafter. -/
-structure DeliveredPriceEnvelope {W : ActionFrame} {V : DelegationVocabulary W}
+structure DeliveredPriceEnvelope {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} {good paymentGood : W.Means}
     (R : UnitPriceQuoteRegistry V M good paymentGood)
     (P : UnitPriceMessageProtocol R.MessageId) (recipient : W.Agent) where
@@ -444,7 +454,8 @@ structure DeliveredPriceEnvelope {W : ActionFrame} {V : DelegationVocabulary W}
   delivered_to_recipient : ∀ D ∈ delivered, D.recipient = recipient
 
 /-- Lower endpoint computed from the witnessed source and delivered records. -/
-def DeliveredPriceEnvelope.lower {W : ActionFrame} {V : DelegationVocabulary W}
+def DeliveredPriceEnvelope.lower {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} {good paymentGood : W.Means}
     {R : UnitPriceQuoteRegistry V M good paymentGood}
     {P : UnitPriceMessageProtocol R.MessageId} {recipient : W.Agent}
@@ -452,7 +463,8 @@ def DeliveredPriceEnvelope.lower {W : ActionFrame} {V : DelegationVocabulary W}
   E.delivered.foldr (fun D n => min D.price n) E.seed.record.price
 
 /-- Upper endpoint computed from the witnessed source and delivered records. -/
-def DeliveredPriceEnvelope.upper {W : ActionFrame} {V : DelegationVocabulary W}
+def DeliveredPriceEnvelope.upper {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} {good paymentGood : W.Means}
     {R : UnitPriceQuoteRegistry V M good paymentGood}
     {P : UnitPriceMessageProtocol R.MessageId} {recipient : W.Agent}
@@ -460,7 +472,8 @@ def DeliveredPriceEnvelope.upper {W : ActionFrame} {V : DelegationVocabulary W}
   E.delivered.foldr (fun D n => max D.price n) E.seed.record.price
 
 /-- Add one actually delivered record to a recipient's quote envelope. -/
-def DeliveredPriceEnvelope.extend {W : ActionFrame} {V : DelegationVocabulary W}
+def DeliveredPriceEnvelope.extend {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} {good paymentGood : W.Means}
     {R : UnitPriceQuoteRegistry V M good paymentGood}
     {P : UnitPriceMessageProtocol R.MessageId} {recipient : W.Agent}
@@ -477,7 +490,8 @@ def DeliveredPriceEnvelope.extend {W : ActionFrame} {V : DelegationVocabulary W}
       · exact E.delivered_to_recipient D' hD' }
 
 /-- Every delivered record weakly widens both sides of the price envelope. -/
-theorem DeliveredPriceEnvelope.extend_widens {W : ActionFrame} {V : DelegationVocabulary W}
+theorem DeliveredPriceEnvelope.extend_widens {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} {good paymentGood : W.Means}
     {R : UnitPriceQuoteRegistry V M good paymentGood}
     {P : UnitPriceMessageProtocol R.MessageId} {recipient : W.Agent}
@@ -489,7 +503,7 @@ theorem DeliveredPriceEnvelope.extend_widens {W : ActionFrame} {V : DelegationVo
 
 /-- A delivered quote strictly raises the recorded upper endpoint when its
 source price exceeds the previous upper endpoint. -/
-theorem DeliveredPriceEnvelope.extend_strict_upper {W : ActionFrame}
+theorem DeliveredPriceEnvelope.extend_strict_upper {W : ActionFrame} [BilateralExchangeFrame W]
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     {good paymentGood : W.Means} {R : UnitPriceQuoteRegistry V M good paymentGood}
     {P : UnitPriceMessageProtocol R.MessageId} {recipient : W.Agent}
@@ -500,18 +514,21 @@ theorem DeliveredPriceEnvelope.extend_strict_upper {W : ActionFrame}
   exact Nat.lt_of_lt_of_le hprice (Nat.le_max_left _ _)
 
 /-- A quote is available only when the observer has a matching transaction record. -/
-abbrev UnitPriceQuoteAvailability {W : ActionFrame} (V : DelegationVocabulary W)
+abbrev UnitPriceQuoteAvailability {W : ActionFrame} [BilateralExchangeFrame W]
+    (V : DelegationVocabulary W)
     (M : MarketBargainingMeaning W) (observer : W.Agent) (good paymentGood : W.Means) :=
   Option (ObservedUnitPriceRecord V M observer good paymentGood)
 
 /-- A numeric quote can be read only from an available exchange record. -/
-def observedUnitPrice? {W : ActionFrame} {V : DelegationVocabulary W}
+def observedUnitPrice? {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} {observer : W.Agent} {good paymentGood : W.Means}
     (quote : UnitPriceQuoteAvailability V M observer good paymentGood) : Option ℕ :=
   quote.map ObservedUnitPriceRecord.price
 
 /-- An unavailable quote maps to `none`. -/
-theorem unavailable_quote_is_not_zero {W : ActionFrame} {V : DelegationVocabulary W}
+theorem unavailable_quote_is_not_zero {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} {observer : W.Agent} {good paymentGood : W.Means} :
     observedUnitPrice? (V := V) (M := M) (observer := observer) (good := good)
       (paymentGood := paymentGood) none ≠ some 0 := by
@@ -520,7 +537,8 @@ theorem unavailable_quote_is_not_zero {W : ActionFrame} {V : DelegationVocabular
 
 /-- A two-sided price interval is available only when both endpoints are actual unit-price
     records observed by the same principal on the same history before the decision. -/
-structure ObservedUnitPriceSpread {W : ActionFrame} (V : DelegationVocabulary W)
+structure ObservedUnitPriceSpread {W : ActionFrame} [BilateralExchangeFrame W]
+    (V : DelegationVocabulary W)
     (M : MarketBargainingMeaning W) (observer : W.Agent) (good paymentGood : W.Means)
     (decisionMoment : W.Moment) (history : W.History) where
   lowerRecord : ObservedUnitPriceRecord V M observer good paymentGood
@@ -533,7 +551,8 @@ structure ObservedUnitPriceSpread {W : ActionFrame} (V : DelegationVocabulary W)
   spreadCertified : lowerRecord.price + spread = upperRecord.price
 
 /-- An additive quote spread certifies the order of its endpoints. -/
-theorem ObservedUnitPriceSpread.ordered {W : ActionFrame} {V : DelegationVocabulary W}
+theorem ObservedUnitPriceSpread.ordered {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} {observer : W.Agent} {good paymentGood : W.Means}
     {decisionMoment : W.Moment} {history : W.History}
     (Q : ObservedUnitPriceSpread V M observer good paymentGood decisionMoment history) :
@@ -542,7 +561,7 @@ theorem ObservedUnitPriceSpread.ordered {W : ActionFrame} {V : DelegationVocabul
   omega
 
 /-- An unavailable quote maps to `none`. -/
-theorem no_spread_endpoint_from_unavailable_quote {W : ActionFrame}
+theorem no_spread_endpoint_from_unavailable_quote {W : ActionFrame} [BilateralExchangeFrame W]
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     {observer : W.Agent} {good paymentGood : W.Means}
     (quote : UnitPriceQuoteAvailability V M observer good paymentGood)
@@ -551,7 +570,7 @@ theorem no_spread_endpoint_from_unavailable_quote {W : ActionFrame}
   rfl
 
 /-- The seller is the principal or an accepted delegate authorized to offer. -/
-theorem IndependentMarketInterface.seller_authority {W : ActionFrame}
+theorem IndependentMarketInterface.seller_authority {W : ActionFrame} [BilateralExchangeFrame W]
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     (E : IndependentMarketInterface V M) :
     (E.sellerRole.capacity = .principal ∧ E.seller = E.sellerPrincipal) ∨
@@ -579,7 +598,7 @@ theorem IndependentMarketInterface.seller_authority {W : ActionFrame}
         exact hauthority
 
 /-- The buyer is the principal or an accepted delegate authorized to accept. -/
-theorem IndependentMarketInterface.buyer_authority {W : ActionFrame}
+theorem IndependentMarketInterface.buyer_authority {W : ActionFrame} [BilateralExchangeFrame W]
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     (E : IndependentMarketInterface V M) :
     (E.buyerRole.capacity = .principal ∧ E.buyer = E.buyerPrincipal) ∨
@@ -607,13 +626,15 @@ theorem IndependentMarketInterface.buyer_authority {W : ActionFrame}
         exact hauthority
 
 
-structure FreshlyBargainedInterface {W : ActionFrame} {V : DelegationVocabulary W}
+structure FreshlyBargainedInterface {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} (E : IndependentMarketInterface V M) where
   terms_freshly_bargained : M.freshlyBargained E.seller E.buyer E.moment E.history
     E.qA E.mA E.qB E.mB
 
 
-structure OrganizationNetwork {W : ActionFrame} (V : DelegationVocabulary W)
+structure OrganizationNetwork {W : ActionFrame} [BilateralExchangeFrame W]
+    (V : DelegationVocabulary W)
     (M : MarketBargainingMeaning W) where
   Stage : Type
   [instDecidableEqStage : DecidableEq Stage]
@@ -654,24 +675,28 @@ structure OrganizationNetwork {W : ActionFrame} (V : DelegationVocabulary W)
     (upstream, downstream) ∈ marketEdges ↔ marketInterface upstream downstream
 
 /-- The organization retains a market boundary when an edge crosses independent governance. -/
-def OrganizationNetwork.HasFirmBoundary {W : ActionFrame} {V : DelegationVocabulary W}
+def OrganizationNetwork.HasFirmBoundary {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} (O : OrganizationNetwork V M) : Prop :=
   ∃ upstream downstream, O.marketInterface upstream downstream
 
 /-- A network contains internal direction when at least one stage edge is governed by an
     accepted, purposeful assignment. -/
-def OrganizationNetwork.HasInternalDirection {W : ActionFrame} {V : DelegationVocabulary W}
+def OrganizationNetwork.HasInternalDirection {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} (O : OrganizationNetwork V M) : Prop :=
   ∃ upstream downstream, O.internallyDirected upstream downstream
 
 
-def OrganizationNetwork.HasFirmStructure {W : ActionFrame} {V : DelegationVocabulary W}
+def OrganizationNetwork.HasFirmStructure {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} (O : OrganizationNetwork V M) : Prop :=
   ∃ upstream middle downstream,
     O.internallyDirected upstream middle ∧ O.marketInterface middle downstream
 
 
-def threeStageFirmNetwork {W : ActionFrame} {V : DelegationVocabulary W}
+def threeStageFirmNetwork {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} (D : AcceptedDelegation V)
     (E : IndependentMarketInterface V M)
     (h_firm_seller : D.principal = E.sellerPrincipal)
@@ -731,7 +756,7 @@ def threeStageFirmNetwork {W : ActionFrame} {V : DelegationVocabulary W}
   exact O
 
 /-- The three-stage network has an internal edge and a market edge. -/
-theorem threeStageFirmNetwork_has_firm_structure {W : ActionFrame}
+theorem threeStageFirmNetwork_has_firm_structure {W : ActionFrame} [BilateralExchangeFrame W]
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     (D : AcceptedDelegation V) (E : IndependentMarketInterface V M)
     (h_firm_seller : D.principal = E.sellerPrincipal)
@@ -743,7 +768,7 @@ theorem threeStageFirmNetwork_has_firm_structure {W : ActionFrame}
   exact ⟨(0 : Fin 3), 1, 2, ⟨rfl, rfl⟩, ⟨rfl, rfl⟩⟩
 
 /-- A firm structure has an internal direction and a market boundary. -/
-theorem OrganizationNetwork.firm_structure_components {W : ActionFrame}
+theorem OrganizationNetwork.firm_structure_components {W : ActionFrame} [BilateralExchangeFrame W]
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     (O : OrganizationNetwork V M) (h : O.HasFirmStructure) :
     O.HasInternalDirection ∧ O.HasFirmBoundary := by
@@ -751,7 +776,7 @@ theorem OrganizationNetwork.firm_structure_components {W : ActionFrame}
   exact ⟨⟨upstream, middle, hint⟩, ⟨middle, downstream, hmarket⟩⟩
 
 /-- A firm structure has an accepted task and a later market exchange on the same history. -/
-theorem OrganizationNetwork.firm_structure_coherence {W : ActionFrame}
+theorem OrganizationNetwork.firm_structure_coherence {W : ActionFrame} [BilateralExchangeFrame W]
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     (O : OrganizationNetwork V M) (h : O.HasFirmStructure) :
     ∃ upstream middle downstream,
@@ -764,7 +789,7 @@ theorem OrganizationNetwork.firm_structure_coherence {W : ActionFrame}
     O.connected_chain_coherence hint hmarket⟩
 
 
-theorem threeStageFirmNetwork_edge_counts {W : ActionFrame}
+theorem threeStageFirmNetwork_edge_counts {W : ActionFrame} [BilateralExchangeFrame W]
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     (D : AcceptedDelegation V) (E : IndependentMarketInterface V M)
     (h_firm_seller : D.principal = E.sellerPrincipal)
@@ -780,6 +805,7 @@ theorem threeStageFirmNetwork_edge_counts {W : ActionFrame}
 
 
 theorem threeStageFirmNetwork_edges_retain_certificates {W : ActionFrame}
+    [BilateralExchangeFrame W]
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     (D : AcceptedDelegation V) (E : IndependentMarketInterface V M)
     (h_firm_seller : D.principal = E.sellerPrincipal)
@@ -804,12 +830,14 @@ theorem threeStageFirmNetwork_edges_retain_certificates {W : ActionFrame}
     · rfl
 
 /-- Number of market edges in the network. -/
-def OrganizationNetwork.externalBoundaryCount {W : ActionFrame} {V : DelegationVocabulary W}
+def OrganizationNetwork.externalBoundaryCount {W : ActionFrame} [BilateralExchangeFrame W]
+    {V : DelegationVocabulary W}
     {M : MarketBargainingMeaning W} (O : OrganizationNetwork V M) : ℕ :=
   O.marketEdges.card
 
 
 theorem OrganizationNetwork.externalBoundaryCount_pos_iff {W : ActionFrame}
+    [BilateralExchangeFrame W]
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     (O : OrganizationNetwork V M) :
     0 < O.externalBoundaryCount ↔ O.HasFirmBoundary := by
@@ -824,10 +852,11 @@ theorem OrganizationNetwork.externalBoundaryCount_pos_iff {W : ActionFrame}
 
 /-- Each market interface has a bilateral exchange. -/
 theorem OrganizationNetwork.boundary_witness_exchange {W : ActionFrame}
+    [BilateralExchangeFrame W]
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     (O : OrganizationNetwork V M) {upstream downstream : O.Stage}
     (h : O.marketInterface upstream downstream) :
-    @BilateralExchange W (O.market_evidence h).seller (O.market_evidence h).buyer
+    BilateralExchange (W := W) (O.market_evidence h).seller (O.market_evidence h).buyer
       (O.market_evidence h).moment (O.market_evidence h).history
       (O.market_evidence h).qA (O.market_evidence h).mA
       (O.market_evidence h).qB (O.market_evidence h).mB :=
@@ -835,6 +864,7 @@ theorem OrganizationNetwork.boundary_witness_exchange {W : ActionFrame}
 
 /-- The interface terms satisfy `freshlyBargained`. -/
 theorem FreshlyBargainedInterface.boundary_witness_has_fresh_terms {W : ActionFrame}
+    [BilateralExchangeFrame W]
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     {E : IndependentMarketInterface V M} (F : FreshlyBargainedInterface E) :
     M.freshlyBargained E.seller E.buyer E.moment E.history E.qA E.mA E.qB E.mB :=
@@ -842,6 +872,7 @@ theorem FreshlyBargainedInterface.boundary_witness_has_fresh_terms {W : ActionFr
 
 /-- An internal edge has purposeful assignment, acceptance, and task actions. -/
 theorem OrganizationNetwork.internal_edge_has_purposeful_direction {W : ActionFrame}
+    [BilateralExchangeFrame W]
     {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
     (O : OrganizationNetwork V M) {upstream downstream : O.Stage}
     (h : O.internallyDirected upstream downstream) :
@@ -976,7 +1007,7 @@ theorem subjective_trade_frame_has_market_boundary :
 
 /-- The market edge carries the bilateral exchange in the trade frame. -/
 theorem subjective_trade_frame_boundary_is_bilateral_exchange :
-    @BilateralExchange SubjectiveBilateralTradeActionFrame tradeAgent0 tradeAgent1
+    BilateralExchange (W := SubjectiveBilateralTradeActionFrame) tradeAgent0 tradeAgent1
       BilateralMoment.root tradeHistory 1 tradeMeans0 1 tradeMeans1 := by
   exact (subjectiveTradeBoundaryNetwork.market_evidence ⟨rfl, rfl⟩).exchange
 

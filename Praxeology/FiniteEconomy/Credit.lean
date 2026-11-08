@@ -21,8 +21,8 @@ follow from ActionFrame inventory and purposeful-exchange laws.
 namespace Praxeology
 
 /-- Finite profile evidence for one purposeful note-printing transition. -/
-structure FiniteFiduciaryIssueRow {W : ActionFrame} {T : FiniteTreeSpec}
-    (S : FiniteEconomySpec W T) where
+structure FiniteFiduciaryIssueRow {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : FiniteTreeSpec} (S : FiniteEconomySpec W T) where
   issuer : W.Agent
   history : T.History
   node : T.Node
@@ -48,7 +48,7 @@ structure FiniteFiduciaryIssueRow {W : ActionFrame} {T : FiniteTreeSpec}
 namespace FiniteFiduciaryIssueRow
 
 /-- Instantiate the row as a general ActionFrame issuance certificate. -/
-def instantiate {W : ActionFrame} {T : FiniteTreeSpec}
+def instantiate {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     {S : FiniteEconomySpec W T} (J : FiniteFiduciaryIssueRow S) :
     FiduciaryNoteIssuance (W := W) := by
   let frame := S.presentation
@@ -89,8 +89,8 @@ end FiniteFiduciaryIssueRow
 /-- Finite profile evidence for a purposeful collateralized advance. The
 compiler constructs the generic `CreditAdvance` using ActionFrame Offer and
 Accept primitives. -/
-structure FiniteCreditAdvanceRow {W : ActionFrame} {T : FiniteTreeSpec}
-    (S : FiniteEconomySpec W T) (terms : PawnLoanTerms W) where
+structure FiniteCreditAdvanceRow {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : FiniteTreeSpec} (S : FiniteEconomySpec W T) (terms : PawnLoanTerms W) where
   history : T.History
   node : T.Node
   nextNode : T.Node
@@ -115,7 +115,7 @@ structure FiniteCreditAdvanceRow {W : ActionFrame} {T : FiniteTreeSpec}
 namespace FiniteCreditAdvanceRow
 
 /-- Compile a finite event row into the generic purposeful credit advance. -/
-def instantiate {W : ActionFrame} {T : FiniteTreeSpec}
+def instantiate {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     {S : FiniteEconomySpec W T} {terms : PawnLoanTerms W}
     (J : FiniteCreditAdvanceRow S terms) : CreditAdvance terms :=
   { history := S.presentation.history J.history
@@ -133,8 +133,8 @@ end FiniteCreditAdvanceRow
 
 /-- Finite data tying a compiled note issue to a general purposeful credit
 advance and its generic origination certificate. -/
-structure FiniteFiduciaryOriginationRow {W : ActionFrame} {T : FiniteTreeSpec}
-    (S : FiniteEconomySpec W T) where
+structure FiniteFiduciaryOriginationRow {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : FiniteTreeSpec} (S : FiniteEconomySpec W T) where
   terms : PawnLoanTerms W
   issue : FiniteFiduciaryIssueRow S
   advance : FiniteCreditAdvanceRow S terms
@@ -150,7 +150,7 @@ structure FiniteFiduciaryOriginationRow {W : ActionFrame} {T : FiniteTreeSpec}
 namespace FiniteFiduciaryOriginationRow
 
 /-- Compile finite issue/advance evidence into the general origination type. -/
-theorem instantiate {W : ActionFrame} {T : FiniteTreeSpec}
+theorem instantiate {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     {S : FiniteEconomySpec W T} (J : FiniteFiduciaryOriginationRow S) :
     FiduciaryOrigination J.terms J.issue.instantiate J.advance.instantiate := by
   refine
@@ -169,7 +169,7 @@ theorem instantiate {W : ActionFrame} {T : FiniteTreeSpec}
 
 /-- The compiler emits the generic bank-ledger event consumed by the
 ActionFrame-polymorphic balance-sheet accounting theorems. -/
-def bankEvent {W : ActionFrame} {T : FiniteTreeSpec}
+def bankEvent {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     {S : FiniteEconomySpec W T} (J : FiniteFiduciaryOriginationRow S) :
     FiduciaryBankEvent W :=
   { terms := J.terms
@@ -182,21 +182,21 @@ end FiniteFiduciaryOriginationRow
 /-- An ordered journal of compiled issue/advance rows. List order records the
 book's insertion sequence; each row compiles to one event in the generic
 ActionFrame ledger. -/
-structure FiniteFiduciaryBankJournal {W : ActionFrame} {T : FiniteTreeSpec}
-    (S : FiniteEconomySpec W T) where
+structure FiniteFiduciaryBankJournal {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : FiniteTreeSpec} (S : FiniteEconomySpec W T) where
   entries : List (FiniteFiduciaryOriginationRow S)
 
 namespace FiniteFiduciaryBankJournal
 
 /-- Compile all rows into the ActionFrame-polymorphic bank ledger. -/
-def instantiate {W : ActionFrame} {T : FiniteTreeSpec}
+def instantiate {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     {S : FiniteEconomySpec W T} (J : FiniteFiduciaryBankJournal S) :
     FiduciaryBankLedger W :=
   ⟨J.entries.map FiniteFiduciaryOriginationRow.bankEvent⟩
 
 /-- Generated balance-sheet totals inherit the generic ledger identity. -/
-theorem loanAssets_eq_externalNoteLiability {W : ActionFrame} {T : FiniteTreeSpec}
-    {S : FiniteEconomySpec W T} (J : FiniteFiduciaryBankJournal S) :
+theorem loanAssets_eq_externalNoteLiability {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : FiniteTreeSpec} {S : FiniteEconomySpec W T} (J : FiniteFiduciaryBankJournal S) :
     J.instantiate.loanAssets = J.instantiate.externalNoteLiability :=
   J.instantiate.loanAssets_eq_externalNoteLiability
 

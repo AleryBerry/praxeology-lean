@@ -24,7 +24,7 @@ namespace Praxeology
 
 /-- One finite candidate pair with an ordinal reservation bracket and a cash
 snapshot read from an arbitrary ActionFrame. -/
-structure FiniteFundedReservationRow {W : ActionFrame}
+structure FiniteFundedReservationRow {W : ActionFrame} [BilateralExchangeFrame W]
     (M : MultilateralCohortMarket W.Agent W.Means)
     (moment : W.Moment) (history : W.History) where
   buyer : W.Agent
@@ -38,19 +38,21 @@ structure FiniteFundedReservationRow {W : ActionFrame}
 namespace FiniteFundedReservationRow
 
 /-- The candidate price is the seller's ordinal floor. -/
-def ask {W : ActionFrame} {M : MultilateralCohortMarket W.Agent W.Means}
+def ask {W : ActionFrame} [BilateralExchangeFrame W]
+    {M : MultilateralCohortMarket W.Agent W.Means}
     {moment : W.Moment} {history : W.History}
     (row : FiniteFundedReservationRow M moment history) : ℕ :=
   row.reservation.sellerFloor
 
 /-- A pair clears when the seller floor fits under the buyer's cash-funded
 reservation. -/
-def feasible {W : ActionFrame} {M : MultilateralCohortMarket W.Agent W.Means}
+def feasible {W : ActionFrame} [BilateralExchangeFrame W]
+    {M : MultilateralCohortMarket W.Agent W.Means}
     {moment : W.Moment} {history : W.History}
     (row : FiniteFundedReservationRow M moment history) : Prop :=
   row.ask ≤ row.reservation.fundedBid row.snapshotCash
 
-instance feasibleDecidable {W : ActionFrame}
+instance feasibleDecidable {W : ActionFrame} [BilateralExchangeFrame W]
     {M : MultilateralCohortMarket W.Agent W.Means}
     {moment : W.Moment} {history : W.History}
     (row : FiniteFundedReservationRow M moment history) : Decidable row.feasible := by
@@ -59,7 +61,7 @@ instance feasibleDecidable {W : ActionFrame}
 
 /-- Every feasible candidate price lies above the seller floor, below the
 buyer ceiling, and below observed cash. -/
-theorem ask_bracket {W : ActionFrame}
+theorem ask_bracket {W : ActionFrame} [BilateralExchangeFrame W]
     {M : MultilateralCohortMarket W.Agent W.Means}
     {moment : W.Moment} {history : W.History}
     (row : FiniteFundedReservationRow M moment history)
@@ -74,7 +76,7 @@ theorem ask_bracket {W : ActionFrame}
 /-- At the chosen ask, both reservation policies prefer their matched actions
 to idling. These preference policies are fields of the ActionFrame-grounded
 reservation pair, not numeric assumptions about compiler data. -/
-theorem ask_is_preferred {W : ActionFrame}
+theorem ask_is_preferred {W : ActionFrame} [BilateralExchangeFrame W]
     {M : MultilateralCohortMarket W.Agent W.Means}
     {moment : W.Moment} {history : W.History}
     (row : FiniteFundedReservationRow M moment history)
@@ -98,7 +100,7 @@ end FiniteFundedReservationRow
 /-- Linear scan for the first candidate whose ordinal seller floor fits under
 its buyer's funded bid. The scenario generator controls and preserves row
 order. -/
-def firstFeasibleReservation? {W : ActionFrame}
+def firstFeasibleReservation? {W : ActionFrame} [BilateralExchangeFrame W]
     {M : MultilateralCohortMarket W.Agent W.Means}
     {moment : W.Moment} {history : W.History} :
     List (FiniteFundedReservationRow M moment history) →
@@ -109,7 +111,7 @@ def firstFeasibleReservation? {W : ActionFrame}
 
 /-- Any selected row belongs to the input list and carries a feasible
 preference/cash bracket. -/
-theorem firstFeasibleReservation?_sound {W : ActionFrame}
+theorem firstFeasibleReservation?_sound {W : ActionFrame} [BilateralExchangeFrame W]
     {M : MultilateralCohortMarket W.Agent W.Means}
     {moment : W.Moment} {history : W.History}
     (rows : List (FiniteFundedReservationRow M moment history))
@@ -133,7 +135,7 @@ theorem firstFeasibleReservation?_sound {W : ActionFrame}
 /-- Choose a feasible reservation pair with the least seller ask. Ties are
 resolved in favor of the earlier row, so the result is deterministic while
 the clearing price does not depend on the caller's candidate ordering. -/
-def leastFeasibleReservation? {W : ActionFrame}
+def leastFeasibleReservation? {W : ActionFrame} [BilateralExchangeFrame W]
     {M : MultilateralCohortMarket W.Agent W.Means}
     {moment : W.Moment} {history : W.History} :
     List (FiniteFundedReservationRow M moment history) →
@@ -150,7 +152,7 @@ def leastFeasibleReservation? {W : ActionFrame}
 /-- The least-ask selector either finds no feasible row or returns a feasible
 row that belongs to the book and has an ask no greater than any other
 feasible candidate. -/
-theorem leastFeasibleReservation?_spec {W : ActionFrame}
+theorem leastFeasibleReservation?_spec {W : ActionFrame} [BilateralExchangeFrame W]
     {M : MultilateralCohortMarket W.Agent W.Means}
     {moment : W.Moment} {history : W.History}
     (rows : List (FiniteFundedReservationRow M moment history)) :
@@ -214,7 +216,7 @@ theorem leastFeasibleReservation?_spec {W : ActionFrame}
             · exact hbest_least row hmem hfeasible
 
 /-- An executable book of candidate pairs for one market node. -/
-structure FiniteFundedReservationBook {W : ActionFrame}
+structure FiniteFundedReservationBook {W : ActionFrame} [BilateralExchangeFrame W]
     (M : MultilateralCohortMarket W.Agent W.Means)
     (moment : W.Moment) (history : W.History) where
   rows : List (FiniteFundedReservationRow M moment history)
@@ -222,7 +224,8 @@ structure FiniteFundedReservationBook {W : ActionFrame}
 namespace FiniteFundedReservationBook
 
 /-- Deterministically select a feasible pair with the least seller ask. -/
-def select {W : ActionFrame} {M : MultilateralCohortMarket W.Agent W.Means}
+def select {W : ActionFrame} [BilateralExchangeFrame W]
+    {M : MultilateralCohortMarket W.Agent W.Means}
     {moment : W.Moment} {history : W.History}
     (book : FiniteFundedReservationBook M moment history) :=
   leastFeasibleReservation? book.rows
@@ -232,7 +235,7 @@ end FiniteFundedReservationBook
 /-- A finite selection becomes a general purposeful clearing round only when
 the selected pair matches the frame's observed clearing event and the matched
 exchange is certified by BilateralExchange. -/
-structure FinitePurposefulClearingWitness {W : ActionFrame}
+structure FinitePurposefulClearingWitness {W : ActionFrame} [BilateralExchangeFrame W]
     {M : MultilateralCohortMarket W.Agent W.Means} where
   clearing : MultilateralClearingScenario M
   book : FiniteFundedReservationBook M clearing.moment clearing.history
@@ -249,7 +252,8 @@ namespace FinitePurposefulClearingWitness
 /-- Compile the finite selection into the generic ActionFrame-funded clearing
 structure. Preference, cash, purposeful exchange, and deterrence remain
 properties of the general theory. -/
-def instantiate {W : ActionFrame} {M : MultilateralCohortMarket W.Agent W.Means}
+def instantiate {W : ActionFrame} [BilateralExchangeFrame W]
+    {M : MultilateralCohortMarket W.Agent W.Means}
     (C : FinitePurposefulClearingWitness (M := M)) :
     PurposefulFundedClearingRound M := by
   have hselected := leastFeasibleReservation?_spec C.book.rows
@@ -301,7 +305,7 @@ def instantiate {W : ActionFrame} {M : MultilateralCohortMarket W.Agent W.Means}
         exact hfeasible }
 
 /-- Matched participants perform active purposeful actions. -/
-theorem active_matched_pair {W : ActionFrame}
+theorem active_matched_pair {W : ActionFrame} [BilateralExchangeFrame W]
     {M : MultilateralCohortMarket W.Agent W.Means}
     (C : FinitePurposefulClearingWitness (M := M)) :
     ActivePurposefulAct C.clearing.seller C.clearing.moment C.clearing.history
@@ -315,7 +319,7 @@ by
 
 /-- Extra-marginal participants cannot enact their supplied candidate actions
 purposefully at the selected price. -/
-theorem extra_marginal_deterrence {W : ActionFrame}
+theorem extra_marginal_deterrence {W : ActionFrame} [BilateralExchangeFrame W]
     {M : MultilateralCohortMarket W.Agent W.Means}
     (C : FinitePurposefulClearingWitness (M := M)) :
     (∀ b ∈ M.ExtraMarginalBuyers C.clearing.price,

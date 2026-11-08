@@ -915,7 +915,11 @@ section EntrepreneurialActionFrame
 variable [W : ActionFrame]
 variable {L K K_min grid_step : ℕ} {ΔP_out R1 R2 db_int db_u : ℕ}
 
-structure FirmTraceSaleRecipe {W : ActionFrame} {i : W.Agent} {α : W.Action}
+section FirmTrace
+
+variable [BilateralExchangeFrame W]
+
+structure FirmTraceSaleRecipe {i : W.Agent} {α : W.Action}
     {t : W.Moment} {h' : W.History} {hh' : h' ∈ W.MinPlausible i t}
     (R : ProjectedInventoryTrace W i α t h' hh')
     (mCash mProduct : W.Means) (profile : Bool → ℕ) where
@@ -973,6 +977,8 @@ theorem FirmTraceSaleRecipe.stock_values
         _ = R.run.totalUse mProduct + profile true := recipe.product_balance
         _ = _ := Nat.add_comm _ _
     exact Nat.add_right_cancel hsum
+
+end FirmTrace
 
 /-- Embed the two complementary resources in an arbitrary ActionFrame's means sort. -/
 def embedFirmBundle (mA mB : Means) (background : Means → ℕ)
@@ -1087,6 +1093,9 @@ theorem embed_firm_bundle_eq (mA mB : Means) (b1 b2 : Bool → ℕ)
   subst b1
   rfl
 
+section InformationGroundedFirm
+
+variable [BilateralExchangeFrame W]
 
 structure InformationGroundedFirmDecision (i : Agent) (t : Moment) (h : History)
     (L K K_min grid_step : ℕ) (ΔP_out R1 R2 db_int db_u : ℕ) where
@@ -1443,6 +1452,58 @@ theorem information_grounded_firm_preferences
     (fun h' hh' => Or.inr (h_retain_order h' hh')) h_retain_strict
   exact ⟨h_split, h_complete, h_retain⟩
 
+theorem purposeful_firm_coalescence_from_information
+    {i : Agent} {t : Moment} {h : History}
+    {L K K_min grid_step : ℕ} {ΔP_out R1 R2 db_int db_u : ℕ}
+    (dec : InformationGroundedFirmDecision i t h L K K_min grid_step
+      ΔP_out R1 R2 db_int db_u) :
+    (¬ PurposefulAct i t h dec.α_split) ∧
+    (¬ PurposefulAct i t h dec.α_complete) ∧
+    PurposefulAct i t h dec.α_merge ∧
+    (SignalSplit ΔP_out (SplitSignalThreshold R1 R2 db_int db_u) = false ∧
+     SignalMerge ΔP_out (MergeSignalThreshold R1 R2 db_u) = true ∧
+     CoalescedQuantizationNoise dec.coalescenceGeometry.external grid_step <
+       TotalQuantizationNoise L grid_step ∧
+     0 < dec.coalescenceGeometry.external.remaining) := by
+  have hpref := information_grounded_firm_preferences dec
+  have h_win := viable_coalescence_critical_attenuation_window
+    L K K_min grid_step ΔP_out R1 R2 db_int db_u
+    dec.h_step dec.h_pos1 dec.h_pos2
+    dec.h_crit_low dec.h_crit_high dec.h_K_min dec.h_K_ge dec.coalescenceGeometry
+  have h_pref_split : Preference i t h dec.e_merge dec.e_split := hpref.1
+  have h_pref_soc : Preference i t h dec.e_merge dec.e_complete := hpref.2.1
+  have h_pref_retain : Preference i t h dec.e_merge dec.e_retain := hpref.2.2
+  have h_no_split : ¬ PurposefulAct i t h dec.α_split := by
+    intro h_purp
+    have h_undom := h_purp.2.2.2 dec.α_merge dec.h_feas_merge
+    have h_pref := h_pref_split
+    rw [← dec.h_action_end_merge, ← dec.h_action_end_split] at h_pref
+    exact h_undom h_pref
+  have h_no_complete : ¬ PurposefulAct i t h dec.α_complete := by
+    intro h_purp
+    have h_undom := h_purp.2.2.2 dec.α_merge dec.h_feas_merge
+    have h_pref := h_pref_soc
+    rw [← dec.h_action_end_merge, ← dec.h_action_end_complete] at h_pref
+    exact h_undom h_pref
+  have h_purp_merge : PurposefulAct i t h dec.α_merge := by
+    refine ⟨dec.h_feas_merge, dec.h_exec_merge, ?_, ?_⟩
+    · rw [dec.h_action_end_merge, dec.h_action_end_retain]
+      exact Or.inr h_pref_retain
+    · intro β hβ h_pref_beta
+      by_cases h_eq : β = dec.α_merge
+      · subst h_eq
+        exact pref_irrefl i t h (End_of i dec.α_merge t h) h_pref_beta
+      · rcases dec.h_menu β hβ h_eq with h_is_split | h_is_soc | h_is_ret
+        · rw [dec.h_action_end_merge, h_is_split] at h_pref_beta
+          exact pref_asymm i t h h_pref_split h_pref_beta
+        · rw [dec.h_action_end_merge, h_is_soc] at h_pref_beta
+          exact pref_asymm i t h h_pref_soc h_pref_beta
+        · rw [dec.h_action_end_merge, h_is_ret] at h_pref_beta
+          exact pref_asymm i t h h_pref_retain h_pref_beta
+  exact ⟨h_no_split, h_no_complete, h_purp_merge, h_win⟩
+
+end InformationGroundedFirm
+
 
 structure PrimitiveEndDominanceFirmAppraisal (i : Agent) (t : Moment) (h : History) where
   α_split : W.Action
@@ -1529,58 +1590,6 @@ structure AppraisedEntrepreneurialFirmDecision (i : Agent) (t : Moment) (h : His
   coalescenceGeometry : FirmCoalescenceGeometry L K
   h_menu : ∀ β ∈ A_feas i t h, β ≠ α_merge →
     End_of i β t h = e_split ∨ End_of i β t h = e_soc ∨ End_of i β t h = e_retain
-
-
-theorem purposeful_firm_coalescence_from_information
-    {i : Agent} {t : Moment} {h : History}
-    {L K K_min grid_step : ℕ} {ΔP_out R1 R2 db_int db_u : ℕ}
-    (dec : InformationGroundedFirmDecision i t h L K K_min grid_step
-      ΔP_out R1 R2 db_int db_u) :
-    (¬ PurposefulAct i t h dec.α_split) ∧
-    (¬ PurposefulAct i t h dec.α_complete) ∧
-    PurposefulAct i t h dec.α_merge ∧
-    (SignalSplit ΔP_out (SplitSignalThreshold R1 R2 db_int db_u) = false ∧
-     SignalMerge ΔP_out (MergeSignalThreshold R1 R2 db_u) = true ∧
-     CoalescedQuantizationNoise dec.coalescenceGeometry.external grid_step <
-       TotalQuantizationNoise L grid_step ∧
-     0 < dec.coalescenceGeometry.external.remaining) := by
-  have hpref := information_grounded_firm_preferences dec
-  have h_win := viable_coalescence_critical_attenuation_window
-    L K K_min grid_step ΔP_out R1 R2 db_int db_u
-    dec.h_step dec.h_pos1 dec.h_pos2
-    dec.h_crit_low dec.h_crit_high dec.h_K_min dec.h_K_ge dec.coalescenceGeometry
-  have h_pref_split : Preference i t h dec.e_merge dec.e_split := hpref.1
-  have h_pref_soc : Preference i t h dec.e_merge dec.e_complete := hpref.2.1
-  have h_pref_retain : Preference i t h dec.e_merge dec.e_retain := hpref.2.2
-  have h_no_split : ¬ PurposefulAct i t h dec.α_split := by
-    intro h_purp
-    have h_undom := h_purp.2.2.2 dec.α_merge dec.h_feas_merge
-    have h_pref := h_pref_split
-    rw [← dec.h_action_end_merge, ← dec.h_action_end_split] at h_pref
-    exact h_undom h_pref
-  have h_no_complete : ¬ PurposefulAct i t h dec.α_complete := by
-    intro h_purp
-    have h_undom := h_purp.2.2.2 dec.α_merge dec.h_feas_merge
-    have h_pref := h_pref_soc
-    rw [← dec.h_action_end_merge, ← dec.h_action_end_complete] at h_pref
-    exact h_undom h_pref
-  have h_purp_merge : PurposefulAct i t h dec.α_merge := by
-    refine ⟨dec.h_feas_merge, dec.h_exec_merge, ?_, ?_⟩
-    · rw [dec.h_action_end_merge, dec.h_action_end_retain]
-      exact Or.inr h_pref_retain
-    · intro β hβ h_pref_beta
-      by_cases h_eq : β = dec.α_merge
-      · subst h_eq
-        exact pref_irrefl i t h (End_of i dec.α_merge t h) h_pref_beta
-      · rcases dec.h_menu β hβ h_eq with h_is_split | h_is_soc | h_is_ret
-        · rw [dec.h_action_end_merge, h_is_split] at h_pref_beta
-          exact pref_asymm i t h h_pref_split h_pref_beta
-        · rw [dec.h_action_end_merge, h_is_soc] at h_pref_beta
-          exact pref_asymm i t h h_pref_soc h_pref_beta
-        · rw [dec.h_action_end_merge, h_is_ret] at h_pref_beta
-          exact pref_asymm i t h h_pref_retain h_pref_beta
-  exact ⟨h_no_split, h_no_complete, h_purp_merge, h_win⟩
-
 
 theorem purposeful_firm_coalescence_from_valued_ends
     {i : Agent} {t : Moment} {h : History}
@@ -1691,6 +1700,9 @@ theorem purposeful_firm_coalescence_from_valued_ends
   exact ⟨⟨h_merge, h_merge_incident, h_exec_at_merge, h_no_split,
     h_no_soc, h_purp_merge⟩, h_win⟩
 
+section OperationalFirmBoundary
+
+variable [BilateralExchangeFrame W]
 
 structure OperationalFirmBoundaryDecision (i : Agent) (t : Moment) (h : History)
     (L K K_min grid_step : ℕ) (ΔP_out R1 R2 db_int db_u : ℕ) where
@@ -1904,6 +1916,7 @@ theorem purposeful_operational_firm_boundary_from_observed_prices
       _ = dec.information.observationRecord .bothSignals h' :=
         (dec.information.observation_record_follows_channel .bothSignals h').symm
 
+end OperationalFirmBoundary
 
 theorem ordinal_firm_boundary_tradeoff
     (i : Agent) (t : Moment) (h : History)

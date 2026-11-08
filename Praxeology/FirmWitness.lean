@@ -530,8 +530,6 @@ inductive WorkshopEnd where
   | customerEnd0 : WorkshopEnd
   | customerEnd1 : WorkshopEnd
   | bundle (b : WorkshopMeans → ℕ) : WorkshopEnd
-  | timed (e : WorkshopEnd) (τ : WMoment) : WorkshopEnd
-  | quantity (m : WorkshopMeans) (q : ℕ) : WorkshopEnd
   deriving DecidableEq
 
 def workshop_requirement (e : WorkshopEnd) (m : WorkshopMeans) : ℕ :=
@@ -542,8 +540,6 @@ def workshop_requirement (e : WorkshopEnd) (m : WorkshopMeans) : ℕ :=
   | .customerEnd0 => if m = finalGood0Means then 1 else 0
   | .customerEnd1 => if m = finalGood1Means then 1 else 0
   | .bundle b => b m
-  | .timed _ _ => 0
-  | .quantity _ _ => 0
 
 def workshopValuedEnd (i : WorkshopAgent) (t : WMoment)
     (_h : WorkshopHist) (e : WorkshopEnd) : Prop :=
@@ -785,91 +781,12 @@ theorem w_enacted_eq_future_choice (i : WorkshopAgent) (t u : WMoment)
         | fin_cases m <;> decide
       }
     }
-  Offer := WorkshopAction.offer
-  Accept := WorkshopAction.accept
-  offer_inj := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; exact WorkshopAction.offer.inj h
-  accept_inj := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; exact WorkshopAction.accept.inj h
-  offer_ne_accept := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; cases h
-  alpha_zero_ne_offer := by intro _ _ _ _ _ _ h; cases h
-  alpha_zero_ne_accept := by intro _ _ _ _ _ _ h; cases h
-  use_means_offer := by intro _ _ _ _ _ _ _; rfl
-  yield_means_offer := by intro _ _ _ _ _ _ _; rfl
-  use_means_accept := by intro _ _ _ _ _ _ _; rfl
-  yield_means_accept := by intro _ _ _ _ _ _ _; rfl
-  unilateral_offer_noop := by
-    intro i j qA mA qB mB t t' h m h_enact h_not_acc h_next
-    rcases workshop_next_moment_cases h_next with
-      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
-      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ |
-      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
-      ⟨rfl, rfl, rfl⟩ |
-      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
-      ⟨rfl, rfl, rfl⟩ |
-      ⟨rfl, rfl, rfl | rfl | rfl | rfl⟩ |
-      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ |
-      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩
-    all_goals {
-      cases i <;> {
-        dsimp [w_enacted] at h_enact
-        first
-        | (cases h_enact; done)
-        | cases h_enact; exfalso; apply h_not_acc; decide
-        | cases h_enact; fin_cases m <;> decide
-      }
-    }
-  unilateral_accept_noop := by
-    intro j i qA mA qB mB t t' h m h_enact h_not_off h_next
-    rcases workshop_next_moment_cases h_next with
-      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
-      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ |
-      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
-      ⟨rfl, rfl, rfl⟩ |
-      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
-      ⟨rfl, rfl, rfl⟩ |
-      ⟨rfl, rfl, rfl | rfl | rfl | rfl⟩ |
-      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ |
-      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩
-    all_goals {
-      cases j <;> {
-        dsimp [w_enacted] at h_enact
-        first
-        | (cases h_enact; done)
-        | cases h_enact; exfalso; apply h_not_off; decide
-        | cases h_enact; fin_cases m <;> decide
-      }
-    }
-  bilateral_transfer_law := by
-    intro i j qA mA qB mB t t' h m h_ne h_enact_i h_enact_j h_next
-    rcases workshop_next_moment_cases h_next with
-      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
-      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ |
-      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
-      ⟨rfl, rfl, rfl⟩ |
-      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
-      ⟨rfl, rfl, rfl⟩ |
-      ⟨rfl, rfl, rfl | rfl | rfl | rfl⟩ |
-      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ |
-      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩
-    all_goals {
-      cases i <;> cases j
-      · exact (h_ne rfl).elim
-      · dsimp [w_enacted] at h_enact_i; cases h_enact_i
-      · dsimp [w_enacted] at h_enact_i h_enact_j
-        first
-        | (cases h_enact_i; done)
-        | (cases h_enact_j; done)
-        | cases h_enact_i; cases h_enact_j; fin_cases m <;> decide
-      · dsimp [w_enacted] at h_enact_i h_enact_j
-        first
-        | (cases h_enact_i; done)
-        | (cases h_enact_j; done)
-        | cases h_enact_i; cases h_enact_j; fin_cases m <;> decide
-      · exact (h_ne rfl).elim
-      · dsimp [w_enacted] at h_enact_i; cases h_enact_i
-      · dsimp [w_enacted] at h_enact_i; cases h_enact_i
-      · dsimp [w_enacted] at h_enact_i; cases h_enact_i
-      · exact (h_ne rfl).elim
-    }
+  IsTradeAction := fun α =>
+    (∃ i j qA mA qB mB, α = WorkshopAction.offer i j qA mA qB mB) ∨
+    (∃ j i qA mA qB mB, α = WorkshopAction.accept j i qA mA qB mB)
+  alpha_zero_not_trade := by
+    intro h
+    rcases h with ⟨_, _, _, _, _, _, h⟩ | ⟨_, _, _, _, _, _, h⟩ <;> cases h
   MinPlausible := fun _ t => { w_witness t }
   min_plausible_nonempty := by intro _ t; exact ⟨w_witness t, Set.mem_singleton _⟩
   tau := fun _ t _ => t
@@ -906,10 +823,98 @@ theorem w_enacted_eq_future_choice (i : WorkshopAgent) (t u : WMoment)
   teleological_bundle_dominance_induces_preference := by
     intro i t h b1 b2 hdom
     exact hdom
-  TimedEnd := WorkshopEnd.timed
-  QuantityEnd := WorkshopEnd.quantity
-  timed_end_inj := by intro _ _ _ _ h; exact WorkshopEnd.timed.inj h
-  quantity_end_inj := by intro _ _ _ _ h; exact WorkshopEnd.quantity.inj h
+
+instance : BilateralExchangeFrame WorkshopActionFrame where
+  Offer := WorkshopAction.offer
+  Accept := WorkshopAction.accept
+  offer_inj := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; exact WorkshopAction.offer.inj h
+  accept_inj := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; exact WorkshopAction.accept.inj h
+  offer_ne_accept := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; cases h
+  alpha_zero_ne_offer := by intro _ _ _ _ _ _ h; cases h
+  alpha_zero_ne_accept := by intro _ _ _ _ _ _ h; cases h
+  use_means_offer := by intro _ _ _ _ _ _ _; rfl
+  yield_means_offer := by intro _ _ _ _ _ _ _; rfl
+  use_means_accept := by intro _ _ _ _ _ _ _; rfl
+  yield_means_accept := by intro _ _ _ _ _ _ _; rfl
+  unilateral_offer_noop := by
+    intro i j qA mA qB mB t t' h m h_enact h_not_acc h_next
+    rcases workshop_next_moment_cases h_next with
+      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
+      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ |
+      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
+      ⟨rfl, rfl, rfl⟩ |
+      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
+      ⟨rfl, rfl, rfl⟩ |
+      ⟨rfl, rfl, rfl | rfl | rfl | rfl⟩ |
+      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ |
+      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩
+    all_goals {
+      cases i <;> {
+        dsimp only [ActionFrame.enacted, WorkshopActionFrame, w_enacted] at h_enact
+        first
+        | (cases h_enact; done)
+        | cases h_enact; exfalso; apply h_not_acc; decide
+        | cases h_enact; fin_cases m <;> decide
+      }
+    }
+  unilateral_accept_noop := by
+    intro j i qA mA qB mB t t' h m h_enact h_not_off h_next
+    rcases workshop_next_moment_cases h_next with
+      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
+      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ |
+      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
+      ⟨rfl, rfl, rfl⟩ |
+      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
+      ⟨rfl, rfl, rfl⟩ |
+      ⟨rfl, rfl, rfl | rfl | rfl | rfl⟩ |
+      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ |
+      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩
+    all_goals {
+      cases j <;> {
+        dsimp only [ActionFrame.enacted, WorkshopActionFrame, w_enacted] at h_enact
+        first
+        | (cases h_enact; done)
+        | cases h_enact; exfalso; apply h_not_off; decide
+        | cases h_enact; fin_cases m <;> decide
+      }
+    }
+  bilateral_transfer_law := by
+    intro i j qA mA qB mB t t' h m h_ne h_enact_i h_enact_j h_next
+    rcases workshop_next_moment_cases h_next with
+      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
+      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ |
+      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
+      ⟨rfl, rfl, rfl⟩ |
+      ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
+      ⟨rfl, rfl, rfl⟩ |
+      ⟨rfl, rfl, rfl | rfl | rfl | rfl⟩ |
+      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ |
+      ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩
+    all_goals {
+      cases i <;> cases j
+      · exact (h_ne rfl).elim
+      · dsimp only [ActionFrame.enacted, WorkshopActionFrame, w_enacted] at h_enact_i
+        cases h_enact_i
+      · dsimp only [ActionFrame.enacted, WorkshopActionFrame, w_enacted] at h_enact_i h_enact_j
+        first
+        | (cases h_enact_i; done)
+        | (cases h_enact_j; done)
+        | cases h_enact_i; cases h_enact_j; fin_cases m <;> decide
+      · dsimp only [ActionFrame.enacted, WorkshopActionFrame, w_enacted] at h_enact_i h_enact_j
+        first
+        | (cases h_enact_i; done)
+        | (cases h_enact_j; done)
+        | cases h_enact_i; cases h_enact_j; fin_cases m <;> decide
+      · exact (h_ne rfl).elim
+      · dsimp only [ActionFrame.enacted, WorkshopActionFrame, w_enacted] at h_enact_i
+        cases h_enact_i
+      · dsimp only [ActionFrame.enacted, WorkshopActionFrame, w_enacted] at h_enact_i
+        cases h_enact_i
+      · dsimp only [ActionFrame.enacted, WorkshopActionFrame, w_enacted] at h_enact_i
+        cases h_enact_i
+      · exact (h_ne rfl).elim
+    }
+  is_trade_action_def := by intro α; rfl
 
 theorem entrepreneur_purposeful_proposal :
     @PurposefulAct WorkshopActionFrame .entrepreneur

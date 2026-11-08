@@ -45,7 +45,7 @@ their particular actions and event sequences satisfy them.
 
 ## 4. Derived choice and modal notions
 
-[`ChoicePartition`](../Praxeology/Frame/Core.lean#L1465) groups histories on which an
+[`ChoicePartition`](../Praxeology/Frame/Core.lean#L1583) groups histories on which an
 agent enacts the same action at a moment. The covering and disjointness
 properties are proved from the frame's feasibility and realization laws.
 `Exec` is defined using that partition. `DynamicBox` universally quantifies
@@ -56,7 +56,7 @@ they do not add probability or empirical uncertainty models.
 
 ## 5. Concrete frame witness
 
-[`action_frame_consistent`](../Praxeology/Frame/Witnesses.lean#L529) proves
+[`action_frame_consistent`](../Praxeology/Frame/Witnesses.lean#L508) proves
 nonemptiness by constructing the finite `FiniteBranchingModel`. Use that model
 as a witness only for declarations actually instantiated over it. In
 particular, a generic theorem over `ActionFrame` or a witness for the bare

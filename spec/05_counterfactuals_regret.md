@@ -31,7 +31,7 @@ themselves, prove that a causal context has been held fixed.
 
 ## 2. Entrepreneurial regret from blocked completion
 
-[`ContextualCycleEvaluation.regret`](../Praxeology/Entrepreneurship.lean#L449)
+[`ContextualCycleEvaluation.regret`](../Praxeology/Entrepreneurship.lean#L451)
 derives matched regret from an explicit safe alternative, a shared-context
 certificate, admissibility certificates for the actual and safe outcomes,
 physical grounding of outcomes in endowments, and a teleological dominance
@@ -39,7 +39,7 @@ comparison favoring the safe terminal bundle. The synthesis theorem for
 blocked completion also requires a purposeful investment and a transition
 that physically creates capital; blockage alone does not imply regret.
 
-[`abct_grounded_action_frame_master`](../Praxeology/BusinessCycle/Grounded.lean#L181)
+[`abct_grounded_action_frame_master`](../Praxeology/BusinessCycle/Grounded.lean#L217)
 is a finite witness for one entrepreneur in a two-agent ActionFrame. It shows a
 particular investment, an unavailable complementary input, and contextual
 regret under its specified preference and correspondence. It is not a

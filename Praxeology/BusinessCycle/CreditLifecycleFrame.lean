@@ -1314,7 +1314,7 @@ theorem lifecycle_issue_balance_transition :
           creditLifecycleYieldMeans .produceIntermediate0 m := by
   decide
 
-@[instance_reducible]
+@[reducible]
 def creditLifecycleActionFrame : ActionFrame := by
   exact {
     Agent := WorkshopAgent
@@ -1359,21 +1359,16 @@ def creditLifecycleActionFrame : ActionFrame := by
     yield_means := creditLifecycleYieldMeans
     use_means_alpha_zero := by intro m; rfl
     yield_means_alpha_zero := by intro m; rfl
-    A_feas := fun i t _ => creditLifecycleActionsAt i t
-    A_feas_coupling := by
-      intro i t h α
-      constructor
-      · intro hα
-        exact ⟨hα, creditLifecycle_use_feasible i t h α hα⟩
-      · intro hα
-        exact hα.1
     enacted := lifecycleEnacted
     enacted_in_A_feas := by
       intro i t h ht
-      change lifecycleEnacted i t h ∈ eventMenu (creditLifecycleChoice i t)
-      rcases lifecycle_enacted_in_menu i t h with hIdle | hChoice
-      · simp [eventMenu, hIdle]
-      · simp [eventMenu, hChoice]
+      simp only [Finset.mem_filter]
+      have hmenu := lifecycle_enacted_in_menu i t h
+      have hcont : lifecycleEnacted i t h ∈ creditLifecycleActionsAt i t := by
+        rcases hmenu with hIdle | hChoice
+        · simp [creditLifecycleActionsAt, eventMenu, hIdle]
+        · simp [creditLifecycleActionsAt, eventMenu, hChoice]
+      exact ⟨hcont, creditLifecycle_use_feasible i t h _ hcont⟩
     no_choice_between_undivided := by
       intro i t u h₁ h₂ ht₁ ht₂ htu hu₁ hu₂
       have hnext := lifecycle_next_same_on_shared_future ht₁ ht₂ htu hu₁ hu₂
@@ -1381,8 +1376,10 @@ def creditLifecycleActionFrame : ActionFrame := by
     sigma := lifecycleSigma
     sigma_realization := by
       intro i t h h' α ht hα hh'
-      change α ∈ creditLifecycleActionsAt i t at hα
-      rcases eventMenu_mem_cases hα with hIdle | hChoice
+      simp only [Finset.mem_filter] at hα
+      have hα_cont := hα.1
+      change α ∈ creditLifecycleActionsAt i t at hα_cont
+      rcases eventMenu_mem_cases hα_cont with hIdle | hChoice
       · subst α
         exact lifecycle_sigma_realizes_idle i t h' hh'
       · subst α
@@ -1392,25 +1389,18 @@ def creditLifecycleActionFrame : ActionFrame := by
       simp [lifecycleSigma, hα]
     sigma_co_agency := by
       intro i j t h h' α hij ht hα hh'
-      change α ∈ creditLifecycleActionsAt i t at hα
-      rcases eventMenu_mem_cases hα with hIdle | hChoice
+      simp only [Finset.mem_filter] at hα
+      have hα_cont := hα.1
+      change α ∈ creditLifecycleActionsAt i t at hα_cont
+      rcases eventMenu_mem_cases hα_cont with hIdle | hChoice
       · subst α
         exact lifecycle_sigma_co_agency_idle i j t h' hij hh'
       · subst α
         exact lifecycle_sigma_co_agency_choice i j t h' hij hh'
-    Offer := WorkshopAction.offer
-    Accept := WorkshopAction.accept
-    offer_inj := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; exact WorkshopAction.offer.inj h
-    accept_inj := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; exact WorkshopAction.accept.inj h
-    offer_ne_accept := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; cases h
-    alpha_zero_ne_offer := by intro _ _ _ _ _ _ h; cases h
-    alpha_zero_ne_accept := by intro _ _ _ _ _ _ h; cases h
-    use_means_offer := by intro _ _ _ _ _ _ _; rfl
-    yield_means_offer := by intro _ _ _ _ _ _ _; rfl
-    use_means_accept := by intro _ _ _ _ _ _ _; rfl
-    yield_means_accept := by intro _ _ _ _ _ _ _; rfl
     IsTradeAction := creditLifecycleTradeAction
-    is_trade_action_def := by intro α; rfl
+    alpha_zero_not_trade := by
+      intro h
+      rcases h with ⟨_, _, _, _, _, _, h⟩ | ⟨_, _, _, _, _, _, h⟩ <;> cases h
     law_in_re_transition := by
       intro i t t' h α m hnot hα hnext
       rw [lifecycle_next_moment_eq hnext hnext.1]
@@ -1431,48 +1421,6 @@ def creditLifecycleActionFrame : ActionFrame := by
           exact (hnot (Or.inl ⟨issuer, borrower, qA, goodA, qB, goodB, rfl⟩)).elim
       | accept borrower issuer qA goodA qB goodB =>
           exact (hnot (Or.inr ⟨borrower, issuer, qA, goodA, qB, goodB, rfl⟩)).elim
-    unilateral_offer_noop := by
-      intro i j qA mA qB mB t t' h m h_offer h_not_accept hnext
-      rw [lifecycle_next_moment_eq hnext hnext.1]
-      have hIsOffer : isOfferFromTo (lifecycleEnacted i t h) i j = true := by
-        rw [h_offer]
-        dsimp [isOfferFromTo]
-        simp only [beq_self_eq_true, Bool.and_self]
-      have hNotMatched :
-          ¬ isMatchingTrade (lifecycleEnacted i t h) (lifecycleEnacted j t h) i j = true := by
-        intro hMatched
-        rw [h_offer] at hMatched
-        have hAccept := matchingTrade_implies_accept hMatched
-        exact h_not_accept hAccept
-      exact lifecycle_unilateral_offer_balance_transition i j t h m hIsOffer hNotMatched
-    unilateral_accept_noop := by
-      intro j i qA mA qB mB t t' h m h_accept h_not_offer hnext
-      rw [lifecycle_next_moment_eq hnext hnext.1]
-      have hIsAccept : isAcceptFromTo (lifecycleEnacted j t h) j i = true := by
-        rw [h_accept]
-        dsimp [isAcceptFromTo]
-        simp only [beq_self_eq_true, Bool.and_self]
-      have hNotMatched :
-          ¬ isMatchingTrade (lifecycleEnacted i t h) (lifecycleEnacted j t h) i j = true := by
-        intro hMatched
-        rw [h_accept] at hMatched
-        have hOffer := matchingTrade_implies_offer hMatched
-        exact h_not_offer hOffer
-      exact lifecycle_unilateral_accept_balance_transition j i t h m hIsAccept hNotMatched
-    bilateral_transfer_law := by
-      intro i j qA mA qB mB t t' h m hij h_offer h_accept hnext
-      rw [lifecycle_next_moment_eq hnext hnext.1]
-      have hMatched :
-          isMatchingTrade (lifecycleEnacted i t h) (lifecycleEnacted j t h) i j = true := by
-        rw [h_offer, h_accept]
-        dsimp [isMatchingTrade]
-        simp only [beq_self_eq_true, Bool.and_self]
-      have h1 := lifecycle_trade_balance_transition i j t h m hMatched
-      have h2 := lifecycle_trade_acceptor_balance_transition i j t h m hMatched
-      rw [h_offer] at h1
-      rw [h_accept] at h2
-      dsimp only [creditLifecycleUseMeans, creditLifecycleYieldMeans] at h1 h2
-      exact ⟨h1, h2⟩
     MinPlausible := fun _ t => {lifecycleWitness t}
     min_plausible_nonempty := by
       intro i t
@@ -1518,11 +1466,76 @@ def creditLifecycleActionFrame : ActionFrame := by
     teleological_bundle_dominance_induces_preference := by
       intro i t h b₁ b₂ hdom
       exact hdom
-    TimedEnd := CreditLifecycleEnd.timed
-    QuantityEnd := CreditLifecycleEnd.quantity
-    timed_end_inj := by intro _ _ _ _ h; exact CreditLifecycleEnd.timed.inj h
-    quantity_end_inj := by intro _ _ _ _ h; exact CreditLifecycleEnd.quantity.inj h
   }
+
+@[reducible]
+instance creditLifecycleBilateralExchangeFrame :
+    BilateralExchangeFrame creditLifecycleActionFrame where
+  Offer := WorkshopAction.offer
+  Accept := WorkshopAction.accept
+  offer_inj := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; exact WorkshopAction.offer.inj h
+  accept_inj := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; exact WorkshopAction.accept.inj h
+  offer_ne_accept := by intro _ _ _ _ _ _ _ _ _ _ _ _ h; cases h
+  alpha_zero_ne_offer := by intro _ _ _ _ _ _ h; cases h
+  alpha_zero_ne_accept := by intro _ _ _ _ _ _ h; cases h
+  use_means_offer := by intro _ _ _ _ _ _ _; rfl
+  yield_means_offer := by intro _ _ _ _ _ _ _; rfl
+  use_means_accept := by intro _ _ _ _ _ _ _; rfl
+  yield_means_accept := by intro _ _ _ _ _ _ _; rfl
+  is_trade_action_def := by intro α; rfl
+  unilateral_offer_noop := by
+    intro i j qA mA qB mB t t' h m h_offer h_not_accept hnext
+    dsimp only [ActionFrame.enacted, ActionFrame.omega] at *
+    rw [lifecycle_next_moment_eq hnext hnext.1]
+    have hIsOffer : isOfferFromTo (lifecycleEnacted i t h) i j = true := by
+      rw [h_offer]
+      dsimp [isOfferFromTo]
+      simp only [beq_self_eq_true, Bool.and_self]
+    have hNotMatched :
+        ¬ isMatchingTrade (lifecycleEnacted i t h) (lifecycleEnacted j t h) i j = true := by
+      intro hMatched
+      rw [h_offer] at hMatched
+      have hAccept := matchingTrade_implies_accept hMatched
+      exact h_not_accept hAccept
+    exact lifecycle_unilateral_offer_balance_transition i j t h m hIsOffer hNotMatched
+  unilateral_accept_noop := by
+    intro j i qA mA qB mB t t' h m h_accept h_not_offer hnext
+    dsimp only [ActionFrame.enacted, ActionFrame.omega] at *
+    rw [lifecycle_next_moment_eq hnext hnext.1]
+    have hIsAccept : isAcceptFromTo (lifecycleEnacted j t h) j i = true := by
+      rw [h_accept]
+      dsimp [isAcceptFromTo]
+      simp only [beq_self_eq_true, Bool.and_self]
+    have hNotMatched :
+        ¬ isMatchingTrade (lifecycleEnacted i t h) (lifecycleEnacted j t h) i j = true := by
+      intro hMatched
+      rw [h_accept] at hMatched
+      have hOffer := matchingTrade_implies_offer hMatched
+      exact h_not_offer hOffer
+    exact lifecycle_unilateral_accept_balance_transition j i t h m hIsAccept hNotMatched
+  bilateral_transfer_law := by
+    intro i j qA mA qB mB t t' h m hij h_offer h_accept hnext
+    dsimp only [ActionFrame.enacted, ActionFrame.omega] at *
+    rw [lifecycle_next_moment_eq hnext hnext.1]
+    have hMatched :
+        isMatchingTrade (lifecycleEnacted i t h) (lifecycleEnacted j t h) i j = true := by
+      rw [h_offer, h_accept]
+      dsimp [isMatchingTrade]
+      simp only [beq_self_eq_true, Bool.and_self]
+    have h1 := lifecycle_trade_balance_transition i j t h m hMatched
+    have h2 := lifecycle_trade_acceptor_balance_transition i j t h m hMatched
+    rw [h_offer] at h1
+    rw [h_accept] at h2
+    dsimp only [creditLifecycleUseMeans, creditLifecycleYieldMeans] at h1 h2
+    exact ⟨h1, h2⟩
+
+@[reducible]
+instance creditLifecycleIntertemporalEnds :
+    IntertemporalEnds creditLifecycleActionFrame where
+  TimedEnd := CreditLifecycleEnd.timed
+  QuantityEnd := CreditLifecycleEnd.quantity
+  timed_end_inj := by intro _ _ _ _ h; exact CreditLifecycleEnd.timed.inj h
+  quantity_end_inj := by intro _ _ _ _ h; exact CreditLifecycleEnd.quantity.inj h
 
 /-- A concrete one-unit collateralized loan in the finite lifecycle frame.
 The loan terms are read from the already enacted advance and repayment events. -/
@@ -1540,7 +1553,7 @@ def entrepreneurLoanTerms : PawnLoanTerms creditLifecycleActionFrame where
   principalPositive := by decide
   collateralPositive := by decide
 
-local instance : ActionFrame := creditLifecycleActionFrame
+attribute [local instance] creditLifecycleActionFrame
 
 def entrepreneurAdvanceOutsideOption : WorkshopMeans → ℕ :=
   lifecycleOmega .entrepreneur (lifecycleLeaf (historyByIndex 3)) (historyByIndex 3)
@@ -1764,10 +1777,11 @@ present in the frame's event table. -/
 theorem entrepreneurAdvance_is_bilateral_exchange :
     BilateralExchange .operator .entrepreneur firstAdvanceMoment mainHistory
       1 creditLifecycleMoney 1 creditLifecycleCollateral := by
-  exact ricardian_bilateral_exchange_purposeful WorkshopAgent.operator WorkshopAgent.entrepreneur
-    firstAdvanceMoment mainHistory creditLifecycleMoney creditLifecycleCollateral
-    1 1 (by decide) (by decide) operator_advance_purposeful (by decide)
-    entrepreneur_accept_purposeful (by decide)
+  refine ⟨by decide, by decide, by decide, ?_, ?_, ?_, ?_⟩
+  · exact operator_advance_purposeful
+  · intro h; cases h
+  · exact entrepreneur_accept_purposeful
+  · intro h; cases h
 
 /-- The frame's actual first advance satisfies the generic loan-advance
 interface, including strict ordering before the frame's maturity node. -/
@@ -2010,10 +2024,11 @@ theorem operator_repayment_purposeful :
 theorem entrepreneur_repayment_is_bilateral_exchange :
     BilateralExchange .entrepreneur .operator firstRepaymentMoment mainHistory
       2 creditLifecycleMoney 1 creditLifecycleCollateral := by
-  exact ricardian_bilateral_exchange_purposeful WorkshopAgent.entrepreneur
-    WorkshopAgent.operator firstRepaymentMoment mainHistory creditLifecycleMoney
-    creditLifecycleCollateral 2 1 (by decide) (by decide)
-    entrepreneur_repayment_purposeful (by decide) operator_repayment_purposeful (by decide)
+  refine ⟨by decide, by decide, by decide, ?_, ?_, ?_, ?_⟩
+  · exact entrepreneur_repayment_purposeful
+  · intro h; cases h
+  · exact operator_repayment_purposeful
+  · intro h; cases h
 
 /-- The finite frame's actual first repayment fills the generic contract's
 repayment interface after advance and strictly before maturity. -/

@@ -24,8 +24,8 @@ namespace Praxeology
 /-- Executable evidence that an action profile assigns trades to their
 proposers or acceptors. The certificate is data so its cases can select an
 inventory-step constructor without classical choice. -/
-inductive ActionFrame.WellFormedAction (W : ActionFrame) (i : W.Agent) :
-    W.Action → Type where
+inductive ActionFrame.WellFormedAction (W : ActionFrame) [BilateralExchangeFrame W]
+    (i : W.Agent) : W.Action → Type where
   | nontrade {α : W.Action} (h_nontrade : ¬ W.IsTradeAction α) :
       W.WellFormedAction i α
   | offer {α : W.Action} (j : W.Agent) (qA : ℕ) (mA : W.Means)
@@ -35,13 +35,13 @@ inductive ActionFrame.WellFormedAction (W : ActionFrame) (i : W.Agent) :
       (qB : ℕ) (mB : W.Means) (h_agents : i ≠ j)
       (h_action : α = W.Accept i j qA mA qB mB) : W.WellFormedAction i α
 
-def ActionFrame.WellFormedEnactedAction (W : ActionFrame) (i : W.Agent)
-    (t : W.Moment) (h : W.History) : Type :=
+def ActionFrame.WellFormedEnactedAction (W : ActionFrame) [BilateralExchangeFrame W]
+    (i : W.Agent) (t : W.Moment) (h : W.History) : Type :=
   W.WellFormedAction i (W.enacted i t h)
 
 def InventoryStep.ofWellFormedAction
-    {W : ActionFrame} {i : W.Agent} {h : W.History} {t t' : W.Moment}
-    {α : W.Action}
+    {W : ActionFrame} [BilateralExchangeFrame W] {i : W.Agent}
+    {h : W.History} {t t' : W.Moment} {α : W.Action}
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
     (h_exec : W.enacted i t h = α) (h_well : W.WellFormedAction i α) :
     InventoryStep W i h t t' := by
@@ -61,8 +61,8 @@ def InventoryStep.ofWellFormedAction
 /-- A well-formed enacted action determines its production, matched-trade, or
 unmatched-trade inventory step. -/
 theorem InventoryStep.exists_of_wellFormedAction
-    {W : ActionFrame} {i : W.Agent} {h : W.History} {t t' : W.Moment}
-    {α : W.Action}
+    {W : ActionFrame} [BilateralExchangeFrame W] {i : W.Agent}
+    {h : W.History} {t t' : W.Moment} {α : W.Action}
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
     (h_exec : W.enacted i t h = α)
     (h_well : W.WellFormedAction i α) :
@@ -72,14 +72,16 @@ theorem InventoryStep.exists_of_wellFormedAction
 /-- Classify a well-formed enacted action without enumerating the full action
 type or invoking classical choice. -/
 theorem InventoryStep.exists_of_wellFormedEnactedAction
-    {W : ActionFrame} {i : W.Agent} {h : W.History} {t t' : W.Moment}
+    {W : ActionFrame} [BilateralExchangeFrame W] {i : W.Agent}
+    {h : W.History} {t t' : W.Moment}
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
     (h_well : W.WellFormedEnactedAction i t h) :
     Nonempty (InventoryStep W i h t t') :=
   ⟨InventoryStep.ofWellFormedAction h_next rfl h_well⟩
 
 def InventoryStep.ofWellFormedEnactedAction
-    {W : ActionFrame} {i : W.Agent} {h : W.History} {t t' : W.Moment}
+    {W : ActionFrame} [BilateralExchangeFrame W] {i : W.Agent}
+    {h : W.History} {t t' : W.Moment}
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
     (h_well : W.WellFormedEnactedAction i t h) : InventoryStep W i h t t' :=
   InventoryStep.ofWellFormedAction h_next rfl h_well
@@ -88,7 +90,8 @@ def InventoryStep.ofWellFormedEnactedAction
 frame remains the source of actions, endowments, ends, preferences, and
 doxastic laws; this record supplies only the finite temporal presentation
 and its enacted inventory steps. -/
-structure FiniteInventoryProgram (W : ActionFrame) (T : FiniteTreeSpec) where
+structure FiniteInventoryProgram (W : ActionFrame) [BilateralExchangeFrame W]
+    (T : FiniteTreeSpec) where
   presentation : FiniteTreeSpec.FiniteTreePresentation W T
   /-- A precomputed ancestry matrix reused by profile and history queries. -/
   treeIndex : FiniteTreeSpec.FiniteTreeIndex T
@@ -109,7 +112,7 @@ namespace FiniteInventoryProgram
 /-- Compile one parent-child edge from the ActionFrame's enacted profile.
 The compiler derives temporal adjacency from the parent array and classifies
 the event as production, matched exchange, or unmatched exchange. -/
-def step {W : ActionFrame} {T : FiniteTreeSpec}
+def step {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     (P : FiniteInventoryProgram W T) (i : W.Agent) {u v : T.Node}
     (huv : T.parent v = u) (hv : v ≠ 0) (hmem : T.MemHist v P.history) :
     InventoryStep W i (P.presentation.history P.history)
@@ -127,7 +130,7 @@ def step {W : ActionFrame} {T : FiniteTreeSpec}
 /-- Compile the certified edges from the root to any node on the selected
 history into a physical inventory run. The recursion is on the node index,
 which strictly decreases along parent pointers. -/
-def runTo {W : ActionFrame} {T : FiniteTreeSpec}
+def runTo {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     (P : FiniteInventoryProgram W T) (i : W.Agent) (t : T.Node)
     (ht : T.MemHist t P.history) :
     InventoryRun W i (P.presentation.history P.history)
@@ -154,17 +157,17 @@ namespace FiniteInventoryProgram
 
 /-- Read a selected history's incidence through the cached matrix carried by
 the compiled program. -/
-def cachedMemHist {W : ActionFrame} {T : FiniteTreeSpec}
+def cachedMemHist {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     (P : FiniteInventoryProgram W T) (t : T.Node) : Prop :=
   P.treeIndex.MemHist t P.history
 
-theorem cachedMemHist_iff {W : ActionFrame} {T : FiniteTreeSpec}
+theorem cachedMemHist_iff {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     (P : FiniteInventoryProgram W T) (t : T.Node) :
     P.cachedMemHist t ↔ T.MemHist t P.history :=
   P.treeIndex.memHist_iff t P.history
 
 /-- Run to any node certified by the compiled history index. -/
-def runToCached {W : ActionFrame} {T : FiniteTreeSpec}
+def runToCached {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     (P : FiniteInventoryProgram W T) (i : W.Agent) (t : T.Node)
     (ht : P.cachedMemHist t) :
     InventoryRun W i (P.presentation.history P.history)
@@ -179,15 +182,16 @@ namespace InventoryRun
 effective inputs and outputs of a compiled inventory run. The natural-number
 subtraction is safe because `inventory_balance` certifies that the run's total
 uses are funded. -/
-def simulateEndowment {W : ActionFrame} {i : W.Agent} {h : W.History}
-    {t u : W.Moment} (run : InventoryRun W i h t u)
+def simulateEndowment {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History} {t u : W.Moment}
+    (run : InventoryRun W i h t u)
     (initial : W.Means → ℕ) : W.Means → ℕ :=
   fun m => initial m + run.totalYield m - run.totalUse m
 
 /-- The forward-simulated stock equals the ActionFrame's observed stock when
 the root ledger is read from that same frame. -/
-theorem simulateEndowment_eq_omega {W : ActionFrame} {i : W.Agent}
-    {h : W.History} {t u : W.Moment}
+theorem simulateEndowment_eq_omega {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History} {t u : W.Moment}
     (run : InventoryRun W i h t u) :
     run.simulateEndowment (fun m => W.omega i t h m) =
       fun m => W.omega i u h m := by
@@ -309,7 +313,8 @@ end EconomyEndInterpretation
 the source of endowments and teleological preference laws; this record
 provides finite tables and proves that they agree with the frame's enacted
 actions and valued ends. -/
-structure FiniteEconomySpec (W : ActionFrame) (T : FiniteTreeSpec) where
+structure FiniteEconomySpec (W : ActionFrame) [BilateralExchangeFrame W]
+    (T : FiniteTreeSpec) where
   presentation : FiniteTreeSpec.FiniteTreePresentation W T
   initialEndowment : W.Agent → W.Means → ℕ
   initialEndowment_matches : ∀ (i : W.Agent) (m : W.Means) (h : T.History),
@@ -331,8 +336,9 @@ namespace FiniteEconomySpec
 /-- Select one finite history and expose its validated profile to the generic
 inventory-run compiler. Preference and end semantics continue to come from
 the underlying `ActionFrame`. -/
-def inventoryProgram {W : ActionFrame} {T : FiniteTreeSpec}
-    (S : FiniteEconomySpec W T) (h : T.History) : FiniteInventoryProgram W T :=
+def inventoryProgram {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : FiniteTreeSpec} (S : FiniteEconomySpec W T) (h : T.History) :
+    FiniteInventoryProgram W T :=
   { presentation := S.presentation
     treeIndex := T.compileIndex
     history := h
@@ -348,17 +354,17 @@ namespace FiniteInventoryProgram
 
 /-- Compute the balance at a node from the selected history's root stock and
 the compiled production/trade transitions along the parent path. -/
-noncomputable def predictedEndowment {W : ActionFrame} {T : FiniteTreeSpec}
-    (P : FiniteInventoryProgram W T) (i : W.Agent) (t : T.Node)
-    (ht : T.MemHist t P.history) : W.Means → ℕ :=
+noncomputable def predictedEndowment {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : FiniteTreeSpec} (P : FiniteInventoryProgram W T) (i : W.Agent)
+    (t : T.Node) (ht : T.MemHist t P.history) : W.Means → ℕ :=
   (P.runTo i t ht).simulateEndowment
     (P.initialEndowment i)
 
 /-- The compiled forward simulation agrees with the frame's observed stock
 at every node. -/
-theorem predictedEndowment_eq_omega {W : ActionFrame} {T : FiniteTreeSpec}
-    (P : FiniteInventoryProgram W T) (i : W.Agent) (t : T.Node)
-    (ht : T.MemHist t P.history) :
+theorem predictedEndowment_eq_omega {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : FiniteTreeSpec} (P : FiniteInventoryProgram W T) (i : W.Agent)
+    (t : T.Node) (ht : T.MemHist t P.history) :
     P.predictedEndowment i t ht =
       fun m => W.omega i (P.presentation.moment t)
         (P.presentation.history P.history) m := by
@@ -372,15 +378,17 @@ end FiniteInventoryProgram
 
 namespace FiniteEconomySpec
 
-theorem initial_endowment_at_root {W : ActionFrame} {T : FiniteTreeSpec}
-    (S : FiniteEconomySpec W T) (i : W.Agent) (m : W.Means) (h : T.History) :
+theorem initial_endowment_at_root {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : FiniteTreeSpec} (S : FiniteEconomySpec W T) (i : W.Agent) (m : W.Means)
+    (h : T.History) :
     W.omega i (S.presentation.moment 0) (S.presentation.history h) m =
       S.initialEndowment i m :=
   S.initialEndowment_matches i m h
 
 /-- The compiled transition trace reproduces stocks from the declared root
 endowment and the frame's enacted production/trade transitions. -/
-theorem predictedEndowment_eq_declared_profile {W : ActionFrame} {T : FiniteTreeSpec}
+theorem predictedEndowment_eq_declared_profile
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     (S : FiniteEconomySpec W T) (h : T.History) (i : W.Agent) (t : T.Node)
     (ht : T.MemHist t h) (m : W.Means) :
     (S.inventoryProgram h).predictedEndowment i t ht m =
@@ -388,7 +396,8 @@ theorem predictedEndowment_eq_declared_profile {W : ActionFrame} {T : FiniteTree
   simpa [inventoryProgram] using
     congrFun ((S.inventoryProgram h).predictedEndowment_eq_omega i t ht) m
 
-theorem valued_ends_remain_frame_valued {W : ActionFrame} {T : FiniteTreeSpec}
+theorem valued_ends_remain_frame_valued
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     (S : FiniteEconomySpec W T) (i : W.Agent) (t : T.Node) (h : T.History)
     (w : W.Ends) (ht : T.MemHist t h) :
     W.ValuedEnd i (S.presentation.moment t) (S.presentation.history h) w ↔

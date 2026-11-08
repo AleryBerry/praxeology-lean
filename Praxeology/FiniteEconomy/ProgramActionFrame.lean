@@ -851,42 +851,11 @@ constructor, not an implication of physical feasibility. -/
         (mem_feasibleMenu_iff operations (program.stateAt t) i
           (t.currentStage.menu i) action).1 ha |>.1
       exact program.selectByBehavior_other behavior i j t action h' ht' hmenu hne
-    Offer := EconomyAction.offer
-    Accept := EconomyAction.accept
-    use_means_offer := by
-      intro i j qA mA qB mB m
-      simp [rawActionUse]
-    yield_means_offer := by
-      intro i j qA mA qB mB m
-      simp [rawActionYield]
-    use_means_accept := by
-      intro j i qA mA qB mB m
-      simp [rawActionUse]
-    yield_means_accept := by
-      intro j i qA mA qB mB m
-      simp [rawActionYield]
-    offer_inj := by
-      intro i₁ j₁ qA₁ mA₁ qB₁ mB₁ i₂ j₂ qA₂ mA₂ qB₂ mB₂ h
-      exact EconomyAction.offer.inj h
-    accept_inj := by
-      intro j₁ i₁ qA₁ mA₁ qB₁ mB₁ j₂ i₂ qA₂ mA₂ qB₂ mB₂ h
-      exact EconomyAction.accept.inj h
-    offer_ne_accept := by
-      intro i j qA mA qB mB j' i' qA' mA' qB' mB' h
-      cases h
-    alpha_zero_ne_offer := by
-      intro i j qA mA qB mB h
-      cases h
-    alpha_zero_ne_accept := by
-      intro j i qA mA qB mB h
-      cases h
     IsTradeAction := fun action => match action with
       | .offer .. => True
       | .accept .. => True
       | _ => False
-    is_trade_action_def := by
-      intro action
-      cases action <;> simp
+    alpha_zero_not_trade := by intro h; cases h
     law_in_re_transition := by
       intro i t t' h action m hnot haction hnext
       have hbalance := program.transitionBalance operations hstable t t' h hnext i m
@@ -901,22 +870,6 @@ constructor, not an implication of physical feasibility. -/
           exact (hnot (by simp)).elim
       | accept buyer seller soldQuantity soldGood paidQuantity paidGood =>
           exact (hnot (by simp)).elim
-    unilateral_offer_noop := by
-      intro i j qA mA qB mB t t' h m hoff hnot hnext
-      have hbalance := program.transitionBalance operations hstable t t' h hnext i m
-      simpa [effectiveUse, effectiveYield, hoff, hnot] using hbalance
-    unilateral_accept_noop := by
-      intro j i qA mA qB mB t t' h m haccept hnot hnext
-      have hbalance := program.transitionBalance operations hstable t t' h hnext j m
-      simpa [effectiveUse, effectiveYield, haccept, hnot] using hbalance
-    bilateral_transfer_law := by
-      intro i j qA mA qB mB t t' h m hne hoff haccept hnext
-      have hbi := program.transitionBalance operations hstable t t' h hnext i m
-      have hbj := program.transitionBalance operations hstable t t' h hnext j m
-      have hbi' := hbi
-      have hbj' := hbj
-      simp only [effectiveUse, effectiveYield, hoff, haccept] at hbi' hbj'
-      exact ⟨by simpa [hne] using hbi', by simpa [hne] using hbj'⟩
     MinPlausible := fun i t => {behavior.referenceHistory i t}
     min_plausible_nonempty := by
       intro i t
@@ -963,15 +916,108 @@ constructor, not an implication of physical feasibility. -/
     BundleEnd := FiniteProgramEnd.bundle
     teleological_bundle_dominance_induces_preference :=
       behavior.teleological_dominance_prefers
-    TimedEnd := FiniteProgramEnd.timed
-    QuantityEnd := FiniteProgramEnd.quantity
-    timed_end_inj := by
-      intro e₁ t₁ e₂ t₂ h
-      exact FiniteProgramEnd.timed.inj h
-    quantity_end_inj := by
-      intro m₁ q₁ m₂ q₂ h
-      exact FiniteProgramEnd.quantity.inj h
   }
+
+@[simp] theorem toActionFrame_omega {fuel : ℕ} {state : PhysicalState Agent Means Service}
+    [Nonempty Agent]
+    (program : FinitePhysicalEconomyProgram Agent Means Operation Service fuel state)
+    (operations : OperationSemantics Operation Means Service)
+    (hstable : program.HasStableOperationSemantics operations)
+    (behavior : program.ActionFrameBehavior) (i : Agent) (t : program.Moment)
+    (h : program.History) (m : Means) :
+    (program.toActionFrame operations hstable behavior).omega i t h m =
+      (program.stateAt t).stock i m := rfl
+
+@[simp] theorem toActionFrame_enacted {fuel : ℕ} {state : PhysicalState Agent Means Service}
+    [Nonempty Agent]
+    (program : FinitePhysicalEconomyProgram Agent Means Operation Service fuel state)
+    (operations : OperationSemantics Operation Means Service)
+    (hstable : program.HasStableOperationSemantics operations)
+    (behavior : program.ActionFrameBehavior) (i : Agent) (t : program.Moment)
+    (h : program.History) :
+    (program.toActionFrame operations hstable behavior).enacted i t h =
+      FiniteEconomyProgram.ProgramHistory.enactedAt h t i := rfl
+
+instance {fuel : ℕ} {state : PhysicalState Agent Means Service} [Nonempty Agent]
+    (program : FinitePhysicalEconomyProgram Agent Means Operation Service fuel state)
+    (operations : OperationSemantics Operation Means Service)
+    (hstable : program.HasStableOperationSemantics operations)
+    (behavior : program.ActionFrameBehavior) :
+    BilateralExchangeFrame (program.toActionFrame operations hstable behavior) where
+  Offer := EconomyAction.offer
+  Accept := EconomyAction.accept
+  use_means_offer := by intro _ _ _ _ _ _ _; rfl
+  yield_means_offer := by intro _ _ _ _ _ _ _; rfl
+  use_means_accept := by intro _ _ _ _ _ _ _; rfl
+  yield_means_accept := by intro _ _ _ _ _ _ _; rfl
+  offer_inj := by
+    intro i₁ j₁ qA₁ mA₁ qB₁ mB₁ i₂ j₂ qA₂ mA₂ qB₂ mB₂ h
+    exact EconomyAction.offer.inj h
+  accept_inj := by
+    intro j₁ i₁ qA₁ mA₁ qB₁ mB₁ j₂ i₂ qA₂ mA₂ qB₂ mB₂ h
+    exact EconomyAction.accept.inj h
+  offer_ne_accept := by
+    intro i j qA mA qB mB j' i' qA' mA' qB' mB' h
+    cases h
+  alpha_zero_ne_offer := by
+    intro i j qA mA qB mB h
+    cases h
+  alpha_zero_ne_accept := by
+    intro j i qA mA qB mB h
+    cases h
+  is_trade_action_def := by
+    intro action
+    cases action with
+    | idle =>
+        dsimp [ActionFrame.IsTradeAction, toActionFrame]
+        simp
+    | operate op =>
+        dsimp [ActionFrame.IsTradeAction, toActionFrame]
+        simp
+    | offer seller buyer soldQuantity soldGood paidQuantity paidGood =>
+        dsimp [ActionFrame.IsTradeAction, toActionFrame]
+        simp only [true_iff]
+        left
+        exact ⟨seller, buyer, soldQuantity, soldGood, paidQuantity, paidGood, rfl⟩
+    | accept buyer seller soldQuantity soldGood paidQuantity paidGood =>
+        dsimp [ActionFrame.IsTradeAction, toActionFrame]
+        simp only [true_iff]
+        right
+        exact ⟨buyer, seller, soldQuantity, soldGood, paidQuantity, paidGood, rfl⟩
+  unilateral_offer_noop := by
+    intro i j qA mA qB mB t t' h m hoff hnot hnext
+    have hbalance := program.transitionBalance operations hstable t t' h hnext i m
+    simp only [toActionFrame_enacted] at hoff hnot
+    simpa [effectiveUse, effectiveYield, hoff, hnot] using hbalance
+  unilateral_accept_noop := by
+    intro j i qA mA qB mB t t' h m haccept hnot hnext
+    have hbalance := program.transitionBalance operations hstable t t' h hnext j m
+    simp only [toActionFrame_enacted] at haccept hnot
+    simpa [effectiveUse, effectiveYield, haccept, hnot] using hbalance
+  bilateral_transfer_law := by
+    intro i j qA mA qB mB t t' h m hne hoff haccept hnext
+    have hbi := program.transitionBalance operations hstable t t' h hnext i m
+    have hbj := program.transitionBalance operations hstable t t' h hnext j m
+    have hbi' := hbi
+    have hbj' := hbj
+    simp only [toActionFrame_enacted] at hoff haccept
+    simp only [effectiveUse, effectiveYield, hoff, haccept] at hbi' hbj'
+    exact ⟨by simpa [hne] using hbi', by simpa [hne] using hbj'⟩
+
+instance {fuel : ℕ} {state : PhysicalState Agent Means Service} [Nonempty Agent]
+    (program : FinitePhysicalEconomyProgram Agent Means Operation Service fuel state)
+    (operations : OperationSemantics Operation Means Service)
+    (hstable : program.HasStableOperationSemantics operations)
+    (behavior : program.ActionFrameBehavior) :
+    IntertemporalEnds (program.toActionFrame operations hstable behavior) where
+  TimedEnd := FiniteProgramEnd.timed
+  QuantityEnd := FiniteProgramEnd.quantity
+  timed_end_inj := by
+    intro e₁ t₁ e₂ t₂ h
+    exact FiniteProgramEnd.timed.inj h
+  quantity_end_inj := by
+    intro m₁ q₁ m₂ q₂ h
+    exact FiniteProgramEnd.quantity.inj h
 
 end FinitePhysicalEconomyProgram
 

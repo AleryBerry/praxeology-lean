@@ -74,7 +74,7 @@ clearing price is the gross repayment factor in the market's repayment-money
 denomination. The rounds share a borrower and lender, and their common
 reservation interval has a single admissible price. Each contract identifies
 its gross repayment factor with that clearing price. -/
-structure CatallacticCreditRateComparison {W : ActionFrame}
+structure CatallacticCreditRateComparison {W : ActionFrame} [BilateralExchangeFrame W]
     (T_saving T_credit : PawnLoanTerms W) where
   market : MultilateralCohortMarket W.Agent W.Means
   savingRound : PurposefulFundedClearingRound market
@@ -103,7 +103,7 @@ namespace CatallacticCreditRateComparison
 
 /-- A shared lender, borrower, and singleton reservation price make the two
 clearing rounds charge the same market price. -/
-theorem same_clearing_price {W : ActionFrame}
+theorem same_clearing_price {W : ActionFrame} [BilateralExchangeFrame W]
     {T_saving T_credit : PawnLoanTerms W}
     (Q : CatallacticCreditRateComparison T_saving T_credit) :
     Q.savingRound.base.clearing.price = Q.creditRound.base.clearing.price := by
@@ -125,7 +125,7 @@ theorem same_clearing_price {W : ActionFrame}
 
 /-- The two contractual gross repayment factors are derived equal from their
 shared Catallactic market clearing price. -/
-theorem same_gross_repayment_factor {W : ActionFrame}
+theorem same_gross_repayment_factor {W : ActionFrame} [BilateralExchangeFrame W]
     {T_saving T_credit : PawnLoanTerms W}
     (Q : CatallacticCreditRateComparison T_saving T_credit) :
     T_saving.grossRepaymentFactor = T_credit.grossRepaymentFactor := by
@@ -366,7 +366,7 @@ def MomentAtOrBefore (W : ActionFrame) (t u : W.Moment) : Prop :=
 /-- An actual purposeful advance: the lender offers principal for custody of
 collateral, the borrower accepts, and both acts are recorded on the same
 history at adjacent moments. -/
-structure CreditAdvance {W : ActionFrame} (T : PawnLoanTerms W) where
+structure CreditAdvance {W : ActionFrame} [BilateralExchangeFrame W] (T : PawnLoanTerms W) where
   history : W.History
   moment : W.Moment
   nextMoment : W.Moment
@@ -374,12 +374,12 @@ structure CreditAdvance {W : ActionFrame} (T : PawnLoanTerms W) where
   /-- Contractual maturity is strictly later than settlement of the advance. -/
   advanceBeforeMaturity : W.Precedence nextMoment T.maturity
   maturityOnHistory : W.mem_hist T.maturity history
-  purposefulExchange : @BilateralExchange W T.lender T.borrower moment history
+  purposefulExchange : BilateralExchange (W := W) T.lender T.borrower moment history
     T.principal T.money T.collateralQuantity T.collateral
 
 /-- A matched advance event without any behavioral-purposefulness proof. The
 contractual deadline is attached to the settlement point and loan history. -/
-structure AdvanceExecution {W : ActionFrame} {T : PawnLoanTerms W} where
+structure AdvanceExecution {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W} where
   history : W.History
   decisionMoment : W.Moment
   settlementMoment : W.Moment
@@ -399,7 +399,7 @@ namespace AdvanceExecution
 
 /-- A matched physical origination transfers principal and collateral as
 specified by the contract. -/
-theorem physical_transfer {W : ActionFrame} {T : PawnLoanTerms W}
+theorem physical_transfer {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     (A : AdvanceExecution (T := T)) :
     W.omega T.borrower A.settlementMoment A.history T.money =
         W.omega T.borrower A.decisionMoment A.history T.money + T.principal ∧
@@ -416,7 +416,8 @@ end AdvanceExecution
 namespace CreditAdvance
 
 /-- Discarding behavioral evidence leaves the enacted physical loan event. -/
-def execution {W : ActionFrame} {T : PawnLoanTerms W} (A : CreditAdvance T) :
+def execution {W : ActionFrame}
+    [BilateralExchangeFrame W] {T : PawnLoanTerms W} (A : CreditAdvance T) :
     AdvanceExecution (T := T) where
   history := A.history
   decisionMoment := A.moment
@@ -433,7 +434,7 @@ def execution {W : ActionFrame} {T : PawnLoanTerms W} (A : CreditAdvance T) :
 
 /-- The lender's matched-offer inventory step, derived from the purposeful
 bilateral exchange and its ActionFrame enactment. -/
-def lenderInventoryStep {W : ActionFrame} {T : PawnLoanTerms W}
+def lenderInventoryStep {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     (A : CreditAdvance T) :
     InventoryStep W T.lender A.history A.moment A.nextMoment := by
   have hactions := bilateral_exchange_enacted_actions T.lender T.borrower
@@ -443,7 +444,7 @@ def lenderInventoryStep {W : ActionFrame} {T : PawnLoanTerms W}
     T.collateral T.distinctAgents hactions.1 hactions.2 A.successor
 
 /-- The borrower's matched-acceptance inventory step for the same advance. -/
-def borrowerInventoryStep {W : ActionFrame} {T : PawnLoanTerms W}
+def borrowerInventoryStep {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     (A : CreditAdvance T) :
     InventoryStep W T.borrower A.history A.moment A.nextMoment := by
   have hactions := bilateral_exchange_enacted_actions T.lender T.borrower
@@ -453,13 +454,13 @@ def borrowerInventoryStep {W : ActionFrame} {T : PawnLoanTerms W}
     T.collateral T.distinctAgents hactions.2 hactions.1 A.successor
 
 /-- The matched loan advance is a one-edge lender inventory run. -/
-def lenderInventoryRun {W : ActionFrame} {T : PawnLoanTerms W}
+def lenderInventoryRun {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     (A : CreditAdvance T) :
     InventoryRun W T.lender A.history A.moment A.nextMoment :=
   .step A.lenderInventoryStep (.done A.nextMoment)
 
 /-- The matched loan advance is a one-edge borrower inventory run. -/
-def borrowerInventoryRun {W : ActionFrame} {T : PawnLoanTerms W}
+def borrowerInventoryRun {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     (A : CreditAdvance T) :
     InventoryRun W T.borrower A.history A.moment A.nextMoment :=
   .step A.borrowerInventoryStep (.done A.nextMoment)
@@ -468,7 +469,7 @@ end CreditAdvance
 
 /-- The matched advance adds the principal to borrower cash and places the
 collateral in lender custody. -/
-theorem CreditAdvance.physical_transfer {W : ActionFrame}
+theorem CreditAdvance.physical_transfer {W : ActionFrame} [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} (A : CreditAdvance T) :
     W.omega T.borrower A.nextMoment A.history T.money =
         W.omega T.borrower A.moment A.history T.money + T.principal ∧
@@ -484,7 +485,7 @@ theorem CreditAdvance.physical_transfer {W : ActionFrame}
   exact ⟨hflow.2.1, hflow.2.2.1⟩
 
 /-- The lender pays the principal media during the matched advance. -/
-theorem CreditAdvance.lender_media_decreases {W : ActionFrame}
+theorem CreditAdvance.lender_media_decreases {W : ActionFrame} [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} (A : CreditAdvance T) :
     W.omega T.lender A.nextMoment A.history T.money + T.principal =
       W.omega T.lender A.moment A.history T.money := by
@@ -497,7 +498,7 @@ theorem CreditAdvance.lender_media_decreases {W : ActionFrame}
   exact hflow.1
 
 /-- The borrower supplies the agreed collateral during the matched advance. -/
-theorem CreditAdvance.borrower_collateral_decreases {W : ActionFrame}
+theorem CreditAdvance.borrower_collateral_decreases {W : ActionFrame} [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} (A : CreditAdvance T) :
     W.omega T.borrower A.nextMoment A.history T.collateral + T.collateralQuantity =
       W.omega T.borrower A.moment A.history T.collateral := by
@@ -533,7 +534,7 @@ theorem totalMedia_eq_universal_sum {W : ActionFrame} (issuer : W.Agent)
 without consuming existing media or reserve commodities.  This interface is
 defined for every `ActionFrame`; a finite compiler can supply its witnesses,
 but does not define the banking claim. -/
-structure FiduciaryNoteIssuance {W : ActionFrame} where
+structure FiduciaryNoteIssuance {W : ActionFrame} [BilateralExchangeFrame W] where
   issuer : W.Agent
   history : W.History
   moment : W.Moment
@@ -556,14 +557,14 @@ structure FiduciaryNoteIssuance {W : ActionFrame} where
     W.enacted a moment history = W.alpha_zero
 
 /-- The actual inventory witness associated with a note-issuance certificate. -/
-def FiduciaryNoteIssuance.inventoryStep {W : ActionFrame}
+def FiduciaryNoteIssuance.inventoryStep {W : ActionFrame} [BilateralExchangeFrame W]
     (I : FiduciaryNoteIssuance (W := W)) :
     InventoryStep W I.issuer I.history I.moment I.nextMoment :=
   .production I.action I.enacted I.nontrade I.successor
 
 /-- Note printing raises the issuer's spendable media by exactly the printed
 principal. -/
-theorem FiduciaryNoteIssuance.issuer_media_increases {W : ActionFrame}
+theorem FiduciaryNoteIssuance.issuer_media_increases {W : ActionFrame} [BilateralExchangeFrame W]
     (I : FiduciaryNoteIssuance (W := W)) :
     W.omega I.issuer I.nextMoment I.history I.money =
       W.omega I.issuer I.moment I.history I.money + I.principal := by
@@ -573,7 +574,7 @@ theorem FiduciaryNoteIssuance.issuer_media_increases {W : ActionFrame}
   omega
 
 /-- Printing does not alter the issuer's reserve commodity. -/
-theorem FiduciaryNoteIssuance.issuer_reserve_unchanged {W : ActionFrame}
+theorem FiduciaryNoteIssuance.issuer_reserve_unchanged {W : ActionFrame} [BilateralExchangeFrame W]
     (I : FiduciaryNoteIssuance (W := W)) :
     W.omega I.issuer I.nextMoment I.history I.reserve =
       W.omega I.issuer I.moment I.history I.reserve := by
@@ -584,7 +585,7 @@ theorem FiduciaryNoteIssuance.issuer_reserve_unchanged {W : ActionFrame}
 
 /-- Other agents' balances are unchanged by an issuance step when they enact
 the baseline action. -/
-theorem FiduciaryNoteIssuance.other_media_unchanged {W : ActionFrame}
+theorem FiduciaryNoteIssuance.other_media_unchanged {W : ActionFrame} [BilateralExchangeFrame W]
     (I : FiduciaryNoteIssuance (W := W)) {a : W.Agent} (ha : a ≠ I.issuer) :
     W.omega a I.nextMoment I.history I.money =
       W.omega a I.moment I.history I.money := by
@@ -596,6 +597,7 @@ theorem FiduciaryNoteIssuance.other_media_unchanged {W : ActionFrame}
 /-- Minting creates notes in the issuer's treasury and leaves circulation
 unchanged. -/
 theorem FiduciaryNoteIssuance.circulating_media_unchanged {W : ActionFrame}
+    [BilateralExchangeFrame W]
     (I : FiduciaryNoteIssuance (W := W)) :
     circulatingMedia I.issuer I.money I.nextMoment I.history =
       circulatingMedia I.issuer I.money I.moment I.history := by
@@ -607,7 +609,7 @@ theorem FiduciaryNoteIssuance.circulating_media_unchanged {W : ActionFrame}
   exact I.other_media_unchanged haIssuer
 
 /-- Minting raises total spendable media by exactly the printed principal. -/
-theorem FiduciaryNoteIssuance.total_media_increases {W : ActionFrame}
+theorem FiduciaryNoteIssuance.total_media_increases {W : ActionFrame} [BilateralExchangeFrame W]
     (I : FiduciaryNoteIssuance (W := W)) :
     totalMedia I.issuer I.money I.nextMoment I.history =
       totalMedia I.issuer I.money I.moment I.history + I.principal := by
@@ -618,7 +620,7 @@ theorem FiduciaryNoteIssuance.total_media_increases {W : ActionFrame}
 /-- The account-level evidence that a minted note was issued as a matched,
 purposeful collateralized advance.  The record ties the generic issuance and
 `CreditAdvance` certificates together by their event, agent, and good indices. -/
-structure FiduciaryOrigination {W : ActionFrame} (T : PawnLoanTerms W)
+structure FiduciaryOrigination {W : ActionFrame} [BilateralExchangeFrame W] (T : PawnLoanTerms W)
     (I : FiduciaryNoteIssuance (W := W)) (A : CreditAdvance T) where
   lender_is_issuer : T.lender = I.issuer
   money_matches : T.money = I.money
@@ -631,14 +633,14 @@ structure FiduciaryOrigination {W : ActionFrame} (T : PawnLoanTerms W)
 /-- Name the physical issuance certificate as a balance-sheet event. It is
 still just an `InventoryStep.production` together with ActionFrame purpose
 and enactment evidence. -/
-abbrev FiduciaryIssuanceStep (W : ActionFrame) :=
+abbrev FiduciaryIssuanceStep (W : ActionFrame) [BilateralExchangeFrame W] :=
   FiduciaryNoteIssuance (W := W)
 
 namespace FiduciaryOrigination
 
 /-- The note-printing production step is the one-edge inventory run that
 immediately precedes the matched credit advance. -/
-def issueToAdvanceRun {W : ActionFrame} {T : PawnLoanTerms W}
+def issueToAdvanceRun {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {I : FiduciaryIssuanceStep W} {A : CreditAdvance T}
     (O : FiduciaryOrigination T I A) :
     InventoryRun W T.lender I.history I.moment A.moment := by
@@ -647,7 +649,7 @@ def issueToAdvanceRun {W : ActionFrame} {T : PawnLoanTerms W}
 
 /-- The banker's full origination trace consists of purposeful note printing
 followed by the matched lender offer in the credit advance. -/
-def lenderOriginationRun {W : ActionFrame} {T : PawnLoanTerms W}
+def lenderOriginationRun {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {I : FiduciaryIssuanceStep W} {A : CreditAdvance T}
     (O : FiduciaryOrigination T I A) :
     InventoryRun W T.lender I.history I.moment A.nextMoment := by
@@ -657,7 +659,7 @@ def lenderOriginationRun {W : ActionFrame} {T : PawnLoanTerms W}
 
 /-- The borrower's full origination trace consists of idling during note
 printing followed by the matched acceptance of the credit advance. -/
-def borrowerOriginationRun {W : ActionFrame} {T : PawnLoanTerms W}
+def borrowerOriginationRun {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {I : FiduciaryIssuanceStep W} {A : CreditAdvance T}
     (O : FiduciaryOrigination T I A) :
     InventoryRun W T.borrower I.history I.moment A.nextMoment := by
@@ -679,7 +681,7 @@ end FiduciaryOrigination
 
 /-- One bank-book entry couples a purposeful note issuance, its immediately
 following matched advance, and the proof that they are one origination. -/
-structure FiduciaryBankEvent (W : ActionFrame) where
+structure FiduciaryBankEvent (W : ActionFrame) [BilateralExchangeFrame W] where
   terms : PawnLoanTerms W
   issuance : FiduciaryIssuanceStep W
   advance : CreditAdvance terms
@@ -688,22 +690,24 @@ structure FiduciaryBankEvent (W : ActionFrame) where
 /-- An opening bank ledger records an ordered sequence of witnessed fiduciary
 originations. List order is recording order; the underlying events remain
 ActionFrame production and bilateral-exchange certificates. -/
-structure FiduciaryBankLedger (W : ActionFrame) where
+structure FiduciaryBankLedger (W : ActionFrame) [BilateralExchangeFrame W] where
   events : List (FiduciaryBankEvent W)
 
 namespace FiduciaryBankLedger
 
 /-- Total note principal for a finite list of origination events. -/
-def noteLiabilityOf {W : ActionFrame} (events : List (FiduciaryBankEvent W)) : ℕ :=
+def noteLiabilityOf {W : ActionFrame} [BilateralExchangeFrame W]
+    (events : List (FiduciaryBankEvent W)) : ℕ :=
   (events.map fun event => event.issuance.principal).sum
 
 /-- Total loan principal for a finite list of origination events. -/
-def loanAssetsOf {W : ActionFrame} (events : List (FiduciaryBankEvent W)) : ℕ :=
+def loanAssetsOf {W : ActionFrame} [BilateralExchangeFrame W]
+    (events : List (FiduciaryBankEvent W)) : ℕ :=
   (events.map fun event => event.terms.principal).sum
 
 /-- Equal-principal origination records keep assets and liabilities in
 balance. -/
-theorem loanAssetsOf_eq_noteLiabilityOf {W : ActionFrame}
+theorem loanAssetsOf_eq_noteLiabilityOf {W : ActionFrame} [BilateralExchangeFrame W]
     (events : List (FiduciaryBankEvent W)) :
     loanAssetsOf events = noteLiabilityOf events := by
   induction events with
@@ -715,40 +719,45 @@ theorem loanAssetsOf_eq_noteLiabilityOf {W : ActionFrame}
 
 /-- External note liabilities issued by the bank over the recorded origination
 sequence. Repayment and default events are separate lifecycle entries. -/
-def externalNoteLiability {W : ActionFrame} (B : FiduciaryBankLedger W) : ℕ :=
+def externalNoteLiability {W : ActionFrame} [BilateralExchangeFrame W]
+    (B : FiduciaryBankLedger W) : ℕ :=
   noteLiabilityOf B.events
 
 /-- Loan assets opened by the same certified origination sequence. -/
-def loanAssets {W : ActionFrame} (B : FiduciaryBankLedger W) : ℕ :=
+def loanAssets {W : ActionFrame} [BilateralExchangeFrame W]
+    (B : FiduciaryBankLedger W) : ℕ :=
   loanAssetsOf B.events
 
 /-- Every recorded origination creates equal principal-valued note liabilities
 and loan assets. This balance-sheet identity is polymorphic in `ActionFrame`. -/
-theorem loanAssets_eq_externalNoteLiability {W : ActionFrame}
+theorem loanAssets_eq_externalNoteLiability {W : ActionFrame} [BilateralExchangeFrame W]
     (B : FiduciaryBankLedger W) :
     B.loanAssets = B.externalNoteLiability := by
   exact loanAssetsOf_eq_noteLiabilityOf B.events
 
 /-- Appending an actual origination adds its principal to both sides of the
 bank's balance sheet. -/
-def append (B : FiduciaryBankLedger W) (event : FiduciaryBankEvent W) :
+def append {W : ActionFrame} [BilateralExchangeFrame W]
+    (B : FiduciaryBankLedger W) (event : FiduciaryBankEvent W) :
     FiduciaryBankLedger W :=
   { events := B.events ++ [event] }
 
-theorem append_loanAssets {W : ActionFrame} (B : FiduciaryBankLedger W)
+theorem append_loanAssets {W : ActionFrame} [BilateralExchangeFrame W]
+    (B : FiduciaryBankLedger W)
     (event : FiduciaryBankEvent W) :
     (B.append event).loanAssets = B.loanAssets + event.terms.principal := by
   simp [append, loanAssets, loanAssetsOf, List.map_append]
 
-theorem append_externalNoteLiability {W : ActionFrame}
-    (B : FiduciaryBankLedger W) (event : FiduciaryBankEvent W) :
+theorem append_externalNoteLiability {W : ActionFrame} [BilateralExchangeFrame W]
+    (B : FiduciaryBankLedger W)
+    (event : FiduciaryBankEvent W) :
     (B.append event).externalNoteLiability =
       B.externalNoteLiability + event.issuance.principal := by
   simp [append, externalNoteLiability, noteLiabilityOf, List.map_append]
 
 end FiduciaryBankLedger
 
-theorem FiduciaryOrigination.borrower_ne_issuer {W : ActionFrame}
+theorem FiduciaryOrigination.borrower_ne_issuer {W : ActionFrame} [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} {I : FiduciaryNoteIssuance (W := W)}
     {A : CreditAdvance T} (O : FiduciaryOrigination T I A) :
     T.borrower ≠ I.issuer := by
@@ -760,7 +769,7 @@ theorem FiduciaryOrigination.borrower_ne_issuer {W : ActionFrame}
 /-- A fiduciary origination returns the bank's treasury media to its
 pre-issuance level after the newly printed principal is advanced. -/
 theorem FiduciaryOrigination.issuer_media_unchanged
-    {W : ActionFrame} {T : PawnLoanTerms W}
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {I : FiduciaryNoteIssuance (W := W)} {A : CreditAdvance T}
     (O : FiduciaryOrigination T I A) :
     W.omega I.issuer A.nextMoment I.history I.money =
@@ -775,7 +784,7 @@ theorem FiduciaryOrigination.issuer_media_unchanged
 /-- The borrower receives the full newly issued principal, while the issuer's
 printing step leaves the borrower's opening balance unchanged. -/
 theorem FiduciaryOrigination.borrower_media_increases
-    {W : ActionFrame} {T : PawnLoanTerms W}
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {I : FiduciaryNoteIssuance (W := W)} {A : CreditAdvance T}
     (O : FiduciaryOrigination T I A) :
     W.omega T.borrower A.nextMoment I.history T.money =
@@ -788,7 +797,7 @@ theorem FiduciaryOrigination.borrower_media_increases
 
 /-- A bystander receives or spends no media during a one-loan origination. -/
 theorem FiduciaryOrigination.third_party_media_unchanged
-    {W : ActionFrame} {T : PawnLoanTerms W}
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {I : FiduciaryNoteIssuance (W := W)} {A : CreditAdvance T}
     (O : FiduciaryOrigination T I A) (a : W.Agent)
     (haLender : a ≠ T.lender) (haBorrower : a ≠ T.borrower) :
@@ -815,7 +824,7 @@ theorem FiduciaryOrigination.third_party_media_unchanged
 
 /-- Settled fiduciary origination adds the principal to circulating media. -/
 theorem FiduciaryOrigination.circulating_media_increases
-    {W : ActionFrame} {T : PawnLoanTerms W}
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {I : FiduciaryNoteIssuance (W := W)} {A : CreditAdvance T}
     (O : FiduciaryOrigination T I A) :
     circulatingMedia I.issuer I.money A.nextMoment I.history =
@@ -854,7 +863,7 @@ theorem FiduciaryOrigination.circulating_media_increases
 
 /-- The issue-and-advance pair expands total spendable media by its principal. -/
 theorem FiduciaryOrigination.total_media_increases
-    {W : ActionFrame} {T : PawnLoanTerms W}
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {I : FiduciaryNoteIssuance (W := W)} {A : CreditAdvance T}
     (O : FiduciaryOrigination T I A) :
     totalMedia I.issuer I.money A.nextMoment I.history =
@@ -865,21 +874,21 @@ theorem FiduciaryOrigination.total_media_increases
 
 /-- An actual purposeful redemption exchanges the agreed repayment amount for
 the return of collateral. -/
-structure CreditRepayment {W : ActionFrame} {T : PawnLoanTerms W}
+structure CreditRepayment {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     (A : CreditAdvance T) where
   moment : W.Moment
   nextMoment : W.Moment
   successor : IsNextMoment W.Precedence W.mem_hist moment nextMoment A.history
   afterAdvance : W.Precedence A.nextMoment moment
   beforeMaturity : W.Precedence moment T.maturity
-  purposefulExchange : @BilateralExchange W T.borrower T.lender moment A.history
+  purposefulExchange : BilateralExchange (W := W) T.borrower T.lender moment A.history
     T.repayment T.money T.collateralQuantity T.collateral
 
 namespace CreditRepayment
 
 /-- The borrower's matched repayment inventory step, derived from the
 purposeful redemption and its ActionFrame enactment. -/
-def borrowerInventoryStep {W : ActionFrame} {T : PawnLoanTerms W}
+def borrowerInventoryStep {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {A : CreditAdvance T} (R : CreditRepayment A) :
     InventoryStep W T.borrower A.history R.moment R.nextMoment := by
   have hactions := bilateral_exchange_enacted_actions T.borrower T.lender
@@ -889,7 +898,7 @@ def borrowerInventoryStep {W : ActionFrame} {T : PawnLoanTerms W}
     T.collateral T.distinctAgents.symm hactions.1 hactions.2 R.successor
 
 /-- The lender's matched acceptance inventory step for the same repayment. -/
-def lenderInventoryStep {W : ActionFrame} {T : PawnLoanTerms W}
+def lenderInventoryStep {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {A : CreditAdvance T} (R : CreditRepayment A) :
     InventoryStep W T.lender A.history R.moment R.nextMoment := by
   have hactions := bilateral_exchange_enacted_actions T.borrower T.lender
@@ -899,13 +908,13 @@ def lenderInventoryStep {W : ActionFrame} {T : PawnLoanTerms W}
     T.collateral T.distinctAgents.symm hactions.2 hactions.1 R.successor
 
 /-- The matched repayment is a one-edge borrower inventory run. -/
-def borrowerInventoryRun {W : ActionFrame} {T : PawnLoanTerms W}
+def borrowerInventoryRun {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {A : CreditAdvance T} (R : CreditRepayment A) :
     InventoryRun W T.borrower A.history R.moment R.nextMoment :=
   .step R.borrowerInventoryStep (.done R.nextMoment)
 
 /-- The matched repayment is a one-edge lender inventory run. -/
-def lenderInventoryRun {W : ActionFrame} {T : PawnLoanTerms W}
+def lenderInventoryRun {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {A : CreditAdvance T} (R : CreditRepayment A) :
     InventoryRun W T.lender A.history R.moment R.nextMoment :=
   .step R.lenderInventoryStep (.done R.nextMoment)
@@ -915,7 +924,7 @@ end CreditRepayment
 /-- A physically matched repayment, independently of whether either party's
 action has a purposefulness proof. The deadline concerns settlement, so an
 offer made by maturity but settled afterward is late. -/
-structure RepaymentExecution {W : ActionFrame} {T : PawnLoanTerms W}
+structure RepaymentExecution {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {A : AdvanceExecution (T := T)} where
   decisionMoment : W.Moment
   settlementMoment : W.Moment
@@ -934,7 +943,7 @@ namespace RepaymentExecution
 
 /-- A matched physical repayment transfers the promised cash and returns the
 pledged collateral. -/
-theorem physical_transfer {W : ActionFrame} {T : PawnLoanTerms W}
+theorem physical_transfer {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {A : AdvanceExecution (T := T)} (R : RepaymentExecution (T := T) (A := A)) :
     W.omega T.borrower R.settlementMoment A.history T.money + T.repayment =
         W.omega T.borrower R.decisionMoment A.history T.money ∧
@@ -951,7 +960,7 @@ theorem physical_transfer {W : ActionFrame} {T : PawnLoanTerms W}
 
 /-- Physical settlement clears the outstanding obligation without invoking a
 behavioral certificate. -/
-theorem clears_obligation {W : ActionFrame} {T : PawnLoanTerms W}
+theorem clears_obligation {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {A : AdvanceExecution (T := T)} (_R : RepaymentExecution (T := T) (A := A)) :
     CreditTransition .outstanding .repayment .repaid :=
   .repayment
@@ -959,7 +968,7 @@ theorem clears_obligation {W : ActionFrame} {T : PawnLoanTerms W}
 end RepaymentExecution
 
 /-- Purposeful repayment evidence forgets down to a physical execution. -/
-def CreditRepayment.execution {W : ActionFrame} {T : PawnLoanTerms W}
+def CreditRepayment.execution {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {A : CreditAdvance T} (R : CreditRepayment A) :
     RepaymentExecution (T := T) (A := A.execution) where
   decisionMoment := R.moment
@@ -985,7 +994,7 @@ def CreditRepayment.execution {W : ActionFrame} {T : PawnLoanTerms W}
 
 /-- Repayment returns collateral to the borrower and transfers the repayment
 amount of cash to the lender. -/
-theorem CreditRepayment.physical_transfer {W : ActionFrame}
+theorem CreditRepayment.physical_transfer {W : ActionFrame} [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} {A : CreditAdvance T} (R : CreditRepayment A) :
     W.omega T.lender R.nextMoment A.history T.money =
         W.omega T.lender R.moment A.history T.money + T.repayment ∧
@@ -1001,7 +1010,7 @@ theorem CreditRepayment.physical_transfer {W : ActionFrame}
   exact ⟨hflow.2.1, hflow.2.2.1⟩
 
 /-- The borrower pays the agreed cash amount during the matched redemption. -/
-theorem CreditRepayment.borrower_money_decreases {W : ActionFrame}
+theorem CreditRepayment.borrower_money_decreases {W : ActionFrame} [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} {A : CreditAdvance T} (R : CreditRepayment A) :
     W.omega T.borrower R.nextMoment A.history T.money + T.repayment =
       W.omega T.borrower R.moment A.history T.money := by
@@ -1015,7 +1024,7 @@ theorem CreditRepayment.borrower_money_decreases {W : ActionFrame}
   exact hflow.1
 
 /-- The lender releases the agreed collateral when the repayment is accepted. -/
-theorem CreditRepayment.lender_collateral_decreases {W : ActionFrame}
+theorem CreditRepayment.lender_collateral_decreases {W : ActionFrame} [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} {A : CreditAdvance T} (R : CreditRepayment A) :
     W.omega T.lender R.nextMoment A.history T.collateral + T.collateralQuantity =
       W.omega T.lender R.moment A.history T.collateral := by
@@ -1031,7 +1040,7 @@ theorem CreditRepayment.lender_collateral_decreases {W : ActionFrame}
 /-- A trace of lender inventory from the completed advance to maturity. It
 records intervening matched transfers and production; the zero-use condition
 rules out the lender spending this collateral good. -/
-structure CollateralCustodyTrace {W : ActionFrame} {T : PawnLoanTerms W}
+structure CollateralCustodyTrace {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     (A : CreditAdvance T) where
   run : InventoryRun W T.lender A.history A.nextMoment T.maturity
   noCollateralUse : run.totalUse T.collateral = 0
@@ -1039,6 +1048,7 @@ structure CollateralCustodyTrace {W : ActionFrame} {T : PawnLoanTerms W}
 /-- Contractual maturity follows the completed advance, so a custody trace
 from settlement to maturity cannot be the zero-length run. -/
 private theorem inventoryRun_length_pos_of_precedence {W : ActionFrame}
+    [BilateralExchangeFrame W]
     {i : W.Agent} {h : W.History} {t u : W.Moment}
     (run : InventoryRun W i h t u) (htu : W.Precedence t u) :
     0 < run.length := by
@@ -1048,12 +1058,13 @@ private theorem inventoryRun_length_pos_of_precedence {W : ActionFrame}
   | step _ _ =>
       simp [InventoryRun.length]
 
-theorem CollateralCustodyTrace.run_length_pos {W : ActionFrame}
+theorem CollateralCustodyTrace.run_length_pos {W : ActionFrame} [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} {A : CreditAdvance T}
     (C : CollateralCustodyTrace A) : 0 < C.run.length :=
   inventoryRun_length_pos_of_precedence C.run A.advanceBeforeMaturity
 
 private theorem inventoryRun_endpoint_mem_history {W : ActionFrame}
+    [BilateralExchangeFrame W]
     {i : W.Agent} {h : W.History} {t u : W.Moment}
     (run : InventoryRun W i h t u) (hpos : 0 < run.length) :
     W.mem_hist u h := by
@@ -1074,14 +1085,14 @@ private theorem inventoryRun_endpoint_mem_history {W : ActionFrame}
 
 /-- A nonempty custody trace places its maturity endpoint on the loan's
 history, so the unpaid-maturity case refers to an actual history node. -/
-theorem CollateralCustodyTrace.maturity_mem_history {W : ActionFrame}
+theorem CollateralCustodyTrace.maturity_mem_history {W : ActionFrame} [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} {A : CreditAdvance T}
     (C : CollateralCustodyTrace A) : W.mem_hist T.maturity A.history :=
   inventoryRun_endpoint_mem_history C.run C.run_length_pos
 
 /-- With no collateral use during the trace, the lender's maturity stock is
 its settlement stock plus any collateral received along the way. -/
-theorem CollateralCustodyTrace.collateral_retained {W : ActionFrame}
+theorem CollateralCustodyTrace.collateral_retained {W : ActionFrame} [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} {A : CreditAdvance T}
     (C : CollateralCustodyTrace A) :
     W.omega T.lender T.maturity A.history T.collateral =
@@ -1094,7 +1105,7 @@ theorem CollateralCustodyTrace.collateral_retained {W : ActionFrame}
 /-- A contract that reaches maturity with no repayment is classified as
 defaulted. The premise records non-repayment; it does not infer it from the
 absence of a possible action. -/
-structure UnpaidMaturity {W : ActionFrame} {T : PawnLoanTerms W}
+structure UnpaidMaturity {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     (A : CreditAdvance T) where
   custody : CollateralCustodyTrace A
   noPhysicalRepaymentByMaturity :
@@ -1102,7 +1113,7 @@ structure UnpaidMaturity {W : ActionFrame} {T : PawnLoanTerms W}
 
 /-- No behavioral repayment certificate follows from the stronger physical
 non-redemption evidence. -/
-theorem UnpaidMaturity.noRepaymentByMaturity {W : ActionFrame}
+theorem UnpaidMaturity.noRepaymentByMaturity {W : ActionFrame} [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} {A : CreditAdvance T} (D : UnpaidMaturity A) :
     ¬ Nonempty (CreditRepayment A) := by
   rintro ⟨R⟩
@@ -1112,14 +1123,14 @@ theorem UnpaidMaturity.noRepaymentByMaturity {W : ActionFrame}
 transferred at origination, provided the intervening trace records no use of
 that good. Any collateral received along the trace adds to the balance. -/
 theorem UnpaidMaturity.lender_retains_pledged_collateral
-    {W : ActionFrame} {T : PawnLoanTerms W} {A : CreditAdvance T}
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W} {A : CreditAdvance T}
     (D : UnpaidMaturity A) :
     W.omega T.lender A.moment A.history T.collateral + T.collateralQuantity ≤
       W.omega T.lender T.maturity A.history T.collateral := by
   rw [D.custody.collateral_retained, A.physical_transfer.2]
   exact Nat.le_add_right _ _
 
-theorem UnpaidMaturity.status_transition {W : ActionFrame}
+theorem UnpaidMaturity.status_transition {W : ActionFrame} [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} {A : CreditAdvance T} (_D : UnpaidMaturity A) :
     CreditTransition .outstanding .unpaidMaturity .defaulted :=
   .unpaidMaturity
@@ -1129,7 +1140,7 @@ retaining the collateral upon unpaid default requires no seizure from the borrow
 When the borrower enacts inaction `alpha_zero` at maturity across `successor`,
 the borrower's entire physical stock is preserved. -/
 theorem UnpaidMaturity.borrower_stock_preserved_at_default
-    {W : ActionFrame} {T : PawnLoanTerms W} {A : CreditAdvance T}
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W} {A : CreditAdvance T}
     (_D : UnpaidMaturity A)
     (t_post : W.Moment)
     (h_succ : IsNextMoment W.Precedence W.mem_hist T.maturity t_post A.history)
@@ -1144,7 +1155,7 @@ theorem UnpaidMaturity.borrower_stock_preserved_at_default
 
 /-- Retention of collateral upon default does not contract the borrower's stock in any good. -/
 theorem UnpaidMaturity.borrower_stock_not_contracted
-    {W : ActionFrame} {T : PawnLoanTerms W} {A : CreditAdvance T}
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W} {A : CreditAdvance T}
     (D : UnpaidMaturity A)
     (t_post : W.Moment)
     (h_succ : IsNextMoment W.Precedence W.mem_hist T.maturity t_post A.history)
@@ -1165,7 +1176,7 @@ theorem UnpaidMaturity.borrower_stock_not_contracted
 /-- Non-invasive collateral retention: the borrower's resource-feasible menu is preserved
 at default maturity without any external contraction. -/
 theorem UnpaidMaturity.borrower_resource_menu_preserved
-    {W : ActionFrame} {T : PawnLoanTerms W} {A : CreditAdvance T}
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W} {A : CreditAdvance T}
     (D : UnpaidMaturity A)
     (t_post : W.Moment)
     (h_succ : IsNextMoment W.Precedence W.mem_hist T.maturity t_post A.history)
@@ -1176,7 +1187,7 @@ theorem UnpaidMaturity.borrower_resource_menu_preserved
 
 /-- Repayment settles the contract and returns the collateral under the stated
 matched-exchange evidence. -/
-theorem CreditRepayment.status_transition {W : ActionFrame}
+theorem CreditRepayment.status_transition {W : ActionFrame} [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} {A : CreditAdvance T} (_R : CreditRepayment A) :
     CreditTransition .outstanding .repayment .repaid :=
   .repayment
@@ -1186,7 +1197,7 @@ theorem CreditRepayment.status_transition {W : ActionFrame}
 /-- In any ActionFrame, accepting a spot purchase of `qA` units of `mA` in exchange for
 `price` units of `m_money` is feasible at `(t, h)` if and only if the acceptance action
 is contemplated and the buyer's physical endowment of `m_money` covers `price`. -/
-theorem accept_spot_trade_feasible_iff {W : ActionFrame}
+theorem accept_spot_trade_feasible_iff {W : ActionFrame} [BilateralExchangeFrame W]
     (buyer seller : W.Agent) (t : W.Moment) (h : W.History)
     (qA : ℕ) (mA : W.Means) (price : ℕ) (m_money : W.Means) :
     W.Accept buyer seller qA mA price m_money ∈ W.A_feas buyer t h ↔
@@ -1210,7 +1221,7 @@ theorem accept_spot_trade_feasible_iff {W : ActionFrame}
 /-- Cross-medium aggregation impossibility: even if a buyer's summed holdings across two
 distinct media `m₁ ≠ m₂` cover `price`, if neither individual medium holding covers `price`,
 then spot purchase acceptance is infeasible (and non-purposeful) in both media. -/
-theorem infeasible_accept_of_split_media_endowment {W : ActionFrame}
+theorem infeasible_accept_of_split_media_endowment {W : ActionFrame} [BilateralExchangeFrame W]
     (buyer seller : W.Agent) (t : W.Moment) (h : W.History)
     (qA : ℕ) (mA : W.Means) (price : ℕ) (m₁ m₂ : W.Means)
     (_h_distinct : m₁ ≠ m₂)
@@ -1236,7 +1247,7 @@ theorem infeasible_accept_of_split_media_endowment {W : ActionFrame}
 /-- Cross-agent aggregation impossibility: even if two buyers' combined holdings of medium
 `m_money` cover `price`, if neither buyer individually holds `price`, neither buyer can
 feasibly or purposefully enact the spot purchase. -/
-theorem infeasible_accept_of_split_agent_endowment {W : ActionFrame}
+theorem infeasible_accept_of_split_agent_endowment {W : ActionFrame} [BilateralExchangeFrame W]
     (buyer₁ buyer₂ seller : W.Agent) (t : W.Moment) (h : W.History)
     (qA : ℕ) (mA : W.Means) (price : ℕ) (m_money : W.Means)
     (_h_sum_covers : price ≤ W.omega buyer₁ t h m_money + W.omega buyer₂ t h m_money)
@@ -1260,7 +1271,7 @@ theorem infeasible_accept_of_split_agent_endowment {W : ActionFrame}
 
 /-- A non-fiduciary credit advance strictly conserves `totalMedia` when non-participants
 enact `alpha_zero`. -/
-theorem CreditAdvance.totalMedia_conserved {W : ActionFrame}
+theorem CreditAdvance.totalMedia_conserved {W : ActionFrame} [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} (A : CreditAdvance T) (issuer : W.Agent)
     (h_idle : ∀ a, a ≠ T.lender → a ≠ T.borrower →
       W.enacted a A.moment A.history = W.alpha_zero) :
@@ -1294,7 +1305,7 @@ theorem CreditAdvance.totalMedia_conserved {W : ActionFrame}
 
 /-- Advancing principal in a credit advance contracts the lender's money stock and strips
 any tight money-using action from the lender's feasible menu (`FeasibleMenuStripped`). -/
-theorem CreditAdvance.lender_tight_action_stripped [W : ActionFrame]
+theorem CreditAdvance.lender_tight_action_stripped [W : ActionFrame] [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} (A : CreditAdvance T) (β : W.Action)
     (h_feas : β ∈ W.A_feas T.lender A.moment A.history)
     (h_cont : β ∈ W.A_cont T.lender A.nextMoment A.history)
@@ -1312,7 +1323,7 @@ theorem CreditAdvance.lender_tight_action_stripped [W : ActionFrame]
 issuer's physical reserve stock unchanged when the advance is not collateralized in the
 reserve commodity. -/
 theorem FiduciaryOrigination.issuer_reserve_unchanged
-    {W : ActionFrame} {T : PawnLoanTerms W}
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {I : FiduciaryNoteIssuance (W := W)} {A : CreditAdvance T}
     (O : FiduciaryOrigination T I A)
     (h_collateral_ne_reserve : T.collateral ≠ I.reserve) :
@@ -1337,6 +1348,7 @@ theorem FiduciaryOrigination.issuer_reserve_unchanged
 `m_reserve` exceeds the issuer's physical reserve endowment, accepting the redemption is
 infeasible (`∉ A_feas`) and cannot be a `PurposefulAct`. -/
 theorem redemption_accept_not_purposeful_of_exceeds_reserve {W : ActionFrame}
+    [BilateralExchangeFrame W]
     (issuer holder : W.Agent) (t : W.Moment) (h : W.History)
     (q : ℕ) (m_note m_reserve : W.Means)
     (h_exceeds : W.omega issuer t h m_reserve < q) :
@@ -1353,7 +1365,7 @@ theorem redemption_accept_not_purposeful_of_exceeds_reserve {W : ActionFrame}
 weakly covered or equaled circulating media, the newly originated fiduciary media expands
 circulation strictly beyond the unchanged physical reserve. -/
 theorem FiduciaryOrigination.unbacked_expansion_creates_redemption_shortfall
-    {W : ActionFrame} {T : PawnLoanTerms W}
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
     {I : FiduciaryNoteIssuance (W := W)} {A : CreditAdvance T}
     (O : FiduciaryOrigination T I A)
     (h_collateral_ne_reserve : T.collateral ≠ I.reserve)
@@ -1374,7 +1386,7 @@ def EndowmentMatrix (W : ActionFrame) (t : W.Moment) (h : W.History) : W.Agent �
 
 /-- Macro-sum underdetermination: a macro aggregate cash sum `∑ a, omega a` does not determine
 whether any individual agent can feasibly or purposefully enact a spot purchase of price `P`. -/
-theorem macro_sum_underdetermines_spot_feasibility {W : ActionFrame}
+theorem macro_sum_underdetermines_spot_feasibility {W : ActionFrame} [BilateralExchangeFrame W]
     (buyer seller : W.Agent) (t : W.Moment) (h : W.History)
     (qA : ℕ) (mA : W.Means) (price : ℕ) (m_money : W.Means)
     (h_short : W.omega buyer t h m_money < price) :
@@ -1407,6 +1419,7 @@ def bankOverhang {W : ActionFrame} (bank : W.Agent) (m_dep m_reserve : W.Means)
 if an individual bank's custodial reserve falls short of a redemption demand `q`, accepting
 the redemption is resource-infeasible for that specific bank. -/
 theorem bank_specific_redemption_infeasible_of_local_shortfall {W : ActionFrame}
+    [BilateralExchangeFrame W]
     (bank holder : W.Agent) (t : W.Moment) (h : W.History)
     (q : ℕ) (m_dep m_reserve : W.Means)
     (h_short : bankReserve bank m_reserve t h < q) :
@@ -1461,7 +1474,7 @@ If an individual commercial bank's custodial reserve falls short of redemption d
 autonomous redemption without external injection is infeasible.
 If the central bank executes a fiduciary note issuance of base reserves with principal `ΔM > 0`,
 total base money in the economy strictly expands. -/
-theorem two_tier_fiat_lolr_dichotomy {W : ActionFrame}
+theorem two_tier_fiat_lolr_dichotomy {W : ActionFrame} [BilateralExchangeFrame W]
     (bank holder : W.Agent) (t : W.Moment) (h : W.History)
     (q : ℕ) (m_dep m_reserve : W.Means)
     (h_short : bankReserve bank m_reserve t h < q)
@@ -1505,7 +1518,7 @@ theorem asymmetric_tier_coverage_divergence
 Even if system-wide bank reserves across all tiers cover the redemption demand `q`,
 if an individual bank `b₂` in Tier 2 has insufficient local custodial reserves (`< q`),
 spot redemption at bank `b₂` is resource-infeasible and non-purposeful. -/
-theorem tier_asymmetric_reserve_run_infeasibility {W : ActionFrame}
+theorem tier_asymmetric_reserve_run_infeasibility {W : ActionFrame} [BilateralExchangeFrame W]
     (b₂ holder : W.Agent) (t : W.Moment) (h : W.History)
     (q : ℕ) (m_dep m_reserve : W.Means)
     (h_short : bankReserve b₂ m_reserve t h < q)
@@ -1525,7 +1538,7 @@ If a buyer holds insufficient money (`< price`) for a spot purchase at `t`:
 (2) If a liquidity freeze occurs (the buyer enacts `alpha_zero` at `t → t'`), the buyer's money
     endowment remains unchanged (`< price`), and spot purchase acceptance at `t'` remains
     strictly infeasible and non-purposeful. -/
-theorem automated_sweep_two_step_vs_freeze_dichotomy {W : ActionFrame}
+theorem automated_sweep_two_step_vs_freeze_dichotomy {W : ActionFrame} [BilateralExchangeFrame W]
     (buyer seller : W.Agent) (t t' : W.Moment) (h : W.History)
     (qA : ℕ) (mA : W.Means) (price : ℕ) (m_money : W.Means)
     (h_succ : IsNextMoment W.Precedence W.mem_hist t t' h)
@@ -1560,6 +1573,7 @@ theorem automated_sweep_two_step_vs_freeze_dichotomy {W : ActionFrame}
 /-- Standing central bank LOLR origination restores commercial bank reserve sufficiency
 while strictly encumbering collateral and expanding total base money in the economy. -/
 theorem standing_lolr_origination_restores_reserve_and_expands_base {W : ActionFrame}
+    [BilateralExchangeFrame W]
     (bank cb : W.Agent) (m_reserve : W.Means) (q : ℕ)
     (T : PawnLoanTerms W) (I : FiduciaryIssuanceStep W) (A : CreditAdvance T)
     (O : FiduciaryOrigination T I A)
@@ -1624,7 +1638,7 @@ theorem loan_rate_suppression_of_repayment_lt {W : ActionFrame}
 /-- An offering of repayment of amount `repay` in money `m_money` requires the borrower to hold
 at least `repay` units of `m_money`. If cash holdings are strictly less than `repay`, the offer
 is physically infeasible and cannot be purposeful. -/
-theorem offer_repayment_infeasible_of_insufficient_cash {W : ActionFrame}
+theorem offer_repayment_infeasible_of_insufficient_cash {W : ActionFrame} [BilateralExchangeFrame W]
     (borrower lender : W.Agent) (t : W.Moment) (h : W.History)
     (repay : ℕ) (m_money : W.Means) (coll_qty : ℕ) (m_coll : W.Means)
     (h_short : W.omega borrower t h m_money < repay) :
@@ -1658,6 +1672,7 @@ The rate ordering is derived from the stated cash-shortfall premise and equal
 principal. This theorem does not derive the contract terms or the shortfall
 from a loan market, project technology, or monetary expansion. -/
 theorem fiduciary_origination_and_cash_shortfall_contract_comparison {W : ActionFrame}
+    [BilateralExchangeFrame W]
     (T_nat T_cred : PawnLoanTerms W)
     (I : FiduciaryNoteIssuance (W := W))
     (A_cred : CreditAdvance T_cred)

@@ -42,7 +42,7 @@ class AxiomaticFloorAuditor:
                 if clean.startswith("--") or clean.startswith("/-"):
                     continue
                 # Detect omit statements
-                if re.search(r"\bomit\s+\w+\s+in\b", clean):
+                if re.search(r"\bomit\b.*?\bin\b", clean):
                     findings.append({
                         "file": str(file.relative_to(REPO_ROOT)),
                         "line": idx,
@@ -87,8 +87,10 @@ class AxiomaticFloorAuditor:
 
     def audit_implicational_bridges(self) -> List[Dict[str, Any]]:
         findings = []
-        # Hypotheses of form: h_... : [arithmetic expr with < or ≤] → [something with Pref or ¬ Pref]
-        bridge_pat = re.compile(r"\(h_\w+\s*:\s*[^)]*(?:<|≤)[^)]*→\s*[^)]*(?:Preference|Pref)[^)]*\)")
+        # Hypotheses of form: h_... : [arithmetic expr with < or ≤] → [something with Pref]
+        bridge_pat = re.compile(
+            r"\(h_\w+\s*:\s*[^)]*(?:<|≤)[^)]*→\s*[^)]*(?:Preference|Pref)[^)]*\)"
+        )
 
         for file in self.lean_files:
             lines = file.read_text(encoding="utf-8").splitlines()
@@ -109,21 +111,28 @@ class AxiomaticFloorAuditor:
     def audit_singleton_collapses(self) -> List[Dict[str, Any]]:
         findings = []
         # Look for theorems explicitly proving MinPlausible collapses to singleton {c}
-        singleton_proof_pat = re.compile(r"theorem\s+(\w+)\s*:[^=]+MinPlausible\s+[^=]+=\s*\{[^,}]+\}")
+        singleton_proof_pat = re.compile(
+            r"theorem\s+(\w+)\s*:[^=]+MinPlausible\s+[^=]+=\s*\{[^,}]+\}"
+        )
         # Or theorems specifically proving abct_min_plausible_eq
         for file in self.lean_files:
             content = file.read_text(encoding="utf-8")
             lines = content.splitlines()
             for idx, line in enumerate(lines, 1):
                 clean = line.strip()
-                if "abct_min_plausible_eq" in clean and ("theorem" in clean or "lemma" in clean or "def" in clean):
+                if "abct_min_plausible_eq" in clean and (
+                    "theorem" in clean or "lemma" in clean or "def" in clean
+                ):
                     findings.append({
                         "file": str(file.relative_to(REPO_ROOT)),
                         "line": idx,
                         "type": "FORCED_SINGLETON_COLLAPSE (abct_min_plausible_eq)",
                         "text": clean
                     })
-                elif "MinimalPlausibleStratum" in clean and "= {" in clean and not clean.startswith("--"):
+                elif (
+                    "MinimalPlausibleStratum" in clean and "= {" in clean
+                    and not clean.startswith("--")
+                ):
                     # Check if it's proving a singleton
                     if re.search(r"=\s*\{[0-9a-zA-Z_.]+\}", clean):
                         findings.append({
@@ -209,7 +218,8 @@ def print_report(data: Dict[str, Any]):
                 print(f"    - {item['file']}:{item['line']} -> {item['text']}")
 
         if data["singleton_collapses"]:
-            print(f"\n[!] Singleton Plausibility Collapses ({len(data['singleton_collapses'])} occurrences):")
+            count = len(data['singleton_collapses'])
+            print(f"\n[!] Singleton Plausibility Collapses ({count} occurrences):")
             for item in data["singleton_collapses"]:
                 print(f"    - {item['file']}:{item['line']} -> {item['text']}")
     else:

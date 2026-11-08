@@ -139,38 +139,38 @@ def FactorPriceBox.marketSignal {W : ActionFrame} {d : ℕ}
 
 /-- A loan participant's rate signal is indexed by the ActionFrame decision
 node where the matched advance occurs. -/
-def CreditAdvance.decisionNode {W : ActionFrame} {T : PawnLoanTerms W}
-    (A : CreditAdvance T) : W.DecisionIndex :=
+def CreditAdvance.decisionNode {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : PawnLoanTerms W} (A : CreditAdvance T) : W.DecisionIndex :=
   W.decisionIndex A.moment A.history A.successor.1
 
-def CreditAdvance.borrowerMarketSignal {W : ActionFrame} {T : PawnLoanTerms W}
-    (A : CreditAdvance T) :
+def CreditAdvance.borrowerMarketSignal {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : PawnLoanTerms W} (A : CreditAdvance T) :
     W.Agent × W.DecisionIndex × CatallacticMarketSignal W.Means :=
   (T.borrower, A.decisionNode, T.marketSignal)
 
 /-- The lender reads the same contractual quote at the same ActionFrame node. -/
-def CreditAdvance.lenderMarketSignal {W : ActionFrame} {T : PawnLoanTerms W}
-    (A : CreditAdvance T) :
+def CreditAdvance.lenderMarketSignal {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : PawnLoanTerms W} (A : CreditAdvance T) :
     W.Agent × W.DecisionIndex × CatallacticMarketSignal W.Means :=
   (T.lender, A.decisionNode, T.marketSignal)
 
-theorem CreditAdvance.parties_share_rate_signal {W : ActionFrame}
+theorem CreditAdvance.parties_share_rate_signal {W : ActionFrame} [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} (A : CreditAdvance T) :
     A.borrowerMarketSignal.2.2 = A.lenderMarketSignal.2.2 := rfl
 
 /-- A loan quote backed by an actually enacted advance on an ActionFrame
 history. Repayment is a later lifecycle outcome and is not part of origination
 evidence. -/
-structure EnactedLoanQuote (W : ActionFrame) where
+structure EnactedLoanQuote (W : ActionFrame) [BilateralExchangeFrame W] where
   terms : PawnLoanTerms W
   advance : CreditAdvance terms
 
 namespace EnactedLoanQuote
 
-def decisionNode {W : ActionFrame} (Q : EnactedLoanQuote W) :
+def decisionNode {W : ActionFrame} [BilateralExchangeFrame W] (Q : EnactedLoanQuote W) :
     W.DecisionIndex := Q.advance.decisionNode
 
-def marketSignal {W : ActionFrame} (Q : EnactedLoanQuote W) :
+def marketSignal {W : ActionFrame} [BilateralExchangeFrame W] (Q : EnactedLoanQuote W) :
     CatallacticMarketSignal W.Means := Q.terms.marketSignal
 
 end EnactedLoanQuote
@@ -178,8 +178,8 @@ end EnactedLoanQuote
 /-- ActionFrame evidence that a lender deliberately retained a principal-sized
 balance before making an advance: refraining was purposeful, and no money was
 spent between that choice and the loan. -/
-structure PurposefulSavingEvidence {W : ActionFrame} {T : PawnLoanTerms W}
-    (A : CreditAdvance T) where
+structure PurposefulSavingEvidence {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : PawnLoanTerms W} (A : CreditAdvance T) where
   savingDecision : W.DecisionIndex
   same_history : savingDecision.history = A.history
   saving_choice : @PurposefulAct W T.lender savingDecision.moment
@@ -195,8 +195,8 @@ namespace PurposefulSavingEvidence
 
 /-- The principal-sized balance remains available at the advance after the
 purposeful saving choice and the recorded no-spending run. -/
-theorem principal_available_at_advance {W : ActionFrame} {T : PawnLoanTerms W}
-    {A : CreditAdvance T} (S : PurposefulSavingEvidence A) :
+theorem principal_available_at_advance {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : PawnLoanTerms W} {A : CreditAdvance T} (S : PurposefulSavingEvidence A) :
     T.principal ≤ W.omega T.lender A.moment A.history T.money := by
   have hsaved := S.saved_balance_covers_principal
   rw [S.same_history] at hsaved
@@ -209,7 +209,8 @@ end PurposefulSavingEvidence
 /-- A clearing price is read from the executed bilateral actions at their
 ActionFrame decision node. -/
 def MultilateralClearingScenario.marketSignal
-    [W : ActionFrame] {M : MultilateralCohortMarket W.Agent W.Means}
+    [W : ActionFrame] [BilateralExchangeFrame W]
+    {M : MultilateralCohortMarket W.Agent W.Means}
     (S : MultilateralClearingScenario M) :
     W.Agent × W.DecisionIndex × CatallacticMarketSignal W.Means :=
   (S.buyer, W.decisionIndex S.moment S.history S.successor.1,
@@ -217,14 +218,16 @@ def MultilateralClearingScenario.marketSignal
 
 /-- The seller's reading of the same enacted clearing price. -/
 def MultilateralClearingScenario.sellerMarketSignal
-    [W : ActionFrame] {M : MultilateralCohortMarket W.Agent W.Means}
+    [W : ActionFrame] [BilateralExchangeFrame W]
+    {M : MultilateralCohortMarket W.Agent W.Means}
     (S : MultilateralClearingScenario M) :
     W.Agent × W.DecisionIndex × CatallacticMarketSignal W.Means :=
   (S.seller, W.decisionIndex S.moment S.history S.successor.1,
     .transactionPrice M.m_good M.m_money 1 S.price)
 
 theorem MultilateralClearingScenario.parties_share_price_signal
-    [W : ActionFrame] {M : MultilateralCohortMarket W.Agent W.Means}
+    [W : ActionFrame] [BilateralExchangeFrame W]
+    {M : MultilateralCohortMarket W.Agent W.Means}
     (S : MultilateralClearingScenario M) :
     S.marketSignal.2.2 = S.sellerMarketSignal.2.2 := rfl
 
@@ -241,7 +244,7 @@ namespace CatallacticCreditRateComparison
 
 /-- Matching market denomination plus the derived common clearing price gives
 the same Catallactic loan-rate signal. -/
-theorem same_market_signal {W : ActionFrame}
+theorem same_market_signal {W : ActionFrame} [BilateralExchangeFrame W]
     {T_saving T_credit : PawnLoanTerms W}
     (Q : CatallacticCreditRateComparison T_saving T_credit) :
     T_saving.marketSignal = T_credit.marketSignal := by
@@ -256,7 +259,7 @@ and the loans have equal principal, their contractual rate signals coincide.
 The offer is recovered from each executed `CreditRepayment`; injectivity of
 the ActionFrame offer constructor extracts the repayment quantity. -/
 theorem CreditRepayment.same_rate_signal_of_same_observed_offer
-    {W : ActionFrame} {T₁ T₂ : PawnLoanTerms W}
+    {W : ActionFrame} [BilateralExchangeFrame W] {T₁ T₂ : PawnLoanTerms W}
     {A₁ : CreditAdvance T₁} {A₂ : CreditAdvance T₂}
     (R₁ : CreditRepayment A₁) (R₂ : CreditRepayment A₂)
     (h_principal : T₁.principal = T₂.principal)
@@ -290,7 +293,7 @@ theorem CreditRepayment.same_rate_signal_of_same_observed_offer
 quantities. Offer injectivity recovers principal and repayment from the
 ActionFrame's Catallactics events. -/
 theorem CreditRepayment.same_contract_quantities_of_same_observed_contract
-    {W : ActionFrame} {T₁ T₂ : PawnLoanTerms W}
+    {W : ActionFrame} [BilateralExchangeFrame W] {T₁ T₂ : PawnLoanTerms W}
     {A₁ : CreditAdvance T₁} {A₂ : CreditAdvance T₂}
     (R₁ : CreditRepayment A₁) (R₂ : CreditRepayment A₂)
     (h_advance_offer :
@@ -340,7 +343,7 @@ theorem CreditRepayment.same_contract_quantities_of_same_observed_contract
 Catallactics events determine principal and repayment, and the loan accounting
 identity determines the gross repayment factor. -/
 theorem CreditRepayment.same_rate_of_same_observed_contract
-    {W : ActionFrame} {T₁ T₂ : PawnLoanTerms W}
+    {W : ActionFrame} [BilateralExchangeFrame W] {T₁ T₂ : PawnLoanTerms W}
     {A₁ : CreditAdvance T₁} {A₂ : CreditAdvance T₂}
     (R₁ : CreditRepayment A₁) (R₂ : CreditRepayment A₂)
     (h_advance_offer :
@@ -359,7 +362,7 @@ theorem CreditRepayment.same_rate_of_same_observed_contract
 /-- Matching enacted advance and repayment offers derive the same contractual
 rate signal and money denomination. -/
 theorem CreditRepayment.same_rate_signal_of_same_observed_contract
-    {W : ActionFrame} {T₁ T₂ : PawnLoanTerms W}
+    {W : ActionFrame} [BilateralExchangeFrame W] {T₁ T₂ : PawnLoanTerms W}
     {A₁ : CreditAdvance T₁} {A₂ : CreditAdvance T₂}
     (R₁ : CreditRepayment A₁) (R₂ : CreditRepayment A₂)
     (h_advance_offer :
@@ -382,7 +385,7 @@ ActionFrame exchanges. The saving-side evidence records a purposeful refrain
 and retained balance, while leaving the initial source of that balance
 untraced. The common Catallactics market comparison derives equal quoted
 rates; later repayment outcomes are separate evidence. -/
-structure SavingCreditLoanQuotes {W : ActionFrame}
+structure SavingCreditLoanQuotes {W : ActionFrame} [BilateralExchangeFrame W]
     {T_credit : PawnLoanTerms W} (A_credit : CreditAdvance T_credit) where
   savingTerms : PawnLoanTerms W
   savingAdvance : CreditAdvance savingTerms
@@ -395,7 +398,7 @@ namespace SavingCreditLoanQuotes
 contractual gross repayment factors for saving-funded and credit-funded loans.
 The advances remain recorded in the ActionFrame evidence above; repayment is
 not assumed. -/
-theorem same_gross_repayment_factor {W : ActionFrame}
+theorem same_gross_repayment_factor {W : ActionFrame} [BilateralExchangeFrame W]
     {T_credit : PawnLoanTerms W} {A_credit : CreditAdvance T_credit}
     (Q : SavingCreditLoanQuotes A_credit) :
     Q.savingTerms.grossRepaymentFactor = T_credit.grossRepaymentFactor :=
@@ -404,8 +407,8 @@ theorem same_gross_repayment_factor {W : ActionFrame}
 /-- The saving-side and credit-side loan terms yield the same Catallactics
 signal, with the gross factor equality derived from their shared market
 clearing evidence. -/
-theorem same_rate_signal {W : ActionFrame} {T_credit : PawnLoanTerms W}
-    {A_credit : CreditAdvance T_credit}
+theorem same_rate_signal {W : ActionFrame} [BilateralExchangeFrame W]
+    {T_credit : PawnLoanTerms W} {A_credit : CreditAdvance T_credit}
     (Q : SavingCreditLoanQuotes A_credit) :
     Q.savingTerms.marketSignal = T_credit.marketSignal := by
   exact Q.marketComparison.same_market_signal
@@ -418,7 +421,7 @@ the saving and fiduciary-credit nodes, the observed signal alone cannot
 identify which node obtains. The theorem derives signal equality; it does not
 certify the funding origin assigned to either node. -/
 theorem CreditRepayment.same_observed_contract_precludes_credit_identification
-    (W : ActionFrame)
+    (W : ActionFrame) [BilateralExchangeFrame W]
     (node : W.Agent → CreditRegime → W.DecisionIndex)
     (read : W.Agent → W.DecisionIndex → CatallacticMarketSignal W.Means)
     (i : W.Agent)

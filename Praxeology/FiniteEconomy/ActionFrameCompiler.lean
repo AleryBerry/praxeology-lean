@@ -398,32 +398,11 @@ and physical ledger follow the existing stage and interpreter. -/
         simpa [FinitePhysicalChoiceStage.selectAt, hmenu] using
           (S.choices.replaceProfile_other h' a hmenu hne.symm)
     | some _ => rfl
-  Offer := EconomyAction.offer
-  Accept := EconomyAction.accept
-  use_means_offer := by intro; simp [rawActionUse]
-  yield_means_offer := by intro; simp [rawActionYield]
-  use_means_accept := by intro; simp [rawActionUse]
-  yield_means_accept := by intro; simp [rawActionYield]
-  offer_inj := by
-    intro i₁ j₁ qA₁ mA₁ qB₁ mB₁ i₂ j₂ qA₂ mA₂ qB₂ mB₂ h
-    exact EconomyAction.offer.inj h
-  accept_inj := by
-    intro j₁ i₁ qA₁ mA₁ qB₁ mB₁ j₂ i₂ qA₂ mA₂ qB₂ mB₂ h
-    exact EconomyAction.accept.inj h
-  offer_ne_accept := by
-    intro i j qA mA qB mB j' i' qA' mA' qB' mB' h
-    cases h
-  alpha_zero_ne_offer := by
-    intro i j qA mA qB mB h
-    cases h
-  alpha_zero_ne_accept := by
-    intro j i qA mA qB mB h
-    cases h
   IsTradeAction := fun a => match a with
     | .offer .. => True
     | .accept .. => True
     | _ => False
-  is_trade_action_def := by intro a; cases a <;> simp
+  alpha_zero_not_trade := by intro h; cases h
   law_in_re_transition := by
     intro i t t' h a m hnot ha hnext
     cases t with
@@ -451,78 +430,6 @@ and physical ledger follow the existing stage and interpreter. -/
             exact (hnot (by simp)).elim
         | accept buyer seller soldQuantity soldGood paidQuantity paidGood =>
             exact (hnot (by simp)).elim
-  unilateral_offer_noop := by
-    intro i j qA mA qB mB t t' h m hoffer hn hnext
-    cases t with
-    | some p =>
-        have hfalse := hnext.2.2.1
-        change False at hfalse
-        exact False.elim hfalse
-    | none =>
-      cases t' with
-      | none =>
-          have hfalse := hnext.2.2.1
-          change False at hfalse
-          exact False.elim hfalse
-      | some p =>
-        have hp : p = h := by simpa [finitePhysicalChoiceIncidence] using hnext.2.1
-        subst p
-        have hi : h.1 i = .offer i j qA mA qB mB := by simpa using hoffer
-        have hj : h.1 j ≠ .accept j i qA mA qB mB := by simpa using hn
-        have hbal := S.advance_balance h i m
-        have hzero : effectiveUse S.operations h.1 i m = 0 ∧
-            effectiveYield S.operations h.1 i m = 0 := by
-          simp [effectiveUse, effectiveYield, hi, hj]
-        rw [hzero.1, hzero.2] at hbal
-        simpa [stateAt] using hbal
-  unilateral_accept_noop := by
-    intro j i qA mA qB mB t t' h m haccept hn hnext
-    cases t with
-    | some p =>
-        have hfalse := hnext.2.2.1
-        change False at hfalse
-        exact False.elim hfalse
-    | none =>
-      cases t' with
-      | none =>
-          have hfalse := hnext.2.2.1
-          change False at hfalse
-          exact False.elim hfalse
-      | some p =>
-        have hp : p = h := by simpa [finitePhysicalChoiceIncidence] using hnext.2.1
-        subst p
-        have hj : h.1 j = .accept j i qA mA qB mB := by simpa using haccept
-        have hi : h.1 i ≠ .offer i j qA mA qB mB := by simpa using hn
-        have hbal := S.advance_balance h j m
-        have hzero : effectiveUse S.operations h.1 j m = 0 ∧
-            effectiveYield S.operations h.1 j m = 0 := by
-          simp [effectiveUse, effectiveYield, hj, hi]
-        rw [hzero.1, hzero.2] at hbal
-        simpa [stateAt] using hbal
-  bilateral_transfer_law := by
-    intro i j qA mA qB mB t t' h m hne hoff haccept hnext
-    cases t with
-    | some p =>
-        have hfalse := hnext.2.2.1
-        change False at hfalse
-        exact False.elim hfalse
-    | none =>
-      cases t' with
-      | none =>
-          have hfalse := hnext.2.2.1
-          change False at hfalse
-          exact False.elim hfalse
-      | some p =>
-        have hp : p = h := by simpa [finitePhysicalChoiceIncidence] using hnext.2.1
-        subst p
-        have hi : h.1 i = .offer i j qA mA qB mB := by simpa using hoff
-        have hj : h.1 j = .accept j i qA mA qB mB := by simpa using haccept
-        have hbi := S.advance_balance h i m
-        have hbj := S.advance_balance h j m
-        have hbi' := hbi
-        have hbj' := hbj
-        simp only [effectiveUse, effectiveYield, hi, hj] at hbi' hbj'
-        exact ⟨by simpa [stateAt] using hbi', by simpa [stateAt] using hbj'⟩
   MinPlausible := fun i t => {referenceAt S B i t}
   min_plausible_nonempty := by intro i t; exact ⟨referenceAt S B i t, by simp⟩
   tau := fun _ t _ => t
@@ -562,14 +469,6 @@ and physical ledger follow the existing stage and interpreter. -/
     exact hpref
   BundleEnd := FinitePhysicalChoiceEnd.bundle
   teleological_bundle_dominance_induces_preference := B.teleological_dominance_prefers
-  TimedEnd := FinitePhysicalChoiceEnd.timed
-  QuantityEnd := FinitePhysicalChoiceEnd.quantity
-  timed_end_inj := by
-    intro e₁ t₁ e₂ t₂ h
-    exact FinitePhysicalChoiceEnd.timed.inj h
-  quantity_end_inj := by
-    intro m₁ q₁ m₂ q₂ h
-    exact FinitePhysicalChoiceEnd.quantity.inj h
 
 /-- The generated frame reads every inventory from the stage's existing
 pre-state or interpreter-derived successor state. -/
@@ -592,6 +491,162 @@ idle baseline there. -/
     (S : FinitePhysicalChoiceStage Agent Means Operation Service)
     (B : FinitePhysicalChoiceBehavior S) (i : Agent) (p h : S.History) :
     (S.toActionFrame B).enacted i (some p) h = .idle := rfl
+
+instance (S : FinitePhysicalChoiceStage Agent Means Operation Service)
+    (B : FinitePhysicalChoiceBehavior S) :
+    BilateralExchangeFrame (S.toActionFrame B) where
+  Offer := EconomyAction.offer
+  Accept := EconomyAction.accept
+  use_means_offer := by intro _ _ _ _ _ _ _; rfl
+  yield_means_offer := by intro _ _ _ _ _ _ _; rfl
+  use_means_accept := by intro _ _ _ _ _ _ _; rfl
+  yield_means_accept := by intro _ _ _ _ _ _ _; rfl
+  offer_inj := by
+    intro i₁ j₁ qA₁ mA₁ qB₁ mB₁ i₂ j₂ qA₂ mA₂ qB₂ mB₂ h
+    exact EconomyAction.offer.inj h
+  accept_inj := by
+    intro j₁ i₁ qA₁ mA₁ qB₁ mB₁ j₂ i₂ qA₂ mA₂ qB₂ mB₂ h
+    exact EconomyAction.accept.inj h
+  offer_ne_accept := by
+    intro i j qA mA qB mB j' i' qA' mA' qB' mB' h
+    cases h
+  alpha_zero_ne_offer := by
+    intro i j qA mA qB mB h
+    cases h
+  alpha_zero_ne_accept := by
+    intro j i qA mA qB mB h
+    cases h
+  is_trade_action_def := by
+    intro a
+    cases a with
+    | idle =>
+        dsimp [ActionFrame.IsTradeAction, toActionFrame]
+        simp
+    | operate op =>
+        dsimp [ActionFrame.IsTradeAction, toActionFrame]
+        simp
+    | offer seller buyer soldQuantity soldGood paidQuantity paidGood =>
+        dsimp [ActionFrame.IsTradeAction, toActionFrame]
+        simp only [true_iff]
+        left
+        exact ⟨seller, buyer, soldQuantity, soldGood, paidQuantity, paidGood, rfl⟩
+    | accept buyer seller soldQuantity soldGood paidQuantity paidGood =>
+        dsimp [ActionFrame.IsTradeAction, toActionFrame]
+        simp only [true_iff]
+        right
+        exact ⟨buyer, seller, soldQuantity, soldGood, paidQuantity, paidGood, rfl⟩
+  unilateral_offer_noop := by
+    intro i j qA mA qB mB t t' h m hoffer hn hnext
+    cases t with
+    | some p =>
+        have hfalse : False := by
+          simpa [ActionFrame.Precedence, toActionFrame,
+            finitePhysicalChoicePrecedence] using hnext.2.2.1
+        exact False.elim hfalse
+    | none =>
+      cases t' with
+      | none =>
+          have hfalse : False := by
+            simpa [ActionFrame.Precedence, toActionFrame,
+              finitePhysicalChoicePrecedence] using hnext.2.2.1
+          exact False.elim hfalse
+      | some p =>
+        have hp : p = h := by
+          simpa [ActionFrame.mem_hist, toActionFrame,
+            finitePhysicalChoiceIncidence] using hnext.2.1
+        subst p
+        have hi : h.1 i = .offer i j qA mA qB mB := by
+          change (S.toActionFrame B).enacted i none h = .offer i j qA mA qB mB at hoffer
+          simpa using hoffer
+        have hj : h.1 j ≠ .accept j i qA mA qB mB := by
+          intro h_eq
+          apply hn
+          change (S.toActionFrame B).enacted j none h = .accept j i qA mA qB mB
+          simpa using h_eq
+        have hbal := S.advance_balance h i m
+        have hzero : effectiveUse S.operations h.1 i m = 0 ∧
+            effectiveYield S.operations h.1 i m = 0 := by
+          simp [effectiveUse, effectiveYield, hi, hj]
+        rw [hzero.1, hzero.2] at hbal
+        simpa [stateAt] using hbal
+  unilateral_accept_noop := by
+    intro j i qA mA qB mB t t' h m haccept hn hnext
+    cases t with
+    | some p =>
+        have hfalse : False := by
+          simpa [ActionFrame.Precedence, toActionFrame,
+            finitePhysicalChoicePrecedence] using hnext.2.2.1
+        exact False.elim hfalse
+    | none =>
+      cases t' with
+      | none =>
+          have hfalse : False := by
+            simpa [ActionFrame.Precedence, toActionFrame,
+              finitePhysicalChoicePrecedence] using hnext.2.2.1
+          exact False.elim hfalse
+      | some p =>
+        have hp : p = h := by
+          simpa [ActionFrame.mem_hist, toActionFrame,
+            finitePhysicalChoiceIncidence] using hnext.2.1
+        subst p
+        have hj : h.1 j = .accept j i qA mA qB mB := by
+          change (S.toActionFrame B).enacted j none h = .accept j i qA mA qB mB at haccept
+          simpa using haccept
+        have hi : h.1 i ≠ .offer i j qA mA qB mB := by
+          intro h_eq
+          apply hn
+          change (S.toActionFrame B).enacted i none h = .offer i j qA mA qB mB
+          simpa using h_eq
+        have hbal := S.advance_balance h j m
+        have hzero : effectiveUse S.operations h.1 j m = 0 ∧
+            effectiveYield S.operations h.1 j m = 0 := by
+          simp [effectiveUse, effectiveYield, hj, hi]
+        rw [hzero.1, hzero.2] at hbal
+        simpa [stateAt] using hbal
+  bilateral_transfer_law := by
+    intro i j qA mA qB mB t t' h m hne hoff haccept hnext
+    cases t with
+    | some p =>
+        have hfalse : False := by
+          simpa [ActionFrame.Precedence, toActionFrame,
+            finitePhysicalChoicePrecedence] using hnext.2.2.1
+        exact False.elim hfalse
+    | none =>
+      cases t' with
+      | none =>
+          have hfalse : False := by
+            simpa [ActionFrame.Precedence, toActionFrame,
+              finitePhysicalChoicePrecedence] using hnext.2.2.1
+          exact False.elim hfalse
+      | some p =>
+        have hp : p = h := by
+          simpa [ActionFrame.mem_hist, toActionFrame,
+            finitePhysicalChoiceIncidence] using hnext.2.1
+        subst p
+        have hi : h.1 i = .offer i j qA mA qB mB := by
+          change (S.toActionFrame B).enacted i none h = .offer i j qA mA qB mB at hoff
+          simpa using hoff
+        have hj : h.1 j = .accept j i qA mA qB mB := by
+          change (S.toActionFrame B).enacted j none h = .accept j i qA mA qB mB at haccept
+          simpa using haccept
+        have hbi := S.advance_balance h i m
+        have hbj := S.advance_balance h j m
+        have hbi' := hbi
+        have hbj' := hbj
+        simp only [effectiveUse, effectiveYield, hi, hj] at hbi' hbj'
+        exact ⟨by simpa [stateAt] using hbi', by simpa [stateAt] using hbj'⟩
+
+instance (S : FinitePhysicalChoiceStage Agent Means Operation Service)
+    (B : FinitePhysicalChoiceBehavior S) :
+    IntertemporalEnds (S.toActionFrame B) where
+  TimedEnd := FinitePhysicalChoiceEnd.timed
+  QuantityEnd := FinitePhysicalChoiceEnd.quantity
+  timed_end_inj := by
+    intro e₁ t₁ e₂ t₂ h
+    exact FinitePhysicalChoiceEnd.timed.inj h
+  quantity_end_inj := by
+    intro m₁ q₁ m₂ q₂ h
+    exact FinitePhysicalChoiceEnd.quantity.inj h
 
 end FinitePhysicalChoiceStage
 

@@ -311,7 +311,8 @@ theorem calhoun_title_partition [W : ActionFrame]
 
 
 theorem finsetSum_inventory_balance
-    [W : ActionFrame] (Cohort : Finset W.Agent) {t u : W.Moment} {h : W.History}
+    [W : ActionFrame] [BilateralExchangeFrame W]
+    (Cohort : Finset W.Agent) {t u : W.Moment} {h : W.History}
     (runs : (a : W.Agent) → InventoryRun W a h t u) (m : W.Means) :
     (∑ a ∈ Cohort, W.omega a u h m) + ∑ a ∈ Cohort, (runs a).totalUse m =
     (∑ a ∈ Cohort, W.omega a t h m) + ∑ a ∈ Cohort, (runs a).totalYield m := by
@@ -322,7 +323,7 @@ theorem finsetSum_inventory_balance
 
 
 def FiscalTransferSystem.ofRun
-    [W : ActionFrame]
+    [W : ActionFrame] [BilateralExchangeFrame W]
     (Cohort : Finset W.Agent) {t u : W.Moment} {h : W.History}
     (runs : (a : W.Agent) → InventoryRun W a h t u) (m : W.Means)
     (h_noyield : ∀ a ∈ Cohort, (runs a).totalYield m = 0) :
@@ -342,7 +343,7 @@ def FiscalTransferSystem.ofRun
 
 
 theorem calhoun_action_frame_run_class_partition
-    [W : ActionFrame]
+    [W : ActionFrame] [BilateralExchangeFrame W]
     (Cohort : Finset W.Agent) {t u : W.Moment} {h : W.History}
     (runs : (a : W.Agent) → InventoryRun W a h t u) (m : W.Means)
     (h_noyield : ∀ a ∈ Cohort, (runs a).totalYield m = 0)
@@ -615,7 +616,7 @@ theorem statutory_monopoly_immunizes_calculation_blindness [W : ActionFrame]
 
 
 structure StatutoryMonopolyFiscalIncidenceEvidence [W : ActionFrame]
-    (S : StatutoryMonopolyCalculationScenario (W := W)) where
+    [BilateralExchangeFrame W] (S : StatutoryMonopolyCalculationScenario (W := W)) where
   next : Moment
   cohort : Finset Agent
   inventoryRun : (a : Agent) → InventoryRun W a S.history S.moment next
@@ -628,7 +629,7 @@ structure StatutoryMonopolyFiscalIncidenceEvidence [W : ActionFrame]
 /-- Fiscal incidence has a named beneficiary-loss witness, alongside the
 calculation and purposeful-action results. -/
 structure StatutoryMonopolyFiscalIncidenceConclusion [W : ActionFrame]
-    (S : StatutoryMonopolyCalculationScenario (W := W))
+    [BilateralExchangeFrame W] (S : StatutoryMonopolyCalculationScenario (W := W))
     (E : StatutoryMonopolyFiscalIncidenceEvidence S) : Prop where
   calculation : StatutoryMonopolyCalculationConclusion S
   beneficiaryLoss : ∃ beneficiary ∈ E.cohort,
@@ -636,7 +637,7 @@ structure StatutoryMonopolyFiscalIncidenceConclusion [W : ActionFrame]
       W.omega beneficiary S.moment S.history E.means
 
 theorem statutory_monopoly_run_blindness_and_fiscal_incidence [W : ActionFrame]
-    (S : StatutoryMonopolyCalculationScenario (W := W))
+    [BilateralExchangeFrame W] (S : StatutoryMonopolyCalculationScenario (W := W))
     (E : StatutoryMonopolyFiscalIncidenceEvidence S) :
     StatutoryMonopolyFiscalIncidenceConclusion S E := by
   have hcalc := statutory_monopoly_immunizes_calculation_blindness S

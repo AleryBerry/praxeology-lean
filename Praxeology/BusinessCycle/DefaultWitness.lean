@@ -23,7 +23,7 @@ represent legal title or a foreclosure judgment.
 namespace Praxeology
 namespace CreditLifecycleTree
 
-local instance : ActionFrame := creditLifecycleActionFrame
+attribute [local instance] creditLifecycleActionFrame
 
 abbrev LifecyclePurposefulAct (i : WorkshopAgent) (t : Node) (h : History)
     (α : WorkshopAction) : Prop :=
@@ -105,14 +105,14 @@ theorem entrepreneur_accept_purposeful_on_unpaid_history :
 /-- The advance on this branch is the same purposeful bilateral exchange used
 by the general credit contract. -/
 theorem entrepreneur_unpaid_advance_is_bilateral_exchange :
-    @BilateralExchange creditLifecycleActionFrame .operator .entrepreneur
+    BilateralExchange (W := creditLifecycleActionFrame) .operator .entrepreneur
       firstAdvanceMoment unpaidMaturityHistory 1 creditLifecycleMoney 1
       creditLifecycleCollateral := by
-  exact ricardian_bilateral_exchange_purposeful WorkshopAgent.operator
-    WorkshopAgent.entrepreneur firstAdvanceMoment unpaidMaturityHistory
-    creditLifecycleMoney creditLifecycleCollateral 1 1 (by decide) (by decide)
-    operator_advance_purposeful_on_unpaid_history (by decide)
-    entrepreneur_accept_purposeful_on_unpaid_history (by decide)
+  refine ⟨by decide, by decide, by decide, ?_, ?_, ?_, ?_⟩
+  · exact operator_advance_purposeful_on_unpaid_history
+  · intro h; cases h
+  · exact entrepreneur_accept_purposeful_on_unpaid_history
+  · intro h; cases h
 
 /-- A matched purposeful advance on the no-repayment branch. -/
 def entrepreneurUnpaidAdvance : CreditAdvance entrepreneurUnpaidLoanTerms where

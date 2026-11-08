@@ -31,9 +31,13 @@ def projectedStock (W : ActionFrame) (i : W.Agent) (α : W.Action)
   let t' := W.tau i t h'
   W.omega i (W.ExpectedMaturation i α t' (W.sigma i t' α h')) (W.sigma i t' α h')
 
+section InventoryTraces
 
-inductive InventoryStep (W : ActionFrame) (i : W.Agent) (h : W.History) :
-    W.Moment → W.Moment → Type where
+variable [BilateralExchangeFrame W]
+
+
+inductive InventoryStep (W : ActionFrame) [BilateralExchangeFrame W] (i : W.Agent)
+    (h : W.History) : W.Moment → W.Moment → Type where
   | production {t t'} (α : W.Action)
       (h_exec : W.enacted i t h = α)
       (h_nontrade : ¬ W.IsTradeAction α)
@@ -63,8 +67,9 @@ inductive InventoryStep (W : ActionFrame) (i : W.Agent) (h : W.History) :
       InventoryStep W i h t t'
 
 /-- The action whose physical flow is recorded by an inventory step. -/
-def InventoryStep.action {W : ActionFrame} {i : W.Agent} {h : W.History}
-    {t t' : W.Moment} (s : InventoryStep W i h t t') : W.Action :=
+def InventoryStep.action {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History} {t t' : W.Moment}
+    (s : InventoryStep W i h t t') : W.Action :=
   match s with
   | .production α _ _ _ => α
   | .matchedOffer j qA mA qB mB _ _ _ _ => W.Offer i j qA mA qB mB
@@ -73,8 +78,9 @@ def InventoryStep.action {W : ActionFrame} {i : W.Agent} {h : W.History}
   | .unmatchedAccept j qA mA qB mB _ _ _ => W.Accept i j qA mA qB mB
 
 
-def InventoryStep.effectiveUse {W : ActionFrame} {i : W.Agent} {h : W.History}
-    {t t' : W.Moment} (s : InventoryStep W i h t t') (m : W.Means) : ℕ :=
+def InventoryStep.effectiveUse {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History} {t t' : W.Moment}
+    (s : InventoryStep W i h t t') (m : W.Means) : ℕ :=
   match s with
   | .production α _ _ _ => W.use_means α m
   | .matchedOffer _ _ _ _ _ _ _ _ _ => W.use_means s.action m
@@ -83,8 +89,9 @@ def InventoryStep.effectiveUse {W : ActionFrame} {i : W.Agent} {h : W.History}
   | .unmatchedAccept _ _ _ _ _ _ _ _ => 0
 
 /-- Physical output attributed to a step. -/
-def InventoryStep.effectiveYield {W : ActionFrame} {i : W.Agent} {h : W.History}
-    {t t' : W.Moment} (s : InventoryStep W i h t t') (m : W.Means) : ℕ :=
+def InventoryStep.effectiveYield {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History} {t t' : W.Moment}
+    (s : InventoryStep W i h t t') (m : W.Means) : ℕ :=
   match s with
   | .production α _ _ _ => W.yield_means α m
   | .matchedOffer _ _ _ _ _ _ _ _ _ => W.yield_means s.action m
@@ -93,8 +100,9 @@ def InventoryStep.effectiveYield {W : ActionFrame} {i : W.Agent} {h : W.History}
   | .unmatchedAccept _ _ _ _ _ _ _ _ => 0
 
 /-- Physical yield from a production step. -/
-def InventoryStep.productionYield {W : ActionFrame} {i : W.Agent} {h : W.History}
-    {t t' : W.Moment} (s : InventoryStep W i h t t') (m : W.Means) : ℕ :=
+def InventoryStep.productionYield {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History} {t t' : W.Moment}
+    (s : InventoryStep W i h t t') (m : W.Means) : ℕ :=
   match s with
   | .production α _ _ _ => W.yield_means α m
   | .matchedOffer _ _ _ _ _ _ _ _ _ => 0
@@ -103,8 +111,9 @@ def InventoryStep.productionYield {W : ActionFrame} {i : W.Agent} {h : W.History
   | .unmatchedAccept _ _ _ _ _ _ _ _ => 0
 
 /-- Physical yield from a matched transfer step. -/
-def InventoryStep.tradeYield {W : ActionFrame} {i : W.Agent} {h : W.History}
-    {t t' : W.Moment} (s : InventoryStep W i h t t') (m : W.Means) : ℕ :=
+def InventoryStep.tradeYield {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History} {t t' : W.Moment}
+    (s : InventoryStep W i h t t') (m : W.Means) : ℕ :=
   match s with
   | .production _ _ _ _ => 0
   | .matchedOffer _ _ _ _ _ _ _ _ _ => W.yield_means s.action m
@@ -122,7 +131,7 @@ theorem InventoryStep.effectiveYield_eq_production_add_trade
       InventoryStep.tradeYield, InventoryStep.action]
 
 /-- A finite sequence of actual physical transitions along one history. -/
-inductive InventoryRun (W : ActionFrame) (i : W.Agent) (h : W.History) :
+inductive InventoryRun (W : ActionFrame) [BilateralExchangeFrame W] (i : W.Agent) (h : W.History) :
     W.Moment → W.Moment → Type where
   | done (t : W.Moment) : InventoryRun W i h t t
   | step {t u v : W.Moment}
@@ -131,7 +140,8 @@ inductive InventoryRun (W : ActionFrame) (i : W.Agent) (h : W.History) :
       InventoryRun W i h t v
 
 /-- Concatenate two adjacent transition runs on one history. -/
-def InventoryRun.append {W : ActionFrame} {i : W.Agent} {h : W.History}
+def InventoryRun.append {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History}
     {t u v : W.Moment} (first : InventoryRun W i h t u)
     (second : InventoryRun W i h u v) : InventoryRun W i h t v :=
   match first with
@@ -139,14 +149,16 @@ def InventoryRun.append {W : ActionFrame} {i : W.Agent} {h : W.History}
   | .step head tail => .step head (tail.append second)
 
 /-- Number of transitions in a finite inventory run. -/
-def InventoryRun.length {W : ActionFrame} {i : W.Agent} {h : W.History}
+def InventoryRun.length {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History}
     {t u : W.Moment} (run : InventoryRun W i h t u) : ℕ :=
   match run with
   | .done _ => 0
   | .step _ tail => tail.length + 1
 
 /-- Sum of the physical inputs used by each step in the run. -/
-def InventoryRun.totalUse {W : ActionFrame} {i : W.Agent} {h : W.History}
+def InventoryRun.totalUse {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History}
     {t u : W.Moment} (r : InventoryRun W i h t u) (m : W.Means) : ℕ :=
   match r with
   | .done _ => 0
@@ -163,7 +175,8 @@ theorem InventoryRun.totalUse_append {i : Agent} {h : History}
       simp [InventoryRun.append, InventoryRun.totalUse, ih, Nat.add_assoc]
 
 /-- Total physical outputs generated by an actual run. -/
-def InventoryRun.totalYield {W : ActionFrame} {i : W.Agent} {h : W.History}
+def InventoryRun.totalYield {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History}
     {t u : W.Moment} (r : InventoryRun W i h t u) (m : W.Means) : ℕ :=
   match r with
   | .done _ => 0
@@ -180,21 +193,24 @@ theorem InventoryRun.totalYield_append {i : Agent} {h : History}
       simp [InventoryRun.append, InventoryRun.totalYield, ih, Nat.add_assoc]
 
 /-- Cumulative production output, excluding goods received in exchange. -/
-def InventoryRun.totalProductionYield {W : ActionFrame} {i : W.Agent} {h : W.History}
+def InventoryRun.totalProductionYield {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History}
     {t u : W.Moment} (r : InventoryRun W i h t u) (m : W.Means) : ℕ :=
   match r with
   | .done _ => 0
   | .step head tail => head.productionYield m + tail.totalProductionYield m
 
 /-- Cumulative goods received through matched trade, excluding physical production. -/
-def InventoryRun.totalTradeYield {W : ActionFrame} {i : W.Agent} {h : W.History}
+def InventoryRun.totalTradeYield {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History}
     {t u : W.Moment} (r : InventoryRun W i h t u) (m : W.Means) : ℕ :=
   match r with
   | .done _ => 0
   | .step head tail => head.tradeYield m + tail.totalTradeYield m
 
 
-def InventoryStep.IsMatchedOfferAt {W : ActionFrame} {i : W.Agent} {h : W.History}
+def InventoryStep.IsMatchedOfferAt {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History}
     {t t' : W.Moment} (step : InventoryStep W i h t t')
     (moment : W.Moment) (buyer : W.Agent) (qA : ℕ) (mA : W.Means)
     (qB : ℕ) (mB : W.Means) : Prop :=
@@ -205,7 +221,8 @@ def InventoryStep.IsMatchedOfferAt {W : ActionFrame} {i : W.Agent} {h : W.Histor
 
 /-- Whether this step is the matched acceptance at `moment` with the listed partner
 and quantities. -/
-def InventoryStep.IsMatchedAcceptAt {W : ActionFrame} {i : W.Agent} {h : W.History}
+def InventoryStep.IsMatchedAcceptAt {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History}
     {t t' : W.Moment} (step : InventoryStep W i h t t')
     (moment : W.Moment) (operator : W.Agent) (qA : ℕ) (mA : W.Means)
     (qB : ℕ) (mB : W.Means) : Prop :=
@@ -215,7 +232,8 @@ def InventoryStep.IsMatchedAcceptAt {W : ActionFrame} {i : W.Agent} {h : W.Histo
   | _ => False
 
 /-- A production step at the named moment performs the specified nontrade production action. -/
-def InventoryStep.IsProductionAt {W : ActionFrame} {i : W.Agent} {h : W.History}
+def InventoryStep.IsProductionAt {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History}
     {t t' : W.Moment} (step : InventoryStep W i h t t')
     (moment : W.Moment) (action : W.Action) : Prop :=
   match step with
@@ -223,7 +241,8 @@ def InventoryStep.IsProductionAt {W : ActionFrame} {i : W.Agent} {h : W.History}
   | _ => False
 
 
-def InventoryRun.containsMatchedOfferAt {W : ActionFrame} {i : W.Agent} {h : W.History}
+def InventoryRun.containsMatchedOfferAt {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History}
     {t u : W.Moment} (run : InventoryRun W i h t u)
     (moment : W.Moment) (buyer : W.Agent) (qA : ℕ) (mA : W.Means)
     (qB : ℕ) (mB : W.Means) : Prop :=
@@ -234,7 +253,8 @@ def InventoryRun.containsMatchedOfferAt {W : ActionFrame} {i : W.Agent} {h : W.H
         tail.containsMatchedOfferAt moment buyer qA mA qB mB
 
 /-- The run contains a matched acceptance with the listed values. -/
-def InventoryRun.containsMatchedAcceptAt {W : ActionFrame} {i : W.Agent} {h : W.History}
+def InventoryRun.containsMatchedAcceptAt {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History}
     {t u : W.Moment} (run : InventoryRun W i h t u)
     (moment : W.Moment) (operator : W.Agent) (qA : ℕ) (mA : W.Means)
     (qB : ℕ) (mB : W.Means) : Prop :=
@@ -245,7 +265,8 @@ def InventoryRun.containsMatchedAcceptAt {W : ActionFrame} {i : W.Agent} {h : W.
         tail.containsMatchedAcceptAt moment operator qA mA qB mB
 
 /-- The finite run contains the named nontrade production action. -/
-def InventoryRun.containsProductionAt {W : ActionFrame} {i : W.Agent} {h : W.History}
+def InventoryRun.containsProductionAt {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History}
     {t u : W.Moment} (run : InventoryRun W i h t u)
     (moment : W.Moment) (action : W.Action) : Prop :=
   match run with
@@ -254,12 +275,13 @@ def InventoryRun.containsProductionAt {W : ActionFrame} {i : W.Agent} {h : W.His
       head.IsProductionAt moment action ∨ tail.containsProductionAt moment action
 
 
-def InventoryRun.containsActionAt {W : ActionFrame} {i : W.Agent} {h : W.History}
+def InventoryRun.containsActionAt {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History}
     {t u : W.Moment} (run : InventoryRun W i h t u)
     (moment : W.Moment) (action : W.Action) : Prop :=
   match run with
   | .done _ => False
-  | @InventoryRun.step _ _ _ start _ _ head tail =>
+  | @InventoryRun.step _ _ _ _ start _ _ head tail =>
       (start = moment ∧ head.action = action) ∨ tail.containsActionAt moment action
 
 /-- Total yield is the sum of production yield and matched-transfer yield. -/
@@ -276,7 +298,8 @@ theorem InventoryRun.totalYield_eq_production_add_trade
       omega
 
 /-- Sum of externally specified service output for each step in the run. -/
-def InventoryRun.totalService {W : ActionFrame} {i : W.Agent} {h : W.History}
+def InventoryRun.totalService {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History}
     {t u : W.Moment} {Service : Type} (r : InventoryRun W i h t u)
     (A : ServiceAccounting W Service) (s : Service) : ℕ :=
   match r with
@@ -286,7 +309,7 @@ def InventoryRun.totalService {W : ActionFrame} {i : W.Agent} {h : W.History}
 /-- A run with no transitions has no service output. -/
 theorem InventoryRun.totalService_done {i : W.Agent} {h : W.History}
     (t : W.Moment) {Service : Type} (A : ServiceAccounting W Service) (s : Service) :
-    (@InventoryRun.done W i h t).totalService A s = 0 := rfl
+    (@InventoryRun.done W _ i h t).totalService A s = 0 := rfl
 
 /-- The head action's service yield adds to the tail run's service total. -/
 theorem InventoryRun.totalService_step {i : W.Agent} {h : W.History}
@@ -365,8 +388,9 @@ theorem InventoryStep.inventory_balance {i : Agent} {h : History}
   simpa [InventoryRun.totalUse, InventoryRun.totalYield] using hbalance
 
 
-structure ProjectedInventoryTrace (W : ActionFrame) (i : W.Agent) (α : W.Action)
-    (t : W.Moment) (h' : W.History) (hh' : h' ∈ W.MinPlausible i t) where
+structure ProjectedInventoryTrace (W : ActionFrame) [BilateralExchangeFrame W]
+    (i : W.Agent) (α : W.Action) (t : W.Moment) (h' : W.History)
+    (hh' : h' ∈ W.MinPlausible i t) where
   projected_node_incident : W.mem_hist (W.tau i t h') h' :=
     W.min_plausible_node_incidence i t h' hh'
   projected_feasible : α ∈ W.A_feas i (W.tau i t h') h'
@@ -402,7 +426,8 @@ theorem ProjectedInventoryTrace.common_initial_stock
 
 /-- An inventory trace is represented by an additive balance, without computing
 a truncated subtraction. -/
-def ProjectedInventoryTrace.StockBalance {W : ActionFrame} {i : W.Agent} {α : W.Action}
+def ProjectedInventoryTrace.StockBalance {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {α : W.Action}
     {t : W.Moment} {h' : W.History} {hh' : h' ∈ W.MinPlausible i t}
     (R : ProjectedInventoryTrace W i α t h' hh') (stock : W.Means → ℕ) : Prop :=
   ∀ m, stock m + R.run.totalUse m =
@@ -442,6 +467,16 @@ theorem ProjectedInventoryTrace.stockBalance_iff
   · rintro rfl
     exact R.projectedStock_balance
 
+/-- Total externally accounted service flow along a projected trace. -/
+def ProjectedInventoryTrace.totalService {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {α : W.Action} {t : W.Moment} {h' : W.History}
+    {hh' : h' ∈ W.MinPlausible i t}
+    {Service : Type} (R : ProjectedInventoryTrace W i α t h' hh')
+    (A : ServiceAccounting W Service) (s : Service) : ℕ :=
+  R.run.totalService A s
+
+end InventoryTraces
+
 /-- An explicit veridical projection certificate for inventory traces:
 asserts that actual history `h` is among the plausible scenarios evaluated
 by agent `i` at decision moment `t`. Equating projected stock on `h` with
@@ -463,15 +498,6 @@ theorem projectedStock_eq_actual_stock_of_veridical
   funext m
   dsimp [projectedStock]
   rw [ht]
-
-
-
-/-- Total externally accounted service flow along a projected trace. -/
-def ProjectedInventoryTrace.totalService {W : ActionFrame} {i : W.Agent}
-    {α : W.Action} {t : W.Moment} {h' : W.History} {hh' : h' ∈ W.MinPlausible i t}
-    {Service : Type} (R : ProjectedInventoryTrace W i α t h' hh')
-    (A : ServiceAccounting W Service) (s : Service) : ℕ :=
-  R.run.totalService A s
 
 
 -- Section 3: Lockean Property, Homesteading, and Path-Dependent Title Traces

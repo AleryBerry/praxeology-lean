@@ -87,6 +87,42 @@ def abctGroundedPreference (i : Fin 2) (t : BilateralMoment) (h : Fin 4)
       intro _ _ _ b₁ b₂ hdom
       exact hdom }
 
+instance : BilateralExchangeFrame ABCTGroundedActionFrame where
+  Offer := BilateralExchangeFrame.Offer (W := SubjectiveBilateralTradeActionFrame)
+  Accept := BilateralExchangeFrame.Accept (W := SubjectiveBilateralTradeActionFrame)
+  offer_inj := BilateralExchangeFrame.offer_inj (W := SubjectiveBilateralTradeActionFrame)
+  accept_inj := BilateralExchangeFrame.accept_inj (W := SubjectiveBilateralTradeActionFrame)
+  offer_ne_accept :=
+    BilateralExchangeFrame.offer_ne_accept (W := SubjectiveBilateralTradeActionFrame)
+  alpha_zero_ne_offer :=
+    BilateralExchangeFrame.alpha_zero_ne_offer (W := SubjectiveBilateralTradeActionFrame)
+  alpha_zero_ne_accept :=
+    BilateralExchangeFrame.alpha_zero_ne_accept (W := SubjectiveBilateralTradeActionFrame)
+  use_means_offer :=
+    BilateralExchangeFrame.use_means_offer (W := SubjectiveBilateralTradeActionFrame)
+  yield_means_offer :=
+    BilateralExchangeFrame.yield_means_offer (W := SubjectiveBilateralTradeActionFrame)
+  use_means_accept :=
+    BilateralExchangeFrame.use_means_accept (W := SubjectiveBilateralTradeActionFrame)
+  yield_means_accept :=
+    BilateralExchangeFrame.yield_means_accept (W := SubjectiveBilateralTradeActionFrame)
+  is_trade_action_def :=
+    BilateralExchangeFrame.is_trade_action_def (W := SubjectiveBilateralTradeActionFrame)
+  unilateral_offer_noop :=
+    BilateralExchangeFrame.unilateral_offer_noop (W := SubjectiveBilateralTradeActionFrame)
+  unilateral_accept_noop :=
+    BilateralExchangeFrame.unilateral_accept_noop (W := SubjectiveBilateralTradeActionFrame)
+  bilateral_transfer_law :=
+    BilateralExchangeFrame.bilateral_transfer_law (W := SubjectiveBilateralTradeActionFrame)
+
+instance : IntertemporalEnds ABCTGroundedActionFrame where
+  TimedEnd := IntertemporalEnds.TimedEnd (W := SubjectiveBilateralTradeActionFrame)
+  QuantityEnd := IntertemporalEnds.QuantityEnd (W := SubjectiveBilateralTradeActionFrame)
+  timed_end_inj :=
+    IntertemporalEnds.timed_end_inj (W := SubjectiveBilateralTradeActionFrame)
+  quantity_end_inj :=
+    IntertemporalEnds.quantity_end_inj (W := SubjectiveBilateralTradeActionFrame)
+
 def abctGroundedInvestment : ABCTGroundedActionFrame.Action :=
   ModelAction.offer (0 : Fin 2) 1 1 (0 : Fin 3) 1 (1 : Fin 3)
 

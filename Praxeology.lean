@@ -87,8 +87,8 @@ theorem ground_finite_model_quantity_monotonicity
     (h : FiniteBranchingModel.History) (m : FiniteBranchingModel.Means)
     (q q' : ℕ) (τ : FiniteBranchingModel.Moment) (hq : q' < q) :
     @Preference FiniteBranchingModel i t h
-      (@timedQuantityEnd FiniteBranchingModel m q τ)
-      (@timedQuantityEnd FiniteBranchingModel m q' τ) :=
+      (@timedQuantityEnd FiniteBranchingModel _ m q τ)
+      (@timedQuantityEnd FiniteBranchingModel _ m q' τ) :=
   finite_model_quantity_monotonicity i t h m q q' τ hq
 
 /-- Ground instantiation of Theorem 3.5b: non-vacuous positive originary interest. -/
@@ -98,17 +98,17 @@ theorem ground_intertemporal_chain_non_vacuous :
       (q q' : ℕ) (α_cons : FiniteBranchingModel.Action) (τ1 : FiniteBranchingModel.Moment),
       @PurposefulAct FiniteBranchingModel i t h α_cons ∧
       @DistinctEndDominantAct FiniteBranchingModel i t h α_cons ∧
-      @CausalDoxasticOpenHorizon FiniteBranchingModel i t h
-        (@QuantityEnd FiniteBranchingModel m q) α_cons τ1 ∧
+      @CausalDoxasticOpenHorizon FiniteBranchingModel _ i t h
+        (@QuantityEnd FiniteBranchingModel _ m q) α_cons τ1 ∧
       ¬ @IsPostHorizon FiniteBranchingModel i t h ∧
       (∃ (τ2 : FiniteBranchingModel.Moment) (δ : ℕ),
         0 < q ∧ @LT.lt FiniteBranchingModel.Moment _ τ1 τ2 ∧ q < q' ∧ δ ≥ 1 ∧ q' = q + δ ∧
         @Preference FiniteBranchingModel i t h
-          (@TimedEnd FiniteBranchingModel (@QuantityEnd FiniteBranchingModel m q) τ1)
-          (@TimedEnd FiniteBranchingModel (@QuantityEnd FiniteBranchingModel m q) τ2) ∧
+          (@TimedEnd FiniteBranchingModel _ (@QuantityEnd FiniteBranchingModel _ m q) τ1)
+          (@TimedEnd FiniteBranchingModel _ (@QuantityEnd FiniteBranchingModel _ m q) τ2) ∧
         @Preference FiniteBranchingModel i t h
-          (@timedQuantityEnd FiniteBranchingModel m q τ1)
-          (@timedQuantityEnd FiniteBranchingModel m q τ2)) :=
+          (@timedQuantityEnd FiniteBranchingModel _ m q τ1)
+          (@timedQuantityEnd FiniteBranchingModel _ m q τ2)) :=
   causal_intertemporal_chain_non_vacuous
 
 /-- Ground instantiation of Theorem 7.1b: Kirznerian arbitrage contracts the indeterminacy cone. -/
@@ -249,21 +249,21 @@ theorem ground_bohm_bawerk_roundabout_necessity
     (h : FiniteBranchingModel.History) (m : FiniteBranchingModel.Means)
     (q_direct q_roundabout : ℕ) (hq : 0 < q_direct) (τ_direct τ_later : FiniteBranchingModel.Moment)
     (h_pos_tp : @Preference FiniteBranchingModel i t h
-      (@timedQuantityEnd FiniteBranchingModel m q_direct τ_direct)
-      (@timedQuantityEnd FiniteBranchingModel m q_direct τ_later))
+      (@timedQuantityEnd FiniteBranchingModel _ m q_direct τ_direct)
+      (@timedQuantityEnd FiniteBranchingModel _ m q_direct τ_later))
     (α_direct α_roundabout : FiniteBranchingModel.Action)
     (h_direct_feas : α_direct ∈ @ActionFrame.A_feas FiniteBranchingModel i t h)
     (h_direct_end : @ActionFrame.End_of FiniteBranchingModel i α_direct t h =
-      @timedQuantityEnd FiniteBranchingModel m q_direct τ_direct)
+      @timedQuantityEnd FiniteBranchingModel _ m q_direct τ_direct)
     (h_round_end : @ActionFrame.End_of FiniteBranchingModel i α_roundabout t h =
-      @timedQuantityEnd FiniteBranchingModel m q_roundabout τ_later)
+      @timedQuantityEnd FiniteBranchingModel _ m q_roundabout τ_later)
     (h_round_purp : @PurposefulAct FiniteBranchingModel i t h α_roundabout)
     (h_sync_mono : q_roundabout ≤ q_direct →
       @Preference FiniteBranchingModel i t h
-        (@timedQuantityEnd FiniteBranchingModel m q_direct τ_later)
-        (@timedQuantityEnd FiniteBranchingModel m q_roundabout τ_later) ∨
-      @timedQuantityEnd FiniteBranchingModel m q_direct τ_later =
-        @timedQuantityEnd FiniteBranchingModel m q_roundabout τ_later)
+        (@timedQuantityEnd FiniteBranchingModel _ m q_direct τ_later)
+        (@timedQuantityEnd FiniteBranchingModel _ m q_roundabout τ_later) ∨
+      @timedQuantityEnd FiniteBranchingModel _ m q_direct τ_later =
+        @timedQuantityEnd FiniteBranchingModel _ m q_roundabout τ_later)
     (h_trans : ∀ e1 e2 e3,
       @Preference FiniteBranchingModel i t h e1 e2 →
       @Preference FiniteBranchingModel i t h e2 e3 →
@@ -302,7 +302,7 @@ theorem ground_contextual_frame_induces_strict_poset
 
 /-- Ground instantiation of Theorem 4.4c: Market clearing with pairwise conservation. -/
 theorem ground_multilateral_cohort_market_clearing
-    [ActionFrame] (M : MultilateralCohortMarket Agent Means)
+    [W : ActionFrame] [BilateralExchangeFrame W] (M : MultilateralCohortMarket W.Agent W.Means)
     (S : MultilateralClearingScenario M) : MultilateralClearingConclusion M S :=
   action_frame_multilateral_market_clearing M S
 
@@ -546,7 +546,7 @@ theorem ground_calhoun_action_frame_class_partition
 
 /-- Ground instantiation of Theorem 11.2'': Calhoun partition in multi-moment inventory runs. -/
 theorem ground_calhoun_action_frame_run_class_partition
-    [W : ActionFrame]
+    [W : ActionFrame] [BilateralExchangeFrame W]
     (Cohort : Finset W.Agent) {t u : W.Moment} {h : W.History}
     (runs : (a : W.Agent) → InventoryRun W a h t u) (m : W.Means)
     (h_noyield : ∀ a ∈ Cohort, (runs a).totalYield m = 0)
@@ -671,7 +671,7 @@ theorem ground_targeted_sabotage_teleological_dominance
 Because collateral custody is transferred at origination, default retention
 by the lender at maturity requires no invasive seizure, preserving borrower stock and menu. -/
 theorem ground_unpaid_maturity_borrower_menu_preserved
-    [W : ActionFrame] {T : PawnLoanTerms W} {A : CreditAdvance T}
+    [W : ActionFrame] [BilateralExchangeFrame W] {T : PawnLoanTerms W} {A : CreditAdvance T}
     (D : UnpaidMaturity A)
     (t_post : W.Moment)
     (h_succ : IsNextMoment W.Precedence W.mem_hist T.maturity t_post A.history)

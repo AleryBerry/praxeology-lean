@@ -32,7 +32,8 @@ open ActionFrame
 node. The loan must precede the decision, and its cash is not spent along the
 observed inventory run between origination and that node. -/
 structure EntrepreneurialCreditFunding
-    {W : ActionFrame} (i : W.Agent) (x : W.DecisionIndex) (grossRate : ℚ) where
+    {W : ActionFrame} [BilateralExchangeFrame W]
+    (i : W.Agent) (x : W.DecisionIndex) (grossRate : ℚ) where
   terms : PawnLoanTerms W
   advance : CreditAdvance terms
   borrowerIsEntrepreneur : terms.borrower = i
@@ -46,8 +47,8 @@ namespace EntrepreneurialCreditFunding
 
 /-- The borrower has at least the advanced principal in cash at the decision
 node, derived from the matched advance and the intervening inventory balance. -/
-theorem principal_available_at_decision {W : ActionFrame} {i : W.Agent}
-    {x : W.DecisionIndex} {grossRate : ℚ}
+theorem principal_available_at_decision {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {x : W.DecisionIndex} {grossRate : ℚ}
     (F : EntrepreneurialCreditFunding i x grossRate) :
     F.terms.principal ≤ W.omega i x.moment x.history F.terms.money := by
   have h_advance := F.advance.physical_transfer.1
@@ -65,8 +66,8 @@ theorem principal_available_at_decision {W : ActionFrame} {i : W.Agent}
 
 /-- Cash from the observed advance makes a project feasible when it covers
 the project's money input and all other inputs are independently covered. -/
-theorem action_feasible_from_advance {W : ActionFrame} {i : W.Agent}
-    {x : W.DecisionIndex} {grossRate : ℚ}
+theorem action_feasible_from_advance {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {x : W.DecisionIndex} {grossRate : ℚ}
     (F : EntrepreneurialCreditFunding i x grossRate) (α : W.Action)
     (h_contemplated : α ∈ W.A_cont i x.moment x.history)
     (h_money_input : W.use_means α F.terms.money ≤ F.terms.principal)
@@ -90,7 +91,7 @@ strictly dominate status quo/safe action, the investment becomes purposeful.
 Conversely, when unsuppressed natural rates leave status quo dominating the net
 repayment bundle, investment is rejected as non-purposeful. -/
 theorem teleological_bundle_dominance_flips_investment
-    [W : ActionFrame]
+    [W : ActionFrame] [BilateralExchangeFrame W]
     (i : W.Agent) (naturalDecision creditDecision : W.DecisionIndex)
     (investment : W.Action) (grossRate : ℚ)
     (funding : EntrepreneurialCreditFunding i creditDecision grossRate)
@@ -146,7 +147,7 @@ theorem teleological_bundle_dominance_flips_investment
 /-- Direct derivation of purposeful investment from credit advance funding and
 maximal preference over the idle baseline. -/
 theorem credit_funding_induces_purposeful_investment
-    [W : ActionFrame]
+    [W : ActionFrame] [BilateralExchangeFrame W]
     (i : W.Agent) (x : W.DecisionIndex)
     (investment : W.Action) (grossRate : ℚ)
     (funding : EntrepreneurialCreditFunding i x grossRate)
@@ -173,7 +174,7 @@ Its physical yield and input are stated in inventory terms, so downstream
 results do not assume that a firm or a lone producer creates capital from
 nothing. -/
 structure EntrepreneurialCapitalFormation
-    {W : ActionFrame} (i : W.Agent) (h : W.History)
+    {W : ActionFrame} [BilateralExchangeFrame W] (i : W.Agent) (h : W.History)
     (decision next : W.Moment) (investment : W.Action) (capital : W.Means) where
   transition : InventoryStep W i h decision next
   representsInvestment : transition.action = investment
@@ -184,7 +185,8 @@ structure EntrepreneurialCapitalFormation
 namespace EntrepreneurialCapitalFormation
 
 /-- The observed transition creates one unit of capital. -/
-theorem capital_stock_after {W : ActionFrame} {i : W.Agent} {h : W.History}
+theorem capital_stock_after {W : ActionFrame} [BilateralExchangeFrame W]
+    {i : W.Agent} {h : W.History}
     {decision next : W.Moment} {investment : W.Action}
     {capital : W.Means}
     (A : EntrepreneurialCapitalFormation i h decision next investment capital) :
@@ -324,7 +326,7 @@ structure BlockedCompletion {W : ActionFrame} (i : W.Agent) (next : W.Moment)
 blocked. The comparison is admitted by one shared context, so regret is derived
 from physical bundle dominance rather than supplied as a preference premise. -/
 private theorem entrepreneurial_cycle_regret_of_blocked_completion
-    [W : ActionFrame] {Context : Type}
+    [W : ActionFrame] [BilateralExchangeFrame W] {Context : Type}
     (C : W.ContextCorrespondence Context)
     (i : W.Agent) (x : W.DecisionIndex)
     (next actualMaturity safeMaturity : W.Moment)
@@ -373,7 +375,7 @@ private theorem entrepreneurial_cycle_regret_of_blocked_completion
 starvation. The transition creates capital while leaving the required
 complementary factor absent, which supplies the blocked-completion premise. -/
 private theorem entrepreneurial_cycle_regret_from_starvation
-    [W : ActionFrame] {Context : Type}
+    [W : ActionFrame] [BilateralExchangeFrame W] {Context : Type}
     (C : W.ContextCorrespondence Context)
     (i : W.Agent) (x : W.DecisionIndex)
     (next actualMaturity safeMaturity : W.Moment)
@@ -516,7 +518,8 @@ theorem safe_bundle_dominates
 end StrandedCapitalRegretGrounding
 
 /-- The capital formation and contextual evaluation for one entrepreneurial cycle. -/
-structure EntrepreneurialCycleScenario (W : ActionFrame) (Context : Type) where
+structure EntrepreneurialCycleScenario (W : ActionFrame) [BilateralExchangeFrame W]
+    (Context : Type) where
   investment : EntrepreneurialInvestment W
   formation : EntrepreneurialCapitalFormation investment.i
     investment.x.history investment.x.moment investment.next
@@ -524,8 +527,8 @@ structure EntrepreneurialCycleScenario (W : ActionFrame) (Context : Type) where
   evaluation : ContextualCycleEvaluation Context investment
 
 /-- Admitted regret and the physical conclusions of a general cycle. -/
-structure EntrepreneurialCycleConclusion {W : ActionFrame} {Context : Type}
-    (S : EntrepreneurialCycleScenario W Context) : Prop where
+structure EntrepreneurialCycleConclusion {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context : Type} (S : EntrepreneurialCycleScenario W Context) : Prop where
   capitalStockAfter : W.omega S.investment.i S.investment.next
     S.investment.x.history S.investment.capital = 1
   completionBlocked : S.investment.completion ∉ W.A_feas S.investment.i
@@ -538,7 +541,7 @@ structure EntrepreneurialCycleConclusion {W : ActionFrame} {Context : Type}
 
 /-- Complete a cycle once a separate obstruction and purposeful choice are given. -/
 theorem EntrepreneurialCycleScenario.regret_of_blocked_completion
-    [W : ActionFrame] {Context : Type}
+    [W : ActionFrame] [BilateralExchangeFrame W] {Context : Type}
     (S : EntrepreneurialCycleScenario W Context)
     (blocked : BlockedCompletion S.investment.i S.investment.next
       S.investment.x.history S.investment.completion)
@@ -565,7 +568,7 @@ theorem EntrepreneurialCycleScenario.regret_of_blocked_completion
 
 /-- Starvation supplies the common blocked-completion certificate. -/
 theorem EntrepreneurialCycleScenario.regret_of_starvation
-    [W : ActionFrame] {Context : Type}
+    [W : ActionFrame] [BilateralExchangeFrame W] {Context : Type}
     (S : EntrepreneurialCycleScenario W Context)
     (h_starve : W.omega S.investment.i S.investment.next S.investment.x.history
       S.investment.complementary = 0)
@@ -583,7 +586,7 @@ theorem EntrepreneurialCycleScenario.regret_of_starvation
 
 /-- Cash shortfall supplies the common blocked-completion certificate. -/
 theorem EntrepreneurialCycleScenario.regret_of_cash_shortfall
-    [W : ActionFrame] {Context : Type}
+    [W : ActionFrame] [BilateralExchangeFrame W] {Context : Type}
     (S : EntrepreneurialCycleScenario W Context)
     (money : W.Means)
     (h_short : W.omega S.investment.i S.investment.next S.investment.x.history money <
@@ -598,8 +601,8 @@ theorem EntrepreneurialCycleScenario.regret_of_cash_shortfall
 
 /-- Named conclusion for a credit-financed cycle with rejected natural-rate project
 and purposeful credit-rate project. -/
-structure CreditFinancedCycleConclusion {W : ActionFrame} {Context : Type}
-    (S : EntrepreneurialCycleScenario W Context) : Prop where
+structure CreditFinancedCycleConclusion {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context : Type} (S : EntrepreneurialCycleScenario W Context) : Prop where
   cycle : EntrepreneurialCycleConclusion S
   rejectedAtNaturalRate : ¬ PurposefulAct S.investment.i
     S.investment.naturalDecision.moment S.investment.naturalDecision.history
@@ -609,15 +612,15 @@ structure CreditFinancedCycleConclusion {W : ActionFrame} {Context : Type}
     S.investment.investment
 
 /-- Combined credit-financed starvation result. -/
-structure CreditFinancedStarvationConclusion {W : ActionFrame} {Context : Type}
-    (S : EntrepreneurialCycleScenario W Context) : Prop where
+structure CreditFinancedStarvationConclusion {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context : Type} (S : EntrepreneurialCycleScenario W Context) : Prop where
   cycle : CreditFinancedCycleConclusion S
   complementaryStockAfter : W.omega S.investment.i S.investment.next
     S.investment.x.history S.investment.complementary = 0
 
 /-- Credit-financed entrepreneurial cycle theorem. -/
 theorem credit_financed_entrepreneurial_cycle_regret
-    [W : ActionFrame] {Context : Type}
+    [W : ActionFrame] [BilateralExchangeFrame W] {Context : Type}
     (S : EntrepreneurialCycleScenario W Context)
     (h_natural_rejected : ¬ PurposefulAct S.investment.i
       S.investment.naturalDecision.moment S.investment.naturalDecision.history

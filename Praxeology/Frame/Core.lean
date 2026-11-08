@@ -376,43 +376,12 @@ class ActionFrame where
     i ≠ j → mem_hist t h → α ∈ A_feas i t h → mem_hist t h' →
     enacted j t (sigma i t α h') = enacted j t h'
 
-  /-- Action of offering `qA` units of `mA` to agent `j` in exchange for `qB` units of `mB`. -/
-  Offer : Agent → Agent → ℕ → Means → ℕ → Means → Action
-  /-- Action of accepting `qA` units of `mA` from agent `i` in exchange for `qB` units of `mB`. -/
-  Accept : Agent → Agent → ℕ → Means → ℕ → Means → Action
-
-  /-- Means used and yielded by an offer. -/
-  use_means_offer : ∀ i j qA mA qB mB m,
-    use_means (Offer i j qA mA qB mB) m = (if m = mA then qA else 0)
-  yield_means_offer : ∀ i j qA mA qB mB m,
-    yield_means (Offer i j qA mA qB mB) m = (if m = mB then qB else 0)
-  use_means_accept : ∀ j i qA mA qB mB m,
-    use_means (Accept j i qA mA qB mB) m = (if m = mB then qB else 0)
-  yield_means_accept : ∀ j i qA mA qB mB m,
-    yield_means (Accept j i qA mA qB mB) m = (if m = mA then qA else 0)
-
-  /-- Injectivity of Offer. -/
-  offer_inj : ∀ {i1 j1 qA1 mA1 qB1 mB1 i2 j2 qA2 mA2 qB2 mB2},
-    Offer i1 j1 qA1 mA1 qB1 mB1 = Offer i2 j2 qA2 mA2 qB2 mB2 →
-    i1 = i2 ∧ j1 = j2 ∧ qA1 = qA2 ∧ mA1 = mA2 ∧ qB1 = qB2 ∧ mB1 = mB2
-  /-- Injectivity of Accept. -/
-  accept_inj : ∀ {j1 i1 qA1 mA1 qB1 mB1 j2 i2 qA2 mA2 qB2 mB2},
-    Accept j1 i1 qA1 mA1 qB1 mB1 = Accept j2 i2 qA2 mA2 qB2 mB2 →
-    j1 = j2 ∧ i1 = i2 ∧ qA1 = qA2 ∧ mA1 = mA2 ∧ qB1 = qB2 ∧ mB1 = mB2
-  /-- Distinctness of trade action constructors. -/
-  offer_ne_accept : ∀ {i j qA mA qB mB j' i' qA' mA' qB' mB'},
-    Offer i j qA mA qB mB ≠ Accept j' i' qA' mA' qB' mB'
-  alpha_zero_ne_offer : ∀ {i j qA mA qB mB}, alpha_zero ≠ Offer i j qA mA qB mB
-  alpha_zero_ne_accept : ∀ {j i qA mA qB mB}, alpha_zero ≠ Accept j i qA mA qB mB
-
-  /-- Predicate characterizing bilateral exchange actions (Offer / Accept). -/
-  IsTradeAction : Action → Prop :=
-    fun α => (∃ i j qA mA qB mB, α = Offer i j qA mA qB mB) ∨
-             (∃ j i qA mA qB mB, α = Accept j i qA mA qB mB)
-  is_trade_action_def : ∀ α, IsTradeAction α ↔
-    (∃ i j qA mA qB mB, α = Offer i j qA mA qB mB) ∨
-    (∃ j i qA mA qB mB, α = Accept j i qA mA qB mB) := by
-    intro α; rfl
+  /-- Predicate characterizing bilateral exchange actions (Offer / Accept).
+      Defaults to False in autarkic / nontrading models. -/
+  IsTradeAction : Action → Prop := fun _ => False
+  alpha_zero_not_trade : ¬ IsTradeAction alpha_zero := by
+    intro h
+    exact h
 
   /-- Endowment changes by action use and yield for nontrade actions. -/
   law_in_re_transition : ∀ i t t' h α m,
@@ -420,28 +389,6 @@ class ActionFrame where
     enacted i t h = α →
     IsNextMoment Precedence mem_hist t t' h →
     omega i t' h m + use_means α m = omega i t h m + yield_means α m
-  /-- An unmatched offer leaves the offerer's endowment unchanged. -/
-  unilateral_offer_noop : ∀ i j qA mA qB mB t t' h m,
-    enacted i t h = Offer i j qA mA qB mB →
-    enacted j t h ≠ Accept j i qA mA qB mB →
-    IsNextMoment Precedence mem_hist t t' h →
-    omega i t' h m = omega i t h m
-
-  /-- An unmatched accept leaves the acceptor's endowment unchanged. -/
-  unilateral_accept_noop : ∀ j i qA mA qB mB t t' h m,
-    enacted j t h = Accept j i qA mA qB mB →
-    enacted i t h ≠ Offer i j qA mA qB mB →
-    IsNextMoment Precedence mem_hist t t' h →
-    omega j t' h m = omega j t h m
-
-  /-- Endowment changes for a matched offer and accept. -/
-  bilateral_transfer_law : ∀ i j qA mA qB mB t t' h m,
-    i ≠ j →
-    enacted i t h = Offer i j qA mA qB mB →
-    enacted j t h = Accept j i qA mA qB mB →
-    IsNextMoment Precedence mem_hist t t' h →
-    omega i t' h m + (if m = mA then qA else 0) = omega i t h m + (if m = mB then qB else 0) ∧
-    omega j t' h m + (if m = mB then qB else 0) = omega j t h m + (if m = mA then qA else 0)
 
   /-- Plausible histories for agent `i` at moment `t`. -/
   MinPlausible : Agent → Moment → Set History
@@ -533,14 +480,185 @@ class ActionFrame where
     SubjectiveTeleologicalDominates requirement (ValuedEnd i t h) b1 b2 →
       Preference i t h (BundleEnd b1) (BundleEnd b2)
 
+instance (W : ActionFrame) : DecidableEq W.Agent := W.instDecidableEqAgent
+instance (W : ActionFrame) : DecidableEq W.Action := W.instDecidableEqAction
+instance (W : ActionFrame) : DecidableEq W.Means := W.instDecidableEqMeans
+instance (W : ActionFrame) : DecidableEq W.Ends := W.instDecidableEqEnds
+instance (W : ActionFrame) : Fintype W.Agent := W.instFintypeAgent
+instance (W : ActionFrame) : Fintype W.Means := W.instFintypeMeans
+
+/-- Optional bilateral exchange structure for ActionFrames supporting voluntary market trade. -/
+class BilateralExchangeFrame (W : ActionFrame) where
+  Offer : W.Agent → W.Agent → ℕ → W.Means → ℕ → W.Means → W.Action
+  Accept : W.Agent → W.Agent → ℕ → W.Means → ℕ → W.Means → W.Action
+  use_means_offer : ∀ i j qA mA qB mB m,
+    W.use_means (Offer i j qA mA qB mB) m = (if m = mA then qA else 0)
+  yield_means_offer : ∀ i j qA mA qB mB m,
+    W.yield_means (Offer i j qA mA qB mB) m = (if m = mB then qB else 0)
+  use_means_accept : ∀ j i qA mA qB mB m,
+    W.use_means (Accept j i qA mA qB mB) m = (if m = mB then qB else 0)
+  yield_means_accept : ∀ j i qA mA qB mB m,
+    W.yield_means (Accept j i qA mA qB mB) m = (if m = mA then qA else 0)
+  offer_inj : ∀ {i1 j1 qA1 mA1 qB1 mB1 i2 j2 qA2 mA2 qB2 mB2},
+    Offer i1 j1 qA1 mA1 qB1 mB1 = Offer i2 j2 qA2 mA2 qB2 mB2 →
+    i1 = i2 ∧ j1 = j2 ∧ qA1 = qA2 ∧ mA1 = mA2 ∧ qB1 = qB2 ∧ mB1 = mB2
+  accept_inj : ∀ {j1 i1 qA1 mA1 qB1 mB1 j2 i2 qA2 mA2 qB2 mB2},
+    Accept j1 i1 qA1 mA1 qB1 mB1 = Accept j2 i2 qA2 mA2 qB2 mB2 →
+    j1 = j2 ∧ i1 = i2 ∧ qA1 = qA2 ∧ mA1 = mA2 ∧ qB1 = qB2 ∧ mB1 = mB2
+  offer_ne_accept : ∀ {i j qA mA qB mB j' i' qA' mA' qB' mB'},
+    Offer i j qA mA qB mB ≠ Accept j' i' qA' mA' qB' mB'
+  alpha_zero_ne_offer : ∀ {i j qA mA qB mB}, W.alpha_zero ≠ Offer i j qA mA qB mB
+  alpha_zero_ne_accept : ∀ {j i qA mA qB mB}, W.alpha_zero ≠ Accept j i qA mA qB mB
+  unilateral_offer_noop : ∀ i j qA mA qB mB t t' h m,
+    W.enacted i t h = Offer i j qA mA qB mB →
+    W.enacted j t h ≠ Accept j i qA mA qB mB →
+    IsNextMoment W.Precedence W.mem_hist t t' h →
+    W.omega i t' h m = W.omega i t h m
+  unilateral_accept_noop : ∀ j i qA mA qB mB t t' h m,
+    W.enacted j t h = Accept j i qA mA qB mB →
+    W.enacted i t h ≠ Offer i j qA mA qB mB →
+    IsNextMoment W.Precedence W.mem_hist t t' h →
+    W.omega j t' h m = W.omega j t h m
+  bilateral_transfer_law : ∀ i j qA mA qB mB t t' h m,
+    i ≠ j →
+    W.enacted i t h = Offer i j qA mA qB mB →
+    W.enacted j t h = Accept j i qA mA qB mB →
+    IsNextMoment W.Precedence W.mem_hist t t' h →
+    (W.omega i t' h m + (if m = mA then qA else 0) =
+      W.omega i t h m + (if m = mB then qB else 0)) ∧
+    (W.omega j t' h m + (if m = mB then qB else 0) =
+      W.omega j t h m + (if m = mA then qA else 0))
+  is_trade_action_def : ∀ α, W.IsTradeAction α ↔
+    (∃ i j qA mA qB mB, α = Offer i j qA mA qB mB) ∨
+    (∃ j i qA mA qB mB, α = Accept j i qA mA qB mB)
+
+@[reducible]
+def ActionFrame.Offer (W : ActionFrame) [B : BilateralExchangeFrame W] :
+    W.Agent → W.Agent → ℕ → W.Means → ℕ → W.Means → W.Action :=
+  B.Offer
+
+@[reducible]
+def ActionFrame.Accept (W : ActionFrame) [B : BilateralExchangeFrame W] :
+    W.Agent → W.Agent → ℕ → W.Means → ℕ → W.Means → W.Action :=
+  B.Accept
+
+theorem ActionFrame.use_means_offer (W : ActionFrame) [B : BilateralExchangeFrame W] :
+    ∀ i j qA mA qB mB m,
+      W.use_means (W.Offer i j qA mA qB mB) m = (if m = mA then qA else 0) :=
+  B.use_means_offer
+
+theorem ActionFrame.yield_means_offer (W : ActionFrame) [B : BilateralExchangeFrame W] :
+    ∀ i j qA mA qB mB m,
+      W.yield_means (W.Offer i j qA mA qB mB) m = (if m = mB then qB else 0) :=
+  B.yield_means_offer
+
+theorem ActionFrame.use_means_accept (W : ActionFrame) [B : BilateralExchangeFrame W] :
+    ∀ j i qA mA qB mB m,
+      W.use_means (W.Accept j i qA mA qB mB) m = (if m = mB then qB else 0) :=
+  B.use_means_accept
+
+theorem ActionFrame.yield_means_accept (W : ActionFrame) [B : BilateralExchangeFrame W] :
+    ∀ j i qA mA qB mB m,
+      W.yield_means (W.Accept j i qA mA qB mB) m = (if m = mA then qA else 0) :=
+  B.yield_means_accept
+
+theorem ActionFrame.offer_inj (W : ActionFrame) [B : BilateralExchangeFrame W] :
+    ∀ {i1 j1 qA1 mA1 qB1 mB1 i2 j2 qA2 mA2 qB2 mB2},
+      W.Offer i1 j1 qA1 mA1 qB1 mB1 = W.Offer i2 j2 qA2 mA2 qB2 mB2 →
+      i1 = i2 ∧ j1 = j2 ∧ qA1 = qA2 ∧ mA1 = mA2 ∧ qB1 = qB2 ∧ mB1 = mB2 :=
+  B.offer_inj
+
+theorem ActionFrame.accept_inj (W : ActionFrame) [B : BilateralExchangeFrame W] :
+    ∀ {j1 i1 qA1 mA1 qB1 mB1 j2 i2 qA2 mA2 qB2 mB2},
+      W.Accept j1 i1 qA1 mA1 qB1 mB1 = W.Accept j2 i2 qA2 mA2 qB2 mB2 →
+      j1 = j2 ∧ i1 = i2 ∧ qA1 = qA2 ∧ mA1 = mA2 ∧ qB1 = qB2 ∧ mB1 = mB2 :=
+  B.accept_inj
+
+theorem ActionFrame.offer_ne_accept (W : ActionFrame) [B : BilateralExchangeFrame W] :
+    ∀ {i j qA mA qB mB j' i' qA' mA' qB' mB'},
+      W.Offer i j qA mA qB mB ≠ W.Accept j' i' qA' mA' qB' mB' :=
+  B.offer_ne_accept
+
+theorem ActionFrame.alpha_zero_ne_offer (W : ActionFrame) [B : BilateralExchangeFrame W] :
+    ∀ {i j qA mA qB mB}, W.alpha_zero ≠ W.Offer i j qA mA qB mB :=
+  B.alpha_zero_ne_offer
+
+theorem ActionFrame.alpha_zero_ne_accept (W : ActionFrame) [B : BilateralExchangeFrame W] :
+    ∀ {j i qA mA qB mB}, W.alpha_zero ≠ W.Accept j i qA mA qB mB :=
+  B.alpha_zero_ne_accept
+
+theorem ActionFrame.unilateral_offer_noop (W : ActionFrame) [B : BilateralExchangeFrame W] :
+    ∀ i j qA mA qB mB t t' h m,
+      W.enacted i t h = W.Offer i j qA mA qB mB →
+      W.enacted j t h ≠ W.Accept j i qA mA qB mB →
+      IsNextMoment W.Precedence W.mem_hist t t' h →
+      W.omega i t' h m = W.omega i t h m :=
+  B.unilateral_offer_noop
+
+theorem ActionFrame.unilateral_accept_noop (W : ActionFrame) [B : BilateralExchangeFrame W] :
+    ∀ j i qA mA qB mB t t' h m,
+      W.enacted j t h = W.Accept j i qA mA qB mB →
+      W.enacted i t h ≠ W.Offer i j qA mA qB mB →
+      IsNextMoment W.Precedence W.mem_hist t t' h →
+      W.omega j t' h m = W.omega j t h m :=
+  B.unilateral_accept_noop
+
+theorem ActionFrame.bilateral_transfer_law (W : ActionFrame) [B : BilateralExchangeFrame W] :
+    ∀ i j qA mA qB mB t t' h m,
+      i ≠ j →
+      W.enacted i t h = W.Offer i j qA mA qB mB →
+      W.enacted j t h = W.Accept j i qA mA qB mB →
+      IsNextMoment W.Precedence W.mem_hist t t' h →
+      (W.omega i t' h m + (if m = mA then qA else 0) =
+        W.omega i t h m + (if m = mB then qB else 0)) ∧
+      (W.omega j t' h m + (if m = mB then qB else 0) =
+        W.omega j t h m + (if m = mA then qA else 0)) :=
+  B.bilateral_transfer_law
+
+theorem ActionFrame.is_trade_action_def (W : ActionFrame) [B : BilateralExchangeFrame W] :
+    ∀ α, W.IsTradeAction α ↔
+      (∃ i j qA mA qB mB, α = W.Offer i j qA mA qB mB) ∨
+      (∃ j i qA mA qB mB, α = W.Accept j i qA mA qB mB) :=
+  B.is_trade_action_def
+
+theorem BilateralExchangeFrame.alpha_zero_not_trade
+    (W : ActionFrame) [B : BilateralExchangeFrame W] :
+    ¬ W.IsTradeAction W.alpha_zero := by
+  intro h_tr
+  rw [B.is_trade_action_def] at h_tr
+  rcases h_tr with ⟨i, j, qA, mA, qB, mB, h_eq⟩ | ⟨j, i, qA, mA, qB, mB, h_eq⟩
+  · exact B.alpha_zero_ne_offer h_eq
+  · exact B.alpha_zero_ne_accept h_eq
+
+/-- Optional intertemporal composite ends for models formalizing time preference
+    and originary interest. -/
+class IntertemporalEnds (W : ActionFrame) where
   /-- Temporally indexed end ⟨e, τ⟩ representing realization of end `e` at moment `τ`. -/
-  TimedEnd : Ends → Moment → Ends
+  TimedEnd : W.Ends → W.Moment → W.Ends
   /-- Untimed end of holding/consuming `q` discrete units of means `m`. -/
-  QuantityEnd : Means → ℕ → Ends
+  QuantityEnd : W.Means → ℕ → W.Ends
   /-- Injectivity of TimedEnd. -/
   timed_end_inj : ∀ {e1 τ1 e2 τ2}, TimedEnd e1 τ1 = TimedEnd e2 τ2 → e1 = e2 ∧ τ1 = τ2
   /-- Injectivity of QuantityEnd. -/
   quantity_end_inj : ∀ {m1 q1 m2 q2}, QuantityEnd m1 q1 = QuantityEnd m2 q2 → m1 = m2 ∧ q1 = q2
+
+@[reducible]
+def ActionFrame.TimedEnd (W : ActionFrame) [E : IntertemporalEnds W] :
+    W.Ends → W.Moment → W.Ends :=
+  E.TimedEnd
+
+@[reducible]
+def ActionFrame.QuantityEnd (W : ActionFrame) [E : IntertemporalEnds W] :
+    W.Means → ℕ → W.Ends :=
+  E.QuantityEnd
+
+theorem ActionFrame.timed_end_inj (W : ActionFrame) [E : IntertemporalEnds W] :
+    ∀ {e1 τ1 e2 τ2}, W.TimedEnd e1 τ1 = W.TimedEnd e2 τ2 → e1 = e2 ∧ τ1 = τ2 :=
+  E.timed_end_inj
+
+theorem ActionFrame.quantity_end_inj (W : ActionFrame) [E : IntertemporalEnds W] :
+    ∀ {m1 q1 m2 q2}, W.QuantityEnd m1 q1 = W.QuantityEnd m2 q2 → m1 = m2 ∧ q1 = q2 :=
+  E.quantity_end_inj
 
 /-- The passive baseline `α₀` is always feasible. -/
 theorem ActionFrame.alpha_zero_feasible (W : ActionFrame) (i : W.Agent)
@@ -1631,12 +1749,8 @@ theorem lexicographic_belief_update_promotes_signal
   lexicographic_upgrade_promotes_signal P ψ (EpistemicBundle i t) h_int
 
 /-- The baseline inertial action α₀ is never a trade action. -/
-theorem alpha_zero_not_trade : ¬ W.IsTradeAction α₀ := by
-  intro h_tr
-  rw [W.is_trade_action_def] at h_tr
-  rcases h_tr with ⟨i, j, qA, mA, qB, mB, h_eq⟩ | ⟨j, i, qA, mA, qB, mB, h_eq⟩
-  · exact W.alpha_zero_ne_offer h_eq
-  · exact W.alpha_zero_ne_accept h_eq
+theorem alpha_zero_not_trade : ¬ W.IsTradeAction α₀ :=
+  W.alpha_zero_not_trade
 
 end ActionFrameTheory
 
@@ -1646,7 +1760,7 @@ end ActionFrameTheory
 
 section MultiAgentTransitions
 
-variable [W : ActionFrame]
+variable [W : ActionFrame] [BilateralExchangeFrame W]
 
 
 theorem bilateral_exchange_conserves_means
