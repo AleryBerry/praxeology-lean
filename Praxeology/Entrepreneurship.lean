@@ -685,4 +685,66 @@ theorem credit_financed_entrepreneurial_cycle_regret
     complementaryStockAfter := h_regret.2
   }
 
+-- Section: Catallactic Bottleneck Pre-Emption
+
+/-- Catallactic Bottleneck Pre-Emption:
+Distinguishes direct coercive menu stripping from catallactic pre-emption.
+When rival `j` outbids entrepreneur `i` for factor supplier `k`'s inventory, passive bystander `i`'s
+autarkic stock and feasible action menu remain completely uninvaded and unstripped
+(`ResourceMenuPreserved` and `∀ γ, ¬ FeasibleMenuStripped i t t' h γ`). However, because
+`complementary` remains absent from `i`'s endowment (and depleted at supplier `k`), stage-2
+completion suffers `BlockedCompletion`, proving that catallactic competition can defeat an
+entrepreneurial plan without any physical or normative invasion of the entrepreneur's property. -/
+theorem catallactic_bottleneck_preemption_preserves_menu_but_blocks_completion
+    [W : ActionFrame] [BilateralExchangeFrame W]
+    (i : W.Agent) (t t' : W.Moment) (h : W.History)
+    (completion : W.Action) (complementary : W.Means)
+    (h_passive_i : W.enacted i t h = W.alpha_zero)
+    (h_starve_i : W.omega i t h complementary = 0)
+    (h_req : 0 < W.use_means completion complementary)
+    (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
+    StockPreserved i t t' h ∧
+    ResourceMenuPreserved i t t' h ∧
+    (∀ γ, ¬ FeasibleMenuStripped i t t' h γ) ∧
+    W.omega i t' h complementary = 0 ∧
+    BlockedCompletion i t' h completion := by
+  have h_stock_i := W.inaction_preserves_endowments i t t' h h_passive_i h_next
+  have h_pres_i : StockPreserved i t t' h := by
+    intro m
+    have h_eq := h_stock_i m
+    dsimp [StockPreserved, omega] at *
+    omega
+  have h_menu_i := stockPreserved_implies_resourceMenuPreserved i t t' h h_pres_i
+  have h_nostrip_i : ∀ γ, ¬ FeasibleMenuStripped i t t' h γ :=
+    fun γ => stockPreserved_implies_no_feasibleMenuStripped i t t' h h_pres_i γ
+  have h_starve_post : W.omega i t' h complementary = 0 := by
+    rw [h_stock_i complementary, h_starve_i]
+  have h_infeas : completion ∉ W.A_feas i t' h := by
+    intro h_feas
+    have h_le := (W.A_feas_coupling i t' h completion).mp h_feas |>.2 complementary
+    omega
+  exact ⟨h_pres_i, h_menu_i, h_nostrip_i, h_starve_post, ⟨h_infeas⟩⟩
+
+/-- Catallactic Bottleneck Pre-Emption Cycle Regret:
+Derives the complete entrepreneurial cycle conclusion under catallactic pre-emption. -/
+theorem catallactic_bottleneck_preemption_cycle_regret
+    [W : ActionFrame] [BilateralExchangeFrame W] {Context : Type}
+    (S : EntrepreneurialCycleScenario W Context)
+    (h_starve : W.omega S.investment.i S.investment.next S.investment.x.history
+      S.investment.complementary = 0)
+    (h_req : 0 < W.use_means S.investment.completion S.investment.complementary)
+    (purposeful : PurposefulAct S.investment.i S.investment.x.moment
+      S.investment.x.history S.investment.investment) :
+    EntrepreneurialCycleConclusion S ∧
+    BlockedCompletion S.investment.i S.investment.next S.investment.x.history
+      S.investment.completion := by
+  have h_blocked : BlockedCompletion S.investment.i S.investment.next
+      S.investment.x.history S.investment.completion := by
+    have h_infeas := completion_infeasible_of_factor_starvation
+      S.investment.i S.investment.next S.investment.x.history
+      S.investment.completion S.investment.complementary h_starve h_req
+    exact ⟨h_infeas.1⟩
+  have h_cycle := S.regret_of_blocked_completion h_blocked purposeful
+  exact ⟨h_cycle, h_blocked⟩
+
 end Praxeology

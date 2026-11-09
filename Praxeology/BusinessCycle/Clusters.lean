@@ -1149,7 +1149,44 @@ theorem two_distinct_regretful_entrepreneurs {W : ActionFrame} [BilateralExchang
   exact ⟨e₁, e₂, he₁cohort, he₂cohort, hne, hagents,
     hregret e₁ he₁, hregret e₂ he₂⟩
 
+/-- Compositionally Self-Falsifying Cohort Forecasts (Fallacy of Composition in ABCT):
+Formalizes how entrepreneurial forecasts can be individually sound under unilateral execution
+yet systematically self-falsify under symmetric cohort entry:
+(1) **Unilateral Pre-Box Affordability**: Under the pre-response price box `S.response.preBox`,
+    every entrepreneur `e ∈ S.affected` holds sufficient cash to cover the completion factor bill
+    (`PrecautionaryCashDemand S.response.preBox (S.quantity e) ≤ omega ...`);
+(2) **Cohort-Induced Squeeze & Blocked Completion**: Symmetric cohort execution triggers the
+    bottleneck price squeeze `S.response.postBox`, making completion strictly unaffordable and
+    physically infeasible (`completion ∉ A_feas`) for all `e ∈ S.affected`;
+(3) **Cluster Failure & Regret**: At least `S.minimumFailures` (≥ 2) distinct entrepreneurs
+    simultaneously suffer `EntrepreneurialCycleConclusion` with derived contextual regret. -/
+theorem compositionally_self_falsifying_cohort_forecasts
+    {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
+    {C : CreditShockCohort W Context Entrepreneur} {d : ℕ}
+    (S : PriceSqueezeCohort C d) :
+    (∀ e ∈ S.affected,
+      PrecautionaryCashDemand S.response.preBox (S.quantity e) ≤
+        W.omega (C.agent e) S.next S.history S.money) ∧
+    (∀ e ∈ S.affected,
+      (C.project e).cycle.investment.completion ∉
+        W.A_feas (C.agent e) S.next S.history) ∧
+    (∃ projects : Finset Entrepreneur,
+      projects.card ≥ S.minimumFailures ∧
+      (∀ e ∈ projects, e ∈ S.affected) ∧
+      ∀ e ∈ projects, EntrepreneurialCycleConclusion (C.project e).cycle) ∧
+    (∃ e₁ e₂, e₁ ∈ C.entrepreneurs ∧ e₂ ∈ C.entrepreneurs ∧ e₁ ≠ e₂ ∧
+      C.agent e₁ ≠ C.agent e₂ ∧
+      EntrepreneurialCycleConclusion (C.project e₁).cycle ∧
+      EntrepreneurialCycleConclusion (C.project e₂).cycle) :=
+  ⟨S.pre_affordable, fun _ he => S.completion_blocked he,
+    S.contextual_regret_cluster, S.two_distinct_regretful_entrepreneurs⟩
+
 end PriceSqueezeCohort
+
+/-- Top-level alias for `PriceSqueezeCohort.compositionally_self_falsifying_cohort_forecasts`. -/
+abbrev compositionally_self_falsifying_cohort_forecasts :=
+  @PriceSqueezeCohort.compositionally_self_falsifying_cohort_forecasts
 
 /-- A blocked project alone cannot imply contextual regret: a regret witness
 also requires a feasible safe alternative. -/

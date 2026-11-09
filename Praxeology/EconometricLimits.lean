@@ -389,4 +389,73 @@ theorem abct_regime_non_identifiability_witness :
   · dsimp [regimeOf, interp_absorb]
   · dsimp [regimeOf, interp_liquidate]
 
+/-- Discrete economic causes of loan default. -/
+inductive DefaultCause where
+  | Illiquidity : DefaultCause
+  | Strategic : DefaultCause
+  deriving DecidableEq
+
+/-- Strategic Default vs. Illiquidity Non-Identifiability:
+External historical observation of default (inaction `alpha_zero` at maturity `t_mat`)
+cannot identify whether the default was caused by hard physical illiquidity
+(`omega borrower < repayment`, making repayment resource-infeasible)
+or strategic default (`repayment ≤ omega borrower`, where repayment was feasible
+but the borrower strictly preferred default/inaction). -/
+theorem default_illiquidity_vs_strategic_non_identifiability
+    {W : ActionFrame}
+    (M : Set (EconometricInterpretation W))
+    (causeOf : EconometricInterpretation W → DefaultCause)
+    (borrower : W.Agent) (t_mat : W.Moment) (h : W.History)
+    (interp_illiq interp_strat : EconometricInterpretation W)
+    (h_illiq : interp_illiq ∈ M)
+    (h_strat : interp_strat ∈ M)
+    (h_obs : ObsEquiv W interp_illiq interp_strat borrower t_mat h)
+    (h_diff_cause : causeOf interp_illiq ≠ causeOf interp_strat) :
+    ¬ ∃ est : EconometricEstimator W DefaultCause,
+      Identifies W M causeOf est borrower t_mat h :=
+  non_identifiability_of_divergent_models M causeOf borrower t_mat h
+    interp_illiq interp_strat h_illiq h_strat h_obs h_diff_cause
+
+/-- Constructive witness of default cause non-identifiability on FiniteBranchingModel.
+At loan maturity, external observation of borrower inaction cannot distinguish
+illiquidity from strategic default. -/
+theorem default_cause_non_identifiability_witness :
+    ∃ (W : ActionFrame)
+      (interp_illiq interp_strat : EconometricInterpretation W)
+      (causeOf : EconometricInterpretation W → DefaultCause)
+      (borrower : W.Agent) (t_mat : W.Moment) (h : W.History),
+      ObsEquiv W interp_illiq interp_strat borrower t_mat h ∧
+      causeOf interp_illiq = DefaultCause.Illiquidity ∧
+      causeOf interp_strat = DefaultCause.Strategic ∧
+      causeOf interp_illiq ≠ causeOf interp_strat := by
+  let W : ActionFrame := FiniteBranchingModel
+  let borrower : W.Agent := (0 : Fin 2)
+  let t_mat : W.Moment := (0 : Fin 4)
+  let h : W.History := (0 : Fin 3)
+  let e_base : W.Ends := ModelEnd.baseline
+  let e_repay : W.Ends := ModelEnd.quantity 0 1
+  let interp_illiq : EconometricInterpretation W := {
+    End_of := fun _ _ _ _ => e_base
+    Preference := W.Preference
+    pref_asymm := W.pref_asymm
+  }
+  let interp_strat : EconometricInterpretation W := {
+    End_of := fun _ act _ _ =>
+      if act = ModelAction.idle then e_base
+      else e_repay
+    Preference := W.Preference
+    pref_asymm := W.pref_asymm
+  }
+  let causeOf : EconometricInterpretation W → DefaultCause :=
+    fun interp =>
+      if interp.End_of borrower ModelAction.consume t_mat h = e_repay
+      then DefaultCause.Strategic else DefaultCause.Illiquidity
+  refine ⟨W, interp_illiq, interp_strat, causeOf, borrower, t_mat, h, ?_, ?_, ?_, by decide⟩
+  · dsimp [ObsEquiv, observe, interp_illiq, interp_strat]
+    have h_idle : W.enacted borrower t_mat h = ModelAction.idle := rfl
+    rw [h_idle]
+    dsimp
+  · dsimp [causeOf, interp_illiq]
+  · dsimp [causeOf, interp_strat]
+
 end Praxeology

@@ -1218,6 +1218,41 @@ theorem accept_spot_trade_feasible_iff {W : ActionFrame} [BilateralExchangeFrame
     · subst hm; exact h_le
     · exact Nat.zero_le _
 
+/-- Unpaid default dichotomy: at loan maturity, borrower inaction is either
+driven by hard physical illiquidity (insufficient money endowment to cover repayment)
+or strategic default (where money endowment covers repayment, so repayment was feasible). -/
+theorem UnpaidMaturity.illiquidity_or_strategic_dichotomy
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W} {A : CreditAdvance T}
+    (_D : UnpaidMaturity A) :
+    W.omega T.borrower T.maturity A.history T.money < T.repayment ∨
+    T.repayment ≤ W.omega T.borrower T.maturity A.history T.money :=
+  Nat.lt_or_ge (W.omega T.borrower T.maturity A.history T.money) T.repayment
+
+/-- Under hard illiquidity, loan repayment acceptance is physically infeasible. -/
+theorem UnpaidMaturity.repayment_infeasible_of_illiquidity
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W} {A : CreditAdvance T}
+    (_D : UnpaidMaturity A)
+    (h_short : W.omega T.borrower T.maturity A.history T.money < T.repayment) :
+    W.Accept T.borrower T.lender T.collateralQuantity T.collateral T.repayment T.money ∉
+      W.A_feas T.borrower T.maturity A.history := by
+  intro h_feas
+  have h_le := (accept_spot_trade_feasible_iff T.borrower T.lender T.maturity A.history
+    T.collateralQuantity T.collateral T.repayment T.money).mp h_feas |>.2
+  omega
+
+/-- Under strategic default (solvency), loan repayment acceptance is feasible
+conditional on contemplation. -/
+theorem UnpaidMaturity.repayment_feasible_of_solvent
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W} {A : CreditAdvance T}
+    (_D : UnpaidMaturity A)
+    (h_cov : T.repayment ≤ W.omega T.borrower T.maturity A.history T.money)
+    (h_cont : W.Accept T.borrower T.lender T.collateralQuantity T.collateral
+      T.repayment T.money ∈ W.A_cont T.borrower T.maturity A.history) :
+    W.Accept T.borrower T.lender T.collateralQuantity T.collateral
+      T.repayment T.money ∈ W.A_feas T.borrower T.maturity A.history := by
+  rw [accept_spot_trade_feasible_iff]
+  exact ⟨h_cont, h_cov⟩
+
 /-- Cross-medium aggregation impossibility: even if a buyer's summed holdings across two
 distinct media `m₁ ≠ m₂` cover `price`, if neither individual medium holding covers `price`,
 then spot purchase acceptance is infeasible (and non-purposeful) in both media. -/
@@ -1580,6 +1615,57 @@ theorem automated_sweep_two_step_vs_freeze_dichotomy {W : ActionFrame} [Bilatera
     have h_short' : W.omega buyer t' h m_money < price := by omega
     exact macro_sum_underdetermines_spot_feasibility
       buyer seller t' h qA mA price m_money h_short'
+
+/-- Network Liquidity-Freeze Cascade:
+Chains `CreditAdvance.totalMedia_conserved`, `CreditAdvance.lender_tight_action_stripped`,
+and `automated_sweep_two_step_vs_freeze_dichotomy` across a chain of agents `A → B → C`.
+When intermediary `B` advances credit to `C`, aggregate media is 100% conserved across
+the economy. However, `B`'s money stock contracts, stripping tight cash actions from `B`'s menu.
+When `B` experiences an unreplenished liquidity freeze (enacting `alpha_zero`), downstream spot
+trade with upstream vendor `A` becomes strictly infeasible and non-purposeful, proving that
+liquidity crises and payment freezes propagate through contract networks under 100% money
+conservation. -/
+theorem network_liquidity_freeze_cascade {W : ActionFrame} [BilateralExchangeFrame W]
+    (sellerA intermediaryB borrowerC : W.Agent)
+    (issuer : W.Agent)
+    (t t' : W.Moment) (h : W.History)
+    (T_BC : PawnLoanTerms W) (A_BC : CreditAdvance T_BC)
+    (h_lender : T_BC.lender = intermediaryB)
+    (_h_borrower : T_BC.borrower = borrowerC)
+    (h_idle : ∀ a, a ≠ T_BC.lender → a ≠ T_BC.borrower →
+      W.enacted a A_BC.moment A_BC.history = W.alpha_zero)
+    (h_succ : IsNextMoment W.Precedence W.mem_hist t t' h)
+    (qA : ℕ) (mA : W.Means) (price : ℕ)
+    (h_short : W.omega intermediaryB t h T_BC.money < price)
+    (h_freeze : W.enacted intermediaryB t h = W.alpha_zero) :
+    totalMedia issuer T_BC.money A_BC.nextMoment A_BC.history =
+      totalMedia issuer T_BC.money A_BC.moment A_BC.history ∧
+    W.omega intermediaryB A_BC.nextMoment A_BC.history T_BC.money + T_BC.principal =
+      W.omega intermediaryB A_BC.moment A_BC.history T_BC.money ∧
+    (∀ β : W.Action,
+      β ∈ W.A_feas intermediaryB A_BC.moment A_BC.history →
+      β ∈ W.A_cont intermediaryB A_BC.nextMoment A_BC.history →
+      W.use_means β T_BC.money = W.omega intermediaryB A_BC.moment A_BC.history T_BC.money →
+      FeasibleMenuStripped intermediaryB A_BC.moment A_BC.nextMoment A_BC.history β) ∧
+    W.Accept intermediaryB sellerA qA mA price T_BC.money ∉ W.A_feas intermediaryB t' h ∧
+    ¬ @PurposefulAct W intermediaryB t' h
+      (W.Accept intermediaryB sellerA qA mA price T_BC.money) := by
+  have h_conserved := A_BC.totalMedia_conserved issuer h_idle
+  have h_dec := A_BC.lender_media_decreases
+  rw [h_lender] at h_dec
+  have h_strip : ∀ β,
+      β ∈ W.A_feas intermediaryB A_BC.moment A_BC.history →
+      β ∈ W.A_cont intermediaryB A_BC.nextMoment A_BC.history →
+      W.use_means β T_BC.money = W.omega intermediaryB A_BC.moment A_BC.history T_BC.money →
+      FeasibleMenuStripped intermediaryB A_BC.moment A_BC.nextMoment A_BC.history β := by
+    intro β h_feas h_cont h_tight
+    have h_strip' := A_BC.lender_tight_action_stripped β
+    rw [h_lender] at h_strip'
+    exact h_strip' h_feas h_cont h_tight
+  have h_dichotomy := automated_sweep_two_step_vs_freeze_dichotomy
+    intermediaryB sellerA t t' h qA mA price T_BC.money h_succ h_short
+  have h_frozen := h_dichotomy.2 h_freeze
+  exact ⟨h_conserved, h_dec, h_strip, h_frozen.1, h_frozen.2⟩
 
 /-- Standing central bank LOLR origination restores commercial bank reserve sufficiency
 while strictly encumbering collateral and expanding total base money in the economy. -/

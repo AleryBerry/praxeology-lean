@@ -175,34 +175,34 @@ theorem finsetSum_law_in_re_transition
 def FiscalTransferSystem.ofTransition
     [W : ActionFrame]
     (Cohort : Finset W.Agent) (t t' : W.Moment) (h : W.History) (m : W.Means)
+    (deadweight_loss : ℕ)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
     (h_nontrade : ∀ a ∈ Cohort, ¬ W.IsTradeAction (W.enacted a t h))
-    (h_noyield : ∀ a ∈ Cohort, W.yield_means (W.enacted a t h) m = 0) :
+    (h_transfer_balance : (∑ a ∈ Cohort, W.yield_means (W.enacted a t h) m) + deadweight_loss =
+      ∑ a ∈ Cohort, W.use_means (W.enacted a t h) m) :
     FiscalTransferSystem W where
   Cohort := Cohort
   ω_pre := fun a => W.omega a t h m
   ω_post := fun a => W.omega a t' h m
-  deadweight_loss := ∑ a ∈ Cohort, W.use_means (W.enacted a t h) m
+  deadweight_loss := deadweight_loss
   h_conservation := by
     have h_trans := finsetSum_law_in_re_transition Cohort t t' h m h_next h_nontrade
-    have h_zero : (∑ a ∈ Cohort, W.yield_means (W.enacted a t h) m) = 0 := by
-      apply Finset.sum_eq_zero
-      intro a ha
-      exact h_noyield a ha
-    rw [h_zero, Nat.add_zero] at h_trans
-    exact h_trans
+    omega
 
 
 theorem calhoun_action_frame_class_partition
     [W : ActionFrame]
     (Cohort : Finset W.Agent) (t t' : W.Moment) (h : W.History) (m : W.Means)
+    (deadweight_loss : ℕ)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
     (h_nontrade : ∀ a ∈ Cohort, ¬ W.IsTradeAction (W.enacted a t h))
-    (h_noyield : ∀ a ∈ Cohort, W.yield_means (W.enacted a t h) m = 0)
+    (h_transfer_balance : (∑ a ∈ Cohort, W.yield_means (W.enacted a t h) m) + deadweight_loss =
+      ∑ a ∈ Cohort, W.use_means (W.enacted a t h) m)
     (s : W.Agent) (hs_mem : s ∈ Cohort)
     (hs_gain : W.omega s t h m < W.omega s t' h m) :
     ∃ b : W.Agent, b ∈ Cohort ∧ W.omega b t' h m < W.omega b t h m := by
-  let F := FiscalTransferSystem.ofTransition Cohort t t' h m h_next h_nontrade h_noyield
+  let F := FiscalTransferSystem.ofTransition Cohort t t' h m deadweight_loss
+    h_next h_nontrade h_transfer_balance
   have hs_cons : IsNetTaxConsumer F s := ⟨hs_mem, hs_gain⟩
   obtain ⟨b, hb_payer⟩ := calhoun_fiscal_class_partition F s hs_cons
   exact ⟨b, hb_payer.1, hb_payer.2⟩
@@ -212,9 +212,11 @@ full initial stock of `m` is stripped from their feasible menu by state extracti
 theorem calhoun_taxpayer_menu_stripped
     [W : ActionFrame]
     (Cohort : Finset W.Agent) (t t' : W.Moment) (h : W.History) (m : W.Means)
+    (deadweight_loss : ℕ)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
     (h_nontrade : ∀ a ∈ Cohort, ¬ W.IsTradeAction (W.enacted a t h))
-    (h_noyield : ∀ a ∈ Cohort, W.yield_means (W.enacted a t h) m = 0)
+    (h_transfer_balance : (∑ a ∈ Cohort, W.yield_means (W.enacted a t h) m) + deadweight_loss =
+      ∑ a ∈ Cohort, W.use_means (W.enacted a t h) m)
     (s : W.Agent) (hs_mem : s ∈ Cohort)
     (hs_gain : W.omega s t h m < W.omega s t' h m) :
     ∃ b ∈ Cohort, ∀ α : W.Action,
@@ -223,8 +225,8 @@ theorem calhoun_taxpayer_menu_stripped
       W.use_means α m = W.omega b t h m →
       FeasibleMenuStripped b t t' h α := by
   obtain ⟨b, hb_mem, hb_lt⟩ :=
-    calhoun_action_frame_class_partition Cohort t t' h m h_next h_nontrade h_noyield
-      s hs_mem hs_gain
+    calhoun_action_frame_class_partition Cohort t t' h m deadweight_loss
+      h_next h_nontrade h_transfer_balance s hs_mem hs_gain
   refine ⟨b, hb_mem, ?_⟩
   intro α h_feas h_cont h_tight
   have h_contract : StockContractedAt b t t' h m := hb_lt
@@ -326,31 +328,30 @@ def FiscalTransferSystem.ofRun
     [W : ActionFrame] [BilateralExchangeFrame W]
     (Cohort : Finset W.Agent) {t u : W.Moment} {h : W.History}
     (runs : (a : W.Agent) → InventoryRun W a h t u) (m : W.Means)
-    (h_noyield : ∀ a ∈ Cohort, (runs a).totalYield m = 0) :
+    (deadweight_loss : ℕ)
+    (h_run_balance : (∑ a ∈ Cohort, (runs a).totalYield m) + deadweight_loss =
+      ∑ a ∈ Cohort, (runs a).totalUse m) :
     FiscalTransferSystem W where
   Cohort := Cohort
   ω_pre := fun a => W.omega a t h m
   ω_post := fun a => W.omega a u h m
-  deadweight_loss := ∑ a ∈ Cohort, (runs a).totalUse m
+  deadweight_loss := deadweight_loss
   h_conservation := by
     have h_trans := finsetSum_inventory_balance Cohort runs m
-    have h_zero : (∑ a ∈ Cohort, (runs a).totalYield m) = 0 := by
-      apply Finset.sum_eq_zero
-      intro a ha
-      exact h_noyield a ha
-    rw [h_zero, Nat.add_zero] at h_trans
-    exact h_trans
+    omega
 
 
 theorem calhoun_action_frame_run_class_partition
     [W : ActionFrame] [BilateralExchangeFrame W]
     (Cohort : Finset W.Agent) {t u : W.Moment} {h : W.History}
     (runs : (a : W.Agent) → InventoryRun W a h t u) (m : W.Means)
-    (h_noyield : ∀ a ∈ Cohort, (runs a).totalYield m = 0)
+    (deadweight_loss : ℕ)
+    (h_run_balance : (∑ a ∈ Cohort, (runs a).totalYield m) + deadweight_loss =
+      ∑ a ∈ Cohort, (runs a).totalUse m)
     (s : W.Agent) (hs_mem : s ∈ Cohort)
     (hs_gain : W.omega s t h m < W.omega s u h m) :
     ∃ b : W.Agent, b ∈ Cohort ∧ W.omega b u h m < W.omega b t h m := by
-  let F := FiscalTransferSystem.ofRun Cohort runs m h_noyield
+  let F := FiscalTransferSystem.ofRun Cohort runs m deadweight_loss h_run_balance
   have hs_cons : IsNetTaxConsumer F s := ⟨hs_mem, hs_gain⟩
   obtain ⟨b, hb_payer⟩ := calhoun_fiscal_class_partition F s hs_cons
   exact ⟨b, hb_payer.1, hb_payer.2⟩
@@ -513,6 +514,40 @@ theorem RulerTimePreferenceComparison.conclusion [W : ActionFrame]
       S.caretaker_prefers_extraction
   ⟩
 
+/-- Ground ruler time-preference comparison directly in subjective teleological bundle dominance. -/
+def RulerTimePreferenceComparison.ofBundleDominance [W : ActionFrame]
+    (stationary caretaker : Agent) (moment : Moment) (history : History)
+    (stationaryChoice : TeleologicalBinaryChoice (W := W) stationary moment history)
+    (caretakerChoice : TeleologicalBinaryChoice (W := W) caretaker moment history)
+    (stationaryIdleExecuted : Exec stationary moment α₀ history)
+    (caretakerActionExecuted : Exec caretaker moment caretakerChoice.act history)
+    (b_stat_idle b_stat_act b_care_act b_care_idle : W.Means → ℕ)
+    (h_stat_idle : End_of stationary α₀ moment history = W.BundleEnd b_stat_idle)
+    (h_stat_act : End_of stationary stationaryChoice.act moment history = W.BundleEnd b_stat_act)
+    (h_care_act : End_of caretaker caretakerChoice.act moment history = W.BundleEnd b_care_act)
+    (h_care_idle : End_of caretaker α₀ moment history = W.BundleEnd b_care_idle)
+    (h_stat_dom : SubjectiveTeleologicalDominates W.requirement
+      (W.ValuedEnd stationary moment history) b_stat_idle b_stat_act)
+    (h_care_dom : SubjectiveTeleologicalDominates W.requirement
+      (W.ValuedEnd caretaker moment history) b_care_act b_care_idle) :
+    RulerTimePreferenceComparison (W := W) where
+  stationary := stationary
+  caretaker := caretaker
+  moment := moment
+  history := history
+  stationaryChoice := stationaryChoice
+  caretakerChoice := caretakerChoice
+  stationaryIdleExecuted := stationaryIdleExecuted
+  caretakerActionExecuted := caretakerActionExecuted
+  stationary_prefers_baseline := by
+    rw [h_stat_idle, h_stat_act]
+    exact W.teleological_bundle_dominance_induces_preference
+      stationary moment history b_stat_idle b_stat_act h_stat_dom
+  caretaker_prefers_extraction := by
+    rw [h_care_act, h_care_idle]
+    exact W.teleological_bundle_dominance_induces_preference
+      caretaker moment history b_care_act b_care_idle h_care_dom
+
 -- Section 4: Judicial Authority
 
 
@@ -614,6 +649,54 @@ theorem statutory_monopoly_immunizes_calculation_blindness [W : ActionFrame]
     S.operatorChoice.purposeful_act_of_pref S.operatorExecution S.operator_prefers_act,
     S.entrantChoice.not_purposeful_act_of_baseline_pref S.entrant_prefers_baseline⟩
 
+/-- Ground statutory monopoly calculation scenario directly in subjective
+teleological bundle dominance. -/
+def StatutoryMonopolyCalculationScenario.ofBundleDominance [W : ActionFrame]
+    (upstream joint external width gridStep volume penalty : ℕ)
+    (volumePositive : 0 < volume)
+    (internalBlindness : width + gridStep < upstream + joint + external)
+    (statutoryPenalty : (upstream + joint + external) * volume <
+      (width + gridStep) * volume + penalty)
+    (operator entrant : Agent) (moment : Moment) (history : History)
+    (operatorChoice : TeleologicalBinaryChoice (W := W) operator moment history)
+    (entrantChoice : TeleologicalBinaryChoice (W := W) entrant moment history)
+    (operatorExecution : Exec operator moment operatorChoice.act history)
+    (b_op_act b_op_idle b_ent_idle b_ent_act : W.Means → ℕ)
+    (h_op_act : End_of operator operatorChoice.act moment history = W.BundleEnd b_op_act)
+    (h_op_idle : End_of operator α₀ moment history = W.BundleEnd b_op_idle)
+    (h_ent_idle : End_of entrant α₀ moment history = W.BundleEnd b_ent_idle)
+    (h_ent_act : End_of entrant entrantChoice.act moment history = W.BundleEnd b_ent_act)
+    (h_op_dom : SubjectiveTeleologicalDominates W.requirement
+      (W.ValuedEnd operator moment history) b_op_act b_op_idle)
+    (h_ent_dom : SubjectiveTeleologicalDominates W.requirement
+      (W.ValuedEnd entrant moment history) b_ent_idle b_ent_act) :
+    StatutoryMonopolyCalculationScenario (W := W) where
+  upstream := upstream
+  joint := joint
+  external := external
+  width := width
+  gridStep := gridStep
+  volume := volume
+  penalty := penalty
+  volumePositive := volumePositive
+  internalBlindness := internalBlindness
+  statutoryPenalty := statutoryPenalty
+  operator := operator
+  entrant := entrant
+  moment := moment
+  history := history
+  operatorChoice := operatorChoice
+  entrantChoice := entrantChoice
+  operatorExecution := operatorExecution
+  operator_prefers_act := by
+    rw [h_op_act, h_op_idle]
+    exact W.teleological_bundle_dominance_induces_preference
+      operator moment history b_op_act b_op_idle h_op_dom
+  entrant_prefers_baseline := by
+    rw [h_ent_idle, h_ent_act]
+    exact W.teleological_bundle_dominance_induces_preference
+      entrant moment history b_ent_idle b_ent_act h_ent_dom
+
 
 structure StatutoryMonopolyFiscalIncidenceEvidence [W : ActionFrame]
     [BilateralExchangeFrame W] (S : StatutoryMonopolyCalculationScenario (W := W)) where
@@ -621,7 +704,9 @@ structure StatutoryMonopolyFiscalIncidenceEvidence [W : ActionFrame]
   cohort : Finset Agent
   inventoryRun : (a : Agent) → InventoryRun W a S.history S.moment next
   means : Means
-  noYield : ∀ a ∈ cohort, (inventoryRun a).totalYield means = 0
+  deadweight_loss : ℕ
+  runBalance : (∑ a ∈ cohort, (inventoryRun a).totalYield means) + deadweight_loss =
+    ∑ a ∈ cohort, (inventoryRun a).totalUse means
   operatorInCohort : S.operator ∈ cohort
   operatorGain : W.omega S.operator S.moment S.history means <
     W.omega S.operator next S.history means
@@ -642,7 +727,7 @@ theorem statutory_monopoly_run_blindness_and_fiscal_incidence [W : ActionFrame]
     StatutoryMonopolyFiscalIncidenceConclusion S E := by
   have hcalc := statutory_monopoly_immunizes_calculation_blindness S
   have ⟨b, hb_mem, hb_loss⟩ := calhoun_action_frame_run_class_partition
-    E.cohort E.inventoryRun E.means E.noYield S.operator
+    E.cohort E.inventoryRun E.means E.deadweight_loss E.runBalance S.operator
     E.operatorInCohort E.operatorGain
   exact ⟨hcalc, ⟨b, hb_mem, hb_loss⟩⟩
 
@@ -811,6 +896,64 @@ theorem state_monopoly_theorems_non_vacuous :
   refine ⟨F, h_cons0, h_taxpayer, ?_, ?_⟩
   · exact ⟨by decide, by simp [ProductionBeatsLeisure]⟩
   · exact ⟨by decide, by simp [ProductionAtOrBelowLeisure]⟩
+
+/-- Non-vacuity witness for Calhoun run partition:
+On `BilateralTradeActionFrame`, an actual execution run from `.root` to `.leaf3`
+strictly increases agent 0's stock of good 1 under balanced inventory flows,
+guaranteeing by `calhoun_action_frame_run_class_partition` that agent 1's stock of good 1
+is strictly depleted. -/
+theorem calhoun_action_frame_partition_non_vacuous :
+    ∃ (Cohort : Finset (Fin 2))
+      (runs : (a : Fin 2) → InventoryRun BilateralTradeActionFrame a (3 : Fin 4)
+        BilateralMoment.root BilateralMoment.leaf3)
+      (m : Fin 3) (deadweight_loss : ℕ),
+      ((∑ a ∈ Cohort, (runs a).totalYield m) + deadweight_loss =
+        ∑ a ∈ Cohort, (runs a).totalUse m) ∧
+      ∃ (s : Fin 2), s ∈ Cohort ∧
+        BilateralTradeActionFrame.omega s BilateralMoment.root (3 : Fin 4) m <
+          BilateralTradeActionFrame.omega s BilateralMoment.leaf3 (3 : Fin 4) m ∧
+        ∃ b ∈ Cohort, BilateralTradeActionFrame.omega b BilateralMoment.leaf3 (3 : Fin 4) m <
+          BilateralTradeActionFrame.omega b BilateralMoment.root (3 : Fin 4) m := by
+  have h_next : IsNextMoment BilateralTradeActionFrame.Precedence
+      BilateralTradeActionFrame.mem_hist
+      BilateralMoment.root BilateralMoment.leaf3 (3 : Fin 4) := by
+    change IsNextMoment bilateral_prec bilateral_mem_hist
+      BilateralMoment.root BilateralMoment.leaf3 (3 : Fin 4)
+    refine ⟨trivial, rfl, trivial, ?_⟩
+    intro τ _ hbetween
+    cases τ <;> simp [bilateral_prec] at hbetween
+  let step0 : InventoryStep BilateralTradeActionFrame (0 : Fin 2) (3 : Fin 4)
+      BilateralMoment.root BilateralMoment.leaf3 :=
+    .matchedOffer (1 : Fin 2) 1 (0 : Fin 3) 1 (1 : Fin 3) (by decide) rfl rfl h_next
+  let step1 : InventoryStep BilateralTradeActionFrame (1 : Fin 2) (3 : Fin 4)
+      BilateralMoment.root BilateralMoment.leaf3 :=
+    .matchedAccept (0 : Fin 2) 1 (0 : Fin 3) 1 (1 : Fin 3) (by decide) rfl rfl h_next
+  let run0 : InventoryRun BilateralTradeActionFrame (0 : Fin 2) (3 : Fin 4)
+      BilateralMoment.root BilateralMoment.leaf3 :=
+    InventoryRun.step step0 (InventoryRun.done BilateralMoment.leaf3)
+  let run1 : InventoryRun BilateralTradeActionFrame (1 : Fin 2) (3 : Fin 4)
+      BilateralMoment.root BilateralMoment.leaf3 :=
+    InventoryRun.step step1 (InventoryRun.done BilateralMoment.leaf3)
+  let runs : (a : Fin 2) → InventoryRun BilateralTradeActionFrame a (3 : Fin 4)
+      BilateralMoment.root BilateralMoment.leaf3 :=
+    fun a => match a with
+    | 0 => run0
+    | 1 => run1
+  let Cohort : Finset (Fin 2) := {(0 : Fin 2), (1 : Fin 2)}
+  let m : Fin 3 := (1 : Fin 3)
+  let deadweight_loss : ℕ := 0
+  have h_run_balance : (∑ a ∈ Cohort, (runs a).totalYield m) + deadweight_loss =
+      ∑ a ∈ Cohort, (runs a).totalUse m := by
+    change (run0.totalYield m + run1.totalYield m) + 0 =
+      run0.totalUse m + run1.totalUse m
+    rfl
+  have hs_mem : (0 : Fin 2) ∈ Cohort := by decide
+  have hs_gain : BilateralTradeActionFrame.omega (0 : Fin 2) BilateralMoment.root (3 : Fin 4) m <
+      BilateralTradeActionFrame.omega (0 : Fin 2) BilateralMoment.leaf3 (3 : Fin 4) m := by
+    decide
+  have h_part := calhoun_action_frame_run_class_partition Cohort runs m deadweight_loss
+    h_run_balance (0 : Fin 2) hs_mem hs_gain
+  exact ⟨Cohort, runs, m, deadweight_loss, h_run_balance, (0 : Fin 2), hs_mem, hs_gain, h_part⟩
 
 end
 

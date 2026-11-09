@@ -536,24 +536,30 @@ theorem ground_calhoun_fiscal_class_partition [W : ActionFrame]
 theorem ground_calhoun_action_frame_class_partition
     [W : ActionFrame]
     (Cohort : Finset W.Agent) (t t' : W.Moment) (h : W.History) (m : W.Means)
+    (deadweight_loss : ℕ)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
     (h_nontrade : ∀ a ∈ Cohort, ¬ W.IsTradeAction (W.enacted a t h))
-    (h_noyield : ∀ a ∈ Cohort, W.yield_means (W.enacted a t h) m = 0)
+    (h_transfer_balance : (∑ a ∈ Cohort, W.yield_means (W.enacted a t h) m) + deadweight_loss =
+      ∑ a ∈ Cohort, W.use_means (W.enacted a t h) m)
     (s : W.Agent) (hs_mem : s ∈ Cohort)
     (hs_gain : W.omega s t h m < W.omega s t' h m) :
     ∃ b : W.Agent, b ∈ Cohort ∧ W.omega b t' h m < W.omega b t h m :=
-  calhoun_action_frame_class_partition Cohort t t' h m h_next h_nontrade h_noyield s hs_mem hs_gain
+  calhoun_action_frame_class_partition Cohort t t' h m deadweight_loss
+    h_next h_nontrade h_transfer_balance s hs_mem hs_gain
 
 /-- Ground instantiation of Theorem 11.2'': Calhoun partition in multi-moment inventory runs. -/
 theorem ground_calhoun_action_frame_run_class_partition
     [W : ActionFrame] [BilateralExchangeFrame W]
     (Cohort : Finset W.Agent) {t u : W.Moment} {h : W.History}
     (runs : (a : W.Agent) → InventoryRun W a h t u) (m : W.Means)
-    (h_noyield : ∀ a ∈ Cohort, (runs a).totalYield m = 0)
+    (deadweight_loss : ℕ)
+    (h_run_balance : (∑ a ∈ Cohort, (runs a).totalYield m) + deadweight_loss =
+      ∑ a ∈ Cohort, (runs a).totalUse m)
     (s : W.Agent) (hs_mem : s ∈ Cohort)
     (hs_gain : W.omega s t h m < W.omega s u h m) :
     ∃ b : W.Agent, b ∈ Cohort ∧ W.omega b u h m < W.omega b t h m :=
-  calhoun_action_frame_run_class_partition Cohort runs m h_noyield s hs_mem hs_gain
+  calhoun_action_frame_run_class_partition Cohort runs m deadweight_loss
+    h_run_balance s hs_mem hs_gain
 
 /-- Ground instantiation of Theorem 4.1c: Exclusivity of Rothbard-Megger welfare trichotomy. -/
 theorem ground_rothbard_megger_trichotomy
@@ -750,6 +756,130 @@ theorem ground_actionFrame_invasion_strips_feasible_menu
     FeasibleMenuStripped i t t' (jointBranch i j t h W.alpha_zero α_j) β :=
   actionFrame_invasion_strips_menu_of_history i j t t' h title_i α_j m_inv β
     ht ht_branch h_clean h_contract h_feas h_cont h_tight
+
+/-- Ground instantiation of Catallactic Bottleneck Pre-Emption:
+When rival bidding exhausts a complementary factor at a common supplier,
+the passive entrepreneur's physical stock and autarkic resource menu remain
+strictly preserved (no direct invasion), yet stage-2 project completion is
+rendered physically infeasible (BlockedCompletion). -/
+theorem ground_catallactic_bottleneck_preemption_preserves_menu_but_blocks_completion
+    [W : ActionFrame] [BilateralExchangeFrame W]
+    (i : W.Agent) (t t' : W.Moment) (h : W.History)
+    (completion : W.Action) (complementary : W.Means)
+    (h_passive_i : W.enacted i t h = W.alpha_zero)
+    (h_starve_i : W.omega i t h complementary = 0)
+    (h_req : 0 < W.use_means completion complementary)
+    (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
+    StockPreserved i t t' h ∧
+    ResourceMenuPreserved i t t' h ∧
+    (∀ γ, ¬ FeasibleMenuStripped i t t' h γ) ∧
+    W.omega i t' h complementary = 0 ∧
+    BlockedCompletion i t' h completion :=
+  catallactic_bottleneck_preemption_preserves_menu_but_blocks_completion
+    i t t' h completion complementary h_passive_i h_starve_i h_req h_next
+
+/-- Ground instantiation of Catallactic Bottleneck Pre-Emption Cycle Regret:
+Derives the complete entrepreneurial cycle conclusion under factor starvation. -/
+theorem ground_catallactic_bottleneck_preemption_cycle_regret
+    [W : ActionFrame] [BilateralExchangeFrame W] {Context : Type}
+    (S : EntrepreneurialCycleScenario W Context)
+    (h_starve : W.omega S.investment.i S.investment.next S.investment.x.history
+      S.investment.complementary = 0)
+    (h_req : 0 < W.use_means S.investment.completion S.investment.complementary)
+    (purposeful : PurposefulAct S.investment.i S.investment.x.moment
+      S.investment.x.history S.investment.investment) :
+    EntrepreneurialCycleConclusion S ∧
+    BlockedCompletion S.investment.i S.investment.next S.investment.x.history
+      S.investment.completion :=
+  catallactic_bottleneck_preemption_cycle_regret S h_starve h_req purposeful
+
+/-- Ground instantiation of Strategic Default vs. Illiquidity Non-Identifiability:
+External historical observation of default (inaction `alpha_zero` at maturity)
+cannot distinguish between hard physical illiquidity and strategic default. -/
+theorem ground_default_illiquidity_vs_strategic_non_identifiability
+    {W : ActionFrame}
+    (M : Set (EconometricInterpretation W))
+    (causeOf : EconometricInterpretation W → DefaultCause)
+    (borrower : W.Agent) (t_mat : W.Moment) (h : W.History)
+    (interp_illiq interp_strat : EconometricInterpretation W)
+    (h_illiq : interp_illiq ∈ M)
+    (h_strat : interp_strat ∈ M)
+    (h_obs : ObsEquiv W interp_illiq interp_strat borrower t_mat h)
+    (h_diff_cause : causeOf interp_illiq ≠ causeOf interp_strat) :
+    ¬ ∃ est : EconometricEstimator W DefaultCause,
+      Identifies W M causeOf est borrower t_mat h :=
+  default_illiquidity_vs_strategic_non_identifiability
+    M causeOf borrower t_mat h interp_illiq interp_strat h_illiq h_strat h_obs h_diff_cause
+
+/-- Ground witness of Default Cause Non-Identifiability on FiniteBranchingModel. -/
+theorem ground_default_cause_non_identifiability_witness :
+    ∃ (W : ActionFrame)
+      (interp_illiq interp_strat : EconometricInterpretation W)
+      (causeOf : EconometricInterpretation W → DefaultCause)
+      (borrower : W.Agent) (t_mat : W.Moment) (h : W.History),
+      ObsEquiv W interp_illiq interp_strat borrower t_mat h ∧
+      causeOf interp_illiq = DefaultCause.Illiquidity ∧
+      causeOf interp_strat = DefaultCause.Strategic ∧
+      causeOf interp_illiq ≠ causeOf interp_strat :=
+  default_cause_non_identifiability_witness
+
+/-- Ground instantiation of Network Liquidity-Freeze Cascades:
+Contraction of an intermediary's liquid reserves after credit origination
+propagates a settlement freeze and strips feasible spot-trade actions downstream,
+even though aggregate media is 100% conserved across the economy. -/
+theorem ground_network_liquidity_freeze_cascade
+    [W : ActionFrame] [BilateralExchangeFrame W]
+    (sellerA intermediaryB borrowerC : W.Agent)
+    (issuer : W.Agent)
+    (t t' : W.Moment) (h : W.History)
+    (T_BC : PawnLoanTerms W) (A_BC : CreditAdvance T_BC)
+    (h_lender : T_BC.lender = intermediaryB)
+    (h_borrower : T_BC.borrower = borrowerC)
+    (h_idle : ∀ a, a ≠ T_BC.lender → a ≠ T_BC.borrower →
+      W.enacted a A_BC.moment A_BC.history = W.alpha_zero)
+    (h_succ : IsNextMoment W.Precedence W.mem_hist t t' h)
+    (qA : ℕ) (mA : W.Means) (price : ℕ)
+    (h_short : W.omega intermediaryB t h T_BC.money < price)
+    (h_freeze : W.enacted intermediaryB t h = W.alpha_zero) :
+    totalMedia issuer T_BC.money A_BC.nextMoment A_BC.history =
+      totalMedia issuer T_BC.money A_BC.moment A_BC.history ∧
+    W.omega intermediaryB A_BC.nextMoment A_BC.history T_BC.money + T_BC.principal =
+      W.omega intermediaryB A_BC.moment A_BC.history T_BC.money ∧
+    (∀ β : W.Action,
+      β ∈ W.A_feas intermediaryB A_BC.moment A_BC.history →
+      β ∈ W.A_cont intermediaryB A_BC.nextMoment A_BC.history →
+      W.use_means β T_BC.money = W.omega intermediaryB A_BC.moment A_BC.history T_BC.money →
+      FeasibleMenuStripped intermediaryB A_BC.moment A_BC.nextMoment A_BC.history β) ∧
+    W.Accept intermediaryB sellerA qA mA price T_BC.money ∉ W.A_feas intermediaryB t' h ∧
+    ¬ @PurposefulAct W intermediaryB t' h
+      (W.Accept intermediaryB sellerA qA mA price T_BC.money) :=
+  network_liquidity_freeze_cascade sellerA intermediaryB borrowerC issuer
+    t t' h T_BC A_BC h_lender h_borrower h_idle h_succ qA mA price h_short h_freeze
+
+/-- Ground instantiation of Compositionally Self-Falsifying Cohort Forecasts:
+A cohort of entrepreneurs facing shared factor demand simultaneously experience
+pre-commitment affordability, factor-price squeeze leading to completion infeasibility,
+and clustered entrepreneurial regret. -/
+theorem ground_compositionally_self_falsifying_cohort_forecasts
+    {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
+    {C : CreditShockCohort W Context Entrepreneur} {d : ℕ}
+    (S : PriceSqueezeCohort C d) :
+    (∀ e ∈ S.affected,
+      PrecautionaryCashDemand S.response.preBox (S.quantity e) ≤
+        W.omega (C.agent e) S.next S.history S.money) ∧
+    (∀ e ∈ S.affected,
+      (C.project e).cycle.investment.completion ∉
+        W.A_feas (C.agent e) S.next S.history) ∧
+    (∃ projects : Finset Entrepreneur,
+      projects.card ≥ S.minimumFailures ∧
+      (∀ e ∈ projects, e ∈ S.affected) ∧
+      ∀ e ∈ projects, EntrepreneurialCycleConclusion (C.project e).cycle) ∧
+    (∃ e₁ e₂, e₁ ∈ C.entrepreneurs ∧ e₂ ∈ C.entrepreneurs ∧ e₁ ≠ e₂ ∧
+      C.agent e₁ ≠ C.agent e₂ ∧
+      EntrepreneurialCycleConclusion (C.project e₁).cycle ∧
+      EntrepreneurialCycleConclusion (C.project e₂).cycle) :=
+  PriceSqueezeCohort.compositionally_self_falsifying_cohort_forecasts S
 
 end Praxeology
 

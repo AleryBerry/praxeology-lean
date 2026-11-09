@@ -557,13 +557,13 @@ theorem stockContractedAt_strips_tight_action
   dsimp [StockContractedAt, use_means, omega] at *
   omega
 
-/-- A pure Lockean homesteading action for means `m` uses zero units of `m`
+/-- A pure Lockean homesteading action for means `m` uses zero units of any means
 and yields a positive quantity of `m`. -/
 def IsLockeanHomesteading (α : Action) (m : Means) : Prop :=
-  ¬ W.IsTradeAction α ∧ use_means α m = 0 ∧ 0 < yield_means α m
+  ¬ W.IsTradeAction α ∧ (∀ m', use_means α m' = 0) ∧ 0 < yield_means α m
 
 /-- A purposeful Lockean homesteading action is an enacted purposeful action
-that is non-trade, uses zero units of means `m`, and yields a positive quantity of `m`. -/
+that is non-trade, uses zero units of any means, and yields a positive quantity of `m`. -/
 def PurposefulLockeanHomesteading (i : Agent) (t : Moment) (h : History)
     (α : Action) (m : Means) : Prop :=
   PurposefulAct i t h α ∧ IsLockeanHomesteading α m
@@ -580,7 +580,7 @@ theorem lockean_homesteading_non_invasive
     (∀ m', omega j t' h m' = omega j t h m') ∧
     ResourceMenuPreserved j t t' h := by
   have h_prod_i := W.pure_production_yield_only i t t' h α m
-    h_homestead.1 h_homestead.2.1 h_exec_i h_next
+    h_homestead.1 (h_homestead.2.1 m) h_exec_i h_next
   have h_y : 0 < W.yield_means α m := h_homestead.2.2
   have h_stock_j := W.inaction_preserves_endowments j t t' h h_passive_j h_next
   have h_strict_i : omega i t h m < omega i t' h m := by
