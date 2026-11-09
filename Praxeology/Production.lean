@@ -579,22 +579,17 @@ theorem lockean_homesteading_non_invasive
     omega i t h m < omega i t' h m ∧
     (∀ m', omega j t' h m' = omega j t h m') ∧
     ResourceMenuPreserved j t t' h := by
-  have h_trans_i := W.law_in_re_transition i t t' h α m h_homestead.1 h_exec_i h_next
-  have h_u : W.use_means α m = 0 := h_homestead.2.1
+  have h_prod_i := W.pure_production_yield_only i t t' h α m
+    h_homestead.1 h_homestead.2.1 h_exec_i h_next
   have h_y : 0 < W.yield_means α m := h_homestead.2.2
+  have h_stock_j := W.inaction_preserves_endowments j t t' h h_passive_j h_next
   have h_strict_i : omega i t h m < omega i t' h m := by
-    dsimp [omega, use_means, yield_means] at *
+    dsimp [omega] at *
     omega
-  have h_not_trade_0 : ¬ W.IsTradeAction α₀ := alpha_zero_not_trade
-  have h_stock_j : ∀ m', omega j t' h m' = omega j t h m' := by
+  have h_pres_j : StockPreserved j t t' h := by
     intro m'
-    have h_trans_j :=
-      W.law_in_re_transition j t t' h α₀ m' h_not_trade_0 h_passive_j h_next
-    have h_u0 := W.use_means_alpha_zero m'
-    have h_y0 := W.yield_means_alpha_zero m'
-    rw [h_u0, h_y0, Nat.add_zero, Nat.add_zero] at h_trans_j
-    exact h_trans_j
-  have h_pres_j : StockPreserved j t t' h := fun m' => by rw [h_stock_j m']
+    dsimp [StockPreserved, omega] at *
+    rw [h_stock_j m']
   exact ⟨h_strict_i, h_stock_j, stockPreserved_implies_resourceMenuPreserved j t t' h h_pres_j⟩
 
 /-- Purposeful Lockean homesteading strictly improves `i`'s position over inertia,
@@ -688,14 +683,46 @@ theorem baker_recovery_restitution_not_path_dependent_invasion
     (title : W.Agent → W.Means → ℕ)
     (h_clean0 : ∀ a m, W.omega a t0 h m = title a m)
     (h_avail0 : q ≤ W.omega baker t0 h flour)
-    (h_s1_baker : W.omega baker t1 h flour = W.omega baker t0 h flour - q)
-    (h_s1_thief : W.omega thief t1 h flour = W.omega thief t0 h flour + q)
-    (h_s2_thief : W.omega thief t2 h flour = W.omega thief t1 h flour - q)
-    (h_s2_baker : W.omega baker t2 h flour = W.omega baker t1 h flour + q) :
+    (h_next01 : IsNextMoment W.Precedence W.mem_hist t0 t1 h)
+    (α_loss α_gain : W.Action)
+    (h_not_tr_loss : ¬ W.IsTradeAction α_loss)
+    (h_not_tr_gain : ¬ W.IsTradeAction α_gain)
+    (h_loss_u : W.use_means α_loss flour = q)
+    (h_loss_y : W.yield_means α_loss flour = 0)
+    (h_gain_u : W.use_means α_gain flour = 0)
+    (h_gain_y : W.yield_means α_gain flour = q)
+    (h_enact_loss0 : W.enacted baker t0 h = α_loss)
+    (h_enact_gain0 : W.enacted thief t0 h = α_gain)
+    (h_next12 : IsNextMoment W.Precedence W.mem_hist t1 t2 h)
+    (α_surrender α_recov : W.Action)
+    (h_not_tr_surr : ¬ W.IsTradeAction α_surrender)
+    (h_not_tr_rec : ¬ W.IsTradeAction α_recov)
+    (h_surr_u : W.use_means α_surrender flour = q)
+    (h_surr_y : W.yield_means α_surrender flour = 0)
+    (h_rec_u : W.use_means α_recov flour = 0)
+    (h_rec_y : W.yield_means α_recov flour = q)
+    (h_enact_surr1 : W.enacted thief t1 h = α_surrender)
+    (h_enact_rec1 : W.enacted baker t1 h = α_recov) :
     (0 < q → IsPathDependentTitleInvasion title baker t0 t1 h flour) ∧
     (0 < q → IsPresentMomentReduction thief t1 t2 h flour) ∧
     ¬ IsPathDependentTitleInvasion title thief t1 t2 h flour ∧
     W.omega baker t2 h flour = title baker flour := by
+  have h_baker_t1 := W.pure_consumption_use_only baker t0 t1 h α_loss flour
+    h_not_tr_loss h_loss_y h_enact_loss0 h_next01
+  rw [h_loss_u] at h_baker_t1
+  have h_s1_baker : W.omega baker t1 h flour = W.omega baker t0 h flour - q := by
+    omega
+  have h_s1_thief := W.pure_production_yield_only thief t0 t1 h α_gain flour
+    h_not_tr_gain h_gain_u h_enact_gain0 h_next01
+  rw [h_gain_y] at h_s1_thief
+  have h_thief_t2 := W.pure_consumption_use_only thief t1 t2 h α_surrender flour
+    h_not_tr_surr h_surr_y h_enact_surr1 h_next12
+  rw [h_surr_u] at h_thief_t2
+  have h_s2_thief : W.omega thief t2 h flour = W.omega thief t1 h flour - q := by
+    omega
+  have h_s2_baker := W.pure_production_yield_only baker t1 t2 h α_recov flour
+    h_not_tr_rec h_rec_u h_enact_rec1 h_next12
+  rw [h_rec_y] at h_s2_baker
   refine ⟨?_, ?_, ?_, ?_⟩
   · intro h_pos_q
     dsimp [IsPathDependentTitleInvasion]

@@ -188,23 +188,24 @@ noncomputable def singletonForecastScenarioFrame {W : ActionFrame}
     exact (hagree _ hmem).2
 
 /-- Two independent singleton forecasts can change appraisal while sharing
-the same actual physical frame. The equivalence makes the scope explicit:
-intended ends differ exactly when the two forecast executions differ; actual
-endowment and feasibility remain facts of the common `ActionFrame`. -/
+the same actual physical frame. The cross-branch physical invariance makes the scope
+explicit: intended ends differ across forecasts, while actual endowment and feasibility
+remain identical across any histories incident at the decision moment by ActionFrame laws. -/
 theorem forecast_change_preserves_physical_inventory
     {W : ActionFrame} (E₁ E₂ : SingletonForecastEconomy W)
-    (i : W.Agent) (t : W.Moment) (h : W.History) (m : W.Means)
-    (α : W.Action) (_hmem : W.mem_hist t h) :
-    W.omega i t h m = W.omega i t h m ∧
-    (α ∈ W.A_feas i t h ↔ α ∈ W.A_feas i t h) ∧
-    (((singletonForecastScenarioFrame E₁).IntendedEnd i t h α ≠
-        (singletonForecastScenarioFrame E₂).IntendedEnd i t h α) ↔
-      (E₁.scenarioEnd i α (E₁.forecastScenario i t (E₁.observeActual i t h)) ≠
-        E₂.scenarioEnd i α (E₂.forecastScenario i t (E₂.observeActual i t h)))) := by
-  refine ⟨rfl, Iff.rfl, ?_⟩
-  change (E₁.scenarioEnd i α (E₁.forecastScenario i t (E₁.observeActual i t h)) ≠
-      E₂.scenarioEnd i α (E₂.forecastScenario i t (E₂.observeActual i t h))) ↔ _
-  rfl
+    (i : W.Agent) (t : W.Moment) (h₁ h₂ : W.History) (m : W.Means)
+    (α : W.Action) (hmem₁ : W.mem_hist t h₁) (hmem₂ : W.mem_hist t h₂) :
+    W.omega i t h₁ m = W.omega i t h₂ m ∧
+    (α ∈ W.A_feas i t h₁ ↔ α ∈ W.A_feas i t h₂) ∧
+    (((singletonForecastScenarioFrame E₁).IntendedEnd i t h₁ α ≠
+        (singletonForecastScenarioFrame E₂).IntendedEnd i t h₁ α) ↔
+      (E₁.scenarioEnd i α (E₁.forecastScenario i t (E₁.observeActual i t h₁)) ≠
+        E₂.scenarioEnd i α (E₂.forecastScenario i t (E₂.observeActual i t h₁)))) := by
+  refine ⟨W.omega_bundle_invariant i t m hmem₁ hmem₂, ?_, ?_⟩
+  · rw [W.A_feas_bundle_invariant i t hmem₁ hmem₂]
+  · change (E₁.scenarioEnd i α (E₁.forecastScenario i t (E₁.observeActual i t h₁)) ≠
+        E₂.scenarioEnd i α (E₂.forecastScenario i t (E₂.observeActual i t h₁))) ↔ _
+    rfl
 
 /-!
 ## Domain Veridical Instances: Allocation, Spot Exchange, and Firm

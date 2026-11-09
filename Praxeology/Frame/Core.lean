@@ -678,6 +678,43 @@ theorem ActionFrame.A_feas_bundle_invariant (W : ActionFrame) (i : W.Agent) (t :
       W.A_cont_bundle_invariant i t h1_in h2_in]
   simp only [W.omega_bundle_invariant i t _ h1_in h2_in]
 
+/-- Proposition 2.13: Inaction preserves endowments across temporal transitions. -/
+theorem ActionFrame.inaction_preserves_endowments (W : ActionFrame)
+    (i : W.Agent) (t t' : W.Moment) (h : W.History)
+    (h_enacted : W.enacted i t h = W.alpha_zero)
+    (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
+    ∀ m, W.omega i t' h m = W.omega i t h m := by
+  intro m
+  have h_tr := W.law_in_re_transition i t t' h W.alpha_zero m
+    W.alpha_zero_not_trade h_enacted h_next
+  rw [W.use_means_alpha_zero m, W.yield_means_alpha_zero m,
+      Nat.add_zero, Nat.add_zero] at h_tr
+  exact h_tr
+
+/-- Proposition 2.14 (Part 1): Pure production reflects yield in ending inventory. -/
+theorem ActionFrame.pure_production_yield_only (W : ActionFrame)
+    (i : W.Agent) (t t' : W.Moment) (h : W.History) (α : W.Action) (m : W.Means)
+    (h_not_trade : ¬ W.IsTradeAction α)
+    (h_use : W.use_means α m = 0)
+    (h_enacted : W.enacted i t h = α)
+    (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
+    W.omega i t' h m = W.omega i t h m + W.yield_means α m := by
+  have h_tr := W.law_in_re_transition i t t' h α m h_not_trade h_enacted h_next
+  rw [h_use, Nat.add_zero] at h_tr
+  exact h_tr
+
+/-- Proposition 2.14 (Part 2): Pure consumption reflects use in ending inventory balance. -/
+theorem ActionFrame.pure_consumption_use_only (W : ActionFrame)
+    (i : W.Agent) (t t' : W.Moment) (h : W.History) (α : W.Action) (m : W.Means)
+    (h_not_trade : ¬ W.IsTradeAction α)
+    (h_yield : W.yield_means α m = 0)
+    (h_enacted : W.enacted i t h = α)
+    (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
+    W.omega i t' h m + W.use_means α m = W.omega i t h m := by
+  have h_tr := W.law_in_re_transition i t t' h α m h_not_trade h_enacted h_next
+  rw [h_yield, Nat.add_zero] at h_tr
+  exact h_tr
+
 /-- Every maximal history contains the full past of each of its moments. -/
 theorem ActionFrame.past_mem_of_mem (W : ActionFrame) (h : W.History)
     (s t : W.Moment) (ht : W.mem_hist t h) (hst : W.Precedence s t) : W.mem_hist s h := by
@@ -1569,6 +1606,33 @@ theorem A_feas_nonempty (i : Agent) (t : Moment) (h : History) :
 theorem phys_feas_of_mem_feas (i : Agent) (t : Moment) (h : History) (α : Action) :
     α ∈ A_feas i t h → ∀ m, use_means α m ≤ omega i t h m :=
   fun h_mem => (W.A_feas_coupling i t h α).mp h_mem |>.2
+
+/-- Proposition 2.13: Inaction preserves endowments across temporal transitions. -/
+theorem inaction_preserves_endowments (i : Agent) (t t' : Moment) (h : History)
+    (h_enacted : W.enacted i t h = α₀)
+    (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
+    ∀ m, omega i t' h m = omega i t h m :=
+  W.inaction_preserves_endowments i t t' h h_enacted h_next
+
+/-- Proposition 2.14 (Part 1): Pure production reflects yield in ending inventory. -/
+theorem pure_production_yield_only (i : Agent) (t t' : Moment) (h : History)
+    (α : Action) (m : Means)
+    (h_not_trade : ¬ W.IsTradeAction α)
+    (h_use : use_means α m = 0)
+    (h_enacted : W.enacted i t h = α)
+    (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
+    omega i t' h m = omega i t h m + yield_means α m :=
+  W.pure_production_yield_only i t t' h α m h_not_trade h_use h_enacted h_next
+
+/-- Proposition 2.14 (Part 2): Pure consumption reflects use in ending inventory balance. -/
+theorem pure_consumption_use_only (i : Agent) (t t' : Moment) (h : History)
+    (α : Action) (m : Means)
+    (h_not_trade : ¬ W.IsTradeAction α)
+    (h_yield : yield_means α m = 0)
+    (h_enacted : W.enacted i t h = α)
+    (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
+    omega i t' h m + use_means α m = omega i t h m :=
+  W.pure_consumption_use_only i t t' h α m h_not_trade h_yield h_enacted h_next
 
 /-- Enacted trajectory primitive: the physical action enacted by agent i at ⟨t, h⟩. -/
 abbrev enacted (i : Agent) (t : Moment) (h : History) : Action :=

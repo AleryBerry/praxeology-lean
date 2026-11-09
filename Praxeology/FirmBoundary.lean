@@ -276,12 +276,29 @@ theorem kirznerian_menu_expansion_discovery
       exact (h_undom α_star h_star_in h_dom_gamma).elim
 
 
+/-- A contemplation context grounded in an ActionFrame at a specific agent and decision node. -/
 structure BoundedContemplationContext (W : ActionFrame) where
+  i : W.Agent
+  t : W.Moment
+  h : W.History
   A_phys : Finset W.Action
   A_cont : Finset W.Action
-  End_of : W.Action → W.Ends
-  Pref : W.Ends → W.Ends → Prop
-  pref_asymm : ∀ {e1 e2 : W.Ends}, Pref e1 e2 → ¬ Pref e2 e1
+
+/-- Grounded outcome projection for a bounded contemplation context. -/
+def BoundedContemplationContext.End_of [W : ActionFrame]
+    (B : BoundedContemplationContext W) (α : W.Action) : W.Ends :=
+  W.End_of B.i α B.t B.h
+
+/-- Grounded preference projection for a bounded contemplation context. -/
+def BoundedContemplationContext.Pref [W : ActionFrame]
+    (B : BoundedContemplationContext W) (e1 e2 : W.Ends) : Prop :=
+  W.Preference B.i B.t B.h e1 e2
+
+/-- Preference asymmetry inherited from the underlying ActionFrame. -/
+theorem BoundedContemplationContext.pref_asymm [W : ActionFrame]
+    (B : BoundedContemplationContext W) {e1 e2 : W.Ends} :
+    B.Pref e1 e2 → ¬ B.Pref e2 e1 :=
+  W.pref_asymm B.i B.t B.h
 
 
 def BoundedContemplationContext.A_eff [W : ActionFrame]
@@ -896,8 +913,7 @@ theorem firm_information_boundary_policy_witness :
     exact factor_hidden_policy_conflict π hπ
 
 
-theorem vertical_integration_stage_count_fallacy_refuted
-    (L K : ℕ) (_h_complete_integration : K = L) :
+theorem vertical_integration_stage_count_fallacy_refuted :
     (∀ s, PolicyCorrect .bothSignals s) ∧
     (∀ s, PolicyCorrect .factorRestored s) ∧
     (¬ ∃ π : Bool × Bool → FirmProductionDecision,
@@ -1885,23 +1901,24 @@ theorem purposeful_operational_firm_boundary_from_observed_prices
       ΔP_out R1 R2 db_int db_u)
     (quotes : ObservedUnitPriceSpread dec.vocabulary dec.bargaining dec.proposal.principal
       dec.information.resourceB dec.information.resourceA t h)
-    (_h_positive_baseline : 0 < quotes.lowerRecord.price)
     (h_spread : ΔP_out = quotes.spread) :
     OperationalFirmBoundaryConclusion dec ∧
-    ΔP_out = quotes.spread ∧
     (∀ h' (_hh' : h' ∈ W.MinPlausible i t),
       firmPriceSignalObservation
-        (SignalSplit ΔP_out (SplitSignalThreshold R1 R2 db_int db_u)) (dec.information.stateOf h') =
+        (SignalSplit quotes.spread (SplitSignalThreshold R1 R2 db_int db_u))
+          (dec.information.stateOf h') =
           dec.information.observationRecord .demandHidden h' ∧
       firmPriceSignalObservation
-        (SignalMerge ΔP_out (MergeSignalThreshold R1 R2 db_u)) (dec.information.stateOf h') =
+        (SignalMerge quotes.spread (MergeSignalThreshold R1 R2 db_u))
+          (dec.information.stateOf h') =
           dec.information.observationRecord .bothSignals h') := by
-  refine ⟨purposeful_operational_firm_boundary dec, h_spread, ?_⟩
+  refine ⟨purposeful_operational_firm_boundary dec, ?_⟩
   intro h' hh'
   have hsignals := critical_attenuation_observation_equivalences ΔP_out R1 R2 db_int db_u
     dec.information.h_pos1 dec.information.h_pos2 dec.information.h_crit_low
     dec.information.h_crit_high (dec.information.stateOf h')
   rcases hsignals with ⟨hsplit, hmerge⟩
+  rw [← h_spread]
   constructor
   · calc
       firmPriceSignalObservation
@@ -1971,7 +1988,6 @@ end EntrepreneurialActionFrame
 
 theorem credit_expansion_expands_hop_horizon
     (ΔP R_credit R_nat deadband : ℕ)
-    (_h_pos_cred : 0 < R_credit)
     (h_crit_low : R_credit * deadband < ΔP)
     (h_crit_high : ΔP ≤ R_nat * deadband) :
     ReturnAtMost ΔP R_nat deadband 0 ∧
@@ -1983,7 +1999,6 @@ theorem credit_expansion_expands_hop_horizon
 theorem artificial_conglomeration_firm_boundary_distortion
     (ΔP_boom R_nat R_credit db_comp V_safe : ℕ)
     (upstream_blur joint_cost_blur ext_opp_loss W_nat grid_step Δz_abs : ℕ)
-    (_h_pos_cred : 0 < R_credit)
     (h_pos_vol : 0 < Δz_abs)
     (h_cred_boom : R_credit * (V_safe + db_comp) < ΔP_boom)
     (h_nat_restraint : ΔP_boom ≤ R_nat * (V_safe + db_comp))

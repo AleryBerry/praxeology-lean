@@ -270,7 +270,7 @@ theorem ground_bohm_bawerk_roundabout_necessity
       @Preference FiniteBranchingModel i t h e1 e3) :
     q_direct < q_roundabout ∧
     (∃ δ_cap : ℕ, δ_cap ≥ 1 ∧ q_roundabout = q_direct + δ_cap) :=
-  bohm_bawerk_roundabout_productivity_necessity (W := FiniteBranchingModel)
+  purposeful_positive_originary_interest (W := FiniteBranchingModel)
     i t h m q_direct q_roundabout hq τ_direct τ_later h_pos_tp
     α_direct α_roundabout h_direct_feas h_direct_end h_round_end
     h_round_purp h_sync_mono h_trans
@@ -577,15 +577,14 @@ theorem ground_concrete_phi_non_monotone_witness :
   concrete_phi_non_monotone_witness
 
 /-- Ground instantiation of Theorem 7.9: Refutation of Arithmetic Integration Fallacy. -/
-theorem ground_vertical_integration_stage_count_fallacy_refuted
-    (L K : ℕ) (h_complete_integration : K = L) :
+theorem ground_vertical_integration_stage_count_fallacy_refuted :
     (∀ s, PolicyCorrect .bothSignals s) ∧
     (∀ s, PolicyCorrect .factorRestored s) ∧
     (¬ ∃ π : Bool × Bool → FirmProductionDecision,
       ∀ s, π (informationObservation .factorHidden s) = firmRequiredDecision s) ∧
     (¬ ∃ π : Bool × Bool → FirmProductionDecision,
       ∀ s, π (informationObservation .demandHidden s) = firmRequiredDecision s) :=
-  vertical_integration_stage_count_fallacy_refuted L K h_complete_integration
+  vertical_integration_stage_count_fallacy_refuted
 
 /-- Ground instantiation of Theorem 11.6: State Monopoly Political Economy Master Synthesis. -/
 theorem ground_state_monopoly_master_synthesis [W : ActionFrame] {i j : W.Agent}
@@ -640,17 +639,35 @@ theorem ground_baker_recovery_not_path_dependent_invasion
     (title : W.Agent → W.Means → ℕ)
     (h_clean0 : ∀ a m, W.omega a t0 h m = title a m)
     (h_avail0 : q ≤ W.omega baker t0 h flour)
-    (h_s1_baker : W.omega baker t1 h flour = W.omega baker t0 h flour - q)
-    (h_s1_thief : W.omega thief t1 h flour = W.omega thief t0 h flour + q)
-    (h_s2_thief : W.omega thief t2 h flour = W.omega thief t1 h flour - q)
-    (h_s2_baker : W.omega baker t2 h flour = W.omega baker t1 h flour + q) :
+    (h_next01 : IsNextMoment W.Precedence W.mem_hist t0 t1 h)
+    (α_loss α_gain : W.Action)
+    (h_not_tr_loss : ¬ W.IsTradeAction α_loss)
+    (h_not_tr_gain : ¬ W.IsTradeAction α_gain)
+    (h_loss_u : W.use_means α_loss flour = q)
+    (h_loss_y : W.yield_means α_loss flour = 0)
+    (h_gain_u : W.use_means α_gain flour = 0)
+    (h_gain_y : W.yield_means α_gain flour = q)
+    (h_enact_loss0 : W.enacted baker t0 h = α_loss)
+    (h_enact_gain0 : W.enacted thief t0 h = α_gain)
+    (h_next12 : IsNextMoment W.Precedence W.mem_hist t1 t2 h)
+    (α_surrender α_recov : W.Action)
+    (h_not_tr_surr : ¬ W.IsTradeAction α_surrender)
+    (h_not_tr_rec : ¬ W.IsTradeAction α_recov)
+    (h_surr_u : W.use_means α_surrender flour = q)
+    (h_surr_y : W.yield_means α_surrender flour = 0)
+    (h_rec_u : W.use_means α_recov flour = 0)
+    (h_rec_y : W.yield_means α_recov flour = q)
+    (h_enact_surr1 : W.enacted thief t1 h = α_surrender)
+    (h_enact_rec1 : W.enacted baker t1 h = α_recov) :
     (0 < q → IsPathDependentTitleInvasion title baker t0 t1 h flour) ∧
     (0 < q → IsPresentMomentReduction thief t1 t2 h flour) ∧
     ¬ IsPathDependentTitleInvasion title thief t1 t2 h flour ∧
     W.omega baker t2 h flour = title baker flour :=
   baker_recovery_restitution_not_path_dependent_invasion
     baker thief flour q h_ne t0 t1 t2 h title h_clean0 h_avail0
-    h_s1_baker h_s1_thief h_s2_thief h_s2_baker
+    h_next01 α_loss α_gain h_not_tr_loss h_not_tr_gain h_loss_u h_loss_y h_gain_u h_gain_y
+    h_enact_loss0 h_enact_gain0 h_next12 α_surrender α_recov h_not_tr_surr h_not_tr_rec
+    h_surr_u h_surr_y h_rec_u h_rec_y h_enact_surr1 h_enact_rec1
 
 /-- Ground instantiation of targeted complementary factor sabotage:
 Stripping a single unit of a complementary factor strands the integrated capital

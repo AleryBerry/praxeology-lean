@@ -520,17 +520,36 @@ theorem three_option_menu_consistency
   exact ⟨h_act1, h_not_act2, h_not_act3⟩
 
 /-- A Buridan tie between two distinct actions serving the same end is fully compatible
-with purposeful action. -/
+with purposeful action: an agent may purposefully enact one option while demonstrating
+preference over the other, with tie undominatedness discharged by irreflexivity of preference. -/
 theorem buridan_tie_compatible_with_purposeful_act
     (i : Agent) (t : Moment) (h : History)
     (α1 α2 : Action)
     (h_diff : α1 ≠ α2)
+    (h_feas1 : α1 ∈ A_feas i t h)
+    (h_feas2 : α2 ∈ A_feas i t h)
+    (h_exec : Exec i t α1 h)
+    (h_unease : α1 = α₀ ∨ Preference i t h (End_of i α1 t h) (End_of i α₀ t h))
     (h_same_end : End_of i α1 t h = End_of i α2 t h)
-    (h_act : PurposefulAct i t h α1) :
+    (h_undom_distinct : ∀ β ∈ A_feas i t h,
+      End_of i β t h ≠ End_of i α1 t h → ¬ Preference i t h (End_of i β t h) (End_of i α1 t h)) :
     α1 ≠ α2 ∧
     End_of i α1 t h = End_of i α2 t h ∧
-    PurposefulAct i t h α1 :=
-  ⟨h_diff, h_same_end, h_act⟩
+    PurposefulAct i t h α1 ∧
+    DemonstratedPref i t h α1 α2 := by
+  have h_undom : ∀ β ∈ A_feas i t h, ¬ Preference i t h (End_of i β t h) (End_of i α1 t h) := by
+    intro β hβ
+    by_cases h_end : End_of i β t h = End_of i α1 t h
+    · intro h_pref
+      rw [h_end] at h_pref
+      exact pref_irrefl i t h (End_of i α1 t h) h_pref
+    · exact h_undom_distinct β hβ h_end
+  have h_act : PurposefulAct i t h α1 := ⟨h_feas1, h_exec, h_unease, h_undom⟩
+  have h_dem : DemonstratedPref i t h α1 α2 := by
+    refine ⟨h_act, ?_⟩
+    rw [Finset.mem_erase]
+    exact ⟨h_diff.symm, h_feas2⟩
+  exact ⟨h_diff, h_same_end, h_act, h_dem⟩
 
 end ActionFoundations
 
@@ -1033,14 +1052,34 @@ theorem buridan_tie_refutes_strict_demonstrated_pref
     exact pref_irrefl i t h e_star h_pref21
 
 
+/-- Buridan tie over distinct, unranked ends refutes strict preference grounding:
+an agent may purposefully enact α₁ over α₂, demonstrating preference of α₁'s end over α₂'s end,
+even though neither end is strictly preferred to the other. -/
 theorem buridan_distinct_ends_tie_refutes_strict_grounding
     (i : Agent) (t : Moment) (h : History)
     (α₁ α₂ : Action)
+    (h_diff_ends : End_of i α₁ t h ≠ End_of i α₂ t h)
+    (h_feas1 : α₁ ∈ A_feas i t h)
+    (h_feas2 : α₂ ∈ A_feas i t h)
+    (h_exec : Exec i t α₁ h)
+    (h_unease : α₁ = α₀ ∨ Preference i t h (End_of i α₁ t h) (End_of i α₀ t h))
     (h_no12 : ¬ Preference i t h (End_of i α₁ t h) (End_of i α₂ t h))
-    (h_no21 : ¬ Preference i t h (End_of i α₂ t h) (End_of i α₁ t h)) :
-    ¬ Preference i t h (End_of i α₁ t h) (End_of i α₂ t h) ∧
-    ¬ Preference i t h (End_of i α₂ t h) (End_of i α₁ t h) :=
-  ⟨h_no12, h_no21⟩
+    (h_no21 : ¬ Preference i t h (End_of i α₂ t h) (End_of i α₁ t h))
+    (h_undom_others : ∀ β ∈ A_feas i t h,
+      End_of i β t h ≠ End_of i α₂ t h → ¬ Preference i t h (End_of i β t h) (End_of i α₁ t h)) :
+    PurposefulAct i t h α₁ ∧
+    DemonstratedPrefEnd i t h (End_of i α₁ t h) (End_of i α₂ t h) ∧
+    ¬ Preference i t h (End_of i α₁ t h) (End_of i α₂ t h) := by
+  have h_undom : ∀ β ∈ A_feas i t h, ¬ Preference i t h (End_of i β t h) (End_of i α₁ t h) := by
+    intro β hβ
+    by_cases h_end : End_of i β t h = End_of i α₂ t h
+    · rw [h_end]
+      exact h_no21
+    · exact h_undom_others β hβ h_end
+  have h_act : PurposefulAct i t h α₁ := ⟨h_feas1, h_exec, h_unease, h_undom⟩
+  have h_dem_end : DemonstratedPrefEnd i t h (End_of i α₁ t h) (End_of i α₂ t h) := by
+    refine ⟨h_diff_ends, α₁, α₂, h_act, h_feas2, rfl, rfl⟩
+  exact ⟨h_act, h_dem_end, h_no12⟩
 
 
 theorem buridan_same_end_tie_action_ocset_continuity
@@ -1870,49 +1909,76 @@ theorem purposeful_act_instantiates_asymmetric_preference
     (∀ e₁ e₂, W.Preference i t h e₁ e₂ → ¬ W.Preference i t h e₂ e₁) :=
   ⟨h_purp.2.2.1, h_purp.2.2.2, fun e => W.pref_irrefl i t h e, fun _ _ hp => W.pref_asymm i t h hp⟩
 
-/-- Framing reversals: an apparent reversal of preference between two ends requires that
-the decision contexts (moment or history) be distinct. -/
+/-- Framing reversals: an apparent reversal of preference between two ends across incident
+histories strictly requires that the evaluation moments be distinct, because tree bundle
+invariance guarantees that preferences at the same moment agree across incident histories. -/
 theorem framing_reversal_requires_context_distinction
     (W : ActionFrame) (i : W.Agent) (t₁ t₂ : W.Moment) (h₁ h₂ : W.History)
+    (ht1 : W.mem_hist t₁ h₁) (ht2 : W.mem_hist t₂ h₂)
     (e₁ e₂ : W.Ends)
     (h_pref1 : W.Preference i t₁ h₁ e₁ e₂)
     (h_pref2 : W.Preference i t₂ h₂ e₂ e₁) :
-    t₁ ≠ t₂ ∨ h₁ ≠ h₂ := by
-  by_cases ht : t₁ = t₂
-  · by_cases hh : h₁ = h₂
-    · subst ht hh
-      exact False.elim (W.pref_asymm i t₁ h₁ h_pref1 h_pref2)
-    · exact Or.inr hh
-  · exact Or.inl ht
+    t₁ ≠ t₂ := by
+  rintro rfl
+  have h_same_pref : W.Preference i t₁ h₁ = W.Preference i t₁ h₂ :=
+    W.Preference_bundle_invariant i t₁ ht1 ht2
+  rw [h_same_pref] at h_pref1
+  exact W.pref_asymm i t₁ h₂ h_pref1 h_pref2
 
 /-- Hyperbolic discounting: predictable intertemporal preference shifts between delayed and
 immediate consumption ends are compatible with poset asymmetry because they occur
 across distinct moments. -/
 theorem hyperbolic_reversal_requires_distinct_moments
-    (W : ActionFrame) (i : W.Agent) (t₁ t₂ : W.Moment) (h₁ h₂ : W.History)
-    (e_delayed e_immediate : W.Ends)
-    (h_pref_t1 : W.Preference i t₁ h₁ e_delayed e_immediate)
-    (h_pref_t2 : W.Preference i t₂ h₂ e_immediate e_delayed) :
-    t₁ ≠ t₂ ∨ h₁ ≠ h₂ :=
-  framing_reversal_requires_context_distinction W i t₁ t₂ h₁ h₂
-    e_delayed e_immediate h_pref_t1 h_pref_t2
+    (W : ActionFrame) [IntertemporalEnds W] (i : W.Agent) (t₁ t₂ : W.Moment) (h₁ h₂ : W.History)
+    (ht1 : W.mem_hist t₁ h₁) (ht2 : W.mem_hist t₂ h₂)
+    (e_small e_large : W.Ends) (τ_early τ_late : W.Moment)
+    (h_pref_t1 : W.Preference i t₁ h₁ (W.TimedEnd e_large τ_late) (W.TimedEnd e_small τ_early))
+    (h_pref_t2 : W.Preference i t₂ h₂ (W.TimedEnd e_small τ_early) (W.TimedEnd e_large τ_late)) :
+    t₁ ≠ t₂ :=
+  framing_reversal_requires_context_distinction W i t₁ t₂ h₁ h₂ ht1 ht2
+    (W.TimedEnd e_large τ_late) (W.TimedEnd e_small τ_early) h_pref_t1 h_pref_t2
 
-/-- Precommitment mechanism: committing at an earlier moment prunes the temptation choice
-from the downstream feasible menu. -/
+/-- Precommitment mechanism: committing at an earlier moment transitions endowments via
+ActionFrame physical laws so that downstream tempting consumption exceeds remaining stocks,
+strictly pruning it from the feasible menu and ensuring purposeful saving. -/
 theorem precommitment_prunes_temptation
-    [W : ActionFrame] (i : W.Agent) (t₂ : W.Moment) (h_commit h_uncommitted : W.History)
-    (α_consume α_save : W.Action)
-    (h_acts_distinct : α_consume ≠ α_save)
-    (h_menu_commit : W.A_feas i t₂ h_commit = {α_save})
-    (h_menu_uncommitted : W.A_feas i t₂ h_uncommitted = {α_save, α_consume}) :
+    [W : ActionFrame] (i : W.Agent) (t₁ t₂ : W.Moment) (h_commit h_uncommitted : W.History)
+    (α_commit α_consume α_save : W.Action) (m : W.Means)
+    (h_next_commit : IsNextMoment W.Precedence W.mem_hist t₁ t₂ h_commit)
+    (h_next_uncommitted : IsNextMoment W.Precedence W.mem_hist t₁ t₂ h_uncommitted)
+    (h_not_trade_commit : ¬ W.IsTradeAction α_commit)
+    (h_enacted_commit : W.enacted i t₁ h_commit = α_commit)
+    (h_enacted_uncommitted : W.enacted i t₁ h_uncommitted = W.alpha_zero)
+    (h_depletion : W.omega i t₁ h_commit m + W.yield_means α_commit m <
+      W.use_means α_commit m + W.use_means α_consume m)
+    (h_uncommitted_suff : W.use_means α_consume m ≤ W.omega i t₁ h_uncommitted m)
+    (h_uncommitted_cont : α_consume ∈ W.A_cont i t₂ h_uncommitted)
+    (h_uncommitted_other : ∀ m', m' ≠ m →
+      W.use_means α_consume m' ≤ W.omega i t₂ h_uncommitted m')
+    (h_save_purp : PurposefulAct i t₂ h_commit α_save) :
     α_consume ∉ W.A_feas i t₂ h_commit ∧
-    α_consume ∈ W.A_feas i t₂ h_uncommitted := by
-  rw [h_menu_commit, h_menu_uncommitted]
-  refine ⟨?_, ?_⟩
-  · simp only [Finset.mem_singleton]
-    exact h_acts_distinct
-  · simp only [Finset.mem_insert, Finset.mem_singleton]
-    exact Or.inr trivial
+    α_consume ∈ W.A_feas i t₂ h_uncommitted ∧
+    PurposefulAct i t₂ h_commit α_save := by
+  have h_tr_commit := W.law_in_re_transition i t₁ t₂ h_commit α_commit m
+    h_not_trade_commit h_enacted_commit h_next_commit
+  have h_short : W.omega i t₂ h_commit m < W.use_means α_consume m := by
+    omega
+  have h_not_feas : α_consume ∉ W.A_feas i t₂ h_commit := by
+    intro h_feas
+    have h_le := ((W.A_feas_coupling i t₂ h_commit α_consume).mp h_feas).2 m
+    omega
+  have h_tr_uncommitted := W.inaction_preserves_endowments i t₁ t₂ h_uncommitted
+    h_enacted_uncommitted h_next_uncommitted m
+  have h_feas_uncommitted : α_consume ∈ W.A_feas i t₂ h_uncommitted := by
+    rw [W.A_feas_coupling]
+    refine ⟨h_uncommitted_cont, ?_⟩
+    intro m'
+    by_cases hm : m' = m
+    · subst m'
+      rw [h_tr_uncommitted]
+      exact h_uncommitted_suff
+    · exact h_uncommitted_other m' hm
+  exact ⟨h_not_feas, h_feas_uncommitted, h_save_purp⟩
 
 /-- An action frame with precommitment prunes downstream temptation while preserving earlier
 intertemporal choice. -/
@@ -1935,14 +2001,21 @@ theorem precommitment_pruning_witness :
     simp
 
 /-- Loss aversion embedding: reference-dependent valuation is an instance of ActionFrame
-contextual valuation across histories with differing initial endowments. -/
+contextual valuation across histories with differing initial endowments.
+Because endowments agree across histories through the same moment by bundle invariance,
+differing physical stocks force histories to be distinct and preclude mutual incidence. -/
 theorem loss_aversion_endowment_distinction
     (W : ActionFrame) (i : W.Agent) (t : W.Moment) (h_gain h_loss : W.History)
     (m : W.Means)
     (h_endow_gain : W.omega i t h_gain m > W.omega i t h_loss m) :
-    h_gain ≠ h_loss := by
-  rintro rfl
-  exact lt_irrefl _ h_endow_gain
+    h_gain ≠ h_loss ∧ ¬ (W.mem_hist t h_gain ∧ W.mem_hist t h_loss) := by
+  have h_diff_hist : h_gain ≠ h_loss := by
+    rintro rfl
+    exact lt_irrefl _ h_endow_gain
+  refine ⟨h_diff_hist, ?_⟩
+  rintro ⟨ht_gain, ht_loss⟩
+  have h_eq := W.omega_bundle_invariant i t m ht_gain ht_loss
+  omega
 
 /-- Bounded contemplation: an action α is purposeful within the feasible menu
 (a subset of the finite contemplated menu A_cont) even if an uncontemplated action γ ∉ A_cont

@@ -821,19 +821,68 @@ def ActionFrameMajorityPref [W : ActionFrame] (t : W.Moment) (h : W.History)
   (W.Preference i₁ t h e₁ e₂ ∧ W.Preference i₃ t h e₁ e₂) ∨
   (W.Preference i₂ t h e₁ e₂ ∧ W.Preference i₃ t h e₁ e₂)
 
-/-- Condorcet majority voting cycle under three agents with individually transitive preferences. -/
+/-- Synonym for ActionFrameMajorityPref denoting strict pairwise majority preference. -/
+def PairwiseMajorityPreferred [W : ActionFrame] (t : W.Moment) (h : W.History)
+    (i₁ i₂ i₃ : W.Agent) (e₁ e₂ : W.Ends) : Prop :=
+  ActionFrameMajorityPref t h i₁ i₂ i₃ e₁ e₂
+
+/-- ActionFrame majority preference is asymmetric by ActionFrame preference asymmetry. -/
+theorem actionFrameMajorityPref_asymm [W : ActionFrame]
+    (t : W.Moment) (h : W.History) (i₁ i₂ i₃ : W.Agent) (e₁ e₂ : W.Ends) :
+    ActionFrameMajorityPref t h i₁ i₂ i₃ e₁ e₂ →
+    ¬ ActionFrameMajorityPref t h i₁ i₂ i₃ e₂ e₁ := by
+  rintro (⟨h1, h2⟩ | ⟨h1, h3⟩ | ⟨h2, h3⟩) (⟨g1, g2⟩ | ⟨g1, g3⟩ | ⟨g2, g3⟩)
+  · exact W.pref_asymm i₁ t h h1 g1
+  · exact W.pref_asymm i₁ t h h1 g1
+  · exact W.pref_asymm i₂ t h h2 g2
+  · exact W.pref_asymm i₁ t h h1 g1
+  · exact W.pref_asymm i₁ t h h1 g1
+  · exact W.pref_asymm i₃ t h h3 g3
+  · exact W.pref_asymm i₂ t h h2 g2
+  · exact W.pref_asymm i₃ t h h3 g3
+  · exact W.pref_asymm i₂ t h h2 g2
+
+/-- Condorcet majority voting cycle under three agents with individually transitive preferences.
+Every candidate in the 3-cycle is pairwise majority defeated by another candidate, and
+majority preference is strictly asymmetric by `W.pref_asymm`. -/
 theorem action_frame_majority_cycle
     [W : ActionFrame] (t : W.Moment) (h : W.History)
     (i₁ i₂ i₃ : W.Agent) (e₀ e₁ e₂ : W.Ends)
     (h₁_01 : W.Preference i₁ t h e₀ e₁) (h₁_12 : W.Preference i₁ t h e₁ e₂)
     (h₂_12 : W.Preference i₂ t h e₁ e₂) (h₂_20 : W.Preference i₂ t h e₂ e₀)
     (h₃_20 : W.Preference i₃ t h e₂ e₀) (h₃_01 : W.Preference i₃ t h e₀ e₁) :
-    ActionFrameMajorityPref t h i₁ i₂ i₃ e₀ e₁ ∧
-    ActionFrameMajorityPref t h i₁ i₂ i₃ e₁ e₂ ∧
-    ActionFrameMajorityPref t h i₁ i₂ i₃ e₂ e₀ := by
-  refine ⟨Or.inr (Or.inl ⟨h₁_01, h₃_01⟩),
-          Or.inl ⟨h₁_12, h₂_12⟩,
-          Or.inr (Or.inr ⟨h₂_20, h₃_20⟩)⟩
+    (ActionFrameMajorityPref t h i₁ i₂ i₃ e₀ e₁ ∧
+     ActionFrameMajorityPref t h i₁ i₂ i₃ e₁ e₂ ∧
+     ActionFrameMajorityPref t h i₁ i₂ i₃ e₂ e₀) ∧
+    let cand : Fin 3 → W.Ends := fun c => match c with | 0 => e₀ | 1 => e₁ | 2 => e₂
+    ∀ c : Fin 3, ∃ d : Fin 3, d ≠ c ∧
+      PairwiseMajorityPreferred t h i₁ i₂ i₃ (cand d) (cand c) ∧
+      ¬ PairwiseMajorityPreferred t h i₁ i₂ i₃ (cand c) (cand d) := by
+  have h_maj_01 : ActionFrameMajorityPref t h i₁ i₂ i₃ e₀ e₁ :=
+    Or.inr (Or.inl ⟨h₁_01, h₃_01⟩)
+  have h_maj_12 : ActionFrameMajorityPref t h i₁ i₂ i₃ e₁ e₂ :=
+    Or.inl ⟨h₁_12, h₂_12⟩
+  have h_maj_20 : ActionFrameMajorityPref t h i₁ i₂ i₃ e₂ e₀ :=
+    Or.inr (Or.inr ⟨h₂_20, h₃_20⟩)
+  have h_cycle : ActionFrameMajorityPref t h i₁ i₂ i₃ e₀ e₁ ∧
+      ActionFrameMajorityPref t h i₁ i₂ i₃ e₁ e₂ ∧
+      ActionFrameMajorityPref t h i₁ i₂ i₃ e₂ e₀ :=
+    ⟨h_maj_01, h_maj_12, h_maj_20⟩
+  refine ⟨h_cycle, ?_⟩
+  intro cand c
+  fin_cases c
+  · refine ⟨2, by decide, ?_⟩
+    change PairwiseMajorityPreferred t h i₁ i₂ i₃ e₂ e₀ ∧
+      ¬ PairwiseMajorityPreferred t h i₁ i₂ i₃ e₀ e₂
+    exact ⟨h_maj_20, actionFrameMajorityPref_asymm t h i₁ i₂ i₃ e₂ e₀ h_maj_20⟩
+  · refine ⟨0, by decide, ?_⟩
+    change PairwiseMajorityPreferred t h i₁ i₂ i₃ e₀ e₁ ∧
+      ¬ PairwiseMajorityPreferred t h i₁ i₂ i₃ e₁ e₀
+    exact ⟨h_maj_01, actionFrameMajorityPref_asymm t h i₁ i₂ i₃ e₀ e₁ h_maj_01⟩
+  · refine ⟨1, by decide, ?_⟩
+    change PairwiseMajorityPreferred t h i₁ i₂ i₃ e₁ e₂ ∧
+      ¬ PairwiseMajorityPreferred t h i₁ i₂ i₃ e₂ e₁
+    exact ⟨h_maj_12, actionFrameMajorityPref_asymm t h i₁ i₂ i₃ e₁ e₂ h_maj_12⟩
 
 end Praxeology
 

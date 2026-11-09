@@ -9,20 +9,20 @@ repository; those claims are removed pending a separate formal development.
 
 ## 1. Alternative histories and shared context
 
-[`AlternativeHistoryImprovement`](../Praxeology/Action.lean#L1202) records a feasible
+[`AlternativeHistoryImprovement`](../Praxeology/Action.lean#L1241) records a feasible
 alternative action with a better outcome on another history. It does not say
 that the alternative outcome is generated under circumstances comparable to
 the realized outcome. The weaker cross-history comparison should not by itself
 be described as causal regret.
 
-[`ContextMatchedRegret`](../Praxeology/Action.lean#L1231) adds a
+[`ContextMatchedRegret`](../Praxeology/Action.lean#L1270) adds a
 `ContextCorrespondence`: one context must be compatible with the decision
 history, and it must admit both the actual outcome and the foregone alternative
 outcome. The preference comparison is then made between those outcomes.
-[`GuaranteedContextRegret`](../Praxeology/Action.lean#L1277) strengthens this by
+[`GuaranteedContextRegret`](../Praxeology/Action.lean#L1316) strengthens this by
 requiring a nonempty set of admitted alternative outcomes and requiring every
 such outcome to be preferred to the actual one. The theorem
-[`guaranteedContextRegret_implies_contextMatchedRegret`](../Praxeology/Action.lean#L1291)
+[`guaranteedContextRegret_implies_contextMatchedRegret`](../Praxeology/Action.lean#L1330)
 derives the weaker existential comparison from the guaranteed one.
 
 The context correspondence and its admissibility relation are substantive

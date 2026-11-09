@@ -1517,18 +1517,29 @@ theorem asymmetric_tier_coverage_divergence
 /-- Localized bank run infeasibility under tier reserve asymmetry:
 Even if system-wide bank reserves across all tiers cover the redemption demand `q`,
 if an individual bank `b₂` in Tier 2 has insufficient local custodial reserves (`< q`),
-spot redemption at bank `b₂` is resource-infeasible and non-purposeful. -/
+spot redemption at bank `b₂` is resource-infeasible and non-purposeful. Furthermore,
+the local reserve shortfall is strictly positive and bounded by the remaining reserves
+of the banking system (Tier 1 plus the rest of Tier 2). -/
 theorem tier_asymmetric_reserve_run_infeasibility {W : ActionFrame} [BilateralExchangeFrame W]
     (b₂ holder : W.Agent) (t : W.Moment) (h : W.History)
     (q : ℕ) (m_dep m_reserve : W.Means)
     (h_short : bankReserve b₂ m_reserve t h < q)
     (Tier₁ Tier₂ : Finset W.Agent)
+    (h_disjoint : Disjoint Tier₁ Tier₂)
+    (hb₂ : b₂ ∈ Tier₂)
     (h_agg_suff : q ≤ bankReserves (Tier₁ ∪ Tier₂) m_reserve t h) :
     (W.Accept b₂ holder q m_dep q m_reserve ∉ W.A_feas b₂ t h ∧
      ¬ @PurposefulAct W b₂ t h (W.Accept b₂ holder q m_dep q m_reserve)) ∧
-    q ≤ bankReserves (Tier₁ ∪ Tier₂) m_reserve t h := by
-  refine ⟨bank_specific_redemption_infeasible_of_local_shortfall
-    b₂ holder t h q m_dep m_reserve h_short, h_agg_suff⟩
+    (0 < q - bankReserve b₂ m_reserve t h ∧
+     q - bankReserve b₂ m_reserve t h ≤
+       bankReserves Tier₁ m_reserve t h + bankReserves (Tier₂.erase b₂) m_reserve t h) := by
+  have h_infeas := bank_specific_redemption_infeasible_of_local_shortfall
+    b₂ holder t h q m_dep m_reserve h_short
+  have h_part := bankReserves_tier_partition Tier₁ Tier₂ h_disjoint m_reserve t h
+  have h_split := Finset.sum_erase_add Tier₂ (fun x => W.omega x t h m_reserve) hb₂
+  unfold bankReserves bankReserve at *
+  refine ⟨h_infeas, by omega, ?_⟩
+  omega
 
 /-- Automated sweep conversion vs. liquidity freeze dichotomy:
 If a buyer holds insufficient money (`< price`) for a spot purchase at `t`:

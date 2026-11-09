@@ -33,27 +33,27 @@ theorem therefore witnesses freedom in this interpretation class; it does not
 show that purposeful action itself entails a substantive causal
 non-identifiability result.
 
-[`lucas_critique_policy_invariance_failure`](../Praxeology/EconometricLimits.lean#L137)
+[`lucas_critique_policy_invariance_failure`](../Praxeology/EconometricLimits.lean#L156)
 rewrites the interpreted outcome of one feasible, unchosen action to an end
 that dominates the enacted action. This makes the enacted action fail the
 module's `PurposefulUnder` predicate in the modified interpretation. It is a
 countermodel to invariance under unrestricted outcome-function changes, not a
 general empirical theorem about estimated policy coefficients.
 
-[`iv_exclusion_restriction_unverifiable`](../Praxeology/EconometricLimits.lean#L168)
+[`iv_exclusion_restriction_unverifiable`](../Praxeology/EconometricLimits.lean#L187)
 constructs two functions whose outputs agree at the selected action and whose
 alternative-action outputs differ across instrument values. There is no
 separate statistical data structure, sampling process, or causal-instrument
-model in this result. [`duhem_quine_underdetermination`](../Praxeology/EconometricLimits.lean#L208)
+model in this result. [`duhem_quine_underdetermination`](../Praxeology/EconometricLimits.lean#L227)
 likewise constructs two outcome maps agreeing on one selected action and
 disagreeing on one alternative action at one node.
 
 ## 3. ABCT-labelled regime witness
 
-[`abct_macro_aggregate_regime_non_identifiability`](../Praxeology/EconometricLimits.lean#L260)
+[`abct_macro_aggregate_regime_non_identifiability`](../Praxeology/EconometricLimits.lean#L336)
 is the generic two-model estimator theorem applied to the inductive labels
 `Absorption` and `Liquidation`. The finite
-[`abct_regime_non_identifiability_witness`](../Praxeology/EconometricLimits.lean#L276)
+[`abct_regime_non_identifiability_witness`](../Praxeology/EconometricLimits.lean#L352)
 assigns those labels to two interpretations over `FiniteBranchingModel` that
 have the same selected observation. The label function is constructed for the
 witness; the result does not model capital goods, household saving, credit

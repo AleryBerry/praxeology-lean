@@ -368,12 +368,6 @@ theorem neoclassical_vs_austrian_regime_boundary
   dsimp [InAustrianLiquidationRegime, InNeoclassicalAbsorptionRegime]
   omega
 
-theorem abct_buffer_regime_boundary
-    (buffer_stock substitute_stock req_comp : ℕ) :
-    InAustrianLiquidationRegime buffer_stock substitute_stock req_comp ↔
-      ¬ InNeoclassicalAbsorptionRegime buffer_stock substitute_stock req_comp :=
-  neoclassical_vs_austrian_regime_boundary buffer_stock substitute_stock req_comp
-
 /-- Penalized substitutes complete a requirement exactly when their weighted
 quantity covers the weighted requirement. -/
 def CanCompleteWithSubstitutes
@@ -423,13 +417,6 @@ def PenalizedSubstitutionTechnology.liquidation
   InConvexSubstitutionLiquidationRegime
     T.bufferStock T.substituteStock T.requirement T.penalty
 
-theorem convex_substitution_liquidation_regime
-    (buffer_stock substitute_stock req_comp sub_penalty : ℕ)
-    (h_short : buffer_stock * sub_penalty + substitute_stock <
-      req_comp * sub_penalty) :
-    InConvexSubstitutionLiquidationRegime buffer_stock substitute_stock req_comp sub_penalty :=
-  h_short
-
 theorem PenalizedSubstitutionTechnology.liquidation_implies_buffer_deficit
     {W : ActionFrame} {i : W.Agent} {t : W.Moment} {h : W.History}
     {α : W.Action} {m_buf m_sub : W.Means}
@@ -443,6 +430,33 @@ theorem PenalizedSubstitutionTechnology.liquidation_implies_buffer_deficit
   have h_weighted : T.requirement * T.penalty ≤ T.bufferStock * T.penalty :=
     Nat.mul_le_mul_right T.penalty h_req_le
   omega
+
+/-- Liquidation regime induces physical infeasibility and non-purposefulness of completion. -/
+theorem PenalizedSubstitutionTechnology.liquidation_infeasible
+    {W : ActionFrame} {i : W.Agent} {t : W.Moment} {h : W.History}
+    {α : W.Action} {m_buf m_sub : W.Means}
+    (T : PenalizedSubstitutionTechnology W i t h α m_buf m_sub) (h_liquidation : T.liquidation) :
+    α ∉ W.A_feas i t h ∧ ¬ PurposefulAct i t h α := by
+  have h_deficit := T.liquidation_implies_buffer_deficit h_liquidation
+  have h_not_feas : α ∉ W.A_feas i t h := by
+    rw [W.A_feas_coupling]
+    rintro ⟨_, h_cov⟩
+    have h_m := h_cov m_buf
+    dsimp [PenalizedSubstitutionTechnology.bufferStock,
+      PenalizedSubstitutionTechnology.requirement] at h_deficit
+    omega
+  exact ⟨h_not_feas, fun h_purp => h_not_feas h_purp.1⟩
+
+/-- When penalized substitute stocks fall strictly short of the completion requirement,
+the candidate production action is physically infeasible and non-purposeful. -/
+theorem convex_substitution_liquidation_regime
+    {W : ActionFrame} {i : W.Agent} {t : W.Moment} {h : W.History}
+    {α : W.Action} {m_buf m_sub : W.Means}
+    (T : PenalizedSubstitutionTechnology W i t h α m_buf m_sub)
+    (h_short : InConvexSubstitutionLiquidationRegime
+      T.bufferStock T.substituteStock T.requirement T.penalty) :
+    α ∉ W.A_feas i t h ∧ ¬ PurposefulAct i t h α :=
+  T.liquidation_infeasible h_short
 
 /-- Equality at the weighted threshold is completion, not liquidation. -/
 theorem penalized_substitution_exact_threshold_regression :
@@ -519,15 +533,6 @@ theorem teleological_quantum_capacity_bound
   have h_mul : (k + 1) * q_min ≤ S.card * q_min := Nat.mul_le_mul_right q_min h_ge
   have h_expand : (k + 1) * q_min = k * q_min + q_min := Nat.succ_mul k q_min
   omega
-
-
-theorem teleological_sub_quantum_remainder_not_teleological_dominates
-    (b1 b2 : Means → ℕ)
-    (h_attain_equiv : ∀ S : Finset Ends,
-      JointlyAttains W.requirement b1 S → JointlyAttains W.requirement b2 S) :
-    ¬ TeleologicalBundleDominates W.requirement b1 b2 := by
-  intro ⟨_, ⟨S, hS1, hS2⟩⟩
-  exact hS2 (h_attain_equiv S hS1)
 
 
 -- Section 3: Preference Condition on a Finite Set
@@ -741,18 +746,6 @@ def timedQuantityEnd (m : Means) (q : ℕ) (τ : Moment) : Ends :=
   TimedEnd (QuantityEnd m q) τ
 
 
-theorem causal_enacted_unit_for_unit_exchange_rejected (i : Agent) (t : Moment) (h : History)
-    (m : Means) (q : ℕ) (α_cons : Action) (τ1 : Moment)
-    (h_end : End_of i α_cons t h = timedQuantityEnd m q τ1)
-    (h_oeh : CausalDoxasticOpenHorizon i t h (QuantityEnd m q) α_cons τ1)
-    (h_act : DistinctEndDominantAct i t h α_cons)
-    (h_timed_inj : ∀ t1 t2 : Moment, t1 ≠ t2 →
-      TimedEnd (QuantityEnd m q) t1 ≠ TimedEnd (QuantityEnd m q) t2) :
-    ∃ τ2 : Moment, τ1 < τ2 ∧ Preference i t h (timedQuantityEnd m q τ1) (timedQuantityEnd m q τ2) :=
-  strict_time_preference_from_distinct_end_dominance i t h (QuantityEnd m q)
-    α_cons τ1 h_end h_oeh h_act h_timed_inj
-
-
 theorem purposeful_unit_for_unit_exchange_rejected (i : Agent) (t : Moment) (h : History)
     (m : Means) (q : ℕ) (τ1 τ2 : Moment)
     (h_pos_tp : Preference i t h (timedQuantityEnd m q τ1) (timedQuantityEnd m q τ2))
@@ -835,32 +828,6 @@ theorem purposeful_positive_originary_interest (i : Agent) (t : Moment) (h : His
       exact h_undom h_pos_tp
   have h_prem : ∃ δ : ℕ, δ ≥ 1 ∧ q' = q + δ := ⟨q' - q, by omega, by omega⟩
   exact ⟨h_lt, h_prem⟩
-
-
-/-! The formal conclusion is a quantity inequality for this roundabout action
-under the intertemporal preference, purposeful-choice, monotonicity, and
-transitivity premises. It does not establish physical productivity as a
-general cause of interest. -/
-theorem bohm_bawerk_roundabout_productivity_necessity (i : Agent) (t : Moment) (h : History)
-    (m : Means) (q_direct q_roundabout : ℕ) (hq : 0 < q_direct) (τ_direct τ_later : Moment)
-    (h_pos_tp :
-      Preference i t h (timedQuantityEnd m q_direct τ_direct) (timedQuantityEnd m q_direct τ_later))
-    (α_direct α_roundabout : Action)
-    (h_direct_feas : α_direct ∈ A_feas i t h)
-    (h_direct_end : End_of i α_direct t h = timedQuantityEnd m q_direct τ_direct)
-    (h_round_end : End_of i α_roundabout t h = timedQuantityEnd m q_roundabout τ_later)
-    (h_round_purp : PurposefulAct i t h α_roundabout)
-    (h_sync_mono : q_roundabout ≤ q_direct →
-      Preference i t h
-        (timedQuantityEnd m q_direct τ_later) (timedQuantityEnd m q_roundabout τ_later) ∨
-      timedQuantityEnd m q_direct τ_later = timedQuantityEnd m q_roundabout τ_later)
-    (h_trans : ∀ e1 e2 e3,
-      Preference i t h e1 e2 → Preference i t h e2 e3 → Preference i t h e1 e3) :
-    q_direct < q_roundabout ∧
-    (∃ δ_cap : ℕ, δ_cap ≥ 1 ∧ q_roundabout = q_direct + δ_cap) :=
-  purposeful_positive_originary_interest i t h m q_direct q_roundabout hq τ_direct τ_later
-    h_pos_tp α_direct α_roundabout h_direct_feas h_direct_end h_round_end
-    h_round_purp h_sync_mono h_trans
 
 
 theorem capital_accumulation_unlocks_action_menu_epoch
@@ -1114,25 +1081,14 @@ section DMU_TimePreference
 
 variable [W : ActionFrame] [IntertemporalEnds W]
 
-/-- (Part A) Universal Dated Preference over Fixed Ends: For any end `e` and
-moments `τ1 < τ2`, whenever earlier realization is chosen over feasible
-deferral under distinct-end dominance, the earlier date is strictly preferred. -/
-theorem universal_dated_preference_over_fixed_ends
-    (i : Agent) (t : Moment) (h : History) (e : Ends) (α_near : Action) (τ1 : Moment)
-    (h_end : End_of i α_near t h = TimedEnd e τ1)
-    (h_oeh : CausalDoxasticOpenHorizon i t h e α_near τ1)
-    (h_act : DistinctEndDominantAct i t h α_near)
-    (h_timed_inj : ∀ t1 t2 : Moment, t1 ≠ t2 → TimedEnd e t1 ≠ TimedEnd e t2) :
-    ∃ τ2 : Moment, τ1 < τ2 ∧ Preference i t h (TimedEnd e τ1) (TimedEnd e τ2) :=
-  strict_time_preference_from_distinct_end_dominance i t h e α_near τ1 h_end h_oeh h_act h_timed_inj
-
 /-- (Part B) Teleological Resolution of Saving and Insurance: Saving or insuring
 is the present provision of security `e_security` at decision moment `t_aut`.
 Choosing present security over immediate feast `e_feast` does not exhibit
 negative time preference for goods; rather, positive time preference holds for
 security itself (`TimedEnd e_security t_aut ≻ TimedEnd e_security t_win`), while
 present security is preferred to the feast (`TimedEnd e_security t_aut ≻ TimedEnd e_feast t_aut`)
-and future survival dominates the feast (`TimedEnd e_survival t_win ≻ TimedEnd e_feast t_aut`). -/
+and future survival dominates the feast (`TimedEnd e_survival t_win ≻ TimedEnd e_feast t_aut`).
+Under purposeful choice, immediate feasting is rejected in favor of present security provision. -/
 theorem teleological_resolution_of_saving_and_insurance
     (i : Agent) (t_aut t_win : Moment) (h : History)
     (e_survival e_security e_feast : Ends)
@@ -1145,56 +1101,28 @@ theorem teleological_resolution_of_saving_and_insurance
     (h_security_over_feast : Preference i t_aut h
       (TimedEnd e_security t_aut) (TimedEnd e_feast t_aut))
     (h_winter_over_autumn_feast : Preference i t_aut h
-      (TimedEnd e_survival t_win) (TimedEnd e_feast t_aut)) :
+      (TimedEnd e_survival t_win) (TimedEnd e_feast t_aut))
+    (α_save α_feast : Action)
+    (h_save_feas : α_save ∈ A_feas i t_aut h)
+    (h_save_end : End_of i α_save t_aut h = TimedEnd e_security t_aut)
+    (h_feast_end : End_of i α_feast t_aut h = TimedEnd e_feast t_aut) :
     (∀ e ∈ ({e_survival, e_security, e_feast} : Finset Ends),
       Preference i t_aut h (TimedEnd e t_aut) (TimedEnd e t_win)) ∧
     Preference i t_aut h (TimedEnd e_security t_aut) (TimedEnd e_security t_win) ∧
     Preference i t_aut h (TimedEnd e_security t_aut) (TimedEnd e_feast t_aut) ∧
-    Preference i t_aut h (TimedEnd e_survival t_win) (TimedEnd e_feast t_aut) := by
-  refine ⟨?_, h_pos_tp_security, h_security_over_feast, h_winter_over_autumn_feast⟩
-  intro e he
-  simp only [Finset.mem_insert, Finset.mem_singleton] at he
-  rcases he with rfl | rfl | rfl
-  · exact h_pos_tp_survival
-  · exact h_pos_tp_security
-  · exact h_pos_tp_feast
-
-/-- Backwards-compatible alias for `teleological_resolution_of_saving_and_insurance`. -/
-theorem winter_security_preference_consequences_of_explicit_premises
-    (i : Agent) (t_aut t_win : Moment) (h : History)
-    (e_survival e_security e_feast : Ends)
-    (h_pos_tp_survival : Preference i t_aut h
-      (TimedEnd e_survival t_aut) (TimedEnd e_survival t_win))
-    (h_pos_tp_security : Preference i t_aut h
-      (TimedEnd e_security t_aut) (TimedEnd e_security t_win))
-    (h_pos_tp_feast : Preference i t_aut h (TimedEnd e_feast t_aut) (TimedEnd e_feast t_win))
-    (h_security_over_feast : Preference i t_aut h
-      (TimedEnd e_security t_aut) (TimedEnd e_feast t_aut))
-    (h_winter_over_autumn_feast : Preference i t_aut h
-      (TimedEnd e_survival t_win) (TimedEnd e_feast t_aut)) :
-    (∀ e ∈ ({e_survival, e_security, e_feast} : Finset Ends),
-      Preference i t_aut h (TimedEnd e t_aut) (TimedEnd e t_win)) ∧
-    Preference i t_aut h (TimedEnd e_security t_aut) (TimedEnd e_security t_win) ∧
-    Preference i t_aut h (TimedEnd e_security t_aut) (TimedEnd e_feast t_aut) ∧
-    Preference i t_aut h (TimedEnd e_survival t_win) (TimedEnd e_feast t_aut) :=
-  teleological_resolution_of_saving_and_insurance i t_aut t_win h
-    e_survival e_security e_feast h_pos_tp_survival h_pos_tp_security
-    h_pos_tp_feast h_security_over_feast h_winter_over_autumn_feast
-
-/-- (Part C) Earlier Control Dominance and Positive Originary Interest:
-Any purposeful exchange of present goods for identical future goods unit-for-unit
-at zero interest is rejected when positive time preference holds, requiring
-a premium (positive originary interest) for deferred repayment. -/
-theorem earlier_control_dominance_and_positive_originary_interest
-    (i : Agent) (t : Moment) (h : History) (m : Means) (q : ℕ) (τ1 τ2 : Moment)
-    (h_pos_tp : Preference i t h (timedQuantityEnd m q τ1) (timedQuantityEnd m q τ2))
-    (α_pres α_u4u : Action)
-    (h_pres_feas : α_pres ∈ A_feas i t h)
-    (h_pres_end : End_of i α_pres t h = timedQuantityEnd m q τ1)
-    (h_u4u_end : End_of i α_u4u t h = timedQuantityEnd m q τ2) :
-    ¬ PurposefulAct i t h α_u4u :=
-  purposeful_unit_for_unit_exchange_rejected i t h m q τ1 τ2 h_pos_tp
-    α_pres α_u4u h_pres_feas h_pres_end h_u4u_end
+    Preference i t_aut h (TimedEnd e_survival t_win) (TimedEnd e_feast t_aut) ∧
+    ¬ PurposefulAct i t_aut h α_feast := by
+  refine ⟨?_, h_pos_tp_security, h_security_over_feast, h_winter_over_autumn_feast, ?_⟩
+  · intro e he
+    simp only [Finset.mem_insert, Finset.mem_singleton] at he
+    rcases he with rfl | rfl | rfl
+    · exact h_pos_tp_survival
+    · exact h_pos_tp_security
+    · exact h_pos_tp_feast
+  · intro h_purp
+    have h_undom := h_purp.2.2.2 α_save h_save_feas
+    rw [h_feast_end, h_save_end] at h_undom
+    exact h_undom h_security_over_feast
 
 /-- Unified Universal Positive Time Preference and Saving Resolution Theorem:
 Synthesizes (a) universal dated preference over fixed ends, (b) teleological
@@ -1216,7 +1144,10 @@ theorem unified_universal_positive_time_preference_and_saving_resolution
       (TimedEnd e_survival t_win) (TimedEnd e_feast t_aut))
     (h_pos_tp_means : Preference i t_aut h
       (timedQuantityEnd m q t_aut) (timedQuantityEnd m q t_win))
-    (α_pres α_u4u : Action)
+    (α_save α_feast α_pres α_u4u : Action)
+    (h_save_feas : α_save ∈ A_feas i t_aut h)
+    (h_save_end : End_of i α_save t_aut h = TimedEnd e_security t_aut)
+    (h_feast_end : End_of i α_feast t_aut h = TimedEnd e_feast t_aut)
     (h_pres_feas : α_pres ∈ A_feas i t_aut h)
     (h_pres_end : End_of i α_pres t_aut h = timedQuantityEnd m q t_aut)
     (h_u4u_end : End_of i α_u4u t_aut h = timedQuantityEnd m q t_win) :
@@ -1225,16 +1156,15 @@ theorem unified_universal_positive_time_preference_and_saving_resolution
     Preference i t_aut h (TimedEnd e_security t_aut) (TimedEnd e_security t_win) ∧
     Preference i t_aut h (TimedEnd e_security t_aut) (TimedEnd e_feast t_aut) ∧
     Preference i t_aut h (TimedEnd e_survival t_win) (TimedEnd e_feast t_aut) ∧
+    ¬ PurposefulAct i t_aut h α_feast ∧
     ¬ PurposefulAct i t_aut h α_u4u := by
-  refine ⟨?_, h_pos_tp_security, h_security_over_feast, h_winter_over_autumn_feast, ?_⟩
-  · intro e he
-    simp only [Finset.mem_insert, Finset.mem_singleton] at he
-    rcases he with rfl | rfl | rfl
-    · exact h_pos_tp_survival
-    · exact h_pos_tp_security
-    · exact h_pos_tp_feast
-  · exact earlier_control_dominance_and_positive_originary_interest
-      i t_aut h m q t_aut t_win h_pos_tp_means α_pres α_u4u h_pres_feas h_pres_end h_u4u_end
+  have h_res := teleological_resolution_of_saving_and_insurance i t_aut t_win h
+    e_survival e_security e_feast h_pos_tp_survival h_pos_tp_security
+    h_pos_tp_feast h_security_over_feast h_winter_over_autumn_feast
+    α_save α_feast h_save_feas h_save_end h_feast_end
+  have h_u4u := purposeful_unit_for_unit_exchange_rejected
+    i t_aut h m q t_aut t_win h_pos_tp_means α_pres α_u4u h_pres_feas h_pres_end h_u4u_end
+  exact ⟨h_res.1, h_res.2.1, h_res.2.2.1, h_res.2.2.2.1, h_res.2.2.2.2, h_u4u⟩
 
 end DMU_TimePreference
 
@@ -1385,21 +1315,6 @@ theorem causal_intertemporal_chain_non_vacuous :
       h_pos_tp h_accept h_sync_mono h_trans
   exact ⟨i, t, h, m, q, q', α_cons, τ1, h_purp, h_dom, h_causal_oeh, h_not_post,
          ⟨τ2, δ, Nat.zero_lt_one, h_lt, hq_lt, hδ_ge, hq'_eq, h_pos_tp, h_u4u⟩⟩
-
-
-section AttainmentCountermodels
-
-variable [W : ActionFrame]
-
-
-theorem attainment_transfer_blocks_teleological_dominance
-    (b_left b_zero : Means → ℕ)
-    (h_sterile : ∀ S : Finset Ends,
-      JointlyAttains W.requirement b_left S → JointlyAttains W.requirement b_zero S) :
-    ¬ TeleologicalBundleDominates W.requirement b_left b_zero :=
-  teleological_sub_quantum_remainder_not_teleological_dominates b_left b_zero h_sterile
-
-end AttainmentCountermodels
 
 end Praxeology
 

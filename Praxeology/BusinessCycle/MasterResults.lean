@@ -128,9 +128,9 @@ def fiveProjectProjectThreeEntryRegret : Prop :=
 
 set_option maxRecDepth 2048 in
 /-- Under the cautious factor-scarcity forecast, marginal borrower two's unilateral
-refusal of credit is purposeful. Idling protects its collateral, whereas accepting
+refusal of credit avoids default. Idling protects its collateral, whereas accepting
 leads to factor squeezing, non-completion, and default foreclosure. -/
-theorem fiveProjectCautiousProjectTwoRefusal_purposeful :
+theorem fiveProjectCautiousProjectTwoRefusal_avoids_default :
     let run := fiveProjectCautiousFiduciaryRun
     let entry := fiveProjectCautiousProjectTwoEntryRun
     run.cursor.actualAdvances.map LoanReservationBid.borrower = [0, 1] ∧
@@ -144,9 +144,9 @@ theorem fiveProjectCautiousProjectTwoRefusal_purposeful :
 
 set_option maxRecDepth 2048 in
 /-- Under the cautious factor-scarcity forecast, marginal borrower three's unilateral
-refusal of credit is purposeful. Idling protects its collateral, whereas accepting
+refusal of credit avoids default. Idling protects its collateral, whereas accepting
 leads to factor squeezing, non-completion, and default foreclosure. -/
-theorem fiveProjectCautiousProjectThreeRefusal_purposeful :
+theorem fiveProjectCautiousProjectThreeRefusal_avoids_default :
     let run := fiveProjectCautiousFiduciaryRun
     let entry := fiveProjectCautiousProjectThreeEntryRun
     run.cursor.actualAdvances.map LoanReservationBid.borrower = [0, 1] ∧
@@ -159,10 +159,10 @@ theorem fiveProjectCautiousProjectThreeRefusal_purposeful :
   decide
 
 set_option maxRecDepth 2048 in
-/-- The bank's fiduciary note issuance is purposeful under the expansion forecast:
+/-- The bank's fiduciary note issuance expands advances under the expansion forecast:
 issuing two notes expands lending capacity from two to four advances, yielding
 higher terminal cash and foreclosed collateral than idling with two reserves. -/
-theorem fiveProjectBankNoteIssuance_purposeful :
+theorem fiveProjectBankNoteIssuance_expands_advances :
     let enacted := fiveProjectNamedProgramRun (fiveProjectRegimeData .fiduciaryExpansion)
     enacted.cursor.actualNotesIssued = 2 ∧
     enacted.cursor.actualAdvances.map LoanReservationBid.borrower = [0, 1, 2, 3] ∧
@@ -223,8 +223,15 @@ structure AustrianBusinessCycleMasterPremises where
 /-- The causal conclusions synthesized by the Austrian Business Cycle Theory:
 1. Crisis generation: contractual defaults emerge at maturity.
 2. Malinvestment bound: completions are strictly bounded by physical factor supply.
-3. Ex-post regret: marginal borrowers regret credit entry.
-4. Purposefulness: all actions were ex-ante purposeful under subjective appraisal. -/
+3. Advance-completion shortfall: expanded advance count strictly exceeds factor-conserved
+   completion count (2 < 4).
+4. Stranded capital difference: stranded projects [2, 3] are the exact difference between
+   funded advances [0, 1, 2, 3] and completed projects [0, 1].
+5. Cautious refusal default avoidance: cautious refusal avoids defaults ([]) while optimistic
+   entry suffers defaults ([2], [3]).
+6. Ex-post regret: marginal borrowers regret credit entry.
+7. Purposefulness: all actions (saving, borrowing) were ex-ante purposeful under subjective
+   appraisal. -/
 structure AustrianBusinessCycleMasterConclusion where
   cycle_generated :
     (fiveProjectNamedProgramRun
@@ -233,10 +240,35 @@ structure AustrianBusinessCycleMasterConclusion where
   malinvestment_proved :
     (fiveProjectNamedProgramRun
       (fiveProjectRegimeData .fiduciaryExpansion)).cursor.completedProjects.length ≤ 2
+  expansion_exceeds_conservation :
+    (fiveProjectNamedProgramRun
+      (fiveProjectRegimeData .fiduciaryExpansion)).cursor.completedProjects.length <
+    (fiveProjectNamedProgramRun
+      (fiveProjectRegimeData .fiduciaryExpansion)).cursor.actualAdvances.length
+  stranded_projects_exact_difference :
+    (fiveProjectNamedProgramRun
+      (fiveProjectRegimeData .fiduciaryExpansion)).cursor.actualDefaults.map
+        LoanReservationBid.borrower =
+      ((fiveProjectNamedProgramRun
+        (fiveProjectRegimeData .fiduciaryExpansion)).cursor.actualAdvances.map
+          LoanReservationBid.borrower).diff
+      ((fiveProjectNamedProgramRun
+        (fiveProjectRegimeData .fiduciaryExpansion)).cursor.completedProjects.map
+          LoanReservationBid.borrower)
+  cautious_avoids_default :
+    fiveProjectCautiousFiduciaryRun.cursor.actualDefaults = [] ∧
+    fiveProjectCautiousProjectTwoEntryRun.cursor.actualDefaults.map
+      LoanReservationBid.borrower = [2] ∧
+    fiveProjectCautiousProjectThreeEntryRun.cursor.actualDefaults.map
+      LoanReservationBid.borrower = [3]
   regret_established :
     fiveProjectProjectTwoEntryRegret ∧ fiveProjectProjectThreeEntryRegret
   purposefulness_unified :
-    fiveProjectProjectTwoPurposefulAcceptance ∧ fiveProjectProjectThreePurposefulAcceptance
+    (@PurposefulAct fiveProjectHouseholdSavingActionFrame fiveProjectHousehold
+      FiniteEconomyProgram.ProgramMoment.root fiveProjectHouseholdSavingSuffix.selectedHistory
+      fiveProjectHouseholdSavingAction) ∧
+    fiveProjectProjectTwoPurposefulAcceptance ∧
+    fiveProjectProjectThreePurposefulAcceptance
 
 /-- Parameterized Master Theorem: the complete 8-link causal composition of Austrian
 Business Cycle Theory, linking credit expansion to ex-ante purposefulness, factor squeeze,
@@ -250,8 +282,24 @@ theorem austrian_business_cycle_master_theorem
     simp only [List.length_map] at hlen
     rw [hlen]
     decide
+  expansion_exceeds_conservation := by
+    have hcomp := P.production_malinvestment
+    have hadv := P.credit_expansion
+    have hlen_comp := congrArg List.length hcomp
+    have hlen_adv := congrArg List.length hadv
+    simp only [List.length_map] at hlen_comp hlen_adv
+    rw [hlen_comp, hlen_adv]
+    decide
+  stranded_projects_exact_difference := by
+    have hadv := P.credit_expansion
+    have hcomp := P.production_malinvestment
+    have hdef := P.repayment_and_default.2
+    rw [hadv, hcomp, hdef]
+    decide
+  cautious_avoids_default := ⟨rfl, P.cautious_replay.1, P.cautious_replay.2⟩
   regret_established := ⟨P.borrower_two_regret, P.borrower_three_regret⟩
-  purposefulness_unified := ⟨P.borrower_two_purposeful, P.borrower_three_purposeful⟩
+  purposefulness_unified :=
+    ⟨P.household_saving_purposeful, P.borrower_two_purposeful, P.borrower_three_purposeful⟩
 }
 
 theorem fiveProject_austrian_business_cycle_master_premises :

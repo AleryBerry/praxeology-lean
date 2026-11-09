@@ -445,15 +445,17 @@ $$
 **Proof.** The relation $\succ_{i,t,h}$ satisfies irreflexivity and asymmetry by [Proposition 3.4](#proposition-34-derived-strict-irreflexivity-of-preference) and [Axiom 3.3](#axiom-33-strict-asymmetry-of-preference). The improvement and undominatedness requirements follow directly from the definition of purposeful action ([Definition 3.8](#definition-38-purposeful-choice-relative-to-a-relation)). $\blacksquare$
 
 ### Proposition 3.32 (Framing Reversals Require Context Distinction)
-An apparent reversal of preference between two ends requires that the decision nodes (moment or history) be distinct:
+An apparent reversal of preference between two ends across incident histories strictly requires that the evaluation moments be distinct:
 
 $$
-e_1 \succ_{i, t_1, h_1} e_2 \quad \wedge \quad e_2 \succ_{i, t_2, h_2} e_1 \implies t_1 \neq t_2 \vee h_1 \neq h_2
+e_1 \succ_{i, t_1, h_1} e_2 \quad \wedge \quad e_2 \succ_{i, t_2, h_2} e_1 \implies t_1 \neq t_2
 $$
 
-**Proof.** Suppose toward a contradiction that $t_1 = t_2$ and $h_1 = h_2$. Then both comparisons hold in the same decision situation: $e_1 \succ_{i, t_1, h_1} e_2$ and $e_2 \succ_{i, t_1, h_1} e_1$. This directly contradicts preference asymmetry ([Axiom 3.3](#axiom-33-strict-asymmetry-of-preference)). Hence at least one coordinate must differ. $\blacksquare$
+whenever $t_1 \in h_1$ and $t_2 \in h_2$.
 
-Apparent framing effects in empirical experiments are formalized as consistent evaluations across distinct decision situations $\langle t_1, h_1 \rangle \neq \langle t_2, h_2 \rangle$.
+**Proof.** Suppose toward a contradiction that $t_1 = t_2$. By tree bundle invariance of preference ([`ActionFrame.Preference_bundle_invariant`](../Praxeology/Frame/Core.lean)), $e_1 \succ_{i, t_1, h_1} e_2 \iff e_1 \succ_{i, t_1, h_2} e_2$. Then both comparisons hold in the same decision situation at moment $t_1$: $e_1 \succ_{i, t_1, h_2} e_2$ and $e_2 \succ_{i, t_1, h_2} e_1$. This directly contradicts preference asymmetry ([Axiom 3.3](#axiom-33-strict-asymmetry-of-preference), [`ActionFrame.pref_asymm`](../Praxeology/Frame/Core.lean)). Hence the evaluation moments must strictly differ: $t_1 \neq t_2$ ([`framing_reversal_requires_context_distinction`](../Praxeology/Action.lean)). $\blacksquare$
+
+Apparent framing effects in empirical experiments are formalized as consistent evaluations across distinct evaluation moments $t_1 \neq t_2$.
 
 ### Proposition 3.33 (Loss Aversion Grounded in Endowment Distinction)
 Reference-dependent valuation is an instance of contextual valuation across histories with differing initial endowments. If an agent evaluates an outcome from a gain history $h_{\text{gain}}$ versus a loss history $h_{\text{loss}}$ at moment $t$ such that the physical stock of means $m$ strictly differs:
@@ -462,13 +464,13 @@ $$
 \omega(i, t, h_{\text{gain}}, m) > \omega(i, t, h_{\text{loss}}, m)
 $$
 
-then the two histories are necessarily distinct:
+then the two histories are necessarily distinct and cannot be mutually incident at $t$:
 
 $$
-h_{\text{gain}} \neq h_{\text{loss}}
+h_{\text{gain}} \neq h_{\text{loss}} \quad \wedge \quad \neg (t \in h_{\text{gain}} \wedge t \in h_{\text{loss}})
 $$
 
-**Proof.** If $h_{\text{gain}} = h_{\text{loss}}$, then $\omega(i, t, h_{\text{gain}}, m) = \omega(i, t, h_{\text{loss}}, m)$, which contradicts strict inequality of natural numbers by irreflexivity of $<$. $\blacksquare$
+**Proof.** If $h_{\text{gain}} = h_{\text{loss}}$, then $\omega(i, t, h_{\text{gain}}, m) = \omega(i, t, h_{\text{loss}}, m)$, which contradicts strict inequality of natural numbers by irreflexivity of $<$. Furthermore, if both histories pass through moment $t$ ($t \in h_{\text{gain}}$ and $t \in h_{\text{loss}}$), then by tree bundle invariance of endowments ([`ActionFrame.omega_bundle_invariant`](../Praxeology/Frame/Core.lean)), their physical stocks must be identical: $\omega(i, t, h_{\text{gain}}, m) = \omega(i, t, h_{\text{loss}}, m)$, contradicting strict inequality. Hence mutual node incidence is strictly ruled out ([`loss_aversion_endowment_distinction`](../Praxeology/Action.lean)). $\blacksquare$
 
 Because physical endowments differ, the two histories are distinct. By bundle invariance of endowments (Chapter 2), two histories passing through the same moment must record identical stocks; therefore, the gain and loss contexts represent genuinely distinct branches of history.
 
@@ -479,30 +481,26 @@ $$
 e_{\text{delayed}} \succ_{i, t_1, h} e_{\text{immediate}} \quad \wedge \quad e_{\text{immediate}} \succ_{i, t_2, h} e_{\text{delayed}} \implies t_1 \neq t_2
 $$
 
-**Proof.** Apply [Proposition 3.32](#proposition-332-framing-reversals-require-context-distinction) with $h_1 = h_2 = h$. The disjunction $t_1 \neq t_2 \vee h \neq h$ reduces immediately to $t_1 \neq t_2$. $\blacksquare$
+**Proof.** Apply [Proposition 3.32](#proposition-332-framing-reversals-require-context-distinction) with $h_1 = h_2 = h$. The disjunction $t_1 \neq t_2 \vee h \neq h$ reduces immediately to $t_1 \neq t_2$ ([`hyperbolic_reversal_requires_distinct_moments`](../Praxeology/Action.lean)). $\blacksquare$
 
 Predictable preference changes over time do not violate transitivity or asymmetry at any single moment; each ranking is a well-defined strict order at its own temporal stage.
 
 ### Proposition 3.35 (Precommitment Pruning of Feasible Menus)
-Let $i$ be an agent facing a downstream evaluation moment $t_2$. Suppose an earlier commitment action steers the agent onto history $h_{\text{commit}}$ where the feasible menu is restricted to saving:
+Let $i$ be an agent facing an evaluation moment $t_1$ and downstream successor moment $t_2$. Precommitment physically operates through the temporal transition law: enacting commitment action $\alpha_{\text{commit}}$ at $t_1$ along history $h_{\text{commit}}$ depletes means $m$ below the requirement of temptation action $\alpha_{\text{consume}}$:
 
 $$
-\mathcal{A}_{\text{feas}}(i, t_2, h_{\text{commit}}) = \{ \alpha_{\text{save}} \}
+\omega(i, t_1, h_{\text{commit}}, m) + y(\alpha_{\text{commit}}, m) < u(\alpha_{\text{commit}}, m) + u(\alpha_{\text{consume}}, m)
 $$
 
-whereas on the uncommitted history $h_{\text{uncommitted}}$, both actions remain feasible:
+By the physical transition balance ([Proposition 2.12](02_time_histories_and_physical_execution.md#proposition-212-physical-transition-balance-law)), ending inventory satisfies $\omega(i, t_2, h_{\text{commit}}, m) < u(\alpha_{\text{consume}}, m)$, strictly pruning temptation from the downstream feasible menu via resource feasibility coupling:
 
 $$
-\mathcal{A}_{\text{feas}}(i, t_2, h_{\text{uncommitted}}) = \{ \alpha_{\text{save}}, \alpha_{\text{consume}} \}
+\alpha_{\text{consume}} \notin \mathcal{A}_{\text{feas}}(i, t_2, h_{\text{commit}})
 $$
 
-If $\alpha_{\text{consume}} \neq \alpha_{\text{save}}$, then commitment physically excludes the temptation option:
+while purposeful saving $`\alpha_{\text{save}}`$ is sustained. On the uncommitted history $h_{\text{uncommitted}}$, inaction ($\alpha_0$) leaves physical endowments intact ([Proposition 2.13](02_time_histories_and_physical_execution.md#proposition-213-inaction-leaves-inventory-unchanged)), preserving $`\alpha_{\text{consume}} \in \mathcal{A}_{\text{feas}}(i, t_2, h_{\text{uncommitted}})`$.
 
-$$
-\alpha_{\text{consume}} \notin \mathcal{A}_{\text{feas}}(i, t_2, h_{\text{commit}}) \quad \wedge \quad \alpha_{\text{consume}} \in \mathcal{A}_{\text{feas}}(i, t_2, h_{\text{uncommitted}})
-$$
-
-**Proof.** Because $\alpha_{\text{consume}} \neq \alpha_{\text{save}}$, $\alpha_{\text{consume}}$ cannot belong to the singleton set $`\{ \alpha_{\text{save}} \}`$, establishing the first clause. For the second clause, $\alpha_{\text{consume}}$ belongs to the two-element set $`\{ \alpha_{\text{save}}, \alpha_{\text{consume}} \}`$. $\blacksquare$
+**Proof.** Direct deduction from [`ActionFrame.law_in_re_transition`](../Praxeology/Frame/Core.lean), [`ActionFrame.A_feas_coupling`](../Praxeology/Frame/Core.lean), and [`ActionFrame.inaction_preserves_endowments`](../Praxeology/Frame/Core.lean) ([`precommitment_prunes_temptation`](../Praxeology/Action.lean)). $\blacksquare$
 
 ### Witness 3.36 (Constructive Model Witness of Precommitment Pruning)
 There exists a constructive action frame witness in which precommitment prunes downstream temptation while preserving earlier intertemporal choice:

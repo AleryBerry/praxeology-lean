@@ -266,14 +266,24 @@ whereas external invasion by another agent contracts clean-title stocks
 and strips previously feasible actions from the victim's choice menu. -/
 theorem self_precommitment_vs_external_menu_stripping
     [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}
+    (h_ij : i ≠ j) (ht : W.mem_hist t h)
     (α_tax : W.Action)
+    (h_feas_tax : α_tax ∈ W.A_feas j t (W.sigma i t W.alpha_zero h))
+    (h_rich : ∀ m : W.Means, ∃ β, (∀ m', W.use_means β m' ≤ W.omega i t h m') ∧
+      W.use_means β m = W.omega i t h m)
     (h_invasive : EndogenouslyInvasiveJ i j t h α_tax) :
-    (∃ m : W.Means, W.omega i
-        (W.ExpectedMaturation i W.alpha_zero t
-          (jointBranch i j t h W.alpha_zero α_tax))
-        (jointBranch i j t h W.alpha_zero α_tax) m <
-      W.omega i t h m) :=
-  h_invasive
+    let branch := jointBranch i j t h W.alpha_zero α_tax
+    (∃ m : W.Means, W.omega i (W.ExpectedMaturation i W.alpha_zero t branch) branch m <
+      W.omega i t h m) ∧
+    MenuStrippingInvasiveJ i j t h α_tax ∧
+    W.mem_hist t branch ∧
+    W.enacted i t branch = W.alpha_zero ∧
+    W.enacted j t branch = α_tax := by
+  intro branch
+  have h_pair := jointBranch_realizes_pair i j t h W.alpha_zero α_tax h_ij ht
+    (W.alpha_zero_feasible i t h) h_feas_tax
+  have h_menu := (endogenous_invasion_iff_menu_stripping h_rich α_tax).mp h_invasive
+  exact ⟨h_invasive, h_menu, h_pair.1, h_pair.2.1, h_pair.2.2⟩
 
 
 structure RicardianEconomy where
@@ -3230,15 +3240,38 @@ variable [W : ActionFrame]
 
 
 def CashBalanceReservationDemand
-    (PlausibleBranches : Finset History) (expenditure : History → ℕ) (M_held : ℕ) : Prop :=
+    (PlausibleBranches : Finset W.History) (expenditure : W.History → ℕ) (M_held : ℕ) : Prop :=
   ∀ h ∈ PlausibleBranches, expenditure h ≤ M_held
 
 
+/-- Epistemic Cash Balance Solvency Guarantee:
+Holding a cash balance `M_held` sufficient to cover contemplated reservation expenditures
+guarantees financial solvency across all plausible branches: every expenditure is within
+endowments, and planned actions satisfy `A_feas` via `ActionFrame.A_feas_coupling`. -/
 theorem cash_balance_solvency_guarantee
-    (PlausibleBranches : Finset History) (expenditure : History → ℕ) (M_held : ℕ)
-    (h_res : CashBalanceReservationDemand PlausibleBranches expenditure M_held) :
-    ∀ h ∈ PlausibleBranches, expenditure h ≤ M_held :=
-  h_res
+    (i : W.Agent) (t : W.Moment) (m_money : W.Means)
+    (PlausibleBranches : Finset W.History) (expenditure : W.History → ℕ) (M_held : ℕ)
+    (α : W.History → W.Action)
+    (h_res : CashBalanceReservationDemand PlausibleBranches expenditure M_held)
+    (h_held : ∀ h ∈ PlausibleBranches, M_held ≤ W.omega i t h m_money)
+    (h_exp : ∀ h ∈ PlausibleBranches, W.use_means (α h) m_money ≤ expenditure h)
+    (h_cont : ∀ h ∈ PlausibleBranches, α h ∈ W.A_cont i t h)
+    (h_other : ∀ h ∈ PlausibleBranches, ∀ m, m ≠ m_money →
+      W.use_means (α h) m ≤ W.omega i t h m) :
+    (∀ h ∈ PlausibleBranches, expenditure h ≤ W.omega i t h m_money) ∧
+    (∀ h ∈ PlausibleBranches, α h ∈ W.A_feas i t h) := by
+  have h_cov : ∀ h ∈ PlausibleBranches, expenditure h ≤ W.omega i t h m_money := by
+    intro h hh
+    exact le_trans (h_res h hh) (h_held h hh)
+  refine ⟨h_cov, ?_⟩
+  intro h hh
+  rw [W.A_feas_coupling]
+  refine ⟨h_cont h hh, ?_⟩
+  intro m
+  by_cases hm : m = m_money
+  · subst m
+    exact le_trans (h_exp h hh) (h_cov h hh)
+  · exact h_other h hh m hm
 
 end EpistemicCashReservation
 
@@ -3987,30 +4020,28 @@ theorem input_cost_deflation_preserves_return_ratio
   exact lt_of_lt_of_le h_step1 h_step2
 
 /-- Present-Endowment Choice Invariance:
-In any `ActionFrame`, if an agent at moment `t` on two histories `h1` and `h2`
-holds identical present physical inventories (`ω`), faces the same contemplated
-menu (`A_cont`), and holds the same prospective end evaluations and preferences,
-then resource feasibility (`A_feas`) and undominated choice are identical across
-`h1` and `h2`, regardless of differing input uses at earlier moments `t_past ≺ t`. -/
+In any `ActionFrame`, if two histories `h1` and `h2` pass through the same moment `t`,
+then physical inventories (`ω`), contemplated menus (`A_cont`), intended ends, and preferences
+are identical by tree bundle invariance axioms (`mem_hist`). Consequently, resource feasibility
+(`A_feas`) and undominated choice are identical across `h1` and `h2`. -/
 theorem present_endowment_choice_invariance
     [W : ActionFrame]
-    (i : W.Agent) (t_past t : W.Moment) (h1 h2 : W.History)
-    (α_past1 α_past2 : W.Action) (m_input : W.Means)
-    (_h_prec : W.Precedence t_past t)
-    (_h_past_diff : W.use_means α_past1 m_input ≠ W.use_means α_past2 m_input)
-    (h_same_omega : ∀ m, W.omega i t h1 m = W.omega i t h2 m)
-    (h_same_cont : W.A_cont i t h1 = W.A_cont i t h2)
-    (h_same_ends : ∀ α, W.End_of i α t h1 = W.End_of i α t h2)
-    (h_same_pref : ∀ e1 e2, W.Preference i t h1 e1 e2 ↔ W.Preference i t h2 e1 e2) :
+    (i : W.Agent) (t : W.Moment) (h1 h2 : W.History)
+    (h1_mem : W.mem_hist t h1) (h2_mem : W.mem_hist t h2) :
     (∀ α, α ∈ W.A_feas i t h1 ↔ α ∈ W.A_feas i t h2) ∧
     (∀ α, (α ∈ W.A_feas i t h1 ∧ ∀ β ∈ W.A_feas i t h1,
         ¬ W.Preference i t h1 (W.End_of i β t h1) (W.End_of i α t h1)) ↔
       (α ∈ W.A_feas i t h2 ∧ ∀ β ∈ W.A_feas i t h2,
         ¬ W.Preference i t h2 (W.End_of i β t h2) (W.End_of i α t h2))) := by
+  have h_same_ends : ∀ α, W.End_of i α t h1 = W.End_of i α t h2 :=
+    fun α => W.End_of_bundle_invariant i α t h1_mem h2_mem
+  have h_same_pref : W.Preference i t h1 = W.Preference i t h2 :=
+    W.Preference_bundle_invariant i t h1_mem h2_mem
+  have h_feas_eq : W.A_feas i t h1 = W.A_feas i t h2 :=
+    W.A_feas_bundle_invariant i t h1_mem h2_mem
   have h_feas_iff : ∀ α, α ∈ W.A_feas i t h1 ↔ α ∈ W.A_feas i t h2 := by
     intro α
-    rw [W.A_feas_coupling i t h1 α, W.A_feas_coupling i t h2 α, h_same_cont]
-    simp_rw [h_same_omega]
+    rw [h_feas_eq]
   refine ⟨h_feas_iff, ?_⟩
   intro α
   constructor

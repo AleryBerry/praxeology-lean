@@ -618,20 +618,63 @@ structure CreditFinancedStarvationConclusion {W : ActionFrame} [BilateralExchang
   complementaryStockAfter : W.omega S.investment.i S.investment.next
     S.investment.x.history S.investment.complementary = 0
 
-/-- Credit-financed entrepreneurial cycle theorem. -/
+/-- Credit-financed entrepreneurial cycle theorem.
+Deduces rejection at the natural rate and purposeful adoption at the credit rate via
+`teleological_bundle_dominance_flips_investment`, culminating in capital starvation and regret. -/
 theorem credit_financed_entrepreneurial_cycle_regret
     [W : ActionFrame] [BilateralExchangeFrame W] {Context : Type}
     (S : EntrepreneurialCycleScenario W Context)
-    (h_natural_rejected : ¬ PurposefulAct S.investment.i
+    (grossRate : ℚ)
+    (funding : EntrepreneurialCreditFunding S.investment.i S.investment.x grossRate)
+    (h_inv_active : S.investment.investment ≠ W.alpha_zero)
+    (b_zero b_nat b_cred : W.Means → ℕ)
+    (h_nat_dom : W.SubjectiveTeleologicalDominates S.investment.i
       S.investment.naturalDecision.moment S.investment.naturalDecision.history
-      S.investment.investment)
-    (h_credit_purposeful : PurposefulAct S.investment.i
-      S.investment.x.moment S.investment.x.history
-      S.investment.investment)
+      b_zero b_nat)
+    (h_cred_dom : W.SubjectiveTeleologicalDominates S.investment.i
+      S.investment.x.moment S.investment.x.history b_cred b_zero)
+    (h_ground_nat_zero :
+      W.End_of S.investment.i W.alpha_zero S.investment.naturalDecision.moment
+        S.investment.naturalDecision.history = W.BundleEnd b_zero)
+    (h_ground_nat_inv :
+      W.End_of S.investment.i S.investment.investment
+        S.investment.naturalDecision.moment S.investment.naturalDecision.history =
+        W.BundleEnd b_nat)
+    (h_ground_cred_inv :
+      W.End_of S.investment.i S.investment.investment S.investment.x.moment
+        S.investment.x.history = W.BundleEnd b_cred)
+    (h_ground_cred_zero :
+      W.End_of S.investment.i W.alpha_zero S.investment.x.moment
+        S.investment.x.history = W.BundleEnd b_zero)
+    (h_credit_maximal : ∀ β ∈ W.A_feas S.investment.i S.investment.x.moment
+        S.investment.x.history,
+      ¬ W.Preference S.investment.i S.investment.x.moment S.investment.x.history
+        (W.End_of S.investment.i β S.investment.x.moment S.investment.x.history)
+        (W.End_of S.investment.i S.investment.investment S.investment.x.moment
+          S.investment.x.history))
+    (h_credit_contemplated :
+      S.investment.investment ∈ W.A_cont S.investment.i S.investment.x.moment
+        S.investment.x.history)
+    (h_credit_money_input :
+      W.use_means S.investment.investment funding.terms.money ≤ funding.terms.principal)
+    (h_credit_other_inputs : ∀ m, m ≠ funding.terms.money →
+      W.use_means S.investment.investment m ≤
+        W.omega S.investment.i S.investment.x.moment S.investment.x.history m)
+    (h_credit_executed :
+      Exec S.investment.i S.investment.x.moment S.investment.investment
+        S.investment.x.history)
     (h_starve : W.omega S.investment.i S.investment.next S.investment.x.history
       S.investment.complementary = 0)
     (h_req : 0 < W.use_means S.investment.completion S.investment.complementary) :
     CreditFinancedStarvationConclusion S := by
+  have ⟨h_natural_rejected, h_credit_purposeful⟩ :=
+    teleological_bundle_dominance_flips_investment
+      S.investment.i S.investment.naturalDecision S.investment.x
+      S.investment.investment grossRate funding h_inv_active
+      b_zero b_nat b_cred h_nat_dom h_cred_dom
+      h_ground_nat_zero h_ground_nat_inv h_ground_cred_inv h_ground_cred_zero
+      h_credit_maximal h_credit_contemplated h_credit_money_input
+      h_credit_other_inputs h_credit_executed
   have h_regret := S.regret_of_starvation h_starve h_req h_credit_purposeful
   exact {
     cycle := {

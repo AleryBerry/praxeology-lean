@@ -103,11 +103,12 @@ theorem causal_econometric_non_identifiability
     (W : ActionFrame)
     (interp₁ : EconometricInterpretation W)
     (i : W.Agent) (t : W.Moment) (h : W.History)
-    (_h_act : PurposefulUnder W interp₁ i t h (W.enacted i t h))
+    (h_act : PurposefulUnder W interp₁ i t h (W.enacted i t h))
     (h₀ : W.History) (h_ne : h₀ ≠ h)
     (e_alt : W.Ends)
     (h_diff_end : e_alt ≠ interp₁.End_of i W.alpha_zero t h₀) :
     ∃ interp₂ : EconometricInterpretation W,
+      PurposefulUnder W interp₂ i t h (W.enacted i t h) ∧
       ObsEquiv W interp₁ interp₂ i t h ∧
       interp₁.End_of i W.alpha_zero t h₀ ≠ interp₂.End_of i W.alpha_zero t h₀ := by
   classical
@@ -120,18 +121,36 @@ theorem causal_econometric_non_identifiability
     Preference := interp₁.Preference
     pref_asymm := interp₁.pref_asymm
   }
-  have h_obs : ObsEquiv W interp₁ interp₂ i t h := by
-    dsimp [ObsEquiv, observe, interp₂, End_of₂]
-    have h_not_h₀ : ¬ (i = i ∧ W.enacted i t h = W.alpha_zero ∧ t = t ∧ h = h₀) := by
+  have h_same_at_h : ∀ a act m, End_of₂ a act m h = interp₁.End_of a act m h := by
+    intro a act m
+    dsimp [End_of₂]
+    have h_not_h₀ : ¬ (a = i ∧ act = W.alpha_zero ∧ m = t ∧ h = h₀) := by
       intro ⟨_, _, _, h_eq⟩
       exact h_ne h_eq.symm
     rw [ite_eq_right h_not_h₀]
+  have h_act₂ : PurposefulUnder W interp₂ i t h (W.enacted i t h) := by
+    rcases h_act with ⟨h_feas, h_exec, h_pref_idle, h_undom⟩
+    refine ⟨h_feas, h_exec, ?_, ?_⟩
+    · cases h_pref_idle with
+      | inl h_idle => exact Or.inl h_idle
+      | inr h_pref =>
+        right
+        dsimp [interp₂]
+        rw [h_same_at_h i (W.enacted i t h) t, h_same_at_h i W.alpha_zero t]
+        exact h_pref
+    · intro β hβ
+      dsimp [interp₂]
+      rw [h_same_at_h i β t, h_same_at_h i (W.enacted i t h) t]
+      exact h_undom β hβ
+  have h_obs : ObsEquiv W interp₁ interp₂ i t h := by
+    dsimp [ObsEquiv, observe, interp₂]
+    rw [h_same_at_h i (W.enacted i t h) t]
   have h_diff : interp₁.End_of i W.alpha_zero t h₀ ≠ interp₂.End_of i W.alpha_zero t h₀ := by
     dsimp [interp₂, End_of₂]
     have h_cond : (i = i ∧ W.alpha_zero = W.alpha_zero ∧ t = t ∧ h₀ = h₀) := ⟨rfl, rfl, rfl, rfl⟩
     rw [ite_eq_left h_cond]
     exact h_diff_end.symm
-  exact ⟨interp₂, h_obs, h_diff⟩
+  exact ⟨interp₂, h_act₂, h_obs, h_diff⟩
 
 /-- Lucas Critique: changing outcomes for unchosen actions alters purposeful optimality. -/
 theorem lucas_critique_policy_invariance_failure
@@ -248,6 +267,63 @@ theorem duhem_quine_underdetermination
     rw [ite_eq_right h_ne, ite_eq_right h_ne]
     exact h_diff_cf
   exact ⟨interp₁, interp₂, ⟨h1, h2⟩, h_cf⟩
+
+/-- Duhem-Quine underdetermination with purposeful rationalization: alternative structural
+theories predict identical observations on realized paths while diverging on counterfactual
+histories, with both rationalizing the enacted purposeful choice. -/
+theorem duhem_quine_underdetermination_purposeful
+    (W : ActionFrame)
+    (interp₁ : EconometricInterpretation W)
+    (i : W.Agent) (t : W.Moment) (h : W.History)
+    (h_act : PurposefulUnder W interp₁ i t h (W.enacted i t h))
+    (h₀ : W.History) (h_ne : h₀ ≠ h)
+    (α_cf : W.Action) (e_alt : W.Ends)
+    (h_diff_end : e_alt ≠ interp₁.End_of i α_cf t h₀) :
+    ∃ interp₂ : EconometricInterpretation W,
+      PurposefulUnder W interp₂ i t h (W.enacted i t h) ∧
+      interp₁.End_of i (W.enacted i t h) t h = interp₂.End_of i (W.enacted i t h) t h ∧
+      interp₁.End_of i α_cf t h₀ ≠ interp₂.End_of i α_cf t h₀ := by
+  classical
+  let End_of₂ : W.Agent → W.Action → W.Moment → W.History → W.Ends :=
+    fun a act m hist =>
+      if a = i ∧ act = α_cf ∧ m = t ∧ hist = h₀ then e_alt
+      else interp₁.End_of a act m hist
+  let interp₂ : EconometricInterpretation W := {
+    End_of := End_of₂
+    Preference := interp₁.Preference
+    pref_asymm := interp₁.pref_asymm
+  }
+  have h_same_at_h : ∀ a act m, End_of₂ a act m h = interp₁.End_of a act m h := by
+    intro a act m
+    dsimp [End_of₂]
+    have h_not_h₀ : ¬ (a = i ∧ act = α_cf ∧ m = t ∧ h = h₀) := by
+      intro ⟨_, _, _, h_eq⟩
+      exact h_ne h_eq.symm
+    rw [ite_eq_right h_not_h₀]
+  have h_act₂ : PurposefulUnder W interp₂ i t h (W.enacted i t h) := by
+    rcases h_act with ⟨h_feas, h_exec, h_pref_idle, h_undom⟩
+    refine ⟨h_feas, h_exec, ?_, ?_⟩
+    · cases h_pref_idle with
+      | inl h_idle => exact Or.inl h_idle
+      | inr h_pref =>
+        right
+        dsimp [interp₂]
+        rw [h_same_at_h i (W.enacted i t h) t, h_same_at_h i W.alpha_zero t]
+        exact h_pref
+    · intro β hβ
+      dsimp [interp₂]
+      rw [h_same_at_h i β t, h_same_at_h i (W.enacted i t h) t]
+      exact h_undom β hβ
+  have h_same_enacted :
+      interp₁.End_of i (W.enacted i t h) t h = interp₂.End_of i (W.enacted i t h) t h := by
+    dsimp [interp₂]
+    rw [h_same_at_h i (W.enacted i t h) t]
+  have h_diff : interp₁.End_of i α_cf t h₀ ≠ interp₂.End_of i α_cf t h₀ := by
+    dsimp [interp₂, End_of₂]
+    have h_cond : (i = i ∧ α_cf = α_cf ∧ t = t ∧ h₀ = h₀) := ⟨rfl, rfl, rfl, rfl⟩
+    rw [ite_eq_left h_cond]
+    exact h_diff_end.symm
+  exact ⟨interp₂, h_act₂, h_same_enacted, h_diff⟩
 
 /-- Discrete macroeconomic regimes of capital structure. -/
 inductive CapitalRegime where

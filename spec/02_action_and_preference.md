@@ -40,7 +40,7 @@ This implication requires the stated strict-preference premise; purposeful
 action by itself also permits the passive baseline.
 ```
   ([`purposeful_act_non_passive`](../Praxeology/Action.lean#L378)).
-* **Buridan Tie Compatibility:** Because optimality is undominated rather than strictly dominant, two distinct physical actions $`\alpha_1 \neq \alpha_2`$ serving identical ends ( $`\text{End}(\alpha_1) = \text{End}(\alpha_2)`$ ) are admitted without producing logical contradiction ($`\bot`$) ([`buridan_tie_refutes_strict_demonstrated_pref`](../Praxeology/Action.lean#L1009), [`buridan_tie_compatible_with_purposeful_act`](../Praxeology/Action.lean#L524)).
+* **Buridan Tie Compatibility:** Because optimality is undominated rather than strictly dominant, two distinct physical actions $`\alpha_1 \neq \alpha_2`$ serving identical ends ( $`\text{End}(\alpha_1) = \text{End}(\alpha_2)`$ ) are admitted without producing logical contradiction ($`\bot`$) ([`buridan_tie_refutes_strict_demonstrated_pref`](../Praxeology/Action.lean#L1028), [`buridan_tie_compatible_with_purposeful_act`](../Praxeology/Action.lean#L525)).
 
 ---
 
@@ -77,7 +77,7 @@ def OCSet (i : Agent) (t : Moment) (h : History) (α_star : Action) : Finset End
   (ForegoneEnds i t h α_star).filter (fun e =>
     ∀ e' ∈ ForegoneEnds i t h α_star, ¬ Preference i t h e' e)
 ```
-([`StrictForegoneEnds`](../Praxeology/Action.lean#L677), [`StrictOCSet`](../Praxeology/Action.lean#L729)).
+([`StrictForegoneEnds`](../Praxeology/Action.lean#L696), [`StrictOCSet`](../Praxeology/Action.lean#L748)).
 
 ### Structural Theorems
 
@@ -85,12 +85,12 @@ def OCSet (i : Agent) (t : Moment) (h : History) (α_star : Action) : Finset End
 ```math
    \text{ForegoneEnds}.\text{Nonempty} \implies (\text{OCSet}(i, t, h, \alpha^{\ast})).\text{Nonempty}
 ```
-   ([`strict_ocset_nonempty_of_trans`](../Praxeology/Action.lean#L784)).
+   ([`strict_ocset_nonempty_of_trans`](../Praxeology/Action.lean#L803)).
 2. **Subsumption of Classical Uniqueness:** When local connectedness (comparability) holds across all foregone alternatives, $`\text{OCSet}`$ contracts to a unique singleton:
 ```math
    |\text{OCSet}(i, t, h, \alpha^{\ast})| = 1
 ```
-   ([`strict_ocset_singleton_of_connected`](../Praxeology/Action.lean#L815)), recovering textbook opportunity cost as a special regime condition rather than an ontological axiom.
+   ([`strict_ocset_singleton_of_connected`](../Praxeology/Action.lean#L834)), recovering textbook opportunity cost as a special regime condition rather than an ontological axiom.
 
 ---
 
@@ -105,7 +105,7 @@ def Asserts (i : Agent) (t : Moment) (h : History) (_p : Prop) : Prop :=
 def DenialOfAction (i : Agent) (t : Moment) (h : History) : Prop :=
   ¬ ∃ α ∈ A_feas i t h, PurposefulAct i t h α
 ```
-([`Asserts`](../Praxeology/Action.lean#L895), [`NoPurposefulActionProp`](../Praxeology/Action.lean#L909)).
+([`Asserts`](../Praxeology/Action.lean#L914), [`NoPurposefulActionProp`](../Praxeology/Action.lean#L928)).
 
 ### Theorem 1.1b (Pragmatic Self-Falsification of Action Denial)
 
@@ -119,7 +119,7 @@ If an agent $`i`$ purposefully asserts $`P_{\text{no act}}`$ at node $`\langle t
 ```math
    \neg \text{VeridicalClaim}(i, t, h, \text{content}, P_{\text{no act}})
 ```
-   ([`dialectical_self_falsification_under_deliberative_norms`](../Praxeology/Action.lean#L985)).
+   ([`dialectical_self_falsification_under_deliberative_norms`](../Praxeology/Action.lean#L1004)).
 
 The result is conditional on the structured `DeliberativeEpistemicAssertion`
 premises, including assertion, belief, counterexample-history, response, and
