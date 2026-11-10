@@ -20,10 +20,11 @@ The project develops a formal framework connecting modeled purposeful choice to 
 - [Mathematical architecture](#mathematical-architecture)
   - [Epistemological foundation: the Action Axiom and ActionFrame](#epistemological-foundation-the-action-axiom-and-actionframe)
   - [Core structural components](#core-structural-components)
+  - [Module architecture and dependency flow](#module-architecture-and-dependency-flow)
   - [Uncertainty, plausible circumstances, and deliberation](#uncertainty-plausible-circumstances-and-deliberation)
   - [Representation conventions in Lean](#representation-conventions-in-lean)
-- [Module architecture and dependency flow](#module-architecture-and-dependency-flow)
 - [Formal coverage](#formal-coverage)
+  - [Axioms and assumptions](#axioms-and-assumptions)
 - [Methodological scope, feasibility, and model witnesses](#methodological-scope-feasibility-and-model-witnesses)
 - [Documentation and repository organization](#documentation-and-repository-organization)
 - [Building and verification](#building-and-verification)
@@ -65,15 +66,7 @@ A common misconception in formal economics is to treat the Action Axiom (*"Man a
 
 ### Core structural components
 
-[The common formal framework](Praxeology/Frame/Core.lean#L276) supplies an ontology of agents, moments, histories, actions, means, and ends. Its structural conditions connect five components:
-
-1. **Branching time and agency.** Histories are maximal temporal chains. History extensionality identifies histories with the same incident moments; no choice between undivided histories constrains enacted actions on histories sharing a strict future moment. Feasible actions have realizable choice cells, including a passive baseline.
-2. **Physical feasibility and transitions.** Finite menus distinguish contemplated actions from feasible actions. Endowments, input requirements, production yields, and bilateral transfers constrain resource use. Multi-step inventory accounting and optional service yields are handled in [`Production.lean`](Praxeology/Production.lean).
-3. **Ordinal evaluation.** A shared requirement schedule applies to ends, while subjective valuation identifies which ends matter to an agent at a decision situation. The core account needs no separate domains for wants or services. Asymmetric preference supports strict comparison without cardinal utility; results needing transitivity or stronger order properties state those assumptions separately.
-4. **Deliberation and counterfactuals.** Minimal plausibility, projected decision moments, branch selection, and expected maturation make the evaluated alternative explicit. The [action module](Praxeology/Action.lean) and [`Entrepreneurship`](Praxeology/Entrepreneurship.lean) distinguish ordinary branch comparisons from regret grounded in shared causal contexts.
-5. **Explicit bridges.** Physical stocks and numerical inequalities do not imply a choice by themselves. Applications state the preference, feasible-menu, and execution conditions that connect an accounting result to an action conclusion.
-
-With the agent, moment, and history fixed, the formal predicate [`PurposefulAct`](Praxeology/Action.lean#L232) in [`Action.lean`](Praxeology/Action.lean) is:
+At the core of the formalization is the mathematical definition of purposeful choice. With the acting agent, decision moment, and history fixed, an action $\alpha^{\ast}$ is purposeful ([`PurposefulAct`](Praxeology/Action.lean#L232)) if and only if it satisfies three simple, intuitive conditions:
 
 ```math
 \begin{aligned}
@@ -84,30 +77,21 @@ With the agent, moment, and history fixed, the formal predicate [`PurposefulAct`
 \end{aligned}
 ```
 
-The definition specifies four core conditions for purposeful choice:
-* **Feasibility and Execution:** The chosen action $\alpha^{\ast}$ belongs to the feasible menu $A_{\mathrm{feas}}$ and is physically executed at the decision moment on history $h$.
-* **Baseline Inaction** ($\alpha_0$): Inaction is always admissible. An active action must strictly improve upon doing nothing: $\text{EndOf}(\alpha^{\ast})\succ\text{EndOf}(\alpha_0)$.
-* **Undominatedness:** No feasible alternative $\beta \in A_{\mathrm{feas}}$ yields an end strictly preferred to $\alpha^{\ast}$.
-* **Incomplete Preferences:** Preferences are not required to be total or complete; ties and mutually incomparable ends are allowed. Purposeful action requires that the chosen alternative is not strictly dominated, not that the actor consciously computes a global optimum.
+In plain terms, human action is purposeful when:
 
-### Uncertainty, Plausible Circumstances, and Deliberation
+1. **It is Feasible and Actually Enacted:**
+   The chosen action $\alpha^{\ast}$ belongs to the actor's feasible menu of alternatives ($A_{\mathrm{feas}}$) and is physically executed at the decision situation ( $\text{Exec}(\alpha^{\ast})$ ).
+2. **It Improves Over Doing Nothing:**
+   Baseline inaction ($\alpha_0$) is always an available option. An active action ($\alpha^{\ast} \ne \alpha_0$) is chosen only if the actor strictly prefers its intended end to doing nothing: $\text{EndOf}(\alpha^{\ast})\succ\text{EndOf}(\alpha_0)$. If the actor chooses inaction ($\alpha^{\ast}=\alpha_0$), this condition holds trivially.
+3. **No Available Alternative is Strictly Better (Undominatedness):**
+   There is no feasible alternative $\beta \in A_{\mathrm{feas}}$ whose intended end the actor strictly prefers to the chosen action's end: $\forall\beta\in A_{\mathrm{feas}},\ \neg(\text{EndOf}(\beta)\succ\text{EndOf}(\alpha^{\ast}))$.
 
-The choice is judged by the actor’s own preference at that moment, connecting subjective evaluation to the outcomes regarded as plausible:
+This formulation captures foundational praxeological principles directly:
+* **Ordinal Choice Without Utility Numbers:** Evaluation relies purely on an asymmetric preference relation ($\succ$), requiring no cardinal utility scales, numerical payoffs, or calculus.
+* **Incomplete Preferences:** An actor does not need to rank every conceivable end in the universe; purposeful action requires only that the chosen alternative is undominated among physically available options.
+* **Teleological Intent vs. Physical Realization:** The actor chooses based on the intended end associated with the action at the moment of decision ( $\text{EndOf}(\alpha^{\ast})$ ), even if later physical consequences diverge across unfolding branches.
 
-* **Existential Support:** When both courses are feasible in considered circumstances, preferring one end over another is supported by a favorable outcome in at least one plausible circumstance.
-* **Universal Weak Dominance:** Conversely, if one course's outcome is at least as good in every plausible circumstance and strictly better in at least one, that supports preferring its end.
-* **Consistency of Active Choice:** When available courses remain open across considered circumstances, an active purposeful choice has support over inaction in at least one circumstance, and no rival is strictly better in all of them.
-
-> [!NOTE]
-> These properties are **conditional implications** derived from the formal account of uncertainty, rather than extra ad-hoc clauses added to the definition of purposeful choice. Economic applications then combine purposeful choice with domain-specific technological, informational, or institutional conditions.
-
-### Representation Conventions in Lean
-
-The formalization distinguishes unordered collections from ordered sequences:
-* [`Finset`](https://leanprover-community.github.io/mathlib4_docs/Mathlib/Data/Finset/Basic.html) is used for unordered collections (menus of actions, commodity bundles, sets of ends).
-* [`List`](https://leanprover-community.github.io/mathlib4_docs/Mathlib/Data/List/Basic.html) is used where sequential order and computational determinism matter (chronological histories, loan auction priority queues, deterministic searches).
-
-## Module architecture and dependency flow
+### Module architecture and dependency flow
 
 The diagram below illustrates the conceptual architecture and dependency flow of the library across its primary subsystems, concrete models, and empirical witnesses:
 
@@ -233,11 +217,34 @@ flowchart TB
 
 Each module is linked in the [coverage table](#formal-coverage) below, and the root [`Praxeology.lean`](Praxeology.lean) module re-exports the public library modules.
 
+### Uncertainty, plausible circumstances, and deliberation
+
+Action is directed toward an open, uncertain future. The formalization directly connects ex-ante purposeful choice to uncertainty, entrepreneurial error, and ex-post regret:
+
+* **Uncertainty (Ex-Ante Deliberation on Open Branches):**
+  Human action occurs in irreversible, branching time. At decision moment $t$, the actor does not possess complete knowledge of which future branch will materialize. Belief is formalized through an ordering of *plausible histories* rather than cardinal probabilities or fictitious certainty. The actor deliberates ex-ante by projecting feasible actions onto plausible branches and comparing their anticipated ends:
+  - *Existential Support:* When multiple courses are feasible, preferring one action over another requires that it yields a more preferred end in at least one plausible circumstance.
+  - *Universal Weak Dominance:* Conversely, if an action fares at least as well as a rival in every plausible circumstance and strictly better in at least one, that supports preferring it.
+  - *Consistency of Active Choice:* An active purposeful choice has support over inaction in at least one considered circumstance, and no rival is strictly better in all of them.
+* **Entrepreneurial Error (The Divergence Between Intent and Execution):**
+  Purposeful action does not imply omniscience or successful outcomes. An action's intended teleological end ( $\text{EndOf}(\alpha)$ ) is fixed at the decision moment, but its physical consequences unfold conditionally along the branch that actually materializes. When actual factor supplies, counterparty actions, or market clearing diverge from anticipated plausibilities, projects may be starved of complementary inputs or fail to complete. An entrepreneur can act completely purposefully ex-ante yet suffer physical failure ex-post.
+* **Counterfactual Regret (Ex-Post Appraisal):**
+  Regret is formalized as a rigorous counterfactual comparison rather than a psychological assumption. After an actual history unfolds and consequences mature, an agent compares the realized state against what *would* have matured had they chosen a feasible alternative (such as safe baseline inaction $\alpha_0$ ). If the actual realized outcome is strictly worse than the counterfactual alternative ($O_{\mathrm{counterfactual}} \succ O_{\mathrm{actual}}$), the actor experiences formally derived *contextual regret*.
+
+> [!NOTE]
+> In this architecture, uncertainty, error, and regret are not ad-hoc shock terms grafted onto an equilibrium model. They are deductive consequences of human action taking place across irreversible branching time with finite knowledge.
+
+### Representation conventions in Lean
+
+The formalization distinguishes unordered collections from ordered sequences:
+* [`Finset`](https://leanprover-community.github.io/mathlib4_docs/Mathlib/Data/Finset/Basic.html) is used for unordered collections (menus of actions, commodity bundles, sets of ends).
+* [`List`](https://leanprover-community.github.io/mathlib4_docs/Mathlib/Data/List/Basic.html) is used where sequential order and computational determinism matter (chronological histories, loan auction priority queues, deterministic searches).
+
+## Formal coverage
+
 ### Axioms and assumptions
 
 The project declares no custom Lean [`axiom`](https://lean-lang.org/doc/reference/latest/Axioms/) and has no unfinished [`sorry`](https://lean-lang.org/doc/reference/latest/Axioms/) proofs. Its transitive axiom audit reports standard Lean dependencies such as [`Classical.choice`](https://lean-lang.org/doc/reference/latest/Axioms/), [`Quot.sound`](https://lean-lang.org/doc/reference/latest/Axioms/), and [`propext`](https://lean-lang.org/doc/reference/latest/Axioms/). These dependencies are distinct from importing Mathlib; neither the use nor avoidance of Mathlib determines soundness. The accepted axiom set and economic premises are documented in the [claim and assumption register](spec/claims_and_assumptions.md).
-
-## Formal coverage
 
 The root module [`Praxeology.lean`](Praxeology.lean) imports the public library modules. The principal modules and their roles are:
 
