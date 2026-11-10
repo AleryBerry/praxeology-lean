@@ -467,29 +467,29 @@ The difficulty arises before computational optimization: a sum of arbitrary rank
 
 ## Mises: The Economic Calculation Problem
 
-A calculation rule can use only the information supplied to it. The theorem constructs economies with the same restricted record but opposite marginal preferences, so any rule based solely on that record fails to economize in at least one economy.
+A calculation rule can use only the information supplied to it. The current Lean theorem takes two economies with the same restricted record and opposite marginal preferences as hypotheses. It does not construct those economies or derive their records from an ownership regime.
 
 ### Definition 9.31 (Action Frame Socialist Economy and Preserved Marginal End)
-In an action frame $W$, an *action frame socialist economy* $E$ at decision context $(i, t, h)$ specifies two distinct means $m_A \neq m_B$, two distinct ends $e_A \neq e_B$, two feasible production techniques $x_A, x_B \in \mathbb{N}^2$, a non-market statistical report $`R : \{0, 1\} \to \mathbb{N}`$, and means bundles $b_A, b_B$ satisfying subjective teleological dominance. Its non-market observable record is:
+In an action frame $W$, an *action frame socialist economy* $E$ at decision context $(i, t, h)$ stores two distinct means $m_A \neq m_B$, two distinct ends $e_A \neq e_B$, two input vectors $x_A, x_B \in \mathbb{N}^2$, a report $`R : \{0, 1\} \to \mathbb{N}`$, and means bundles $b_A, b_B$ with a stipulated subjective teleological dominance relation. The structure does not establish that the vectors are feasible actions. Its observable record is:
 
 $$
 \mathcal{O}(E) = (x_A, x_B, R).
 $$
 
-The non-market statistical record is strictly confined to technological coefficients and aggregate quantities, isolating physical data from subjective valuations and marginal preferences. Define the end preserved by technique $x$ to be $e_A$ if $x_0 \le x_1$, and $e_B$ otherwise. This is the explicit two-factor convention of the model: the relatively economized factor supports the corresponding alternative end.
+The report field is an arbitrary natural-number pair. Its name does not constrain its contents to physical statistics: it could encode a preference. The observable projection discards the economy's preference field, and the theorem separately assumes that the two reports agree. Define the end preserved by technique $x$ to be $e_A$ if $x_0 \le x_1$, and $e_B$ otherwise. This is a convention of the model, not a consequence of production or opportunity costs.
 
-A technique choice violates Mengerian economizing if the alternative feasible technique preserves a strictly preferred marginal end. A central planning rule selects one of the two feasible techniques, $A$ or $B$, as a function of $\mathcal{O}(E)$ alone.
+A technique choice violates the defined economizing condition if the other stored input vector preserves a strictly preferred end. A rule selects one of the two vectors as a function of $\mathcal{O}(E)$ alone.
 
-### Theorem 9.32 (The Mises-Hayek Economic Calculation Impossibility Theorem)
-There exist two socialist economies in an action frame with the same observable record such that every rule based only on that record violates economizing in at least one of them.
+### Theorem 9.32 (Conditional Calculation under Indistinguishable Records)
+Suppose two supplied action-frame economy records have identical input vectors, reports, and named ends, but opposite stipulated preferences. Suppose also that the two input vectors preserve opposite ends under the model's convention. Then every deterministic rule based only on their common observable record violates the defined economizing condition in at least one record.
 
-**Proof.** In both economies take $x_A = (2, 1)$, $x_B = (1, 2)$, which form a physical antichain, and the same non-market report $R$. Technique $A$ preserves $e_B$ and technique $B$ preserves $e_A$. In the first economy $E_1$, bundle $b_A$ dominates $b_B$ teleologically, so $e_A \succ_{i_1, t_1, h_1} e_B$. In the second economy $E_2$, bundle $b_B$ dominates $b_A$, so $e_B \succ_{i_2, t_2, h_2} e_A$. Thus choosing $A$ violates Mengerian economizing in $E_1$ (since $B$ preserves preferred $e_A$), while choosing $B$ violates it in $E_2$ (since $A$ preserves preferred $e_B$).
+**Proof.** The stipulated subjective dominance and action-frame bridge yield $e_A \succ e_B$ in $E_1$ and $e_B \succ e_A$ in $E_2$. The preservation hypotheses say that choosing $A$ violates economizing in $E_1$, while choosing $B$ violates it in $E_2$.
 
-The observable non-market records are identical: $\mathcal{O}(E_1) = \mathcal{O}(E_2)$, so a rule depending only on that record returns the same choice in both economies. If it chooses $A$, it fails in the first; if it chooses $B$, it fails in the second. These exhaust the rule's two possible outputs. $\blacksquare$
+The matching-method and matching-report hypotheses give $\mathcal{O}(E_1) = \mathcal{O}(E_2)$, so a rule depending only on that record returns the same choice in both economies. If it chooses $A$, it fails in the first; if it chooses $B$, it fails in the second. These exhaust the rule's two possible outputs. The physical-antichain hypothesis is returned in the theorem's conclusion but is not used in this rule argument. $\blacksquare$
 
-The conclusion quantifies over every decision function on the stated record, including rules that do not add numerical ranks. Its scope is determined by the information restriction: a richer record that distinguishes the two marginal valuations changes the premises. In this account of the economic calculation problem, the non-market record excludes the evaluative information that factor-market exchange is meant to communicate.
+The conclusion quantifies over every decision function on the stated record. The theorem does not show that public ownership or absent factor markets force this record, prevent communication of valuations, or make either stored vector physically feasible. A richer record can distinguish the cases.
 
-[Theorem 9.32](#theorem-932-the-mises-hayek-economic-calculation-impossibility-theorem) gives an information boundary for guarantees based on the specified record: a convention can select a technique, but no rule using that record can guarantee an economizing selection in both constructed economies. The result turns on the record's exclusion of the differing marginal valuations, not on a limit to the decision rule's computational power.
+[Theorem 9.32](#theorem-932-conditional-calculation-under-indistinguishable-records) gives a conditional information boundary. The two economies and their disagreement are inputs to the Lean theorem, not constructed witnesses. The separate `EconomicCalculation` module states the general observation criterion and gives strategic reporting and institution-specific ledger interfaces for stronger tests.
 
 ---
 

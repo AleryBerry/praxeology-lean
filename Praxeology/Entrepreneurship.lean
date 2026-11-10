@@ -85,12 +85,10 @@ theorem action_feasible_from_advance {W : ActionFrame} [BilateralExchangeFrame W
 
 end EntrepreneurialCreditFunding
 
-/-- Teleological bundle dominance determines investment choice:
-when suppressed credit rates make the post-repayment physical endowment bundle
-strictly dominate status quo/safe action, the investment becomes purposeful.
-Conversely, when unsuppressed natural rates leave status quo dominating the net
-repayment bundle, investment is rejected as non-purposeful. -/
-theorem teleological_bundle_dominance_flips_investment
+/-- Conditional choice classification under supplied opposite bundle
+dominance, execution, and maximality hypotheses. The theorem does not derive
+the dominance comparisons from a change in the gross rate. -/
+theorem investment_classification_of_bundle_dominance
     [W : ActionFrame] [BilateralExchangeFrame W]
     (i : W.Agent) (naturalDecision creditDecision : W.DecisionIndex)
     (investment : W.Action) (grossRate : ℚ)
@@ -146,7 +144,7 @@ theorem teleological_bundle_dominance_flips_investment
 
 /-- Direct derivation of purposeful investment from credit advance funding and
 maximal preference over the idle baseline. -/
-theorem credit_funding_induces_purposeful_investment
+theorem purposeful_investment_of_funding_and_appraisal
     [W : ActionFrame] [BilateralExchangeFrame W]
     (i : W.Agent) (x : W.DecisionIndex)
     (investment : W.Action) (grossRate : ℚ)
@@ -322,10 +320,10 @@ structure BlockedCompletion {W : ActionFrame} (i : W.Agent) (next : W.Moment)
     (h : W.History) (completion : W.Action) where
   infeasible : completion ∉ W.A_feas i next h
 
-/-- Core entrepreneurial-cycle synthesis once stage completion is known to be
-blocked. The comparison is admitted by one shared context, so regret is derived
-from physical bundle dominance rather than supplied as a preference premise. -/
-private theorem entrepreneurial_cycle_regret_of_blocked_completion
+/-- Combine capital formation, a supplied blockage, purposefulness, and regret.
+The regret comparison follows from the separately supplied safe-bundle
+dominance and shared context, without using the blockage hypothesis. -/
+private theorem combine_capital_blockage_and_regret
     [W : ActionFrame] [BilateralExchangeFrame W] {Context : Type}
     (C : W.ContextCorrespondence Context)
     (i : W.Agent) (x : W.DecisionIndex)
@@ -401,7 +399,7 @@ private theorem entrepreneurial_cycle_regret_from_starvation
       ContextMatchedRegret C i x actualMaturity investment safeAction := by
   have h_infeas := completion_infeasible_of_factor_starvation i next x.history
     completion complementary h_starve h_req
-  have hcore := entrepreneurial_cycle_regret_of_blocked_completion C i x
+  have hcore := combine_capital_blockage_and_regret C i x
     next actualMaturity safeMaturity safeHistory investment completion safeAction capital
     formation.transition formation.representsInvestment
     formation.initialCapital formation.capitalInput
@@ -548,7 +546,7 @@ theorem EntrepreneurialCycleScenario.regret_of_blocked_completion
     (purposeful : PurposefulAct S.investment.i S.investment.x.moment
       S.investment.x.history S.investment.investment) :
     EntrepreneurialCycleConclusion S := by
-  have hcore := entrepreneurial_cycle_regret_of_blocked_completion
+  have hcore := combine_capital_blockage_and_regret
     S.evaluation.correspondence S.investment.i S.investment.x
     S.investment.next S.investment.actualMaturity S.investment.safeMaturity
     S.investment.safeHistory S.investment.investment S.investment.completion
@@ -620,7 +618,7 @@ structure CreditFinancedStarvationConclusion {W : ActionFrame} [BilateralExchang
 
 /-- Credit-financed entrepreneurial cycle theorem.
 Deduces rejection at the natural rate and purposeful adoption at the credit rate via
-`teleological_bundle_dominance_flips_investment`, culminating in capital starvation and regret. -/
+`investment_classification_of_bundle_dominance`, culminating in capital starvation and regret. -/
 theorem credit_financed_entrepreneurial_cycle_regret
     [W : ActionFrame] [BilateralExchangeFrame W] {Context : Type}
     (S : EntrepreneurialCycleScenario W Context)
@@ -668,7 +666,7 @@ theorem credit_financed_entrepreneurial_cycle_regret
     (h_req : 0 < W.use_means S.investment.completion S.investment.complementary) :
     CreditFinancedStarvationConclusion S := by
   have ⟨h_natural_rejected, h_credit_purposeful⟩ :=
-    teleological_bundle_dominance_flips_investment
+    investment_classification_of_bundle_dominance
       S.investment.i S.investment.naturalDecision S.investment.x
       S.investment.investment grossRate funding h_inv_active
       b_zero b_nat b_cred h_nat_dom h_cred_dom

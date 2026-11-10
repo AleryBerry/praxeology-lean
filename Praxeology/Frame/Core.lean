@@ -383,7 +383,9 @@ class ActionFrame where
     intro h
     exact h
 
-  /-- Endowment changes by action use and yield for nontrade actions. -/
+  /-- Endowment changes by the agent's own action use and yield for nontrade
+  actions. In particular this rules out a one-step stock loss to an idle
+  agent, even when another agent acts. -/
   law_in_re_transition : ∀ i t t' h α m,
     ¬ IsTradeAction α →
     enacted i t h = α →
@@ -443,6 +445,8 @@ class ActionFrame where
 
 
 
+  /-- Appraisal assumption: the stated outcome comparisons imply the
+  intended-end preference. This is a frame premise. -/
   doxastic_sure_thing_bridge : ∀ i α β t h,
     (∀ h' ∈ MinPlausible i t,
       α ∈ A_feas i (tau i t h') h' ∧ β ∈ A_feas i (tau i t h') h') →
@@ -463,6 +467,8 @@ class ActionFrame where
 
 
 
+  /-- Appraisal assumption: an intended-end preference has support on at
+  least one plausible history when both actions are appraisable. -/
   doxastic_plausible_support : ∀ i α β t h,
     (∀ h' ∈ MinPlausible i t,
       α ∈ A_feas i (tau i t h') h' ∧ β ∈ A_feas i (tau i t h') h') →
@@ -475,7 +481,8 @@ class ActionFrame where
 
   /-- Representation of a physical commodity bundle as an end. -/
   BundleEnd : (Means → ℕ) → Ends
-  /-- Preference follows from dominance over the agent's valued ends. -/
+  /-- Appraisal assumption: dominance over valued ends induces preference
+  between bundle ends. It is not derived from preference asymmetry. -/
   teleological_bundle_dominance_induces_preference : ∀ i t h b1 b2,
     SubjectiveTeleologicalDominates requirement (ValuedEnd i t h) b1 b2 →
       Preference i t h (BundleEnd b1) (BundleEnd b2)

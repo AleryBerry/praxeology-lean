@@ -23,7 +23,7 @@ This note focuses on the **fundamental conceptual and structural differences** b
 | **Inaction & Felt Unease** | Always-acting (inaction is not distinguished) | Distinguished baseline inaction ( $\alpha_0$ ) | Directly formalizes Mises's "felt unease": active action must strictly improve over doing nothing: $\text{End}(\alpha^{\ast}) \succ \text{End}(\alpha_0)$. |
 | **Feasibility & Transitions** | Externally stipulated availability (`Avail`) | Endogenous physical conservation and causal transitions | Physical means are tracked across time; actions consume and produce goods, determining what is feasible at future moments. |
 | **Marginal Utility (DMU)** | Postulated allotment schedule parallel to action | Discrete economizing on homogeneous means units | Derives DMU directly from purposeful allocation; accounts for Rothbard's discrete technological quantum (complementarity / 30-log cabin). |
-| **Economic Scope** | Single-actor Crusoe base system | Multi-agent catallactics, money, calculation, & macroeconomics | Proves bilateral trade, Bourbaki-Witt money emergence, the Economic Calculation Problem (ECP), and Austrian Business Cycle Theory (ABCT). |
+| **Economic Scope** | Single-actor Crusoe base system | Multi-agent catallactics, money, restricted-record calculation, & macroeconomics | Proves conditional exchange and monetary results; the ECP result assumes identical records with conflicting preferences and does not establish a general planning impossibility. |
 | **Dependencies** | Lean 4 core only (single file, no Mathlib) | Lean 4 + Mathlib | Mathlib provides standard finite sets and order theory; both systems rely on standard kernel verification. |
 
 ---
@@ -79,7 +79,7 @@ This note focuses on the **fundamental conceptual and structural differences** b
 * **`praxeology-lean`:** Completes the deduction from single-actor choice into full multi-agent catallactics and macroeconomics:
   * **Bilateral Exchange & Association:** Proves the double inequality of exchange, distinguishes voluntary trade from extortion, and proves the Ricardian Law of Association without cardinal utility.
   * **Money Emergence & Gresham's Law:** Models Mengerian indirect exchange converging to a medium of exchange via Bourbaki-Witt fixed points on trading networks, and derives Gresham's Law.
-  * **Economic Calculation Problem (ECP):** Proves that heterogeneous capital goods cannot be rationally allocated by a central planner without market price signals.
+  * **Economic Calculation Problem (ECP):** Proves a rank-sum counterexample and a conditional two-record information result. It does not derive missing information from the absence of factor markets.
   * **Austrian Business Cycle Theory (ABCT):** Formalizes multi-stage production structures, credit expansion, and factor starvation during the credit cycle.
   * **Econometric Limits:** Proves that empirical regression data cannot identify unchosen counterfactuals (the Lucas critique and Duhem-Quine underdetermination).
 

@@ -66,6 +66,25 @@ theorem FiduciaryIssueBackedAdvance.borrower_receives_principal
       W.omega T.borrower A.moment A.history T.money + T.principal :=
   A.physical_transfer.1
 
+/-- Classify the same quoted rate relative to each entrepreneur's own
+benchmark. Other signal types do not express a changed loan rate. -/
+def relativeRateObservation {Entrepreneur Currency : Type}
+    (naturalRate : Entrepreneur → ℚ) :
+    Entrepreneur → CatallacticMarketSignal Currency → CreditObservation
+  | e, .grossRepaymentFactor _ rate =>
+      if rate < naturalRate e then .lowerRate else .unchangedRate
+  | _, _ => .unchangedRate
+
+/-- Distinct benchmarks can consistently classify the same quote differently. -/
+theorem relativeRateObservation_heterogeneous {Entrepreneur Currency : Type}
+    (naturalRate : Entrepreneur → ℚ) (first second : Entrepreneur)
+    (money : Currency) (h : naturalRate first < naturalRate second) :
+    relativeRateObservation naturalRate first
+        (.grossRepaymentFactor money (naturalRate first)) = .unchangedRate ∧
+      relativeRateObservation naturalRate second
+        (.grossRepaymentFactor money (naturalRate first)) = .lowerRate := by
+  simp [relativeRateObservation, h]
+
 /-- A finite cohort exposed to one common note issue and rate signal. Each
 member's loan is backed by that issuance on the same history, after the notes
 are issued; aggregate principal cannot exceed the amount issued. Members may
@@ -117,13 +136,13 @@ structure CreditShockCohort (W : ActionFrame) [BilateralExchangeFrame W]
   no_shock_signal_read : ∀ e ∈ entrepreneurs,
     signalReader (agent e) (noShockQuote e).decisionNode =
       (noShockQuote e).marketSignal
-  marketObservation : CatallacticMarketSignal W.Means → CreditObservation
+  marketObservation : Entrepreneur → CatallacticMarketSignal W.Means → CreditObservation
   lower_rate_observation_of_rate_below_natural : ∀ e ∈ entrepreneurs,
     ∀ money rate, rate < naturalRate e →
-      marketObservation (.grossRepaymentFactor money rate) = .lowerRate
+      marketObservation e (.grossRepaymentFactor money rate) = .lowerRate
   unchanged_rate_observation_at_or_above_natural : ∀ e ∈ entrepreneurs,
     ∀ money rate, naturalRate e ≤ rate →
-      marketObservation (.grossRepaymentFactor money rate) = .unchangedRate
+      marketObservation e (.grossRepaymentFactor money rate) = .unchangedRate
   responsePolicy : ObservationPolicy Entrepreneur CreditObservation W.Action
   credit_response_is_investment : ∀ e ∈ entrepreneurs,
     responsePolicy.choose e .lowerRate =
@@ -330,12 +349,12 @@ def observation {W : ActionFrame} [BilateralExchangeFrame W] {Context Entreprene
     (C : CreditShockCohort W Context Entrepreneur) :
     Entrepreneur → CreditRegime → CreditObservation := fun e regime =>
       match regime with
-      | .genuineSaving => C.marketObservation
+      | .genuineSaving => C.marketObservation e
           (C.signalReader (C.agent e) (C.rateQuotes e).savingAdvance.decisionNode)
       | .fiduciaryExpansion =>
-          C.marketObservation (C.signalReader (C.agent e)
+          C.marketObservation e (C.signalReader (C.agent e)
             (C.project e).funding.advance.decisionNode)
-      | .noShock => C.marketObservation
+      | .noShock => C.marketObservation e
           (C.signalReader (C.agent e) (C.noShockQuote e).decisionNode)
 
 /-- Observation-based regime knowledge is induced by the cohort's actual
@@ -427,7 +446,7 @@ theorem no_shock_observed_as_unchanged {W : ActionFrame} [BilateralExchangeFrame
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
     C.observation e .noShock = .unchangedRate := by
-  change C.marketObservation
+  change C.marketObservation e
     (C.signalReader (C.agent e) (C.noShockQuote e).decisionNode) = _
   rw [C.no_shock_signal_read e he]
   have hrate : C.naturalRate e ≤
@@ -443,7 +462,7 @@ theorem credit_observation_is_lower_rate {W : ActionFrame} [BilateralExchangeFra
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
-    C.marketObservation ((C.project e).funding.terms.marketSignal) =
+    C.marketObservation e ((C.project e).funding.terms.marketSignal) =
       .lowerRate := by
   have hrate :
       (C.project e).funding.terms.grossRepaymentFactor <
@@ -463,12 +482,12 @@ theorem saving_and_credit_observationally_equal {W : ActionFrame} [BilateralExch
     (e : Entrepreneur) :
     C.observation e .genuineSaving =
       C.observation e .fiduciaryExpansion := by
-  change C.marketObservation
+  change C.marketObservation e
       (C.signalReader (C.agent e) (C.rateQuotes e).savingAdvance.decisionNode) =
-    C.marketObservation (C.signalReader (C.agent e)
+    C.marketObservation e (C.signalReader (C.agent e)
       (C.project e).funding.advance.decisionNode)
   rw [C.saving_signal_read e, C.credit_signal_read e]
-  exact congrArg C.marketObservation (C.rateQuotes e).same_rate_signal
+  exact congrArg (C.marketObservation e) (C.rateQuotes e).same_rate_signal
 
 /-- The saving-side and credit-side contracts have the same derived repayment
 factor when their rates are quoted in the cohort's shared Catallactic market. -/
@@ -486,7 +505,7 @@ theorem credit_situation_observed_as_lower_rate {W : ActionFrame} [BilateralExch
     (C : CreditShockCohort W Context Entrepreneur)
     {e : Entrepreneur} (he : e ∈ C.entrepreneurs) :
     C.observation e .fiduciaryExpansion = .lowerRate := by
-  change C.marketObservation (C.signalReader (C.agent e)
+  change C.marketObservation e (C.signalReader (C.agent e)
     (C.project e).funding.advance.decisionNode) = .lowerRate
   rw [C.credit_signal_read e]
   exact C.credit_observation_is_lower_rate he
@@ -1149,18 +1168,11 @@ theorem two_distinct_regretful_entrepreneurs {W : ActionFrame} [BilateralExchang
   exact ⟨e₁, e₂, he₁cohort, he₂cohort, hne, hagents,
     hregret e₁ he₁, hregret e₂ he₂⟩
 
-/-- Compositionally Self-Falsifying Cohort Forecasts (Fallacy of Composition in ABCT):
-Formalizes how entrepreneurial forecasts can be individually sound under unilateral execution
-yet systematically self-falsify under symmetric cohort entry:
-(1) **Unilateral Pre-Box Affordability**: Under the pre-response price box `S.response.preBox`,
-    every entrepreneur `e ∈ S.affected` holds sufficient cash to cover the completion factor bill
-    (`PrecautionaryCashDemand S.response.preBox (S.quantity e) ≤ omega ...`);
-(2) **Cohort-Induced Squeeze & Blocked Completion**: Symmetric cohort execution triggers the
-    bottleneck price squeeze `S.response.postBox`, making completion strictly unaffordable and
-    physically infeasible (`completion ∉ A_feas`) for all `e ∈ S.affected`;
-(3) **Cluster Failure & Regret**: At least `S.minimumFailures` (≥ 2) distinct entrepreneurs
-    simultaneously suffer `EntrepreneurialCycleConclusion` with derived contextual regret. -/
-theorem compositionally_self_falsifying_cohort_forecasts
+/-- Collect affordability, completion blockage and contextual-regret results
+under a supplied price-squeeze cohort. The record assumes the price response
+and threshold crossings; this theorem does not model a unilateral replay or
+derive the price response from simultaneous entry. -/
+theorem supplied_price_squeeze_yields_blockage_and_regret
     {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     {C : CreditShockCohort W Context Entrepreneur} {d : ℕ}
@@ -1184,9 +1196,9 @@ theorem compositionally_self_falsifying_cohort_forecasts
 
 end PriceSqueezeCohort
 
-/-- Top-level alias for `PriceSqueezeCohort.compositionally_self_falsifying_cohort_forecasts`. -/
-abbrev compositionally_self_falsifying_cohort_forecasts :=
-  @PriceSqueezeCohort.compositionally_self_falsifying_cohort_forecasts
+/-- Top-level alias for `PriceSqueezeCohort.supplied_price_squeeze_yields_blockage_and_regret`. -/
+abbrev supplied_price_squeeze_yields_blockage_and_regret :=
+  @PriceSqueezeCohort.supplied_price_squeeze_yields_blockage_and_regret
 
 /-- A blocked project alone cannot imply contextual regret: a regret witness
 also requires a feasible safe alternative. -/

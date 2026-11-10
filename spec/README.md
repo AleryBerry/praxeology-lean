@@ -21,6 +21,7 @@ formalization is a complete account of an economic theory. See the
 | [08 Econometric limits](08_econometric_limits.md) | [`EconometricLimits`](../Praxeology/EconometricLimits.lean) | Non-identifiability within specified interpretation classes and observations |
 | [09 Behavioral anomalies and choice](09_behavioral_poset.md) | [`Action`](../Praxeology/Action.lean), [`StateMonopoly`](../Praxeology/StateMonopoly.lean) | Asymmetric preferences, framing, precommitment, loss aversion, and Condorcet voting cycles |
 | [10 State monopoly](10_state_monopoly.md) | [`StateMonopoly`](../Praxeology/StateMonopoly.lean) | Conditional institutional classifications and finite accounting results |
+| [11 Strategic calculation](11_strategic_calculation.md) | [`EconomicCalculation`](../Praxeology/EconomicCalculation.lean) | Information criterion, strategic reporting interface, institution ledgers, and unresolved comparison claims |
 | [Comparison with Komendarczyk et al.](komendarczyk_contrast.md) | External companion and this repository | Formal scope, DMU assumptions, witness types, and library dependencies |
 
 ## Reading the specifications

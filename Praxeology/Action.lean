@@ -314,24 +314,6 @@ theorem demonstrated_pref_grounding (i : Agent) (t : Moment) (h : History) (e1 e
   · exact False.elim (h_undom h21)
 
 
-theorem purposeful_act_choice_cell_pullback (i : Agent) (t : Moment) (h : History) (h_in : t ∈ h)
-    (α_star : Action) :
-    PurposefulAct i t h α_star ↔
-    (∃ (cell : Set History),
-      cell ⊆ {h' | t ∈ h'} ∧
-      h ∈ cell ∧
-      (∀ h' ∈ cell, enacted i t h' = enacted i t h) ∧
-      PurposefulAct i t h α_star) := by
-  constructor
-  · intro h_purp
-    refine ⟨{h' | t ∈ h' ∧ enacted i t h' = enacted i t h}, ?_, ⟨h_in, rfl⟩,
-      fun _ hh' => hh'.2, h_purp⟩
-    intro h' hh'
-    exact hh'.1
-  · rintro ⟨_, _, _, _, h_purp⟩
-    exact h_purp
-
-
 theorem purposeful_act_choice_cell_invariant (i : Agent) (t : Moment) (h1 h2 : History)
     (h1_in : t ∈ h1) (h2_in : t ∈ h2)
     (α_star : Action)

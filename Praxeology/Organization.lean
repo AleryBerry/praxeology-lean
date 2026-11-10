@@ -1011,11 +1011,10 @@ theorem subjective_trade_frame_boundary_is_bilateral_exchange :
       BilateralMoment.root tradeHistory 1 tradeMeans0 1 tradeMeans1 := by
   exact (subjectiveTradeBoundaryNetwork.market_evidence ⟨rfl, rfl⟩).exchange
 
-/-- When upstream monetary expansion dilutes purchasing power so that an operator's fixed
-nominal compensation cannot purchase consumption goods, while executing the delegated task
-depletes effort means below the requirement for a valued rest end, remaining idle
-teleologically dominates executing the task, precluding purposeful task execution. -/
-theorem inflationary_delegation_contract_hollow_out
+/-- Combine the network's supplied affordability comparison with a separate
+rest-versus-work appraisal. The latter is assumed through the valued-end and
+bundle hypotheses; it is not derived from the monetary expansion. -/
+theorem affordability_and_task_rejection_under_rest_appraisal
     {W : ActionFrame} {V : DelegationVocabulary W}
     (P : DelegationProposal V) (X : DelegationExecution P)
     (net : CantillonNetwork (W := W))

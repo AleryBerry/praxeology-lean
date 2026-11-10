@@ -139,7 +139,7 @@ $$
 \kappa \bar{Q}_R \dot{P}_R > \left| \sum_j P_j \dot{Q}_{P,j} \right| \implies \frac{d Y^{\text{measured}}}{dt} > 0
 $$
 
-5. By [Theorem 9.32](../natural_language/09_money_prices_and_calculation.md#theorem-932-the-mises-hayek-economic-calculation-impossibility-theorem) (Calculation Problem under Indistinguishable Records), aggregate scalar metrics like headline GDP cannot distinguish between authentic physical wealth accumulation and paper capital consumption. Measured GDP and labor productivity rise monotonically as the physical industrial base decays. $\blacksquare$
+5. The displayed inequality gives a conditional case where measured output rises despite the specified physical contraction. [Theorem 9.32](../natural_language/09_money_prices_and_calculation.md#theorem-932-conditional-calculation-under-indistinguishable-records) does not establish that this GDP path occurs, nor does it prove a monotone rise in labor productivity. $\blacksquare$
 
 ### Proposition 3 (Cross-Border Cantillon Pinning and Real Resource Extraction)
 When foreign exporters recycle domestic fiat earnings into domestic structural rentier assets, the foreign exchange market clears through the financial account, pinning the domestic currency above its merchandise fundamental and financing domestic subsistence consumption via territorial alienation.
@@ -201,7 +201,7 @@ Under statutory planning monopolies, Georgist Land Value Taxation fails the requ
 
 **Proof.**
 1. In an urban economy with statutory zoning (Definition 2), raw land does not trade separately from improvements; transactions occur over composite bundles $m_{\text{real}} = \langle m_R, m_I \rangle$ at price $P_{\text{real}}$.
-2. By [Theorem 9.32](../natural_language/09_money_prices_and_calculation.md#theorem-932-the-mises-hayek-economic-calculation-impossibility-theorem), in the absence of competitive market prices for raw sites, administrative appraisals diverge unavoidably from true site valuation: $`\hat{V}_L = V_L^{\ast} + \epsilon_{\text{assessor}}`$.
+2. The appraisal-error equation $`\hat{V}_L = V_L^{\ast} + \epsilon_{\text{assessor}}`$ defines an error term. Its sign and magnitude require separate evidence; [Theorem 9.32](../natural_language/09_money_prices_and_calculation.md#theorem-932-conditional-calculation-under-indistinguishable-records) does not prove unavoidable divergence.
 3. Let property earnings be $\rho_{\text{real}} = \rho_L + \rho_I$. The state tax liability is $`T_L = \tau_L \hat{V}_L`$. In the Georgist limit ($\tau_L \to 1$), whenever appraisal error satisfies $\epsilon_{\text{assessor}} > 0$:
 
 $$
@@ -278,7 +278,7 @@ Praxeology rejects continuous dynamical ODEs and eigenvalue stability criteria a
 ### Epistemological Fallacies of Mean-Variance Modeling
 The theory assumes investors optimize risk-adjusted returns using Markowitz mean-variance ratios ($\mathbb{E}[r] / \sigma^2$) driven by backward-looking variance estimators ($\hat{\sigma}^2$).
 1. **Knightian Uncertainty vs. Actuarial Risk:** Human action operates under radical uncertainty (Chapters 1 and 10). Historical variance is a historical record, not a probability distribution governing future human choices.
-2. **Epistemic Regime Blindness:** Treating low historical volatility ($\sigma_R^2 \to 0$) as permanent stability is an epistemic illusion ([Theorem 9.32](../natural_language/09_money_prices_and_calculation.md#theorem-932-the-mises-hayek-economic-calculation-impossibility-theorem); Chapter 13). Suppressed volatility is the artificial byproduct of central-bank credit support, blinding actors to the accumulation of unpayable debt until the debt-service boundary is breached ([Proposition 10.21](../natural_language/10_entrepreneurship_credit_and_investment.md#proposition-1021-unpaid-maturity-classifies-the-outstanding-loan-as-defaulted)).
+2. **Epistemic Regime Blindness:** Low historical volatility ($\sigma_R^2 \to 0$) need not identify permanent stability. Whether credit support suppresses the observations available to decision makers is an additional empirical and institutional claim; [Theorem 9.32](../natural_language/09_money_prices_and_calculation.md#theorem-932-conditional-calculation-under-indistinguishable-records) does not establish it.
 
 ### The Constructive Praxeological Solution
 The Rentier Black Hole represents an **institutionally generated pathology** driven directly by the tripartite state interventions formalized in Section 2: zoning monopolies, unbacked fiduciary credit, and asymmetrical tax codes.

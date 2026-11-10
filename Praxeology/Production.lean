@@ -736,12 +736,10 @@ def IsPathDependentTitleInvasion (title : W.Agent → W.Means → ℕ)
     (a : W.Agent) (t t' : W.Moment) (h : W.History) (m : W.Means) : Prop :=
   W.omega a t' h m < title a m ∧ W.omega a t' h m < W.omega a t h m
 
-/-- The Thief-and-Baker Theorem:
-In a two-step operational trace where a thief seizes flour from a baker at t0 -> t1,
-and the baker recovers it at t1 -> t2 without the thief's consent:
-1. The naive present-moment test misclassifies the baker's recovery as an invasion of the thief.
-2. The path-dependent test correctly classifies the theft (t0 -> t1) as an invasion of the baker,
-   and the baker's recovery (t1 -> t2) as non-invasive restitution. -/
+/-- Classify a supplied two-step paired loss and gain trace. The premises
+represent the baker's loss by the baker's own action and the thief's gain by
+the thief's own action; they do not model unilateral seizure from an idle
+victim. The second transition likewise supplies both parties' actions. -/
 theorem baker_recovery_restitution_not_path_dependent_invasion
     (baker thief : W.Agent) (flour : W.Means) (q : ℕ)
     (_h_ne : thief ≠ baker)

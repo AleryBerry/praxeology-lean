@@ -119,3 +119,19 @@ violates the defined Mengerian economizing condition in at least one record.
 The theorem does not derive the model records or their opposite preferences
 from a specified institution. Its interpretation as a general economic
 calculation theorem needs additional modeling and witness work.
+
+The textbook's former existential phrasing has been corrected: the Lean
+declaration takes both economies and their disagreement as hypotheses. Its
+physical-antichain hypothesis is copied into the conclusion and does no work
+in the planner-rule case split. The input vectors are not linked to feasible
+production actions, and the arbitrary report field could encode the missing
+preference. The root module no longer labels a forwarding theorem as a ground
+witness.
+
+[`EconomicCalculation`](../Praxeology/EconomicCalculation.lean) now states the
+generic common-decision criterion, its full-information control, and an
+arbitrary-type reporting game with non-vacuous equilibrium and Pareto criteria.
+It also supplies executable public-production, certificate-redemption,
+administrative-price, and voluntary spot-settlement steps. These are
+institutional building blocks, not yet a theorem that either planning
+protocol or the market fully implements Pareto-efficient outcomes.

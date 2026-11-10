@@ -3818,26 +3818,6 @@ theorem mengerian_bundle_gresham_preference
   exact h_comm_pref
 
 
-theorem ordinal_par_pricing_from_mengerian_bundle_pref
-    (i : Agent) (t : Moment) (h : History)
-    (e_market e_good e_bad : Ends)
-    (h_distinct : e_good ≠ e_bad)
-    (h_good_mkt : e_good ≠ e_market)
-    (h_bad_mkt : e_bad ≠ e_market)
-    (h_comm_pref : Preference i t h e_good e_bad)
-    (e_tender_bad e_tender_good : Ends)
-    (h_menger_pref : ∀ (B1 B2 : Finset Ends),
-      (B1 \ B2).Nonempty →
-      (∀ e1 ∈ B1 \ B2, ∀ e2 ∈ B2 \ B1, Preference i t h e1 e2) →
-      Preference i t h e_tender_bad e_tender_good) :
-    Preference i t h e_tender_bad e_tender_good := by
-  have ⟨h_diff1, _h_diff2, h_dom⟩ := mengerian_bundle_gresham_preference i t h
-    e_market e_good e_bad h_distinct h_good_mkt h_bad_mkt h_comm_pref
-  have h_nonempty : ({e_market, e_good} \ {e_market, e_bad} : Finset Ends).Nonempty := by
-    rw [h_diff1]
-    exact Finset.singleton_nonempty e_good
-  exact h_menger_pref {e_market, e_good} {e_market, e_bad} h_nonempty h_dom
-
 /-- The subset of transacting agents actively tendering medium m in spot exchanges. -/
 def CirculatingTender
     (Agents : Finset Agent)

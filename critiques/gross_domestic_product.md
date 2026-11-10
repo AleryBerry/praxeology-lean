@@ -87,7 +87,7 @@ $$
 \sum_{i \in \mathcal{I}} \omega(i, t', h', m_K) < \sum_{i \in \mathcal{I}} \omega(i, t, h, m_K)
 $$
 
-6. By [Theorem 9.32](../natural_language/09_money_prices_and_calculation.md#theorem-932-the-mises-hayek-economic-calculation-impossibility-theorem) (Mises Calculation Problem under Indistinguishable Records) and [Proposition 14.1 (Non-identification from Equal Records)](../natural_language/14_historical_observation_and_identification.md#proposition-141-non-identification-from-equal-records), aggregate scalar output metrics cannot distinguish between genuine capital accumulation and monetary inflation. $\blacksquare$
+6. A particular aggregate metric may fail to distinguish different underlying capital paths if those paths produce the same observed metric. [Theorem 9.32](../natural_language/09_money_prices_and_calculation.md#theorem-932-conditional-calculation-under-indistinguishable-records) provides only the general restricted-record pattern; identifying such GDP paths needs a separate witness. $\blacksquare$
 
 ### Proposition 2 (The Consumption-Bias Fallacy of Intermediate Stage Exclusion)
 By censoring intermediate transactions between roundabout production stages, GDP systematically understates the magnitude of the capital goods structure, producing the statistical illusion that consumer spending drives aggregate economic activity.

@@ -15,6 +15,7 @@ public import Praxeology.Veridical
 public import Praxeology.EpistemicAbility
 public import Praxeology.Marginal
 public import Praxeology.Catallactics
+public import Praxeology.EconomicCalculation
 public import Praxeology.Catallactics.Credit
 public import Praxeology.Catallactics.ProgramExchangeWitness
 public import Praxeology.Production
@@ -140,34 +141,6 @@ theorem ground_viable_coalescence_critical_attenuation :
   exact viable_coalescence_critical_attenuation_window 4 2 2 10 16 2 2 10 3
     (by decide) (by decide) (by decide) (by decide) (by decide)
     (by decide) (by decide) geometry
-
-/-- Ground instantiation of Theorem 5.3: Purely ordinal ECP measurability impossibility. -/
-theorem ground_ecp_ordinal_impossibility [W : ActionFrame]
-    (i1 i2 : W.Agent) (t1 t2 : W.Moment) (h1 h2 : W.History)
-    (E1 : ActionFrameSocialistEconomy i1 t1 h1)
-    (E2 : ActionFrameSocialistEconomy i2 t2 h2)
-    (h_same_methods : E1.x_A = E2.x_A ∧ E1.x_B = E2.x_B)
-    (h_anti : PhysicalAntichain E1.x_A E1.x_B)
-    (h_same_report : E1.non_market_report = E2.non_market_report)
-    (h_same_ends : E1.eA = E2.eA ∧ E1.eB = E2.eB)
-    (h_opposite_preferences : E1.prefers_A = true ∧ E2.prefers_A = false)
-    (h_presA : ActionFramePreservedEnd E1 E1.x_A = E1.eB)
-    (h_presB : ActionFramePreservedEnd E1 E1.x_B = E1.eA) :
-    PhysicalAntichain E1.x_A E1.x_B ∧
-    action_frame_non_market_observable E1 = action_frame_non_market_observable E2 ∧
-    ViolatesActionFrameMengerianEconomizing E1 E1.x_A ∧
-    ¬ ViolatesActionFrameMengerianEconomizing E1 E1.x_B ∧
-    ViolatesActionFrameMengerianEconomizing E2 E2.x_B ∧
-    ¬ ViolatesActionFrameMengerianEconomizing E2 E2.x_A ∧
-    ∀ (planner_rule : (InputVec 2 × InputVec 2 × (Fin 2 → ℕ)) → Bool),
-      (let chosen1 := if planner_rule (action_frame_non_market_observable E1)
-        then E1.x_A else E1.x_B
-       ViolatesActionFrameMengerianEconomizing E1 chosen1) ∨
-      (let chosen2 := if planner_rule (action_frame_non_market_observable E2)
-        then E2.x_A else E2.x_B
-       ViolatesActionFrameMengerianEconomizing E2 chosen2) :=
-  action_frame_socialist_calculation_impossibility i1 i2 t1 t2 h1 h2 E1 E2
-    h_same_methods h_anti h_same_report h_same_ends h_opposite_preferences h_presA h_presB
 
 /-- Ground instantiation of Theorem 9.6: Macro-aggregate regime non-identifiability witness. -/
 theorem ground_abct_regime_non_identifiability_witness :
@@ -851,7 +824,7 @@ theorem ground_network_liquidity_freeze_cascade
 A cohort of entrepreneurs facing shared factor demand simultaneously experience
 pre-commitment affordability, factor-price squeeze leading to completion infeasibility,
 and clustered entrepreneurial regret. -/
-theorem ground_compositionally_self_falsifying_cohort_forecasts
+theorem ground_supplied_price_squeeze_yields_blockage_and_regret
     {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     {C : CreditShockCohort W Context Entrepreneur} {d : ℕ}
@@ -870,7 +843,7 @@ theorem ground_compositionally_self_falsifying_cohort_forecasts
       C.agent e₁ ≠ C.agent e₂ ∧
       EntrepreneurialCycleConclusion (C.project e₁).cycle ∧
       EntrepreneurialCycleConclusion (C.project e₂).cycle) :=
-  PriceSqueezeCohort.compositionally_self_falsifying_cohort_forecasts S
+  PriceSqueezeCohort.supplied_price_squeeze_yields_blockage_and_regret S
 
 /-- Ground instantiation of Lockean proviso feasibility under alternative abundance:
 When bystander `j` contemplates a distinct homesteading action `β` for `m_alt`, `β` requires
@@ -1039,7 +1012,7 @@ theorem ground_spatial_cantillon_malinvestment_squeeze
 When upstream monetary expansion eliminates real wage purchasing power while the task depletes
 effort means below the requirement for a valued rest end, remaining idle teleologically dominates
 task execution, precluding purposeful execution. -/
-theorem ground_inflationary_delegation_contract_hollow_out
+theorem ground_affordability_and_task_rejection_under_rest_appraisal
     {W : ActionFrame} {V : DelegationVocabulary W}
     (P : DelegationProposal V) (X : DelegationExecution P)
     (net : CantillonNetwork (W := W))
@@ -1058,7 +1031,7 @@ theorem ground_inflationary_delegation_contract_hollow_out
     (∀ q, 0 < q → ¬ CanAffordQuantity q net.P_post P.compensationQuantity) ∧
     W.SubjectiveTeleologicalDominates P.operator X.workMoment P.history b_idle b_work ∧
     ¬ @PurposefulAct W P.operator X.workMoment P.history X.task :=
-  inflationary_delegation_contract_hollow_out
+  affordability_and_task_rejection_under_rest_appraisal
     P X net h_op_downstream h_wage_matches m_effort e_rest b_work b_idle
     h_end_task h_end_idle h_valued h_unique h_idle_attains h_work_short
 

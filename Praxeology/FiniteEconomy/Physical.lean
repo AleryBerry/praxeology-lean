@@ -69,6 +69,51 @@ variable {Agent Means Service : Type}
 def zeroServices (stock : Agent → Means → ℕ) : PhysicalState Agent Means Service :=
   ⟨stock, fun _ _ => 0⟩
 
+/-- Transfer an existing physical stock without a victim action. The step is
+rejected when the parties coincide or the victim lacks the requested stock.
+This is a physical transition, not evidence that the transfer is lawful or
+that the victim consented. -/
+def seize [DecidableEq Agent] [DecidableEq Means]
+    (S : PhysicalState Agent Means Service) (actor victim : Agent)
+    (good : Means) (quantity : ℕ) : PhysicalState Agent Means Service :=
+  if actor ≠ victim ∧ quantity ≤ S.stock victim good then
+    { S with stock := Function.update
+        (Function.update S.stock victim
+          (Function.update (S.stock victim) good (S.stock victim good - quantity)))
+        actor (Function.update (S.stock actor) good (S.stock actor good + quantity)) }
+  else S
+
+/-- A successful unilateral transfer reduces the victim's stock by the
+transferred quantity. No action by the victim is an input to the transition. -/
+theorem seize_victim_balance [DecidableEq Agent] [DecidableEq Means]
+    (S : PhysicalState Agent Means Service) (actor victim : Agent)
+    (good : Means) (quantity : ℕ)
+    (hne : actor ≠ victim) (hstock : quantity ≤ S.stock victim good) :
+    (S.seize actor victim good quantity).stock victim good + quantity =
+      S.stock victim good := by
+  simp [seize, hne, hne.symm, hstock, Nat.sub_add_cancel hstock]
+
+/-- The same transition credits the aggressor with the quantity removed. -/
+theorem seize_actor_balance [DecidableEq Agent] [DecidableEq Means]
+    (S : PhysicalState Agent Means Service) (actor victim : Agent)
+    (good : Means) (quantity : ℕ)
+    (hne : actor ≠ victim) (hstock : quantity ≤ S.stock victim good) :
+    (S.seize actor victim good quantity).stock actor good =
+      S.stock actor good + quantity := by
+  simp [seize, hne, hstock]
+
+/-- The two agents' aggregate stock is conserved by the transfer. -/
+theorem seize_conserves_pair [DecidableEq Agent] [DecidableEq Means]
+    (S : PhysicalState Agent Means Service) (actor victim : Agent)
+    (good : Means) (quantity : ℕ)
+    (hne : actor ≠ victim) (hstock : quantity ≤ S.stock victim good) :
+    (S.seize actor victim good quantity).stock victim good +
+      (S.seize actor victim good quantity).stock actor good =
+      S.stock victim good + S.stock actor good := by
+  have hv := S.seize_victim_balance actor victim good quantity hne hstock
+  have ha := S.seize_actor_balance actor victim good quantity hne hstock
+  omega
+
 end PhysicalState
 
 variable {Agent Means Operation Service : Type}

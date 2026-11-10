@@ -133,10 +133,7 @@ From the standpoint of praxeology:
 ### Epistemic Impossibility of Administrative Valuation
 The Kaldor-Hicks criterion requires administrative agencies or courts to calculate what an individual's "willingness-to-pay" would have been in the absence of a voluntary transaction.
 
-By [Theorem 9.32](../natural_language/09_money_prices_and_calculation.md#theorem-932-the-mises-hayek-economic-calculation-impossibility-theorem) (The Mises Calculation Problem under Indistinguishable Records):
-- Outside of actual, realized market exchanges where an actor surrenders real physical purchasing power, subjective valuations are unobservable.
-- An individual asked how much money they would accept to surrender their family home has no incentive to reveal their true minimum reservation price.
-- No bureaucratic tribunal can simulate the market price discovery process. Hypothetical valuations are arbitrary bureaucratic imputations devoid of economic content.
+The conditional [calculation theorem](../natural_language/09_money_prices_and_calculation.md#theorem-932-conditional-calculation-under-indistinguishable-records) shows why an evaluator using a restricted record can fail across states it cannot distinguish. It does not establish that all hypothetical valuations are unobservable or that every reported reservation price is dishonest. Those claims require an explicit reporting game and incentive analysis.
 
 ---
 

@@ -171,41 +171,18 @@ theorem fiveProjectBankNoteIssuance_expands_advances :
     enacted.state.stock fiveProjectBank (fiveProjectCollateralGood 3) = 1 := by
   decide
 
-/-- The formal premises composing the causal chain of Austrian Business Cycle Theory:
-1. Credit expansion & rate distortion: note issuance reduces loan quote from 6 to 4,
-   expanding advances to 4 projects.
-2. Subjective entrepreneurial response: funded borrowers purposefully accept.
-3. Early capital formation: borrowers convert advances into capital goods.
-4. Complementary factor shortage: factor demand exceeds physical supply, bidding price up.
-5. Production malinvestment: only 2 projects complete; 2 are stranded.
-6. Contractual crisis: unfinished projects default at maturity.
-7. Contextual regret: marginal borrowers suffer ex-post regret.
-8. Physical factor conservation: completions are bounded by physical factor stock.
-9. Cautious refusal replay: cautious borrowers purposefully refuse credit and avoid default. -/
-structure AustrianBusinessCycleMasterPremises where
-  loanQuote_reduction :
-    (fiveProjectNamedProgramRun (fiveProjectRegimeData .fiduciaryExpansion)).cursor.loanQuote =
-      some 4
+/-- Results of the named five-project run used by the conclusion assembler.
+These are scenario-specific evidence, not a general causal mechanism. -/
+structure FiveProjectConclusionEvidence where
   credit_expansion :
     (fiveProjectNamedProgramRun
       (fiveProjectRegimeData .fiduciaryExpansion)).cursor.actualAdvances.map
         LoanReservationBid.borrower = [0, 1, 2, 3]
-  early_capital_formation :
-    (fiveProjectNamedProgramRun
-      (fiveProjectRegimeData .fiduciaryExpansion)).cursor.capitalFormations.map
-        LoanReservationBid.borrower = [0, 1, 2, 3]
-  factor_price_squeeze :
-    (fiveProjectNamedProgramRun
-      (fiveProjectRegimeData .fiduciaryExpansion)).cursor.factorClearing.map
-        (fun c => (c.1, c.2.map LoanReservationBid.borrower)) = some (2, [0, 1])
   production_malinvestment :
     (fiveProjectNamedProgramRun
       (fiveProjectRegimeData .fiduciaryExpansion)).cursor.completedProjects.map
         LoanReservationBid.borrower = [0, 1]
-  repayment_and_default :
-    (fiveProjectNamedProgramRun
-      (fiveProjectRegimeData .fiduciaryExpansion)).cursor.actualRepayments.map
-        LoanReservationBid.borrower = [0, 1] ∧
+  defaults :
     (fiveProjectNamedProgramRun
       (fiveProjectRegimeData .fiduciaryExpansion)).cursor.actualDefaults.map
         LoanReservationBid.borrower = [2, 3]
@@ -217,7 +194,6 @@ structure AustrianBusinessCycleMasterPremises where
   borrower_three_purposeful : fiveProjectProjectThreePurposefulAcceptance
   borrower_two_regret : fiveProjectProjectTwoEntryRegret
   borrower_three_regret : fiveProjectProjectThreeEntryRegret
-  factor_conservation : fiveProjectPhysicalFactorConservationBound
   cautious_replay : fiveProjectCautiousReplayMatches
 
 /-- The causal conclusions synthesized by the Austrian Business Cycle Theory:
@@ -232,7 +208,7 @@ structure AustrianBusinessCycleMasterPremises where
 6. Ex-post regret: marginal borrowers regret credit entry.
 7. Purposefulness: all actions (saving, borrowing) were ex-ante purposeful under subjective
    appraisal. -/
-structure AustrianBusinessCycleMasterConclusion where
+structure FiveProjectConclusion where
   cycle_generated :
     (fiveProjectNamedProgramRun
       (fiveProjectRegimeData .fiduciaryExpansion)).cursor.actualDefaults.map
@@ -270,12 +246,13 @@ structure AustrianBusinessCycleMasterConclusion where
     fiveProjectProjectTwoPurposefulAcceptance ∧
     fiveProjectProjectThreePurposefulAcceptance
 
-/-- Parameterized Master Theorem: the complete 8-link causal composition of Austrian
-Business Cycle Theory, linking credit expansion to ex-ante purposefulness, factor squeeze,
-malinvestment, contractual default, and ex-post regret. -/
-theorem austrian_business_cycle_master_theorem
-    (P : AustrianBusinessCycleMasterPremises) : AustrianBusinessCycleMasterConclusion := {
-  cycle_generated := P.repayment_and_default.2
+/-- Package conclusions already established for the named five-project run.
+The premise record supplies defaults, purposefulness and regret; this theorem
+also derives elementary comparisons from the supplied completion and advance
+lists. It does not derive those facts from the rate or squeeze fields. -/
+theorem assemble_five_project_cycle_conclusion
+    (P : FiveProjectConclusionEvidence) : FiveProjectConclusion := {
+  cycle_generated := P.defaults
   malinvestment_proved := by
     have hcomp := P.production_malinvestment
     have hlen := congrArg List.length hcomp
@@ -293,7 +270,7 @@ theorem austrian_business_cycle_master_theorem
   stranded_projects_exact_difference := by
     have hadv := P.credit_expansion
     have hcomp := P.production_malinvestment
-    have hdef := P.repayment_and_default.2
+    have hdef := P.defaults
     rw [hadv, hcomp, hdef]
     decide
   cautious_avoids_default := ⟨rfl, P.cautious_replay.1, P.cautious_replay.2⟩
@@ -303,19 +280,15 @@ theorem austrian_business_cycle_master_theorem
 }
 
 theorem fiveProject_austrian_business_cycle_master_premises :
-    AustrianBusinessCycleMasterPremises := {
-  loanQuote_reduction := by decide
+    FiveProjectConclusionEvidence := {
   credit_expansion := by decide
-  early_capital_formation := by decide
-  factor_price_squeeze := by decide
   production_malinvestment := by decide
-  repayment_and_default := ⟨by decide, by decide⟩
+  defaults := by decide
   household_saving_purposeful := fiveProjectHouseholdSavingAction_purposeful
   borrower_two_purposeful := fiveProjectProjectTwoAcceptanceAction_purposeful
   borrower_three_purposeful := fiveProjectProjectThreeAcceptanceAction_purposeful
   borrower_two_regret := fiveProjectProjectTwoAcceptance_hasContextMatchedRegret
   borrower_three_regret := fiveProjectProjectThreeAcceptance_hasContextMatchedRegret
-  factor_conservation := by unfold fiveProjectPhysicalFactorConservationBound; decide
   cautious_replay := by unfold fiveProjectCautiousReplayMatches; decide
 }
 
@@ -325,8 +298,8 @@ physical calculations derive the quote, real-input shortage, completions,
 repayments, and defaults. The separately proved scenario comparisons derive
 purposefulness; the two replay comparisons derive regret. -/
 theorem fiveProject_fiduciary_causal_cycle_master :
-    AustrianBusinessCycleMasterConclusion :=
-  austrian_business_cycle_master_theorem fiveProject_austrian_business_cycle_master_premises
+    FiveProjectConclusion :=
+  assemble_five_project_cycle_conclusion fiveProject_austrian_business_cycle_master_premises
 
 end Praxeology
 

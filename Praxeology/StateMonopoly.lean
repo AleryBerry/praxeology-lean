@@ -638,13 +638,13 @@ structure StatutoryMonopolyCalculationConclusion [W : ActionFrame]
   entrantNotPurposeful : ¬ PurposefulAct S.entrant S.moment
     S.history S.entrantChoice.act
 
-theorem statutory_monopoly_immunizes_calculation_blindness [W : ActionFrame]
+theorem statutory_cost_and_choice_classification [W : ActionFrame]
     (S : StatutoryMonopolyCalculationScenario (W := W)) :
     StatutoryMonopolyCalculationConclusion S := by
-  obtain ⟨hblind', _⟩ := statutory_monopoly_calculation_bounds
-    S.upstream S.joint S.external S.width
-    S.gridStep S.volume S.penalty
-    S.volumePositive S.internalBlindness S.statutoryPenalty
+  have hblind' : SpotMarketUncertainty S.width S.gridStep S.volume <
+      InternalFirmUncertainty S.upstream S.joint S.external S.volume := by
+    dsimp [SpotMarketUncertainty, InternalFirmUncertainty]
+    exact Nat.mul_lt_mul_of_pos_right S.internalBlindness S.volumePositive
   refine ⟨hblind',
     S.operatorChoice.purposeful_act_of_pref S.operatorExecution S.operator_prefers_act,
     S.entrantChoice.not_purposeful_act_of_baseline_pref S.entrant_prefers_baseline⟩
@@ -725,7 +725,7 @@ theorem statutory_monopoly_run_blindness_and_fiscal_incidence [W : ActionFrame]
     [BilateralExchangeFrame W] (S : StatutoryMonopolyCalculationScenario (W := W))
     (E : StatutoryMonopolyFiscalIncidenceEvidence S) :
     StatutoryMonopolyFiscalIncidenceConclusion S E := by
-  have hcalc := statutory_monopoly_immunizes_calculation_blindness S
+  have hcalc := statutory_cost_and_choice_classification S
   have ⟨b, hb_mem, hb_loss⟩ := calhoun_action_frame_run_class_partition
     E.cohort E.inventoryRun E.means E.deadweight_loss E.runBalance S.operator
     E.operatorInCohort E.operatorGain
