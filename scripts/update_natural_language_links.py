@@ -9,16 +9,16 @@ maintain cross-document links and references to them across all Markdown documen
 `update_theorem_links.py` for natural-language prose.
 
 Features:
-- Indexes all 320+ formal declarations in `natural_language/*.md` with chapter numbers,
+- Indexes all formal declarations in `natural_language/*.md` with chapter numbers,
   item numbers, declaration types, canonical titles, file paths, line numbers, and GitHub anchor slugs.
-- Validates cross-references in Markdown documents:
-  * Detects references to non-existent item numbers.
-  * Detects declaration type mismatches (e.g. citing Proposition 13.12 as Theorem 13.12).
-  * Detects chapter mismatches (e.g. citing Chapter 10 for Theorem 7.5).
-  * Detects title mismatches and finds the correct number by title lookup.
-  * Validates and updates Markdown links (both header anchor slugs and `#L...` line targets).
+- Semantic Title & Slug Resolution: When chapter restructuring shifts declaration numbers
+  (e.g., Theorem 8.24 -> Theorem 8.27), the framework extracts title semantics from link
+  anchors or parentheticals, maps them to current declarations, and updates both the link text
+  and target URL atomically.
+- Legacy Alias Support: Seamlessly maps historical, merged, or renamed declaration titles
+  to current canonical targets.
 - Auto-fix mode (`--fix`):
-  * Corrects declaration types in-place.
+  * Corrects declaration types and shifted numbers in-place.
   * Updates outdated line numbers and anchor slugs in Markdown links.
   * Corrects mismatched numbers when unambiguous title matches exist.
 - Linkify mode (`--add-links` / `--linkify`):
@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import argparse
 import bisect
+import difflib
 import json
 import os
 import re
@@ -66,17 +67,14 @@ def normalize_text(text: str) -> str:
     """Normalize text for fuzzy title matching: strip math formatting, punctuation, lower."""
     t = re.sub(r"\$([^$]+)\$", r"\1", text)
     t = re.sub(r"[*_`]", "", t)
-    t = re.sub(r"[^\w\s]", " ", t)
-    return " ".join(t.lower().split())
+    t = re.sub(r"[^\w\s-]", " ", t)
+    return " ".join(t.lower().replace("-", " ").split())
 
 
 def github_slug(heading: str) -> str:
     """Generate GitHub-compatible markdown heading anchor slug."""
-    # Strip leading hashes (#, ##, ###)
     h = re.sub(r"^#+\s*", "", heading).strip().lower()
-    # Remove chars that are not alphanumeric, whitespace, or hyphen
     h = re.sub(r"[^\w\s-]", "", h)
-    # Replace whitespace with hyphens
     h = re.sub(r"\s+", "-", h)
     return h
 
@@ -134,12 +132,38 @@ class NaturalLanguageIndexer:
         r"([0-9]+(?:\.[0-9]+[a-z0-9]*)?)\s*\((.+?)\)\s*$"
     )
 
+    LEGACY_ALIASES: Dict[str, str] = {
+        # Chapter 8 interaction taxonomy rework
+        "the-three-interaction-categories-partition-theorem": "Pairwise Mutual Exclusivity of Bilateral Interaction Predicates",
+        "three-interaction-categories-partition-theorem": "Pairwise Mutual Exclusivity of Bilateral Interaction Predicates",
+        "the-three-interaction-categories-partition": "Pairwise Mutual Exclusivity of Bilateral Interaction Predicates",
+        "three-interaction-categories-partition": "Pairwise Mutual Exclusivity of Bilateral Interaction Predicates",
+        "the three interaction categories partition theorem": "Pairwise Mutual Exclusivity of Bilateral Interaction Predicates",
+        "three interaction categories partition theorem": "Pairwise Mutual Exclusivity of Bilateral Interaction Predicates",
+        "peaceful-competition-excludes-anchored-extortion": "Pairwise Mutual Exclusivity of Bilateral Interaction Predicates",
+        "peaceful competition excludes anchored extortion": "Pairwise Mutual Exclusivity of Bilateral Interaction Predicates",
+        "three-interaction-categories": "Bilateral Interaction Predicates",
+        "the-three-interaction-categories": "Bilateral Interaction Predicates",
+        # Chapter 8 menu stripping title alias
+        "the-coercive-menu-stripping-equivalence-theorem": "The Coercive Menu-Stripping Equivalence Theorem",
+        "coercive-menu-stripping-equivalence-theorem": "The Coercive Menu-Stripping Equivalence Theorem",
+        # Chapter 12 title alias
+        "purposeful-fiscal-choice-under-the-stated-bounds": "A Beneficiary Requires a Loss in a Zero-Yield Cohort",
+        "purposeful fiscal choice under the stated bounds": "A Beneficiary Requires a Loss in a Zero-Yield Cohort",
+        # Chapter 2 transition law title alias
+        "physical-transition-balance-law": "Physical Matter Conservation and Inventory Transition",
+        "physical transition balance law": "Physical Matter Conservation and Inventory Transition",
+    }
+
     def __init__(self, root_dir: Path):
         self.root_dir = root_dir.resolve()
         self.nl_dir = self.root_dir / "natural_language"
         self.items_by_number: Dict[str, NLDeclaration] = {}
         self.items_by_chapter_and_num: Dict[Tuple[int, str], NLDeclaration] = {}
         self.items_by_norm_title: Dict[str, List[NLDeclaration]] = {}
+        self.items_by_title_slug: Dict[str, NLDeclaration] = {}
+        self.chapters_by_num: Dict[int, NLDeclaration] = {}
+        self.chapters_by_slug: Dict[str, NLDeclaration] = {}
         self.all_items: List[NLDeclaration] = []
 
     def index(self) -> None:
@@ -156,7 +180,25 @@ class NaturalLanguageIndexer:
                 continue
 
             for line_no, line in enumerate(lines, 1):
-                m = self.HEADING_PATTERN.match(line.strip())
+                stripped = line.strip()
+                m_chap_head = re.match(r"^#\s+Chapter\s+([0-9]+):\s*(.+?)\s*$", stripped, re.I)
+                if m_chap_head:
+                    c_num_str, c_title = m_chap_head.groups()
+                    c_num = int(c_num_str)
+                    decl = NLDeclaration(
+                        chapter=c_num,
+                        item_type="Chapter",
+                        number=c_num_str,
+                        title=c_title.strip(),
+                        file_path=path,
+                        line_number=line_no,
+                        raw_heading=stripped,
+                    )
+                    self.chapters_by_num[c_num] = decl
+                    self.chapters_by_slug[decl.anchor_slug] = decl
+                    continue
+
+                m = self.HEADING_PATTERN.match(stripped)
                 if m:
                     decl_type, number, title = m.groups()
                     decl = NLDeclaration(
@@ -166,12 +208,21 @@ class NaturalLanguageIndexer:
                         title=title.strip(),
                         file_path=path,
                         line_number=line_no,
-                        raw_heading=line.strip(),
+                        raw_heading=stripped,
                     )
                     self.items_by_number[number] = decl
                     self.items_by_chapter_and_num[(chapter_num, number)] = decl
                     self.items_by_norm_title.setdefault(decl.normalized_title, []).append(decl)
                     self.all_items.append(decl)
+
+                    slug_title = re.sub(
+                        r"^(?:axiom|definition|theorem|proposition|lemma|corollary|witness|assumption|example)-(?:[0-9]+(?:\.[0-9]+[a-z0-9]*)?|[0-9]+)-",
+                        "",
+                        decl.anchor_slug,
+                    )
+                    self.items_by_title_slug[slug_title] = decl
+                    if slug_title.startswith("the-"):
+                        self.items_by_title_slug[slug_title[4:]] = decl
 
     def find_by_number(self, number: str) -> Optional[NLDeclaration]:
         return self.items_by_number.get(number)
@@ -188,13 +239,98 @@ class NaturalLanguageIndexer:
                 matches.extend(decls)
         return matches
 
+    def resolve_declaration(
+        self,
+        slug: Optional[str] = None,
+        link_text: Optional[str] = None,
+        number_hint: Optional[str] = None,
+        file_hint: Optional[str] = None,
+    ) -> Optional[NLDeclaration]:
+        """
+        Resolves the intended formal declaration from link target slug, link text,
+        or declaration number hint, using title semantics and legacy aliases.
+        """
+        # 1. Chapter-level resolution
+        if slug:
+            slug_clean = slug.strip().lower()
+            if slug_clean in self.chapters_by_slug:
+                return self.chapters_by_slug[slug_clean]
+            m_sc = re.match(r"^chapter-([0-9]+)(?:-(.+))?$", slug_clean)
+            if m_sc:
+                c_num = int(m_sc.group(1))
+                if c_num in self.chapters_by_num:
+                    return self.chapters_by_num[c_num]
+
+        if link_text:
+            m_ct = re.match(r"^Chapter\s+([0-9]+)\b", link_text.strip(), re.I)
+            if m_ct:
+                c_num = int(m_ct.group(1))
+                if c_num in self.chapters_by_num:
+                    return self.chapters_by_num[c_num]
+
+        # 2. Formal declaration resolution
+        if slug:
+            slug_clean = slug.strip().lower()
+            slug_title = re.sub(
+                r"^(?:axiom|definition|theorem|proposition|lemma|corollary|witness|assumption|example)-(?:[0-9]+(?:\.[0-9]+[a-z0-9]*)?|[0-9]+)-",
+                "",
+                slug_clean,
+            )
+            if slug_title in self.items_by_title_slug:
+                return self.items_by_title_slug[slug_title]
+            if slug_title.removeprefix("the-") in self.items_by_title_slug:
+                return self.items_by_title_slug[slug_title.removeprefix("the-")]
+
+            if slug_title in self.LEGACY_ALIASES:
+                target_title = self.LEGACY_ALIASES[slug_title]
+                matches = self.find_by_title(target_title)
+                if matches:
+                    return matches[0]
+
+            words = slug_title.replace("-", " ").strip()
+            if len(words.split()) >= 2:
+                matches = self.find_by_title(words)
+                if matches:
+                    return matches[0]
+
+        if link_text:
+            m_paren = re.search(r"\(([^)]+)\)", link_text)
+            if m_paren:
+                paren_title = m_paren.group(1).strip()
+                if not re.match(r"^(?:Chapter\s+\d+|Part\s+\d+|Section\s+\d+|see\s+|formerly\s+|e\.g\.)", paren_title, re.I):
+                    matches = self.find_by_title(paren_title)
+                    if matches:
+                        return matches[0]
+                    norm_paren = normalize_text(paren_title)
+                    if norm_paren in self.LEGACY_ALIASES:
+                        target = self.LEGACY_ALIASES[norm_paren]
+                        matches = self.find_by_title(target)
+                        if matches:
+                            return matches[0]
+
+        if slug:
+            for decl in self.all_items:
+                if decl.anchor_slug == slug.strip().lower():
+                    return decl
+
+        if number_hint:
+            if file_hint:
+                m_chap = re.match(r"^([0-9]{2})_", file_hint)
+                if m_chap:
+                    chap_num = int(m_chap.group(1))
+                    if (chap_num, number_hint) in self.items_by_chapter_and_num:
+                        return self.items_by_chapter_and_num[(chap_num, number_hint)]
+            return self.find_by_number(number_hint)
+
+        return None
+
 
 @dataclass
 class ReferenceIssue:
     file_path: Path
     line_number: int
     raw_text: str
-    issue_type: str  # 'unknown_number', 'type_mismatch', 'chapter_mismatch', 'title_mismatch', 'broken_link', 'broken_slug', 'file_mismatch'
+    issue_type: str  # 'outdated_link', 'unknown_number', 'type_mismatch', 'chapter_mismatch', 'renumbered_text'
     message: str
     current_value: str
     suggested_value: Optional[str]
@@ -204,11 +340,6 @@ class ReferenceIssue:
 class ReferenceAuditor:
     """Scans, audits, fixes, and linkifies references across Markdown documents."""
 
-    # Matches references like:
-    # Chapter 3, Theorem 3.4
-    # Chapter 3 (Definitions 3.8–3.10)
-    # Theorem 7.16 (Unified Positive Time Preference...)
-    # Definition 9.14g
     REF_PATTERN = re.compile(
         r"(?P<chap_prefix>Chapter\s+(?P<chap_num>\d+)[,\s:]+(?:and\s+Chapter\s+\d+[,\s:]+)?)?"
         r"\b(?P<decl_type>Axiom|Theorem|Proposition|Definition|Lemma|Corollary|Witness|Assumption|Example)s?\s+"
@@ -217,19 +348,16 @@ class ReferenceAuditor:
         re.IGNORECASE,
     )
 
-    # Range pattern like Definitions 3.8–3.10 or Theorems 11.17-11.18
     RANGE_PATTERN = re.compile(
         r"\b(?P<decl_type>Axioms|Theorems|Propositions|Definitions|Lemmas|Corollaries|Witnesses|Assumptions|Examples)\s+"
         r"(?P<num1>[0-9]+\.[0-9]+[a-z0-9]*)[–-](?P<num2>[0-9]+\.[0-9]+[a-z0-9]*)",
         re.IGNORECASE,
     )
 
-    # Markdown link pattern to natural_language declarations
     LINK_PATTERN = re.compile(
         r"\[(?P<link_text>[^\]]+)\]\((?P<url>(?:[^)]*?)(?:(?P<filename>[0-9]{2}_[^)#]+\.md))?#(?:L(?P<line>\d+)|(?P<slug>[a-z0-9-]+)))\)"
     )
 
-    # Patterns inside parentheticals that are NOT titles
     NON_TITLE_PAREN_PATTERN = re.compile(
         r"^(?:Chapter\s+\d+|Part\s+\d+|Section\s+\d+|see\s+|formerly\s+|e\.g\.|i\.e\.|strict\s+preference|definition\b|theorem\b)",
         re.IGNORECASE,
@@ -256,31 +384,35 @@ class ReferenceAuditor:
             curr += len(line)
 
         # 1. Audit Markdown links
+        link_spans: List[Tuple[int, int]] = []
+        is_in_nl = file_path.parent.name == "natural_language"
+
         for m in self.LINK_PATTERN.finditer(content):
+            filename = m.group("filename")
+            slug_str = m.group("slug")
+            line_str = m.group("line")
+
+            # Only audit links pointing to natural_language/
+            if not filename and not is_in_nl:
+                continue
+
             start = m.start()
+            end = m.end()
+            link_spans.append((start, end))
             line_no = self._offset_to_line(start, char_offsets)
             link_text = m.group("link_text")
-            filename = m.group("filename")
-            line_str = m.group("line")
-            slug_str = m.group("slug")
 
-            # Try to identify declaration number from link_text or slug
+            # Extract declaration number hint
             m_num = re.search(r"\b([0-9]+\.[0-9]+[a-z0-9]*)\b", link_text)
             num = m_num.group(1) if m_num else None
 
-            if not num and slug_str:
-                m_slug_num = re.search(r"-(?:[0-9]+|[0-9]+\.[0-9]+[a-z0-9]*)-", slug_str)
-                # match e.g. definition-11-... -> 1.1 or proposition-914g-... -> 9.14g
-                # fallback check
-                for d in self.indexer.all_items:
-                    if d.anchor_slug == slug_str:
-                        num = d.number
-                        break
+            decl = self.indexer.resolve_declaration(
+                slug=slug_str,
+                link_text=link_text,
+                number_hint=num,
+                file_hint=filename,
+            )
 
-            if not num:
-                continue
-
-            decl = self.indexer.find_by_number(num)
             if not decl:
                 issues.append(
                     ReferenceIssue(
@@ -288,85 +420,106 @@ class ReferenceAuditor:
                         line_number=line_no,
                         raw_text=m.group(0),
                         issue_type="unknown_number",
-                        message=f"Markdown link targets unknown declaration '{num}'",
-                        current_value=num,
+                        message=f"Markdown link targets unknown declaration '{num or slug_str}'",
+                        current_value=m.group(0),
                         suggested_value=None,
-                        span=(start, m.end()),
+                        span=(start, end),
                     )
                 )
-            else:
-                expected_file = decl.file_path.name
-                if filename and filename != expected_file:
-                    issues.append(
-                        ReferenceIssue(
-                            file_path=file_path,
-                            line_number=line_no,
-                            raw_text=m.group(0),
-                            issue_type="file_mismatch",
-                            message=f"Link targets '{filename}', but {decl.canonical_name} is in '{expected_file}'",
-                            current_value=filename,
-                            suggested_value=expected_file,
-                            span=(start, m.end()),
-                        )
-                    )
-                elif line_str and int(line_str) != decl.line_number:
-                    issues.append(
-                        ReferenceIssue(
-                            file_path=file_path,
-                            line_number=line_no,
-                            raw_text=m.group(0),
-                            issue_type="broken_link",
-                            message=f"Line target #L{line_str} is outdated; {decl.canonical_name} is at line {decl.line_number}",
-                            current_value=f"#L{line_str}",
-                            suggested_value=f"#L{decl.line_number}",
-                            span=(start, m.end()),
-                        )
-                    )
-                elif slug_str and slug_str != decl.anchor_slug:
-                    issues.append(
-                        ReferenceIssue(
-                            file_path=file_path,
-                            line_number=line_no,
-                            raw_text=m.group(0),
-                            issue_type="broken_slug",
-                            message=f"Anchor slug #{slug_str} does not match declared slug #{decl.anchor_slug}",
-                            current_value=f"#{slug_str}",
-                            suggested_value=f"#{decl.anchor_slug}",
-                            span=(start, m.end()),
-                        )
-                    )
+                continue
 
-        # 2. Audit textual references
+            # Compute canonical URL and updated link text
+            expected_url = compute_relative_link(file_path, decl, anchor_style="slug" if slug_str else "line")
+
+            new_link_text = link_text
+            if decl.item_type != "Chapter":
+                if num and num != decl.number:
+                    new_link_text = re.sub(r"\b" + re.escape(num) + r"\b", decl.number, new_link_text)
+
+                m_type = re.search(
+                    r"\b(Axiom|Theorem|Proposition|Definition|Lemma|Corollary|Witness|Assumption|Example)s?\b",
+                    new_link_text,
+                    re.I,
+                )
+                if m_type:
+                    old_t = m_type.group(1)
+                    norm_old = TYPE_CANONICAL.get(old_t.lower())
+                    if norm_old and norm_old != decl.item_type:
+                        new_link_text = re.sub(r"\b" + re.escape(old_t) + r"\b", decl.item_type, new_link_text, count=1)
+
+            new_raw_link = f"[{new_link_text}]({expected_url})"
+
+            if new_raw_link != m.group(0):
+                if line_str and int(line_str) != decl.line_number:
+                    issue_type = "broken_link"
+                    msg = f"Line target #L{line_str} is outdated; {decl.canonical_name} is at line {decl.line_number}"
+                elif filename and filename != decl.file_path.name:
+                    issue_type = "file_mismatch"
+                    msg = f"Link targets '{filename}', but {decl.canonical_name} is in '{decl.file_path.name}'"
+                elif num and num != decl.number:
+                    issue_type = "outdated_link"
+                    msg = f"Link targets outdated reference -> {decl.canonical_name} ({decl.title})"
+                elif slug_str and slug_str != decl.anchor_slug:
+                    issue_type = "broken_slug"
+                    msg = f"Anchor slug #{slug_str} does not match declared slug #{decl.anchor_slug}"
+                else:
+                    issue_type = "outdated_link"
+                    msg = f"Link targets outdated reference -> {decl.canonical_name} ({decl.title})"
+
+                issues.append(
+                    ReferenceIssue(
+                        file_path=file_path,
+                        line_number=line_no,
+                        raw_text=m.group(0),
+                        issue_type=issue_type,
+                        message=msg,
+                        current_value=m.group(0),
+                        suggested_value=new_raw_link,
+                        span=(start, end),
+                    )
+                )
+
+        # 2. Audit textual references (outside links and code blocks)
         for line_idx, line in enumerate(lines, 1):
-            # Skip Markdown headings (defining titles/sections)
             if line.strip().startswith("#"):
                 continue
 
+            line_start_char = char_offsets[line_idx - 1]
+
             for m in self.REF_PATTERN.finditer(line):
+                global_start = line_start_char + m.start()
+                global_end = line_start_char + m.end()
+
+                if any(spans_overlap((global_start, global_end), lspan) for lspan in link_spans):
+                    continue
+
                 chap_num = int(m.group("chap_num")) if m.group("chap_num") else None
                 decl_type_raw = m.group("decl_type")
                 num = m.group("number")
                 title_raw = m.group("title")
 
-                # If parenthetical is actually a chapter indicator like (Chapter 1)
                 if title_raw and re.match(r"^Chapter\s+(\d+)$", title_raw.strip(), re.IGNORECASE):
                     m_paren_chap = re.match(r"^Chapter\s+(\d+)$", title_raw.strip(), re.IGNORECASE)
                     if m_paren_chap:
                         chap_num = int(m_paren_chap.group(1))
                         title_raw = None
 
-                start = m.start()
-                end = m.end()
-
-                decl = self.indexer.find_by_number(num)
+                decl = None
+                if title_raw and not self.NON_TITLE_PAREN_PATTERN.match(title_raw.strip()):
+                    matches = self.indexer.find_by_title(title_raw)
+                    if matches:
+                        decl = matches[0]
+                    else:
+                        norm_t = normalize_text(title_raw)
+                        if norm_t in self.indexer.LEGACY_ALIASES:
+                            t_matches = self.indexer.find_by_title(self.indexer.LEGACY_ALIASES[norm_t])
+                            if t_matches:
+                                decl = t_matches[0]
 
                 if not decl:
-                    suggested = None
-                    if title_raw and not self.NON_TITLE_PAREN_PATTERN.match(title_raw.strip()):
-                        by_title = self.indexer.find_by_title(title_raw)
-                        if by_title:
-                            suggested = by_title[0].canonical_name
+                    decl = self.indexer.find_by_number(num)
 
+                if not decl:
                     issues.append(
                         ReferenceIssue(
                             file_path=file_path,
@@ -375,13 +528,28 @@ class ReferenceAuditor:
                             issue_type="unknown_number",
                             message=f"Reference to non-existent item '{decl_type_raw} {num}'",
                             current_value=f"{decl_type_raw} {num}",
-                            suggested_value=suggested,
-                            span=(start, end),
+                            suggested_value=None,
+                            span=(global_start, global_end),
                         )
                     )
                     continue
 
-                # Check chapter mismatch
+                if decl.number != num:
+                    new_ref = f"{decl.item_type} {decl.number}" + (f" ({decl.title})" if title_raw else "")
+                    issues.append(
+                        ReferenceIssue(
+                            file_path=file_path,
+                            line_number=line_idx,
+                            raw_text=m.group(0),
+                            issue_type="renumbered_text",
+                            message=f"Cited as '{decl_type_raw} {num}', but title matches '{decl.canonical_name}' ({decl.title})",
+                            current_value=m.group(0),
+                            suggested_value=new_ref,
+                            span=(global_start, global_end),
+                        )
+                    )
+                    continue
+
                 if chap_num is not None and chap_num != decl.chapter:
                     issues.append(
                         ReferenceIssue(
@@ -392,11 +560,10 @@ class ReferenceAuditor:
                             message=f"Cited Chapter {chap_num}, but {decl.canonical_name} is in Chapter {decl.chapter}",
                             current_value=f"Chapter {chap_num}",
                             suggested_value=f"Chapter {decl.chapter}",
-                            span=(start, end),
+                            span=(global_start, global_end),
                         )
                     )
 
-                # Check declaration type mismatch
                 norm_cited_type = TYPE_CANONICAL.get(decl_type_raw.lower())
                 if norm_cited_type and norm_cited_type != decl.item_type:
                     issues.append(
@@ -408,32 +575,9 @@ class ReferenceAuditor:
                             message=f"Cited as '{decl_type_raw} {num}', but declared as '{decl.item_type} {num}' ({decl.title})",
                             current_value=f"{decl_type_raw} {num}",
                             suggested_value=f"{decl.item_type} {num}",
-                            span=(start, end),
+                            span=(global_start, global_end),
                         )
                     )
-
-                # Check title mismatch if title was explicitly provided
-                if title_raw and not self.NON_TITLE_PAREN_PATTERN.match(title_raw.strip()):
-                    norm_given = normalize_text(title_raw)
-                    if (
-                        len(norm_given.split()) >= 2
-                        and norm_given not in decl.normalized_title
-                        and decl.normalized_title not in norm_given
-                    ):
-                        alt_matches = self.indexer.find_by_title(title_raw)
-                        alt_info = f" (title matches {alt_matches[0].full_name})" if alt_matches else ""
-                        issues.append(
-                            ReferenceIssue(
-                                file_path=file_path,
-                                line_number=line_idx,
-                                raw_text=m.group(0),
-                                issue_type="title_mismatch",
-                                message=f"Title '({title_raw})' does not match declared title '({decl.title})'{alt_info}",
-                                current_value=title_raw,
-                                suggested_value=decl.title if not alt_matches else alt_matches[0].full_name,
-                                span=(start, end),
-                            )
-                        )
 
         return issues
 
@@ -455,34 +599,16 @@ class ReferenceAuditor:
             idx = line_no - 1
             line = lines[idx]
 
+            # Sort by span start position in reverse so right-most changes happen first
+            line_issues.sort(key=lambda i: i.span[0] if i.span else 0, reverse=True)
+
             for issue in line_issues:
-                # Fix broken line targets in Markdown links
-                if issue.issue_type == "broken_link" and issue.suggested_value:
-                    if issue.current_value in line:
-                        line = line.replace(issue.current_value, issue.suggested_value)
-                        fixes_applied += 1
-
-                # Fix broken anchor slugs in Markdown links
-                elif issue.issue_type == "broken_slug" and issue.suggested_value:
-                    if issue.current_value in line:
-                        line = line.replace(issue.current_value, issue.suggested_value)
-                        fixes_applied += 1
-
-                # Fix declaration type mismatch
-                elif issue.issue_type == "type_mismatch" and issue.suggested_value:
-                    if issue.current_value in line:
+                if issue.issue_type in ["outdated_link", "broken_link", "broken_slug", "file_mismatch", "renumbered_text"]:
+                    if issue.suggested_value and issue.current_value in line:
                         line = line.replace(issue.current_value, issue.suggested_value, 1)
                         fixes_applied += 1
-
-                # Fix chapter mismatch
-                elif issue.issue_type == "chapter_mismatch" and issue.suggested_value:
-                    if issue.current_value in line:
-                        line = line.replace(issue.current_value, issue.suggested_value, 1)
-                        fixes_applied += 1
-
-                # Fix unknown number if unambiguous title match was found
-                elif issue.issue_type == "unknown_number" and issue.suggested_value:
-                    if issue.current_value in line:
+                elif issue.issue_type in ["type_mismatch", "chapter_mismatch", "unknown_number"]:
+                    if issue.suggested_value and issue.current_value in line:
                         line = line.replace(issue.current_value, issue.suggested_value, 1)
                         fixes_applied += 1
 
@@ -493,6 +619,40 @@ class ReferenceAuditor:
                 f.writelines(lines)
 
         return fixes_applied
+
+    def preview_diff(self, file_path: Path, issues: List[ReferenceIssue]) -> List[str]:
+        """Generates unified diff lines representing proposed fixes."""
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                original_lines = f.readlines()
+        except OSError:
+            return []
+
+        modified_lines = list(original_lines)
+        issues_by_line: Dict[int, List[ReferenceIssue]] = {}
+        for issue in issues:
+            issues_by_line.setdefault(issue.line_number, []).append(issue)
+
+        for line_no, line_issues in sorted(issues_by_line.items(), reverse=True):
+            idx = line_no - 1
+            line = modified_lines[idx]
+            line_issues.sort(key=lambda i: i.span[0] if i.span else 0, reverse=True)
+
+            for issue in line_issues:
+                if issue.suggested_value and issue.current_value in line:
+                    line = line.replace(issue.current_value, issue.suggested_value, 1)
+
+            modified_lines[idx] = line
+
+        return list(
+            difflib.unified_diff(
+                original_lines,
+                modified_lines,
+                fromfile=str(file_path),
+                tofile=str(file_path),
+                lineterm="",
+            )
+        )
 
     def linkify_file(
         self,
@@ -516,7 +676,6 @@ class ReferenceAuditor:
 
         for idx, line in enumerate(lines):
             stripped = line.strip()
-            # Toggle fenced code blocks
             if stripped.startswith("```") or stripped.startswith("~~~"):
                 in_code_block = not in_code_block
                 continue
@@ -524,11 +683,9 @@ class ReferenceAuditor:
             if in_code_block:
                 continue
 
-            # Skip heading lines
             if stripped.startswith("#"):
                 continue
 
-            # Identify protected spans in this line (inline code, existing links, html tags)
             protected: List[Tuple[int, int]] = []
             for m in re.finditer(r"`[^`]+`|\[[^\]]+\]\([^)]+\)|<[^>]+>", line):
                 protected.append((m.start(), m.end()))
@@ -580,12 +737,11 @@ class ReferenceAuditor:
                 protected.append(span)
                 total_links_added += 1
 
-            if replacements:
-                # Apply replacements from right to left to preserve offsets
-                new_line = line
-                for start, end, repl in sorted(replacements, key=lambda x: x[0], reverse=True):
-                    new_line = new_line[:start] + repl + new_line[end:]
-                lines[idx] = new_line
+            if replacements and not dry_run:
+                replacements.sort(key=lambda r: r[0], reverse=True)
+                for start, end, repl in replacements:
+                    line = line[:start] + repl + line[end:]
+                lines[idx] = line
 
         if total_links_added > 0 and not dry_run:
             with open(file_path, "w", encoding="utf-8") as f:
@@ -594,9 +750,7 @@ class ReferenceAuditor:
         return total_links_added
 
     def unlink_file(self, file_path: Path, dry_run: bool = False) -> int:
-        """
-        Unwraps Markdown links pointing to natural_language declarations back into plain text.
-        """
+        """Unwraps Markdown links pointing to natural_language declarations back into plain text."""
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
@@ -640,7 +794,6 @@ def dump_index(indexer: NaturalLanguageIndexer, fmt: str = "markdown") -> str:
         ]
         return json.dumps(items_data, indent=2)
 
-    # Markdown format
     lines = [
         "# Index of Formal Declarations in `natural_language/`",
         "",
@@ -681,6 +834,11 @@ def main() -> int:
         "--fix",
         action="store_true",
         help="Automatically fix declaration types, chapter numbers, broken link targets, and outdated slugs in-place.",
+    )
+    parser.add_argument(
+        "--diff",
+        action="store_true",
+        help="Display unified diff of proposed fixes without modifying files.",
     )
     parser.add_argument(
         "--add-links",
@@ -741,7 +899,6 @@ def main() -> int:
             if not any(part in p.parts for part in [".lake", ".git", "scripts", "node_modules"])
         ]
 
-    # Handle --remove-links
     if args.remove_links:
         print(f"[*] Unlinking Markdown files ({len(md_files)} files)...")
         total_unlinked = 0
@@ -756,7 +913,6 @@ def main() -> int:
         print(f"[✓] Finished unlinking: {total_unlinked} {action}.")
         return 0
 
-    # Handle --add-links
     if args.add_links:
         print(f"[*] Converting plain-text references to clickable links ({len(md_files)} files, style: {args.anchor_style})...")
         total_linked = 0
@@ -791,6 +947,14 @@ def main() -> int:
     print(f"Audit Summary: {total_issues} issue(s) detected across {len(files_with_issues)} file(s).")
     print("=" * 60)
 
+    if args.diff:
+        print("\nUnified Diff of Proposed Fixes:\n")
+        for md_file, issues in files_with_issues.items():
+            diff_lines = auditor.preview_diff(md_file, issues)
+            for d in diff_lines:
+                print(d)
+        return 0
+
     if args.fix:
         if args.dry_run:
             print("[!] Dry-run enabled: No files were modified.")
@@ -810,7 +974,7 @@ def main() -> int:
             1
             for issues in files_with_issues.values()
             for i in issues
-            if i.issue_type in ["unknown_number", "broken_link", "broken_slug", "chapter_mismatch", "file_mismatch"]
+            if i.issue_type in ["unknown_number", "outdated_link", "broken_link", "broken_slug", "chapter_mismatch", "file_mismatch"]
         )
         if critical_issues > 0:
             print(f"[✗] Check failed: {critical_issues} critical reference issue(s) detected.")

@@ -198,21 +198,65 @@ This is the finite highwayman construction. The distinct baselines rigorously is
 The outcome comparison tells us that the victim is worse off than under the autonomous baseline, but subjective loss alone cannot distinguish coercive predation from peaceful market competition. A competing supplier may draw away customers and leave a rival worse off than before without touching the rival's person or property. To avoid misclassifying competitive loss as coercion, the Action Frame derives property, invasion, and title endogenously from initial appropriation and feasible menus.
 
 ### Definition 8.14 (Purposeful Lockean Homesteading and Clean-Title Traces)
-An action $\alpha$ is a pure Lockean homesteading action for commodity $m$ when it is non-trade, uses zero units of $m$, and yields a positive quantity of $m$:
+An action $\alpha$ is a pure Lockean homesteading action for commodity $m$ when it is non-trade ( $\neg \text{Trade}(\alpha)$ ), uses zero units of every tracked means $m'$ ( $\forall m' \in \mathcal{M}, \ u(\alpha, m') = 0$ ), and yields a positive quantity of $m$ ( $0 < y(\alpha, m)$ ):
 
 $$
-\neg \text{IsTradeAction}(\alpha) \wedge u(\alpha, m) = 0 \wedge 0 < y(\alpha, m)
+\neg \text{Trade}(\alpha) \wedge (\forall m' \in \mathcal{M}, \ u(\alpha, m') = 0) \wedge 0 < y(\alpha, m)
 $$
+
+By requiring that $\alpha$ uses zero units of any prior tracked means ( $\forall m', u(\alpha, m') = 0$ ), original appropriation (consuming zero preexisting physical stocks) is sharply distinguished from secondary production (transforming prior owned inputs $m_1$ into $m_2$).
 
 When an agent purposefully enacts Lockean homesteading ($\mathsf{P}$), the transition law ([Proposition 2.13](02_time_histories_and_physical_execution.md#proposition-213-inaction-leaves-inventory-unchanged) and [Proposition 2.14](02_time_histories_and_physical_execution.md#proposition-214-inventory-changes-reflect-inputs-and-outputs)) ensures:
-1. Appropriator improvement: Agent $i$ strictly improves over inaction ( $`\text{End\_of}(i, \alpha, t, h) \succ_{i, t, h} \text{End\_of}(i, \alpha_i^0, t, h)`$ ) and strictly increases its physical stock: $\omega(i, t', h, m) > \omega(i, t, h, m)$.
+1. Appropriator improvement: Agent $i$ strictly improves over inaction ( $O_i(\alpha) \succ_{i, t, h} b_i$ ) and strictly increases its physical stock: $\omega(i, t', h, m) > \omega(i, t, h, m)$.
 2. Non-invasive appropriation: For every passive bystander $j$ enacting $\alpha_j^0$, $j$'s physical stock $\omega(j, t', h, \cdot)$ and resource-feasible menu are completely preserved: no previously feasible action is stripped from $j$'s menu. Any contemplated action of $j$ requiring $m$ was already infeasible at $t$ because $j$'s stock of $m$ was zero; first appropriation by $i$ strips no previously feasible action from $j$.
 
-Path-dependent clean title $\text{title}(k, m)$ tracks legitimate property boundaries established by original appropriation or voluntary transfer, distinct from present physical stock $\omega(k, t, h, m)$:
-- Theft: Seizing goods non-consensually reduces the victim's physical stock below clean title ( $\omega(i, t', h, m) < \text{title}(i, m)$ ), constituting a physical invasion ($\text{IsPathDependentTitleInvasion}$).
-- Restitution (the Thief-and-Baker theorem): When rightful owner $i$ recovers stolen goods from possessor $j$ without $j$'s consent, $j$'s physical stock contracts, but because $\omega(j, t', h, m) \ge \text{title}(j, m)$, restitution restores possession to clean title and is non-invasive ($\neg \text{IsPathDependentTitleInvasion}$).
+Clean title $`\text{title}_k(m)`$ tracks legitimate property boundaries established by original appropriation or voluntary transfer, distinct from present physical stock $\omega(k, t, h, m)$:
+- Theft: Seizing goods non-consensually reduces the victim's physical stock below clean title ( $`\omega(i, t', h, m) < \text{title}_i(m)`$ ), constituting a physical invasion ($I_{j \to i}$).
+- Restitution (the Thief-and-Baker theorem): When rightful owner $i$ recovers stolen goods from possessor $j$ without $j$'s consent, $j$'s physical stock contracts, but because $`\omega(j, t', h, m) \ge \text{title}_j(m)`$, restitution restores possession to clean title and is non-invasive ($\neg I_{i \to j}$).
 
-### Definition 8.15 (Directed Physical Invasion and Action-Axiom Menu Stripping)
+### Definition 8.15 (Alternative Homesteading Opportunity)
+At decision node $\langle t, h \rangle$, bystander $j$ has an alternative homesteading opportunity relative to unowned resource $m$ if there exists a distinct resource $m_{\text{alt}} \neq m$ and an action $\beta$ in $j$'s contemplated menu $`\mathcal{A}_{\text{cont}}(j, t, h)`$ that is pure Lockean homesteading for $m_{\text{alt}}$:
+
+$$
+\text{AlternativeHomesteading}(j, t, h, m) \iff \exists m_{\text{alt}} \in \mathcal{M}, \quad m_{\text{alt}} \neq m \wedge \exists \beta \in \mathcal{A}_{\text{cont}}(j, t, h), \quad \text{Homesteading}(\beta, m_{\text{alt}})
+$$
+
+### Theorem 8.16 (The Lockean Proviso and Abundant Commons Feasibility Theorem)
+Suppose bystander $j$ has an alternative homesteading opportunity $\beta$ for $m_{\text{alt}} \neq m$ in an unowned commons. Because pure homesteading uses zero tracked means ( $\forall m', u(\beta, m') = 0$ ), $\beta$ is feasible for $j$ prior to $i$'s appropriation of $m$:
+
+$$
+\beta \in \mathcal{A}_{\text{feas}}(j, t, h)
+$$
+
+Furthermore, when agent $i$ appropriates $m$ along transition $t \to t'$, while $j$ remains passive ($\alpha_j^0$), $j$'s physical stock is preserved ( $\omega(j, t') = \omega(j, t)$ ), $j$'s resource-feasible menu is preserved ( $`\mathcal{A}_{\text{feas}}(j, t', h) = \mathcal{A}_{\text{feas}}(j, t, h)`$ ), and $j$'s alternative homesteading action remains strictly feasible at $t'$:
+
+$$
+\beta \in \mathcal{A}_{\text{feas}}(j, t', h)
+$$
+
+**Proof.** Because $\beta$ requires zero inputs of every commodity, its input requirement is covered by $j$'s initial endowment at $t$, ensuring $`\beta \in \mathcal{A}_{\text{feas}}(j, t, h)`$. Along the transition where $i$ appropriates $m$ and $j$ idles, $j$'s stock is unchanged. Since $\beta$ still requires zero inputs, it remains resource-feasible for $j$ at $t'$. $\blacksquare$
+
+### Theorem 8.17 (The Sole-Resource Feasibility Preservation Theorem)
+Consider now the polar regime where no alternative commons exists—the appropriation of a sole, unique unowned resource $m$. Suppose bystander $j$ begins with zero stock of $m$ ( $\omega(j, t, h, m) = 0$ ).
+
+Then any action $\gamma$ contemplated by $j$ that requires a positive quantity of $m$ ( $u(\gamma, m) > 0$ ) was *already physically infeasible* for $j$ at moment $t$:
+
+$$
+\gamma \notin \mathcal{A}_{\text{feas}}(j, t, h)
+$$
+
+Consequently, when agent $i$ appropriates the entire unowned resource $m$, $i$'s action strips zero feasible actions from $j$'s choice menu:
+
+$$
+\forall \gamma \in \mathcal{A}_{\text{cont}}(j, t, h), \quad \gamma \in \mathcal{A}_{\text{feas}}(j, t, h) \implies \gamma \in \mathcal{A}_{\text{feas}}(j, t', h)
+$$
+
+**Proof.** If $\gamma$ requires $u(\gamma, m) > 0$, but $\omega(j, t, h, m) = 0$, then $u(\gamma, m) \le \omega(j, t, h, m)$ fails; hence $\gamma$ cannot be in $`\mathcal{A}_{\text{feas}}(j, t, h)`$. Since an action is stripped only when it was feasible at $t$ and becomes infeasible at $t'$, an action already infeasible at $t$ cannot be stripped. For actions that do not require $m$, $j$'s stock is preserved under inaction, so their feasibility is untouched. $\blacksquare$
+
+*Philosophical Remark: Locke vs. Rothbard.*
+Locke argued that homesteading is only valid if "enough, and as good" is left for others, which would forbid claiming a scarce or unique unowned resource. Theorems 8.16 and 8.17 clarify the physical boundary: when resources are abundant, alternative homesteading remains open to everyone; when a resource is unique, claiming it is still non-invasive, because bystanders lose no feasible choices over a resource they never owned.
+
+### Definition 8.18 (Directed Physical Invasion and Action-Axiom Menu Stripping)
 In the Action Frame, physical invasion is formulated as an explicit directed inter-agent relation $I_{j \to i}(\alpha_j)$ indicating that action $\alpha_j$ of agent $j$ invades agent $i$'s clean title.
 
 At decision node $\langle t, h\rangle$, action $\alpha_j$ physically invades agent $i$ along transition $t \to t'$ when executing $\alpha_j$ on the unilateral non-consenting branch $h(\alpha_i^0, \alpha_j)$ (where $i$ refrains) strictly contracts $i$'s physical stock below clean title:
@@ -221,7 +265,7 @@ $$
 I_{j \to i}(\alpha_j) \iff \exists m \in \mathcal{M}, \quad \omega_i(t', h(\alpha_i^0, \alpha_j), m) < \text{title}_i(m) \ \wedge\ \omega_i(t', h(\alpha_i^0, \alpha_j), m) < \omega_i(t, h, m)
 $$
 
-### Theorem 8.16 (The Coercive Menu-Stripping Equivalence Theorem)
+### Theorem 8.19 (The Coercive Menu-Stripping Equivalence Theorem)
 Under clean initial title ( $`\text{title}_i(m) \le \omega_i(t, h, m)`$ ) and tight-action richness, $I_{j \to i}(\alpha_j)$ holds if and only if $j$'s action strips at least one feasible action from $i$'s feasible action menu:
 
 $$
@@ -230,64 +274,202 @@ $$
 
 *Physical invasion is thus derived directly from the Action Axiom:* an action invades another agent if and only if it forcibly destroys or seizes scarce means, stripping previously feasible purposeful actions from the victim's choice menu without consent.
 
-### Definition 8.17 (Voluntary Exchange, Anchored Extortion, and Peaceful Competition)
-With directed physical invasion predicates $I_{i \to j}(\alpha_i)$ and $I_{j \to i}(\alpha_j)$ (shortened to $I_i, I_j$ when the counterparties are fixed):
+### Theorem 8.20 (Physical Invasion Precludes Respondent Gain Theorem)
+Suppose agent $i$ has a uniquely valued end $`e \in \mathcal{E}_i`$ requiring at least $req(e, m)$ units of means $m$. Suppose that in the uninvaded autonomous baseline $b_{\text{base}}$, $i$ holds sufficient means to attain $e$ ( $req(e, m) \le b_{\text{base}}(m)$ ).
 
-1. Voluntary exchange:
+If agent $j$'s action $\alpha_j$ invades $i$'s stock, contracting the resulting bundle $b_{\text{inv}}$ such that $b_{\text{inv}}(m) < req(e, m)$, then $b_{\text{inv}}$ fails to attain end $e$.
+
+Consequently, under teleological bundle dominance and strict preference asymmetry:
+1. The baseline bundle strictly dominates the invaded bundle ($b_{\text{base}} \succ_{\text{teleo}} b_{\text{inv}}$);
+2. Agent $i$ strictly prefers the baseline outcome to the invaded outcome; and
+3. Agent $i$ can never strictly prefer the invaded outcome to the autonomous baseline:
+
+$$
+\neg (O_i(\alpha_i, \alpha_j) \succ_i b_i)
+$$
+
+**Proof.** Since $b_{\text{inv}}(m) < req(e, m)$, the condition for attaining the valued end $e$ fails for $b_{\text{inv}}$, whereas $req(e, m) \le b_{\text{base}}(m)$ satisfies attainment for $b_{\text{base}}$. Because the baseline bundle attains $e$ while the invaded bundle fails to do so, $b_{\text{base}}$ strictly teleologically dominates $b_{\text{inv}}$, which induces the preference $b_i \succ_i O_i$. By preference asymmetry, $O_i \succ_i b_i$ is impossible. $\blacksquare$
+
+---
+
+## Bilateral Interaction Predicates and Mutual Exclusivity
+
+Having derived physical property, clean title, directed physical stock contraction ($I_{j \to i}$), and autonomous baselines ($b_i$) directly from the Action Axiom, we formulate the formal predicates that characterize bilateral human interaction.
+
+These predicates distinguish interactions along exact praxeological conditions:
+1. **Physical Stock Contraction** ($I_{j \to i}$): Does action $\alpha_j$ contract agent $i$'s physical stock below its baseline endowment ($I_{j \to i}$), or does it preserve $i$'s physical holdings ($\neg I_{j \to i}$)?
+2. **Legitimate Title Integrity** ( $`\text{title}_i`$ ): Does the resulting physical stock respect agent $i$'s legitimate clean title ( $`\forall m, \text{title}_i(m) \le \omega_i(m)`$ ), or does it contract $i$'s stock strictly below clean title ( $`\exists m, \omega_i(m) < \text{title}_i(m)`$ )?
+3. **Threat and Purposeful Compliance:** Does the interaction involve purposeful compliance under an invasive threat, or does it proceed without a compliance choice?
+4. **Subjective Welfare Relative to Inaction:** How does each participant order the resulting outcome relative to its autonomous baseline ($O \succ b$, $b \succ O$, or $O = b$)?
+
+### Definition 8.21 (Bilateral Interaction Predicates)
+At decision node $\langle t, h \rangle$, with directed physical invasion predicates $I_{i \to j}(\alpha_i)$ and $I_{j \to i}(\alpha_j)$ (shortened to $I_i, I_j$ ), we define the formal predicates governing bilateral actions $(\alpha_i, \alpha_j)$:
+
+1. **Voluntary Exchange:**
+   Neither participant physically contracts the other's stock, and both strictly prefer the joint outcome to their autonomous baselines:
    
 $$
 \neg I_i(\alpha_i) \wedge \neg I_j(\alpha_j) \wedge O_i(\alpha_i, \alpha_j) \succ_i b_i \wedge O_j(\alpha_i, \alpha_j) \succ_j b_j
 $$
 
-   Neither participant invades the other, and both strictly gain relative to their autonomous baselines.
-2. Anchored extortion:
-
+2. **Coercive Extortion:**
+   Agent $j$'s action is physically invasive against $i$ ( $I_j(\alpha_j)$ ), victim $i$ purposefully complies because compliance improves over the unmitigated threat outcome ( $O_i(\alpha_i, \alpha_j) \succ_i O_i(\alpha_i^0, \alpha_j)$ ), victim $i$ strictly prefers the uninvaded autonomous baseline to the outcome ( $b_i \succ_i O_i(\alpha_i, \alpha_j)$ ), and aggressor $j$ strictly prefers the outcome to inaction ( $O_j(\alpha_i, \alpha_j) \succ_j b_j$ ):
+   
 $$
-\begin{aligned}
-I_j(\alpha_j^{\text{threat}})\ \wedge\\
-&O_i(\alpha_i, \alpha_j^{\text{threat}}) \succ_i c_i(\alpha_j^{\text{threat}})\\
-\wedge\;&b_i \succ_i O_i(\alpha_i, \alpha_j^{\text{threat}})\\
-\wedge\;&O_j(\alpha_i, \alpha_j^{\text{threat}}) \succ_j b_j
-\end{aligned}
+I_j(\alpha_j) \wedge \text{PurposefulResponse}_i(\alpha_i, \alpha_j) \wedge b_i \succ_i O_i(\alpha_i, \alpha_j) \wedge O_j(\alpha_i, \alpha_j) \succ_j b_j
 $$
 
-   Agent $j$'s action is invasive (stripping $i$'s clean-title stocks and feasible menu), the victim complies because compliance improves upon refusal under the threat, the victim falls below the unmolested autonomous baseline, and the aggressor gains.
-3. Peaceful competition by $j$ against $i$:
-
+3. **Market Competition** (by $j$ against $i$):
+   Neither participant physically invades the other, competitor $j$ strictly improves over inaction while the other action remains fixed, and rival $i$ strictly prefers the autonomous baseline to the outcome:
+   
 $$
-\neg I_i(\alpha_i) \wedge \neg I_j(\alpha_j) \quad \wedge \quad O_j(\alpha_i, \alpha_j) \succ_j c_j(\alpha_i) \quad \wedge \quad b_i \succ_i O_i(\alpha_i, \alpha_j)
-$$
-
-The competitor's action is non-invasive, improves the competitor's result relative to that competitor's inaction while the other action remains fixed, and leaves the rival below the autonomous baseline. Crucially, peaceful competition preserves all of $i$'s clean-title stocks and leaves $i$'s feasible menu $`\mathcal{A}_{\text{feas}}`$ completely intact; the rival's loss is purely ordinal and catallactic, not a physical deprivation of means.
-
-### Proposition 8.18 (Peaceful Competition Excludes Anchored Extortion)
-*An interaction satisfying the peaceful-competition predicate cannot satisfy the anchored-extortion predicate for the same action pair.*
-
-**Proof.** Peaceful competition entails $\neg I_j(\alpha_j)$. Anchored extortion entails $I_j(\alpha_j)$. Their conjunction is contradictory. $\blacksquare$
-
-### Theorem 8.19 (The Three Interaction Categories Partition Theorem)
-*Under strict preference asymmetry, the three catallactic categories—Voluntary Exchange, Anchored Extortion, and Market Competition—are pairwise mutually exclusive:*
-
-$$
-\begin{aligned}
-\neg &(\text{VoluntaryExchange}(N, \alpha_i, \alpha_j) \land \text{CoerciveExtortion}(N, \alpha_i, \alpha_j)) \\
-{}\land \neg &(\text{VoluntaryExchange}(N, \alpha_i, \alpha_j) \land \text{MarketCompetition}(N, \alpha_i, \alpha_j)) \\
-{}\land \neg &(\text{CoerciveExtortion}(N, \alpha_i, \alpha_j) \land \text{MarketCompetition}(N, \alpha_i, \alpha_j))
-\end{aligned}
+\neg I_i(\alpha_i) \wedge \neg I_j(\alpha_j) \wedge O_j(\alpha_i, \alpha_j) \succ_j O_j(\alpha_i, \alpha_j^0) \wedge b_i \succ_i O_i(\alpha_i, \alpha_j)
 $$
 
-| Catallactic Category | Invasion by $j$ | Victim's comparison with autonomous baseline | Other agent's relevant gain |
-| :--- | :---: | :---: | :---: |
-| Voluntary Exchange | No, and $i$ is non-invasive | Yes | Gain over autonomous baseline |
-| Anchored Extortion | Yes | No: $b_i\succ_i O_i$ | Gain over autonomous baseline |
-| Market Competition | No, and $i$ is non-invasive | No: $b_i\succ_i O_i$ | Gain over $j$'s inaction with $i$'s action fixed |
+   Because neither participant invades property, peaceful competition preserves all of $i$'s clean-title stocks and leaves $i$'s feasible menu completely intact; the rival's loss occurs through peaceful preference shifts of third parties.
 
-**Proof.**
-1. Invasiveness directly separates Voluntary Exchange ($\neg I_j$) from Anchored Extortion ($I_j$).
-2. Subjective baseline comparison separates Voluntary Exchange ($O_i \succ_i b_i$) from Market Competition ($b_i \succ_i O_i$) by preference asymmetry ( $\neg (b_i \succ_i O_i \land O_i \succ_i b_i)$ ).
-3. Invasiveness separates Anchored Extortion ($I_j$) from Market Competition ($\neg I_j$). $\blacksquare$
+4. **Autarkic Non-Interference:**
+   Neither participant invades the other, agent $i$'s realized outcome equals the passive baseline, and agent $j$ strictly prefers the outcome to the passive baseline:
+   
+$$
+\neg I_i(\alpha_i) \wedge \neg I_j(\alpha_j) \wedge O_i(\alpha_i, \alpha_j) = b_i \wedge O_j(\alpha_i, \alpha_j) \succ_j b_j
+$$
 
-The three predicates separate voluntary exchange, extortion, and peaceful competition in the model. They do not classify every possible interaction. We use them to keep defensive compliance distinct from voluntary gain and a competitor's economic loss distinct from physical invasion.
+5. **Unilateral Gift:**
+   Neither participant invades the other, recipient $i$ strictly prefers the outcome to the autonomous baseline, and donor $j$ does not strictly prefer the outcome to the autonomous baseline:
+   
+$$
+\neg I_i(\alpha_i) \wedge \neg I_j(\alpha_j) \wedge O_i(\alpha_i, \alpha_j) \succ_i b_i \wedge \neg (O_j(\alpha_i, \alpha_j) \succ_j b_j)
+$$
+
+6. **Pure Destructive Aggression:**
+   Agent $j$ physically invades $i$'s stock while agent $i$ does not invade $j$, without purposeful compliance by $i$, reducing $i$'s stock strictly below clean title $`\text{title}_i`$, while $i$ strictly prefers the uninvaded baseline to the outcome:
+   
+$$
+I_j(\alpha_j) \wedge \neg I_i(\alpha_i) \wedge \neg \text{PurposefulResponse}_i(\alpha_i, \alpha_j) \wedge \left(\exists m \in \mathcal{M}, \ \omega_i(t', h(\alpha_i^0, \alpha_j), m) < \text{title}_i(m)\right) \wedge b_i \succ_i O_i(\alpha_i, \alpha_j)
+$$
+
+7. **Restitution and Title Recovery:**
+   Agent $j$ reclaims physical goods from $i$'s possession without extortive compliance by $i$, while leaving all of $i$'s legitimate title $`\text{title}_i`$ intact, and recovering agent $j$ strictly prefers the outcome to the baseline:
+   
+$$
+I_j(\alpha_j) \wedge \neg \text{PurposefulResponse}_i(\alpha_i, \alpha_j) \wedge \left(\forall m \in \mathcal{M}, \ \text{title}_i(m) \le \omega_i(t', h(\alpha_i^0, \alpha_j), m)\right) \wedge O_j(\alpha_i, \alpha_j) \succ_j b_j
+$$
+
+8. **Mutual Combat (Bilateral War):**
+   Both participants enact physically invasive actions against each other, neither complies under extortive threat, and both strictly prefer their autonomous baselines to the combat outcome:
+   
+$$
+I_i(\alpha_i) \wedge I_j(\alpha_j) \wedge \neg \text{PurposefulResponse}_i(\alpha_i, \alpha_j) \wedge b_i \succ_i O_i(\alpha_i, \alpha_j) \wedge b_j \succ_j O_j(\alpha_i, \alpha_j)
+$$
+
+9. **Coordination Failure (Mutual Malinvestment):**
+   Neither participant physically invades the other, but through uncoordinated action, both participants strictly prefer their autonomous baselines to the realized outcome, and agent $j$ fails to gain even conditionally:
+   
+$$
+\neg I_i(\alpha_i) \wedge \neg I_j(\alpha_j) \wedge b_i \succ_i O_i(\alpha_i, \alpha_j) \wedge b_j \succ_j O_j(\alpha_i, \alpha_j) \wedge \neg (O_j(\alpha_i, \alpha_j) \succ_j O_j(\alpha_i, \alpha_j^0))
+$$
+
+10. **Passive Inaction (Peaceful Coexistence):**
+    Neither participant physically invades the other, and both participants realize exact autonomous baseline outcomes:
+    
+$$
+\neg I_i(\alpha_i) \wedge \neg I_j(\alpha_j) \wedge O_i(\alpha_i, \alpha_j) = b_i \wedge O_j(\alpha_i, \alpha_j) = b_j
+$$
+
+The structural conditions defining these ten interaction classes are summarized in Table 8.1.
+
+| Interaction Class | Physical Contraction | Clean Title Preserved | Respondent Welfare ($i$ vs. $b_i$) | Threat Compliance | Initiator Welfare ($j$ vs. $b_j$) | Defining Mathematical Criterion |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **Voluntary Exchange** | None ($\neg I_i \wedge \neg I_j$) | Yes | Strict Gain ($O_i \succ_i b_i$) | No | Strict Gain ($O_j \succ_j b_j$) | Mutual gain without physical invasion |
+| **Coercive Extortion** | Unilateral by $j$ ($I_j$) | No | Strict Loss ($b_i \succ_i O_i$) | Yes ($O_i \succ_i c_i$) | Strict Gain ($O_j \succ_j b_j$) | Invasive threat forcing compliance |
+| **Market Competition** | None ($\neg I_i \wedge \neg I_j$) | Yes | Strict Loss ($b_i \succ_i O_i$) | No | Conditional Gain ($O_j \succ_j c_j$) | Rival loss with uninvaded stocks and menus |
+| **Autarkic Non-Interference** | None ($\neg I_i \wedge \neg I_j$) | Yes | Invariant ($O_i = b_i$) | No | Strict Gain ($O_j \succ_j b_j$) | Independent action; bystander invariant |
+| **Unilateral Gift** | None ($\neg I_i \wedge \neg I_j$) | Yes | Strict Gain ($O_i \succ_i b_i$) | No | Non-Strict ( $\neg(O_j \succ_j b_j)$ ) | Transfer without reciprocal trade |
+| **Pure Destructive Aggression** | Unilateral by $j$ ($I_j \wedge \neg I_i$) | No ( $`\exists m, \omega_i < \text{title}_i`$ ) | Strict Loss ($b_i \succ_i O_i$) | No | Unconstrained | Stock contraction below clean title |
+| **Restitution Recovery** | Unilateral by $j$ ($I_j$) | Yes ( $`\forall m, \text{title}_i \le \omega_i`$ ) | Unconstrained | No | Strict Gain ($O_j \succ_j b_j$) | Repossession restoring clean title |
+| **Mutual Combat** | Bilateral ($I_i \wedge I_j$) | No | Strict Loss ($b_i \succ_i O_i$) | No | Strict Loss ($b_j \succ_j O_j$) | Bilateral clash with mutual destruction |
+| **Coordination Failure** | None ($\neg I_i \wedge \neg I_j$) | Yes | Strict Loss ($b_i \succ_i O_i$) | No | Strict Loss ($b_j \succ_j O_j$) | Uninvaded bilateral malinvestment |
+| **Passive Inaction** | None ($\neg I_i \wedge \neg I_j$) | Yes | Invariant ($O_i = b_i$) | No | Invariant ($O_j = b_j$) | Bilateral quiescence preserving both baselines |
+
+### Theorem 8.22 (Pairwise Mutual Exclusivity of Bilateral Interaction Predicates)
+*Under strict preference asymmetry, preference irreflexivity, and the distinction between physical possession and clean title, the defined interaction classes are pairwise mutually exclusive across all 45 pairs:*
+
+$$
+A \neq B \implies \neg (A(i, j, \alpha_i, \alpha_j) \wedge B(i, j, \alpha_i, \alpha_j))
+$$
+
+Specifically, no bilateral interaction profile can simultaneously satisfy two distinct predicates:
+1. $\neg (\text{Exchange} \land \text{Extortion})$
+2. $\neg (\text{Exchange} \land \text{Competition})$
+3. $\neg (\text{Extortion} \land \text{Competition})$
+4. $\neg (\text{Autarky} \land \text{Exchange})$
+5. $\neg (\text{Autarky} \land \text{Extortion})$
+6. $\neg (\text{Autarky} \land \text{Competition})$
+7. $\neg (\text{Autarky} \land \text{Gift})$
+8. $\neg (\text{Autarky} \land \text{Aggression})$
+9. $\neg (\text{Autarky} \land \text{Restitution})$
+10. $\neg (\text{Gift} \land \text{Exchange})$
+11. $\neg (\text{Gift} \land \text{Extortion})$
+12. $\neg (\text{Gift} \land \text{Competition})$
+13. $\neg (\text{Gift} \land \text{Aggression})$
+14. $\neg (\text{Gift} \land \text{Restitution})$
+15. $\neg (\text{Aggression} \land \text{Exchange})$
+16. $\neg (\text{Aggression} \land \text{Extortion})$
+17. $\neg (\text{Aggression} \land \text{Competition})$
+18. $\neg (\text{Aggression} \land \text{Restitution})$
+19. $\neg (\text{Restitution} \land \text{Exchange})$
+20. $\neg (\text{Restitution} \land \text{Extortion})$
+21. $\neg (\text{Restitution} \land \text{Competition})$
+22. $\neg (\text{MutualCombat} \land \text{Exchange})$
+23. $\neg (\text{MutualCombat} \land \text{Extortion})$
+24. $\neg (\text{MutualCombat} \land \text{Competition})$
+25. $\neg (\text{MutualCombat} \land \text{Autarky})$
+26. $\neg (\text{MutualCombat} \land \text{Gift})$
+27. $\neg (\text{MutualCombat} \land \text{Aggression})$
+28. $\neg (\text{MutualCombat} \land \text{Restitution})$
+29. $\neg (\text{CoordinationFailure} \land \text{Exchange})$
+30. $\neg (\text{CoordinationFailure} \land \text{Extortion})$
+31. $\neg (\text{CoordinationFailure} \land \text{Competition})$
+32. $\neg (\text{CoordinationFailure} \land \text{Autarky})$
+33. $\neg (\text{CoordinationFailure} \land \text{Gift})$
+34. $\neg (\text{CoordinationFailure} \land \text{Aggression})$
+35. $\neg (\text{CoordinationFailure} \land \text{Restitution})$
+36. $\neg (\text{CoordinationFailure} \land \text{MutualCombat})$
+37. $\neg (\text{PassiveInaction} \land \text{Exchange})$
+38. $\neg (\text{PassiveInaction} \land \text{Extortion})$
+39. $\neg (\text{PassiveInaction} \land \text{Competition})$
+40. $\neg (\text{PassiveInaction} \land \text{Autarky})$
+41. $\neg (\text{PassiveInaction} \land \text{Gift})$
+42. $\neg (\text{PassiveInaction} \land \text{Aggression})$
+43. $\neg (\text{PassiveInaction} \land \text{Restitution})$
+44. $\neg (\text{PassiveInaction} \land \text{MutualCombat})$
+45. $\neg (\text{PassiveInaction} \land \text{CoordinationFailure})$
+
+**Proof.** Each pairwise conjunction produces an explicit logical contradiction from the underlying praxeological conditions:
+- *Physical Contraction* ($\neg I$ vs. $I$): Voluntary Exchange, Market Competition, Autarkic Non-Interference, Unilateral Gift, Coordination Failure, and Passive Inaction require that neither participant invades the other ($\neg I_i \wedge \neg I_j$). Conversely, Coercive Extortion, Pure Destructive Aggression, Restitution Recovery, and Mutual Combat require invasive action ($I_j$). This contradiction eliminates all 24 mixed-invasion pairs.
+- *Unilateral vs. Bilateral Invasion:* Mutual Combat requires that both agents invade each other ($I_i \wedge I_j$). Pure Destructive Aggression requires that agent $i$ does not invade agent $j$ ($\neg I_i$). This directly eliminates the pair $\text{MutualCombat} \land \text{Aggression}$.
+- *Threat Compliance Negation:* Coercive Extortion requires purposeful compliance by the victim under threat ( $`\text{PurposefulResponse}_i`$ ), while Pure Destructive Aggression, Restitution Recovery, and Mutual Combat require the absence of compliance ( $`\neg \text{PurposefulResponse}_i`$ ). This eliminates their conjunctions with Extortion.
+- *Strict Preference Asymmetry:*
+  - Voluntary Exchange and Unilateral Gift require $O_i \succ_i b_i$, while Market Competition, Mutual Combat, and Coordination Failure require $b_i \succ_i O_i$. Because strict preference is asymmetric ( $\neg(x \succ_i y \wedge y \succ_i x)$ ), these conditions cannot both hold.
+  - Restitution Recovery requires $O_j \succ_j b_j$, while Mutual Combat requires $b_j \succ_j O_j$. Preference asymmetry eliminates their conjunction.
+- *Strict Preference Irreflexivity:*
+  - Autarkic Non-Interference requires $O_i = b_i$. Conjoining this with $O_i \succ_i b_i$ (Exchange, Gift), with $b_i \succ_i O_i$ (Competition, Coordination Failure), or with $O_j \succ_j b_j$ yields an immediate contradiction of preference irreflexivity ($x \succ x$).
+  - Passive Inaction requires $O_i = b_i$ and $O_j = b_j$. Conjoining this with any strict gain or loss condition ($O_i \succ_i b_i$, $b_i \succ_i O_i$, $O_j \succ_j b_j$, or $b_j \succ_j O_j$) yields $b \succ b$, contradicting irreflexivity.
+- *Initiator Preference Negation:*
+  - Voluntary Exchange requires that the initiator strictly prefer the outcome over inaction ($O_j \succ_j b_j$), while Unilateral Gift requires $\neg(O_j \succ_j b_j)$.
+  - Market Competition requires conditional initiator gain ( $O_j(\alpha_i, \alpha_j) \succ_j O_j(\alpha_i, \alpha_j^0)$ ), while Coordination Failure requires the negation of this conditional gain.
+- *Clean Title vs. Possession:* Pure Destructive Aggression requires that the victim's physical stock fall strictly below clean title ( $`\exists m \in \mathcal{M}, \ \omega_i(m) < \text{title}_i(m)`$ ). Restitution Recovery requires that the possessor's legitimate title be preserved across all commodities ( $`\forall m \in \mathcal{M}, \ \text{title}_i(m) \le \omega_i(m)`$ ). For any commodity $m$ where stock falls below title, the second clause asserts title is less than or equal to stock, which is impossible by ordering on $\mathbb{N}$. $\blacksquare$
+
+### Praxeological Disjunctions and Welfare Theorems
+The pairwise mutual exclusivity theorem establishes several fundamental structural truths regarding human interaction:
+
+1. **Purposeful Compliance Does Not Imply Voluntary Exchange:** A victim of extortion acts purposefully under duress, selecting the best available option conditional on the threat ( $O_i(\alpha_i, \alpha_j) \succ_i c_i$ ). Nevertheless, extortion is strictly not voluntary exchange because it is predicated on physical invasion ($I_j$) and forces the victim below their autonomous baseline ($b_i \succ_i O_i$).
+2. **Demonstrated Welfare Asymmetry:** In voluntary exchange, both parties demonstrate a strict gain over their autonomous baselines ($O_i \succ_i b_i \wedge O_j \succ_j b_j$). In coercive extortion, the demonstrated gain is strictly one-sided: the aggressor gains while the victim strictly loses relative to unmolested inaction ($O_j \succ_j b_j \wedge b_i \succ_i O_i$).
+3. **Market Competition Is Strictly Non-Coercive:** Market competition and coercive extortion are mutually exclusive. In competition, an entrepreneur attracts buyers through voluntary trade, causing pecuniary loss to a rival ($b_i \succ_i O_i$). Because the competitor touches none of the rival's physical property ($\neg I_j$), the rival's physical means and feasible action menus remain completely intact. Extortion, by contrast, forcibly strips means and menu options from the victim.
+4. **Legitimate Restitution Is Distinct from Aggression:** Taking back stolen property contracts the current possessor's inventory, but does not invade legitimate property because the possessor has no clean title to the stolen goods ( $`\forall m, \text{title}_i(m) \le \omega_i(m)`$ ). Pure aggression deprives the victim below legitimate clean title ( $`\exists m, \omega_i(m) < \text{title}_i(m)`$ ). Restitution restores possession to match title; aggression disrupts clean title.
+5. **Mutual Combat vs. Coordination Failure:** Both represent bilateral loss relative to baseline peace ($b_i \succ_i O_i \wedge b_j \succ_j O_j$). However, Mutual Combat is driven by bilateral physical aggression ($I_i \wedge I_j$), whereas Coordination Failure occurs in completely peaceful environments ($\neg I_i \wedge \neg I_j$) where entrepreneurial or productive plans fail to harmonize.
+6. **Passive Inaction as the Neutral Baseline:** Passive inaction represents mutual non-interference where neither party alters the physical environment of the other and both realize their autonomous baselines ($O_i = b_i \wedge O_j = b_j$), serving as the neutral origin from which social gains and losses are evaluated.
 
 ---
 
@@ -295,7 +477,7 @@ The three predicates separate voluntary exchange, extortion, and peaceful compet
 
 An offer by itself changes no inventory. We now require the matching acceptance and then apply the inventory equations. Only after determining the physical transfer can we state the separate preference inequalities that characterize purposeful exchange.
 
-### Definition 8.20 (Matched Offer and Acceptance)
+### Definition 8.23 (Matched Offer and Acceptance)
 Fix distinct goods $m_A, m_B$ and quantities $q_A, q_B \in \mathbb{N}$. Put
 
 $$
@@ -307,7 +489,7 @@ The trade is matched on $h$ at $t$ when the enacted actions of $i$ and $j$ are r
 
 We assume positive quantities when discussing a nontrivial exchange. The balance equations themselves remain meaningful when one quantity is zero.
 
-### Proposition 8.21 (Physical Balances of Matched Exchange)
+### Proposition 8.24 (Physical Balances of Matched Exchange)
 Suppose the offer and acceptance are matched, and $t'$ is the immediate successor of $t$ on $h$. Write $`\omega'_k(m) = \omega(k, t', h, m)`$. Then
 
 $$
@@ -325,7 +507,7 @@ We write each balance using addition so that all stocks and transfers remain nat
 
 Each matched offer and acceptance is one trade step in the operational trace of Chapter 2. Chaining such steps with production and unmatched actions gives a finite inventory run, whose total-use and total-yield balance accounts for repeated transfers without losing their order. An unmatched offer or acceptance remains a step with no inventory change; it cannot be counted as a completed physical exchange.
 
-### Corollary 8.22 (Conservation of the Joint Stock)
+### Corollary 8.25 (Conservation of the Joint Stock)
 *For either traded commodity, the two-agent total is unchanged:*
 
 $$
@@ -338,10 +520,10 @@ Exchange therefore changes the distribution of means while preserving the releva
 
 These equations establish the physical change but say nothing about whether either person prefers it. We now return to purposeful choice: each trade action must be feasible and enacted, must improve on inaction, and must be undominated in that person's own feasible menu.
 
-### Definition 8.23 (Purposeful Bilateral Exchange)
+### Definition 8.26 (Purposeful Bilateral Exchange)
 A matched offer and acceptance constitute purposeful bilateral exchange when both are purposeful in the sense of Chapter 3 and both differ from passive inertia. Each action must be feasible and executed, must improve upon inertia, and must be undominated among the acting agent's feasible alternatives.
 
-### Theorem 8.24 (The Double Inequality of Voluntary Exchange Theorem)
+### Theorem 8.27 (The Double Inequality of Voluntary Exchange Theorem)
 *Purposeful bilateral exchange entails*
 
 $$
@@ -355,7 +537,7 @@ $$
 
 The theorem establishes that purposeful bilateral exchange requires mutual expected improvement over inaction, formally capturing the Double Inequality of Exchange within the choice structure.
 
-### Proposition 8.25 (Purposefulness on a Binary Trade Menu)
+### Proposition 8.28 (Purposefulness on a Binary Trade Menu)
 *Suppose each participant has only inertia and its trade action in its feasible menu. Suppose the trade actions are feasible, executed, distinct from inertia, and strictly preferred to inertia. Then both actions are purposeful, and the matched pair constitutes purposeful bilateral exchange.*
 
 **Proof.** Consider $i$. Feasibility, execution, and strict improvement are given. A feasible rival is either inertia or $\alpha_i$. Inertia cannot be strictly preferred to $\alpha_i$ by asymmetry; $\alpha_i$ cannot be strictly preferred to itself by irreflexivity. Thus no feasible rival dominates the trade action. The same argument applies to $j$. $\blacksquare$
@@ -374,7 +556,7 @@ This example satisfies the full choice conditions together with the matched tran
 
 We finish with a two-good production example. Relative labor requirements can make specialization advantageous even when one agent uses less labor in both activities. We first derive an interval in which each agent can obtain its import at a lower labor cost than producing it directly; then we add the production and budget conditions needed to compare complete consumption bundles with autarky.
 
-### Definition 8.26 (A Two-Agent Ricardian Economy)
+### Definition 8.29 (A Two-Agent Ricardian Economy)
 Let $L_i, L_j > 0$ be natural-number labor budgets, and let $a_i(g), a_j(g) > 0$ denote the labor requirements per unit of each good $`g \in \{0, 1\}`$. Agent $i$ has comparative advantage in good $0$ when
 
 $$
@@ -391,7 +573,7 @@ These ratios compare labor requirements, not preferences. In the natural-number 
 
 A difference in relative labor requirements suggests a division of tasks, but it does not yet establish a gain to either actor. A proof of gain needs two consumption bundles for each person: what that person can consume when producing independently, and what remains after specialization and exchange. We construct those bundles before choosing terms of trade.
 
-### Definition 8.27 (Autarky and Specialized Consumption)
+### Definition 8.30 (Autarky and Specialized Consumption)
 An autarky bundle $b_i^0=(b_i^0(0),b_i^0(1))$ is supported by an exact labor certificate: for some unused-labor remainder $r_i^0$,
 
 $$
@@ -411,7 +593,7 @@ Each production bundle also has an exact labor certificate, including its unused
 
 We now choose integer transfer quantities satisfying both labor-cost comparisons. The comparative-advantage inequality orders the two thresholds strictly, so we can select positive quantities between them using products and sums in $\mathbb{N}$.
 
-### Theorem 8.28 (The Law of Association and Comparative Advantage Theorem)
+### Theorem 8.31 (The Law of Association and Comparative Advantage Theorem)
 Under the comparative-advantage inequality, there exist positive integer transfer quantities $x_0, x_1$ such that
 
 $$
@@ -437,7 +619,7 @@ $$
 
 They support the explicit production and transfer quantities while recording unused labor in the balance. The larger factor-of-four budgets appear in the separate universal construction that builds an economy from arbitrary positive comparative-advantage coefficients. These are sufficient bounds for the stated construction, not necessary conditions for every gain from trade. The example evaluates bundles by coordinatewise weak improvement with a strict gain in at least one good; for more complex goods, we use the end-requirement comparison from Chapter 1.
 
-### Example 8.29 (Association under Absolute Advantage)
+### Example 8.32 (Association under Absolute Advantage)
 Let $a_i=(1,2)$, $a_j=(6,3)$, $L_i=120$, and $L_j=240$. Agent $i$ requires less labor in both lines, while comparative advantage lies in good $0$ because $1\cdot3<6\cdot2$. The autarky certificates use bundles $(0,12)$ and $(6,0)$; each requires 24 and 36 units of labor respectively, with the remaining 96 and 204 units recorded as unused labor. Under specialization, production is $(24,0)$ for $i$ and $(0,12)$ for $j$, leaving 96 and 204 units unused.
 
 The trade quantities are $x_0=15$ and $x_1=12$. The post-trade bundles are $(9,12)$ and $(15,0)$, certified by $9+15=24$, $12=0+12$, $15=0+15$, and $0+12=12$. Each trader retains its baseline quantity of good $1$ and gains nine units of good $0$. This finite witness follows the exact balances in the formal example.
@@ -446,9 +628,9 @@ The trade quantities are $x_0=15$ and $x_1=12$. The post-trade bundles are $(9,1
 
 The formal development also gives a converse boundary: if the cross-multiplied opportunity costs are equal, the labor-cost inequalities for a feasible exchange cannot include the strict gain condition for agent $i$ that appears in the certificate. Equal opportunity costs therefore cannot supply the strict mutual-gain certificate used here. With unequal opportunity costs, a further certificate starts from an interior autarky bundle when $q_{i1}\ge a_i(0)a_j(0)$ and $q_{j0}\ge a_i(0)a_j(1)$. It constructs labor-balanced production and covered transfers such that agent $i$ strictly gains, agent $j$ retains its original bundle, total good $1$ is conserved, and aggregate good $0$ rises. The result is deliberately one-sided and requires those specific minimum components; it does not claim that every bundle with some positive output in both goods admits the same construction.
 
-### Witness 8.30 (Program Action Frame Bilateral Exchange Witness)
-The formal system provides a constructive witness (`Praxeology/Catallactics/ProgramExchangeWitness.lean`) that executes a matched two-good exchange inside the recursive physical `ProgramActionFrame`:
-1. **Physical Program Execution**: Two agents with initial endowments $\omega_0 = \langle 0, 1 \rangle$ and $\omega_1 = \langle 1, 0 \rangle$ simultaneously submit matched `.offer` and `.accept` actions exchanging one unit of good 1 for one unit of good 0. The physical transition balance conserves stocks and executes the transfer.
+### Witness 8.33 (Bilateral Exchange Witness)
+A constructive finite witness executes a matched two-good exchange inside an explicit operational frame:
+1. **Physical Program Execution**: Two agents with initial endowments $\omega_0 = \langle 0, 1 \rangle$ and $\omega_1 = \langle 1, 0 \rangle$ simultaneously submit matched offer ($\alpha_{\text{offer}}$) and acceptance ($\alpha_{\text{accept}}$) actions exchanging one unit of good 1 for one unit of good 0. The physical transition balance conserves stocks and executes the transfer.
 2. **Autonomous Ordinal Preferences**: Each agent's preference is an independent, explicit ordinal ranking over the good they seek ($`\text{good}_0`$ for agent 0, $`\text{good}_1`$ for agent 1). Preferences are strictly independent of the physical transfer technology.
 3. **Joint Purposefulness**: Both the offer and the acceptance are proved undominated and strictly improve over inaction, satisfying the Double Inequality of Exchange within the compiled action frame.
 

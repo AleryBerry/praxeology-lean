@@ -561,15 +561,6 @@ theorem ground_calhoun_action_frame_run_class_partition
   calhoun_action_frame_run_class_partition Cohort runs m deadweight_loss
     h_run_balance s hs_mem hs_gain
 
-/-- Ground instantiation of Theorem 4.1c: Exclusivity of Rothbard-Megger welfare trichotomy. -/
-theorem ground_rothbard_megger_trichotomy
-    [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}
-    (α_i α_j : W.Action) :
-    ¬ (IsVoluntaryExchange i j t h α_i α_j ∧ IsCoerciveExtortion i j t h α_i α_j) ∧
-    ¬ (IsVoluntaryExchange i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
-    ¬ (IsCoerciveExtortion i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) :=
-  rothbard_megger_trichotomy_mutual_exclusivity α_i α_j
-
 /-- Ground instantiation of Knaster-Tarski non-monotonicity countermodel (Finset). -/
 theorem ground_concrete_phi_non_monotone_witness :
     let Agent := Fin 3
@@ -880,6 +871,220 @@ theorem ground_compositionally_self_falsifying_cohort_forecasts
       EntrepreneurialCycleConclusion (C.project e₁).cycle ∧
       EntrepreneurialCycleConclusion (C.project e₂).cycle) :=
   PriceSqueezeCohort.compositionally_self_falsifying_cohort_forecasts S
+
+/-- Ground instantiation of Lockean proviso feasibility under alternative abundance:
+When bystander `j` contemplates a distinct homesteading action `β` for `m_alt`, `β` requires
+zero prior means and remains feasible across `i`'s appropriation of `m`. -/
+theorem ground_lockean_proviso_abundant_alternative_remains_feasible
+    {W : ActionFrame} {i j : W.Agent} {t t' : W.Moment} {h : W.History}
+    {α β : W.Action} {m m_alt : W.Means}
+    (h_home_j : IsLockeanHomesteading β m_alt)
+    (h_cont_t : β ∈ W.A_cont j t h)
+    (h_cont_t' : β ∈ W.A_cont j t' h)
+    (h_homestead_i : IsLockeanHomesteading α m)
+    (h_exec_i : W.enacted i t h = α)
+    (h_passive_j : W.enacted j t h = W.alpha_zero)
+    (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
+    β ∈ W.A_feas j t h ∧
+    β ∈ W.A_feas j t' h ∧
+    W.omega i t h m < W.omega i t' h m ∧
+    StockPreserved j t t' h ∧
+    ResourceMenuPreserved j t t' h :=
+  lockean_proviso_abundant_alternative_remains_feasible
+    h_home_j h_cont_t h_cont_t' h_homestead_i h_exec_i h_passive_j h_next
+
+/-- Ground instantiation of sole resource appropriation:
+When an unappropriated resource `m` is unowned by bystander `j`, actions requiring `m` were
+already infeasible at `t`, so `i`'s appropriation strips zero feasible actions from `j`. -/
+theorem ground_sole_resource_appropriation_preserves_feasible_menu
+    {W : ActionFrame} {i j : W.Agent} {t t' : W.Moment} {h : W.History}
+    {α γ : W.Action} {m : W.Means}
+    (h_unowned_j : W.omega j t h m = 0)
+    (h_req_γ : 0 < W.use_means γ m)
+    (h_homestead_i : IsLockeanHomesteading α m)
+    (h_exec_i : W.enacted i t h = α)
+    (h_passive_j : W.enacted j t h = W.alpha_zero)
+    (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
+    γ ∉ W.A_feas j t h ∧
+    W.omega i t h m < W.omega i t' h m ∧
+    StockPreserved j t t' h ∧
+    ResourceMenuPreserved j t t' h ∧
+    (∀ β, ¬ FeasibleMenuStripped j t t' h β) :=
+  sole_resource_appropriation_preserves_feasible_menu
+    h_unowned_j h_req_γ h_homestead_i h_exec_i h_passive_j h_next
+
+/-- Ground instantiation of invasion precluding respondent gain:
+When `j`'s invasive action physically contracts `i`'s stock of means `m` below the requirement
+for a valued end `e` that `i`'s baseline stock attains, `i`'s baseline bundle teleologically
+dominates the invaded bundle, precluding respondent gain. -/
+theorem ground_physical_invasion_depriving_valued_end_precludes_respondent_gain
+    [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}
+    (α_i α_j : W.Action) (m : W.Means) (e : W.Ends)
+    (b_base b_inv : W.Means → ℕ)
+    (h_base_end : jointEndI i j t h W.alpha_zero W.alpha_zero = W.BundleEnd b_base)
+    (h_inv_end : jointEndI i j t h α_i α_j = W.BundleEnd b_inv)
+    (h_valued : W.ValuedEnd i t h e)
+    (h_unique : ∀ e', W.ValuedEnd i t h e' → e' = e)
+    (h_req_base : ∀ m', W.requirement e m' ≤ b_base m')
+    (h_inv_short : b_inv m < W.requirement e m) :
+    ¬ W.Preference i t h (jointEndI i j t h α_i α_j)
+        (jointEndI i j t h W.alpha_zero W.alpha_zero) :=
+  physical_invasion_depriving_valued_end_precludes_respondent_gain
+    α_i α_j m e b_base b_inv h_base_end h_inv_end h_valued h_unique h_req_base h_inv_short
+
+/-- Ground instantiation of the pairwise mutual exclusivity across all ten bilateral
+interaction classes: voluntary exchange, coercive extortion, market competition,
+autarkic non-interference, unilateral gift, pure destructive aggression, restitution recovery,
+mutual combat, coordination failure, and passive inaction (all 45 pairs). -/
+theorem ground_praxeological_interaction_classes_pairwise_mutual_exclusivity
+    [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}
+    (title_i : W.Means → ℕ) (α_i α_j : W.Action) :
+    ¬ (IsVoluntaryExchange i j t h α_i α_j ∧ IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsVoluntaryExchange i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsCoerciveExtortion i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsAutarkicNonInterference i j t h α_i α_j ∧ IsVoluntaryExchange i j t h α_i α_j) ∧
+    ¬ (IsAutarkicNonInterference i j t h α_i α_j ∧ IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsAutarkicNonInterference i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsAutarkicNonInterference i j t h α_i α_j ∧ IsUnilateralGift i j t h α_i α_j) ∧
+    ¬ (IsAutarkicNonInterference i j t h α_i α_j ∧
+        IsPureDestructiveAggression i j t h title_i α_i α_j) ∧
+    ¬ (IsAutarkicNonInterference i j t h α_i α_j ∧
+        IsRestitutionRecovery i j t h title_i α_i α_j) ∧
+    ¬ (IsUnilateralGift i j t h α_i α_j ∧ IsVoluntaryExchange i j t h α_i α_j) ∧
+    ¬ (IsUnilateralGift i j t h α_i α_j ∧ IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsUnilateralGift i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsUnilateralGift i j t h α_i α_j ∧
+        IsPureDestructiveAggression i j t h title_i α_i α_j) ∧
+    ¬ (IsUnilateralGift i j t h α_i α_j ∧
+        IsRestitutionRecovery i j t h title_i α_i α_j) ∧
+    ¬ (IsPureDestructiveAggression i j t h title_i α_i α_j ∧
+        IsVoluntaryExchange i j t h α_i α_j) ∧
+    ¬ (IsPureDestructiveAggression i j t h title_i α_i α_j ∧
+        IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsPureDestructiveAggression i j t h title_i α_i α_j ∧
+        IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsPureDestructiveAggression i j t h title_i α_i α_j ∧
+        IsRestitutionRecovery i j t h title_i α_i α_j) ∧
+    ¬ (IsRestitutionRecovery i j t h title_i α_i α_j ∧
+        IsVoluntaryExchange i j t h α_i α_j) ∧
+    ¬ (IsRestitutionRecovery i j t h title_i α_i α_j ∧
+        IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsRestitutionRecovery i j t h title_i α_i α_j ∧
+        IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsMutualCombat i j t h α_i α_j ∧ IsVoluntaryExchange i j t h α_i α_j) ∧
+    ¬ (IsMutualCombat i j t h α_i α_j ∧ IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsMutualCombat i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsMutualCombat i j t h α_i α_j ∧ IsAutarkicNonInterference i j t h α_i α_j) ∧
+    ¬ (IsMutualCombat i j t h α_i α_j ∧ IsUnilateralGift i j t h α_i α_j) ∧
+    ¬ (IsMutualCombat i j t h α_i α_j ∧
+        IsPureDestructiveAggression i j t h title_i α_i α_j) ∧
+    ¬ (IsMutualCombat i j t h α_i α_j ∧
+        IsRestitutionRecovery i j t h title_i α_i α_j) ∧
+    ¬ (IsCoordinationFailure i j t h α_i α_j ∧ IsVoluntaryExchange i j t h α_i α_j) ∧
+    ¬ (IsCoordinationFailure i j t h α_i α_j ∧ IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsCoordinationFailure i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsCoordinationFailure i j t h α_i α_j ∧ IsAutarkicNonInterference i j t h α_i α_j) ∧
+    ¬ (IsCoordinationFailure i j t h α_i α_j ∧ IsUnilateralGift i j t h α_i α_j) ∧
+    ¬ (IsCoordinationFailure i j t h α_i α_j ∧
+        IsPureDestructiveAggression i j t h title_i α_i α_j) ∧
+    ¬ (IsCoordinationFailure i j t h α_i α_j ∧
+        IsRestitutionRecovery i j t h title_i α_i α_j) ∧
+    ¬ (IsCoordinationFailure i j t h α_i α_j ∧ IsMutualCombat i j t h α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧ IsVoluntaryExchange i j t h α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧ IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧ IsAutarkicNonInterference i j t h α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧ IsUnilateralGift i j t h α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧
+        IsPureDestructiveAggression i j t h title_i α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧
+        IsRestitutionRecovery i j t h title_i α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧ IsMutualCombat i j t h α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧ IsCoordinationFailure i j t h α_i α_j) :=
+  praxeological_interaction_classes_pairwise_mutual_exclusivity title_i α_i α_j
+
+/-- Ground instantiation of spatial Cantillon malinvestment squeeze:
+Under network monetary diffusion, a downstream entrepreneur situated at distance
+`hop_stage < diff.hop_dist S.investment.i` holds unaugmented cash, which becomes insufficient
+under upstream factor price wave `P_wave`, blocking project completion and inducing cycle regret. -/
+theorem ground_spatial_cantillon_malinvestment_squeeze
+    [W : ActionFrame] [BilateralExchangeFrame W] [DecidableEq W.Agent]
+    {Context : Type}
+    (S : EntrepreneurialCycleScenario W Context)
+    (diff : CantillonNetworkDiffusion W.Agent)
+    (v_b : W.Agent → ℕ)
+    (hop_stage : ℕ) (P_pre P_wave : ℕ) (m_money : W.Means)
+    (h_downstream : hop_stage < diff.hop_dist S.investment.i)
+    (h_intra_pre : P_pre ≤ v_b S.investment.i)
+    (h_below_wave : v_b S.investment.i < P_wave)
+    (h_cash_below_wave :
+      W.omega S.investment.i S.investment.next S.investment.x.history m_money < P_wave)
+    (h_wave_cost : P_wave ≤ W.use_means S.investment.completion m_money)
+    (h_purposeful : PurposefulAct S.investment.i S.investment.x.moment
+      S.investment.x.history S.investment.investment) :
+    P_pre ≤ diff.effective_bid v_b 0 S.investment.i ∧
+    diff.effective_bid v_b hop_stage S.investment.i < P_wave ∧
+    diff.effective_cash
+      (fun a => W.omega a S.investment.next S.investment.x.history m_money)
+      hop_stage S.investment.i =
+      W.omega S.investment.i S.investment.next S.investment.x.history m_money ∧
+    BlockedCompletion S.investment.i S.investment.next S.investment.x.history
+      S.investment.completion ∧
+    EntrepreneurialCycleConclusion S :=
+  spatial_cantillon_malinvestment_squeeze
+    S diff v_b hop_stage P_pre P_wave m_money h_downstream h_intra_pre h_below_wave
+    h_cash_below_wave h_wave_cost h_purposeful
+
+/-- Ground instantiation of inflationary delegation contract hollow-out:
+When upstream monetary expansion eliminates real wage purchasing power while the task depletes
+effort means below the requirement for a valued rest end, remaining idle teleologically dominates
+task execution, precluding purposeful execution. -/
+theorem ground_inflationary_delegation_contract_hollow_out
+    {W : ActionFrame} {V : DelegationVocabulary W}
+    (P : DelegationProposal V) (X : DelegationExecution P)
+    (net : CantillonNetwork (W := W))
+    (h_op_downstream : P.operator = net.downstream)
+    (h_wage_matches : net.M_downstream = P.compensationQuantity)
+    (m_effort : W.Means) (e_rest : W.Ends)
+    (b_work b_idle : W.Means → ℕ)
+    (h_end_task : W.End_of P.operator X.task X.workMoment P.history = W.BundleEnd b_work)
+    (h_end_idle : W.End_of P.operator W.alpha_zero X.workMoment P.history = W.BundleEnd b_idle)
+    (h_valued : W.ValuedEnd P.operator X.workMoment P.history e_rest)
+    (h_unique : ∀ e', W.ValuedEnd P.operator X.workMoment P.history e' → e' = e_rest)
+    (h_idle_attains : ∀ m, W.requirement e_rest m ≤ b_idle m)
+    (h_work_short : b_work m_effort < W.requirement e_rest m_effort) :
+    P.operator = net.downstream ∧
+    CanAffordQuantity 1 net.P_pre P.compensationQuantity ∧
+    (∀ q, 0 < q → ¬ CanAffordQuantity q net.P_post P.compensationQuantity) ∧
+    W.SubjectiveTeleologicalDominates P.operator X.workMoment P.history b_idle b_work ∧
+    ¬ @PurposefulAct W P.operator X.workMoment P.history X.task :=
+  inflationary_delegation_contract_hollow_out
+    P X net h_op_downstream h_wage_matches m_effort e_rest b_work b_idle
+    h_end_task h_end_idle h_valued h_unique h_idle_attains h_work_short
+
+/-- Ground instantiation of Gresham debt withholding:
+When legal tender distortion makes an alternative bad-money tender feasible and strictly preferred
+to contract media, offering contract repayment is strictly non-purposeful, even under solvency. -/
+theorem ground_gresham_solvent_repayment_withholding_non_purposeful
+    {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : PawnLoanTerms W} (h : W.History)
+    (m_bad : W.Means)
+    (e_tender_good e_tender_bad : W.Ends)
+    (α_tender : W.Agent → W.Means → W.Action)
+    (h_offer_is_good_tender :
+      α_tender T.borrower T.money =
+        W.Offer T.borrower T.lender T.repayment T.money T.collateralQuantity T.collateral)
+    (h_tender_pref : W.Preference T.borrower T.maturity h e_tender_bad e_tender_good)
+    (h_bad_feas : α_tender T.borrower m_bad ∈ W.A_feas T.borrower T.maturity h)
+    (h_end_bad : W.End_of T.borrower (α_tender T.borrower m_bad) T.maturity h =
+      e_tender_bad)
+    (h_end_good : W.End_of T.borrower (α_tender T.borrower T.money) T.maturity h =
+      e_tender_good) :
+    ¬ @PurposefulAct W T.borrower T.maturity h
+      (W.Offer T.borrower T.lender T.repayment T.money T.collateralQuantity T.collateral) :=
+  gresham_solvent_repayment_withholding_non_purposeful
+    h m_bad e_tender_good e_tender_bad α_tender h_offer_is_good_tender
+    h_tender_pref h_bad_feas h_end_bad h_end_good
 
 end Praxeology
 

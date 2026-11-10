@@ -254,7 +254,7 @@ $$
 \omega(i,t',h,m)+0=\omega(i,t,h,m)+0.
 $$
 
-Equality after adding zero gives $\omega(i,t',h,m)=\omega(i,t,h,m)$ for every means. Formally, [`ActionFrame.inaction_preserves_endowments`](../Praxeology/Frame/Core.lean) establishes that whenever $\text{enacted}(i, t, h) = \alpha_0$ and $\text{succ}(t, t', h)$, the balance equation forces $\omega(i, t', h, m) = \omega(i, t, h, m)$ for all $m$. $\blacksquare$
+Equality after adding zero gives $\omega(i,t',h,m)=\omega(i,t,h,m)$ for every means. Whenever an agent enacts inaction $\alpha_0$ along an immediate temporal transition, the physical balance equation ensures that physical endowments are strictly conserved for all means $m$. $\blacksquare$
 
 ### Proposition 2.14 (Inventory Changes Reflect Inputs and Outputs)
 Let $t'$ be an immediate successor of $t$ along history $h$, with $\text{enacted}(i, t, h) = \alpha$.
@@ -270,7 +270,7 @@ $$
 \omega(i, t', h, m) + u(\alpha, m) = \omega(i, t, h, m)
 $$
 
-**Proof.** If $u(\alpha,m)=0$, the balance reads $\omega(i,t',h,m)=\omega(i,t,h,m)+y(\alpha,m)$, so stock cannot decrease. If $y(\alpha,m)=0$, the balance reads $\omega(i,t',h,m)+u(\alpha,m)=\omega(i,t,h,m)$. Since use is nonnegative, the next stock cannot exceed the current stock. Feasibility also ensures that the consumed amount is covered. Formally, [`ActionFrame.pure_production_yield_only`](../Praxeology/Frame/Core.lean) and [`ActionFrame.pure_consumption_use_only`](../Praxeology/Frame/Core.lean) deduce the exact resulting stocks directly from the non-trade transition law. $\blacksquare$
+**Proof.** If $u(\alpha,m)=0$, the balance reads $\omega(i,t',h,m)=\omega(i,t,h,m)+y(\alpha,m)$, so stock cannot decrease. If $y(\alpha,m)=0$, the balance reads $\omega(i,t',h,m)+u(\alpha,m)=\omega(i,t,h,m)$. Since use is nonnegative, the next stock cannot exceed the current stock. Feasibility also ensures that the consumed amount is covered. The exact resulting stocks follow directly from the non-trade transition law. $\blacksquare$
 
 ## Multi-Step Operational Traces
 

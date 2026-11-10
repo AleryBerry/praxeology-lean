@@ -747,4 +747,53 @@ theorem catallactic_bottleneck_preemption_cycle_regret
   have h_cycle := S.regret_of_blocked_completion h_blocked purposeful
   exact ⟨h_cycle, h_blocked⟩
 
+/-- Under network-topological monetary diffusion, a downstream entrepreneur situated at
+distance `hop_stage < diff.hop_dist S.investment.i` holds unaugmented cash balance.
+When the upstream factor price wave `P_wave` exceeds the entrepreneur's unaugmented cash,
+project completion becomes physically infeasible, blocking completion and inducing
+entrepreneurial cycle failure with contextual regret. -/
+theorem spatial_cantillon_malinvestment_squeeze
+    [W : ActionFrame] [BilateralExchangeFrame W] [DecidableEq W.Agent]
+    {Context : Type}
+    (S : EntrepreneurialCycleScenario W Context)
+    (diff : CantillonNetworkDiffusion W.Agent)
+    (v_b : W.Agent → ℕ)
+    (hop_stage : ℕ) (P_pre P_wave : ℕ) (m_money : W.Means)
+    (h_downstream : hop_stage < diff.hop_dist S.investment.i)
+    (h_intra_pre : P_pre ≤ v_b S.investment.i)
+    (h_below_wave : v_b S.investment.i < P_wave)
+    (h_cash_below_wave :
+      W.omega S.investment.i S.investment.next S.investment.x.history m_money < P_wave)
+    (h_wave_cost : P_wave ≤ W.use_means S.investment.completion m_money)
+    (h_purposeful : PurposefulAct S.investment.i S.investment.x.moment
+      S.investment.x.history S.investment.investment) :
+    P_pre ≤ diff.effective_bid v_b 0 S.investment.i ∧
+    diff.effective_bid v_b hop_stage S.investment.i < P_wave ∧
+    diff.effective_cash
+      (fun a => W.omega a S.investment.next S.investment.x.history m_money)
+      hop_stage S.investment.i =
+      W.omega S.investment.i S.investment.next S.investment.x.history m_money ∧
+    BlockedCompletion S.investment.i S.investment.next S.investment.x.history
+      S.investment.completion ∧
+    EntrepreneurialCycleConclusion S := by
+  have h_bid := cantillon_hop_shifts_clearing_price_and_crowds_out_downstream
+    diff v_b hop_stage P_pre P_wave S.investment.i h_downstream h_intra_pre h_below_wave
+  have h_not_le : ¬ (diff.hop_dist S.investment.i ≤ hop_stage) := by omega
+  have h_cash : diff.effective_cash
+      (fun a => W.omega a S.investment.next S.investment.x.history m_money)
+      hop_stage S.investment.i =
+      W.omega S.investment.i S.investment.next S.investment.x.history m_money := by
+    dsimp [CantillonNetworkDiffusion.effective_cash]
+    split_ifs; omega
+  have h_short : W.omega S.investment.i S.investment.next S.investment.x.history m_money <
+      W.use_means S.investment.completion m_money :=
+    lt_of_lt_of_le h_cash_below_wave h_wave_cost
+  have h_infeas := completion_infeasible_of_cash_shortfall
+    S.investment.i S.investment.next S.investment.x.history
+    S.investment.completion m_money h_short
+  have h_blocked : BlockedCompletion S.investment.i S.investment.next
+      S.investment.x.history S.investment.completion := ⟨h_infeas.1⟩
+  have h_cycle := S.regret_of_blocked_completion h_blocked h_purposeful
+  exact ⟨h_bid.1, h_bid.2, h_cash, h_blocked, h_cycle⟩
+
 end Praxeology

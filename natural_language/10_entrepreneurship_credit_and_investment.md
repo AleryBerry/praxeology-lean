@@ -537,6 +537,46 @@ Finally, our formalization clarifies the exact boundary of what empirical observ
 
 This boundary establishes that while the physical coordinates of the monetary structure ($\mathbf{M}$, $\Delta_{\mathrm{overhang}}$, $\rho$) are rigorously measurable, economists cannot construct a single scalar aggregate that predicts human choice without violating the fundamental principles of praxeology.
 
+### Spatial Dissemination and Strategic Tender Withholding
+
+How money spreads through trade networks also shows why single price-level indexes fail to describe real economic action:
+
+### Theorem 10.31 (The Spatial Cantillon Malinvestment Squeeze Theorem)
+Let $\mathcal{G} = (\mathcal{I}, \mathcal{E})$ be a directed trading and credit network. Suppose credit expansion originates at an injection node at moment $t_{\mathrm{inj}}$ and spreads outward over time, raising input prices along trade paths to $P_{\mathrm{wave}}$.
+
+Consider an entrepreneur $i$ whose network distance from the injection point exceeds the transmission distance reached by time $t_{\mathrm{inter}}$ ( $\mathrm{dist}(i) > d$ ). Suppose:
+1. The new money has not yet reached entrepreneur $i$, leaving $i$'s cash balance unchanged: $\omega_i(t_{\mathrm{inter}}, h, m_{\mathrm{money}}) = \omega_i(t_{\mathrm{orig}}, h, m_{\mathrm{money}})$;
+2. The wave of higher factor prices reaches $i$'s suppliers before $i$ sells output, raising the cash required to purchase complementary factors above $i$'s available cash: $C^+(P_{\mathrm{wave}}, x_i) > \omega_i(t_{\mathrm{inter}}, h, m_{\mathrm{money}})$;
+3. A safer alternative project was feasible at the start and yields a better outcome than leaving the current project unfinished.
+
+Then:
+1. Purchasing the required complementary factor is physically infeasible for entrepreneur $i$ at $t_{\mathrm{inter}}$: $`\alpha_{\mathrm{factor}} \notin \mathcal{A}_{\mathrm{feas}}(i, t_{\mathrm{inter}}, h)`$;
+2. The production project cannot be completed;
+3. Intermediate capital goods remain unfinished and stranded; and
+4. At project maturity, entrepreneur $i$ experiences strict regret relative to the safe alternative.
+
+**Proof.** Because $\mathrm{dist}(i) > d$, the new money has not reached entrepreneur $i$ by $t_{\mathrm{inter}}$, so $i$'s cash balance remains at its initial level. Since the higher factor prices require more cash than $i$ holds ( $C^+(P_{\mathrm{wave}}, x_i) > \omega_i$ ), purchasing the required factor violates physical endowment coverage ([Proposition 10.11](#proposition-1011-spot-purchase-feasibility-and-impossibility-of-additive-aggregation)) and is infeasible. Without this complementary factor, the project cannot be completed, leaving intermediate capital stranded. Because the safe alternative yields a strictly preferred outcome, the entrepreneur suffers strict regret. $\blacksquare$
+
+### Theorem 10.32 (The Gresham Solvent Repayment Withholding Theorem)
+Consider a solvent debtor with a loan obligation $\mathcal{L}$ that specifies repayment in good money $\alpha_{\mathrm{good}}$. Suppose legal tender laws establish an overvalued alternative money $\alpha_{\mathrm{bad}}$ such that:
+1. The debtor holds enough physical stock to repay in good money: $`\alpha_{\mathrm{good}} \in \mathcal{A}_{\mathrm{feas}}(i, t, h)`$;
+2. Paying in the alternative money $\alpha_{\mathrm{bad}}$ is also feasible: $`\alpha_{\mathrm{bad}} \in \mathcal{A}_{\mathrm{feas}}(i, t, h)`$;
+3. The debtor strictly prefers keeping the good money and paying with the overvalued money:
+
+$$
+O_i(\alpha_{\mathrm{bad}}) \succ_{i, t, h} O_i(\alpha_{\mathrm{good}})
+$$
+
+Then repaying in good money $\alpha_{\mathrm{good}}$ fails the undominatedness condition of purposeful action:
+
+$$
+\neg \mathsf{P}(i, t, h, \alpha_{\mathrm{good}})
+$$
+
+Consequently, paying in good money is not purposeful despite full solvency: legal tender distortions lead debtors to withhold good money and repay in cheaper currency (Gresham's Law).
+
+**Proof.** By [Definition 3.1](03_preference_purpose_and_opportunity_cost.md#definition-31-physical-scarcity-predicate), an action is purposeful only if it is not strictly dominated by any feasible alternative. Because paying with $\alpha_{\mathrm{bad}}$ is feasible and its outcome is strictly preferred to paying with $\alpha_{\mathrm{good}}$, $\alpha_{\mathrm{good}}$ fails the undominatedness requirement of $\mathsf{P}$. The debtor therefore withholds the good money. $\blacksquare$
+
 ---
 
 ## The Complete Credit Lifecycle Action Frame Witness
@@ -555,16 +595,16 @@ The lifecycle model is defined over a branching temporal frame consisting of:
 
 The tree represents origination and later repayment or nonpayment as separate events. Its main history includes issuance, two advances, project completion, two matched repayments, and maturity. Side histories represent selected refusals or unmatched bilateral transfers. The quote at origination requires neither later outcome:
 - **Moment 0 (Fiduciary Issuance):** The lending agent enacts a note-issuance action. In accordance with [Proposition 10.10](#proposition-1010-physical-effects-of-note-issuance), the issuer's money balance increases by the principal quantity, while collateral and the balances of other agents remain unchanged.
-- **Moments 1 and 2 (Matched Collateralized Advances):** The lender and each borrower enact matching bilateral exchange actions ($\text{Offer}$ and $\text{Accept}$). By the bilateral transfer law, principal in money moves from the lender to the borrower, while the stipulated collateral moves from the borrower into the lender's custody. The physical event is recorded in Lean as `AdvanceExecution`.
+- **Moments 1 and 2 (Matched Collateralized Advances):** The lender and each borrower enact matching bilateral exchange actions ($\text{Offer}$ and $\text{Accept}$). By the bilateral transfer law, principal in money moves from the lender to the borrower, while the stipulated collateral moves from the borrower into the lender's custody.
 - **Subsequent Branching (Completion and Transfer Outcomes):** The timeline branches into continuations that differ in whether the bilateral transfers match:
-  - *Successful Repayment Branch:* The borrower carries out the represented production and a matched repayment of the promised amount, returning the stipulated collateral quantity. The physical event is recorded as `RepaymentExecution`, requiring that repayment settles by contractual maturity under the reflexive precedence closure `atOrBefore(x, y) := x = y ∨ Precedence x y`.
+  - *Successful Repayment Branch:* The borrower carries out the represented production and a matched repayment of the promised amount, returning the stipulated collateral quantity, settling by contractual maturity under the reflexive precedence closure.
   - *Unpaid Maturity:* On the represented history where repayment is absent, the borrower idles, the lender's acceptance is unmatched, and the custody trace excludes collateral-returning redemption. The unpaid-maturity evidence classifies the outstanding loan as defaulted, and the lender retains the collateral stock recorded after the advance under custody conditions.
 
-### Physical Settlement and Behavioral Independence (`PhysicalSettlementWitness`)
+### Physical Settlement and Behavioral Independence
 
-The formal architecture (`Praxeology/BusinessCycle/PhysicalSettlementWitness.lean`) decouples physical transaction events (`AdvanceExecution` and `RepaymentExecution`) from behavioral purposefulness certificates:
-1. **Physical Sufficiency:** A matched physical repayment execution is sufficient by itself to update the contractual status of the loan from `.outstanding` to `.repaid` and return the collateral to the borrower, independent of whether a purposefulness certificate is attached.
-2. **Behavioral Repayment:** The behavioral repayment record (`BehavioralRepaymentEvidence`) combines a physical `RepaymentExecution` with proofs that the borrower's settlement action is purposeful and undominated within the feasible menu.
+The formal architecture decouples physical transaction events (advance and repayment execution) from behavioral purposefulness certificates:
+1. **Physical Sufficiency:** A matched physical repayment execution is sufficient by itself to update the contractual status of the loan from outstanding to repaid and return the collateral to the borrower, independent of whether a purposefulness certificate is attached.
+2. **Behavioral Repayment:** The behavioral repayment record combines a physical repayment execution with proofs that the borrower's settlement action is purposeful and undominated within the feasible menu.
 3. **Physical Non-Redemption and Default:** Non-redemption evidence is grounded directly in the physical custody trace and the historical absence of a matched settlement transfer. Default is determined objectively by the physical fact of non-settlement at contractual maturity.
 
 ### Constructive Verification of the Frame Axioms

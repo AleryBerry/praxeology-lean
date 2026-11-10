@@ -453,7 +453,7 @@ $$
 
 whenever $t_1 \in h_1$ and $t_2 \in h_2$.
 
-**Proof.** Suppose toward a contradiction that $t_1 = t_2$. By tree bundle invariance of preference ([`ActionFrame.Preference_bundle_invariant`](../Praxeology/Frame/Core.lean)), $e_1 \succ_{i, t_1, h_1} e_2 \iff e_1 \succ_{i, t_1, h_2} e_2$. Then both comparisons hold in the same decision situation at moment $t_1$: $e_1 \succ_{i, t_1, h_2} e_2$ and $e_2 \succ_{i, t_1, h_2} e_1$. This directly contradicts preference asymmetry ([Axiom 3.3](#axiom-33-strict-asymmetry-of-preference), [`ActionFrame.pref_asymm`](../Praxeology/Frame/Core.lean)). Hence the evaluation moments must strictly differ: $t_1 \neq t_2$ ([`framing_reversal_requires_context_distinction`](../Praxeology/Action.lean)). $\blacksquare$
+**Proof.** Suppose toward a contradiction that $t_1 = t_2$. By tree bundle invariance of preference, $e_1 \succ_{i, t_1, h_1} e_2 \iff e_1 \succ_{i, t_1, h_2} e_2$. Then both comparisons hold in the same decision situation at moment $t_1$: $e_1 \succ_{i, t_1, h_2} e_2$ and $e_2 \succ_{i, t_1, h_2} e_1$. This directly contradicts preference asymmetry ([Axiom 3.3](#axiom-33-strict-asymmetry-of-preference)). Hence the evaluation moments must strictly differ: $t_1 \neq t_2$. $\blacksquare$
 
 Apparent framing effects in empirical experiments are formalized as consistent evaluations across distinct evaluation moments $t_1 \neq t_2$.
 
@@ -470,7 +470,7 @@ $$
 h_{\text{gain}} \neq h_{\text{loss}} \quad \wedge \quad \neg (t \in h_{\text{gain}} \wedge t \in h_{\text{loss}})
 $$
 
-**Proof.** If $h_{\text{gain}} = h_{\text{loss}}$, then $\omega(i, t, h_{\text{gain}}, m) = \omega(i, t, h_{\text{loss}}, m)$, which contradicts strict inequality of natural numbers by irreflexivity of $<$. Furthermore, if both histories pass through moment $t$ ($t \in h_{\text{gain}}$ and $t \in h_{\text{loss}}$), then by tree bundle invariance of endowments ([`ActionFrame.omega_bundle_invariant`](../Praxeology/Frame/Core.lean)), their physical stocks must be identical: $\omega(i, t, h_{\text{gain}}, m) = \omega(i, t, h_{\text{loss}}, m)$, contradicting strict inequality. Hence mutual node incidence is strictly ruled out ([`loss_aversion_endowment_distinction`](../Praxeology/Action.lean)). $\blacksquare$
+**Proof.** If $h_{\text{gain}} = h_{\text{loss}}$, then $\omega(i, t, h_{\text{gain}}, m) = \omega(i, t, h_{\text{loss}}, m)$, which contradicts strict inequality of natural numbers by irreflexivity of $<$. Furthermore, if both histories pass through moment $t$ ($t \in h_{\text{gain}}$ and $t \in h_{\text{loss}}$), then by tree bundle invariance of endowments, their physical stocks must be identical: $\omega(i, t, h_{\text{gain}}, m) = \omega(i, t, h_{\text{loss}}, m)$, contradicting strict inequality. Hence mutual node incidence is strictly ruled out. $\blacksquare$
 
 Because physical endowments differ, the two histories are distinct. By bundle invariance of endowments (Chapter 2), two histories passing through the same moment must record identical stocks; therefore, the gain and loss contexts represent genuinely distinct branches of history.
 
@@ -481,7 +481,7 @@ $$
 e_{\text{delayed}} \succ_{i, t_1, h} e_{\text{immediate}} \quad \wedge \quad e_{\text{immediate}} \succ_{i, t_2, h} e_{\text{delayed}} \implies t_1 \neq t_2
 $$
 
-**Proof.** Apply [Proposition 3.32](#proposition-332-framing-reversals-require-context-distinction) with $h_1 = h_2 = h$. The disjunction $t_1 \neq t_2 \vee h \neq h$ reduces immediately to $t_1 \neq t_2$ ([`hyperbolic_reversal_requires_distinct_moments`](../Praxeology/Action.lean)). $\blacksquare$
+**Proof.** Apply [Proposition 3.32](#proposition-332-framing-reversals-require-context-distinction) with $h_1 = h_2 = h$. The disjunction $t_1 \neq t_2 \vee h \neq h$ reduces immediately to $t_1 \neq t_2$. $\blacksquare$
 
 Predictable preference changes over time do not violate transitivity or asymmetry at any single moment; each ranking is a well-defined strict order at its own temporal stage.
 
@@ -492,7 +492,7 @@ $$
 \omega(i, t_1, h_{\text{commit}}, m) + y(\alpha_{\text{commit}}, m) < u(\alpha_{\text{commit}}, m) + u(\alpha_{\text{consume}}, m)
 $$
 
-By the physical transition balance ([Proposition 2.12](02_time_histories_and_physical_execution.md#proposition-212-physical-transition-balance-law)), ending inventory satisfies $\omega(i, t_2, h_{\text{commit}}, m) < u(\alpha_{\text{consume}}, m)$, strictly pruning temptation from the downstream feasible menu via resource feasibility coupling:
+By the physical transition balance ([Axiom 2.12](02_time_histories_and_physical_execution.md#axiom-212-physical-matter-conservation-and-inventory-transition)), ending inventory satisfies $\omega(i, t_2, h_{\text{commit}}, m) < u(\alpha_{\text{consume}}, m)$, strictly pruning temptation from the downstream feasible menu via resource feasibility coupling:
 
 $$
 \alpha_{\text{consume}} \notin \mathcal{A}_{\text{feas}}(i, t_2, h_{\text{commit}})
@@ -500,7 +500,7 @@ $$
 
 while purposeful saving $`\alpha_{\text{save}}`$ is sustained. On the uncommitted history $h_{\text{uncommitted}}$, inaction ($\alpha_0$) leaves physical endowments intact ([Proposition 2.13](02_time_histories_and_physical_execution.md#proposition-213-inaction-leaves-inventory-unchanged)), preserving $`\alpha_{\text{consume}} \in \mathcal{A}_{\text{feas}}(i, t_2, h_{\text{uncommitted}})`$.
 
-**Proof.** Direct deduction from [`ActionFrame.law_in_re_transition`](../Praxeology/Frame/Core.lean), [`ActionFrame.A_feas_coupling`](../Praxeology/Frame/Core.lean), and [`ActionFrame.inaction_preserves_endowments`](../Praxeology/Frame/Core.lean) ([`precommitment_prunes_temptation`](../Praxeology/Action.lean)). $\blacksquare$
+**Proof.** Direct deduction from the physical transition law, feasibility coupling, and inaction endowment preservation. $\blacksquare$
 
 ### Witness 3.36 (Constructive Model Witness of Precommitment Pruning)
 There exists a constructive action frame witness in which precommitment prunes downstream temptation while preserving earlier intertemporal choice:
@@ -528,11 +528,11 @@ $$
 
 Bounded contemplation does not violate human action: an actor economizes scarce cognitive attention within their finite contemplated set $`\mathcal{A}_{\text{cont}}`$. Uncontemplated options cannot be selected because they are outside the agent's mental model and cannot be evaluated against ends.
 
-### Definition 3.38 (Action Frame Majority Preference)
-Let $\mathcal{W}$ be an Action Frame. At decision moment $t$ on history $h$, for three agents $i_1, i_2, i_3 \in \mathcal{I}$ and alternative ends $e_1, e_2 \in \mathcal{E}$, the collective pairwise majority preference is defined by:
+### Definition 3.38 (Pairwise Majority Preference)
+At decision moment $t$ on history $h$, for three agents $i_1, i_2, i_3 \in \mathcal{I}$ and alternative ends $e_1, e_2 \in \mathcal{E}$, collective pairwise majority preference $e_1 \succ_{\mathrm{maj}} e_2$ is defined by:
 
 $$
-\text{ActionFrameMajorityPref}(t, h, i_1, i_2, i_3, e_1, e_2) \iff
+e_1 \succ_{\mathrm{maj}} e_2 \iff
 \begin{aligned}
   &(e_1 \succ_{i_1, t, h} e_2 \wedge e_1 \succ_{i_2, t, h} e_2) \;\vee \\
   &(e_1 \succ_{i_1, t, h} e_2 \wedge e_1 \succ_{i_3, t, h} e_2) \;\vee \\
@@ -541,12 +541,10 @@ $$
 $$
 
 ### Theorem 3.39 (The Social Choice Condorcet Cycle Theorem)
-When each agent's individual preference relation $\succ_{i, t, h}$ over ends is a transitive strict partial order (inducing an individual strict poset), pairwise majority preference $\text{ActionFrameMajorityPref}$ can form a strict cycle over three ends $e_0, e_1, e_2 \in \mathcal{E}$:
+When each agent's individual preference relation $\succ_{i, t, h}$ over ends is a transitive strict partial order, pairwise majority preference $\succ_{\mathrm{maj}}$ can form a strict cycle over three ends $e_0, e_1, e_2 \in \mathcal{E}$:
 
 $$
-\text{ActionFrameMajorityPref}(t, h, i_1, i_2, i_3, e_0, e_1) \;\wedge\;
-\text{ActionFrameMajorityPref}(t, h, i_1, i_2, i_3, e_1, e_2) \;\wedge\;
-\text{ActionFrameMajorityPref}(t, h, i_1, i_2, i_3, e_2, e_0)
+(e_0 \succ_{\mathrm{maj}} e_1) \;\wedge\; (e_1 \succ_{\mathrm{maj}} e_2) \;\wedge\; (e_2 \succ_{\mathrm{maj}} e_0)
 $$
 
 **Proof.** Consider three ends $e_0, e_1, e_2$ and three agents whose individual preferences are transitive strict posets:
@@ -570,7 +568,7 @@ Because majority voting cycles over transitive individual posets, voting outcome
 ### Proposition 3.40 (Autonomous Precommitment vs. Coercive Menu Stripping)
 In an Action Frame, there is a fundamental praxeological distinction between autonomous self-precommitment and external coercive menu stripping:
 1. **Autonomous Self-Precommitment:** At moment $t_1$, an agent purposefully executes an action $\alpha_{\text{commit}}$ that steers their own future state into a branch $h_{\text{commit}}$ where a tempting action $\alpha_{\text{consume}}$ is pruned from $`\mathcal{A}_{\text{feas}}(i, t_2, h_{\text{commit}})`$. Both choices ($\alpha_{\text{commit}}$ at $t_1$ and $\alpha_{\text{save}}$ at $t_2$) are voluntary and purposeful, economizing scarce resources across the agent's own timeline.
-2. **External Coercive Menu Stripping:** An external actor $j$ enacts an invasive action $\alpha_j$ that physically contracts $i$'s endowment $\omega(i, t', \text{jointBranch}(i, j, t, h, \alpha_0, \alpha_j), m) < \omega(i, t, h, m)$ without $i$'s consent (`EndogenouslyInvasiveJ`), forcibly stripping previously feasible actions from $i$'s choice menu (`self_precommitment_vs_external_menu_stripping`, [Theorem 8.16](08_social_interaction_property_and_exchange.md#theorem-816-the-coercive-menu-stripping-equivalence-theorem)).
+2. **External Coercive Menu Stripping:** An external actor $j$ enacts an invasive action $\alpha_j$ that physically contracts $i$'s endowment $\omega(i, t', \text{jointBranch}(i, j, t, h, \alpha_0, \alpha_j), m) < \omega(i, t, h, m)$ without $i$'s consent ( $I_{j \to i}(\alpha_j)$ ), forcibly stripping previously feasible actions from $i$'s choice menu ([Theorem 8.19](08_social_interaction_property_and_exchange.md#theorem-819-the-coercive-menu-stripping-equivalence-theorem)).
 
 Paternalistic nudges or state regulations that coercively strip feasible actions cannot be justified as an externalized "precommitment device," because they replace the acting agent's own purposeful valuation with external physical compulsion (political means / coercive extortion). $\blacksquare$
 

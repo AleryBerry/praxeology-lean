@@ -655,6 +655,72 @@ theorem unowned_resource_contemplation_not_feasible_and_first_appropriation_non_
   intro γ
   exact stockPreserved_implies_no_feasibleMenuStripped j t t' h h_pres_j γ
 
+/-- A bystander `j` has an alternative homesteading opportunity for a resource category
+at `⟨t, h⟩` if there exists a distinct alternative means `m_alt ≠ m` and a contemplated pure
+homesteading action `β` for `m_alt`. -/
+def HasAlternativeHomesteadingOpportunity (j : Agent) (t : Moment) (h : History)
+    (m : Means) : Prop :=
+  ∃ m_alt : Means, m_alt ≠ m ∧
+    ∃ β ∈ A_cont j t h, IsLockeanHomesteading β m_alt
+
+/-- In an abundant commons where bystander `j` contemplates an alternative homesteading
+action `β` for `m_alt`, `β` requires zero prior means and is therefore feasible at `t`
+and remains feasible at `t'` after `i` appropriates `m`. -/
+theorem lockean_proviso_abundant_alternative_remains_feasible
+    {i j : Agent} {t t' : Moment} {h : History} {α β : Action} {m m_alt : Means}
+    (h_home_j : IsLockeanHomesteading β m_alt)
+    (h_cont_t : β ∈ A_cont j t h)
+    (h_cont_t' : β ∈ A_cont j t' h)
+    (h_homestead_i : IsLockeanHomesteading α m)
+    (h_exec_i : enacted i t h = α)
+    (h_passive_j : enacted j t h = α₀)
+    (h_next : IsNextMoment Precedence W.mem_hist t t' h) :
+    β ∈ A_feas j t h ∧
+    β ∈ A_feas j t' h ∧
+    omega i t h m < omega i t' h m ∧
+    StockPreserved j t t' h ∧
+    ResourceMenuPreserved j t t' h := by
+  have h_zero : ∀ m', W.use_means β m' = 0 := fun m' => h_home_j.2.1 m'
+  have h_feas_t : β ∈ A_feas j t h := by
+    rw [W.A_feas_coupling]
+    refine ⟨h_cont_t, fun m' => by rw [h_zero m']; exact Nat.zero_le _⟩
+  obtain ⟨h_gain_i, h_stock_j, h_menu_j⟩ :=
+    lockean_homesteading_non_invasive h_homestead_i h_exec_i h_passive_j h_next
+  have h_pres_j : StockPreserved j t t' h := fun m' => by rw [h_stock_j m']
+  have h_feas_t' : β ∈ A_feas j t' h := by
+    rw [W.A_feas_coupling]
+    refine ⟨h_cont_t', fun m' => by rw [h_zero m']; exact Nat.zero_le _⟩
+  exact ⟨h_feas_t, h_feas_t', h_gain_i, h_pres_j, h_menu_j⟩
+
+/-- When resource `m` is unowned by bystander `j` at `t`, any contemplated action `γ`
+requiring `m` was already physically infeasible at `t`. Consequently, `i`'s appropriation
+of `m` strips zero feasible actions from `j`'s menu, even if `m` is the sole resource
+and no alternative homesteading opportunity exists. -/
+theorem sole_resource_appropriation_preserves_feasible_menu
+    {i j : Agent} {t t' : Moment} {h : History} {α γ : Action} {m : Means}
+    (h_unowned_j : omega j t h m = 0)
+    (h_req_γ : 0 < use_means γ m)
+    (h_homestead_i : IsLockeanHomesteading α m)
+    (h_exec_i : enacted i t h = α)
+    (h_passive_j : enacted j t h = α₀)
+    (h_next : IsNextMoment Precedence W.mem_hist t t' h) :
+    γ ∉ A_feas j t h ∧
+    omega i t h m < omega i t' h m ∧
+    StockPreserved j t t' h ∧
+    ResourceMenuPreserved j t t' h ∧
+    (∀ β, ¬ FeasibleMenuStripped j t t' h β) := by
+  have h_infeas_γ : γ ∉ A_feas j t h := by
+    intro h_feas
+    have h_le := (W.A_feas_coupling j t h γ).mp h_feas |>.2 m
+    dsimp [omega, use_means] at *
+    omega
+  obtain ⟨h_gain_i, h_stock_j, h_menu_j⟩ :=
+    lockean_homesteading_non_invasive h_homestead_i h_exec_i h_passive_j h_next
+  have h_pres_j : StockPreserved j t t' h := fun m' => by rw [h_stock_j m']
+  refine ⟨h_infeas_γ, h_gain_i, h_pres_j, h_menu_j, ?_⟩
+  intro β
+  exact stockPreserved_implies_no_feasibleMenuStripped j t t' h h_pres_j β
+
 end LockeanPropertyAndTitleTraces
 
 section PropertyLedgerTraces

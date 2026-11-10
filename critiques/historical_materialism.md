@@ -44,7 +44,7 @@ $$
 \mathsf{P}(i, t_0, h, \alpha_{\text{invest}}) \iff \text{End}(i, \alpha_{\text{invest}}, t_0, h) \succ_{i, t_0, h} \text{ImmediateConsumption}
 $$
 
-where the absence of coercive extraction (Chapter 12) and physical invasion ( $\neg I_j$, Chapter 8) ensures that intermediate physical inventories $\omega(i, t_k, h)$ are not contracted, preserving the feasibility of downstream completion actions (the menu-stripping theorem, Chapter 8, [Theorem 8.16](../natural_language/08_social_interaction_property_and_exchange.md#theorem-816-the-coercive-menu-stripping-equivalence-theorem)).
+where the absence of coercive extraction (Chapter 12) and physical invasion ( $\neg I_j$, Chapter 8) ensures that intermediate physical inventories $\omega(i, t_k, h)$ are not contracted, preserving the feasibility of downstream completion actions (the menu-stripping theorem, Chapter 8, [Theorem 8.19](../natural_language/08_social_interaction_property_and_exchange.md#theorem-819-the-coercive-menu-stripping-equivalence-theorem)).
 
 ---
 
@@ -72,7 +72,7 @@ where the absence of coercive extraction (Chapter 12) and physical invasion ( $\
 1. By Definition 3 and Chapter 7, multi-stage roundabout production requires the purposeful commitment of physical stocks across extended temporal precedence chains $t_0 \prec t_1 \prec \dots \prec t_N$.
 2. An economizing actor commits present stocks to roundabout tools if and only if the prospective yield dominates immediate consumption.
 3. If subsequent nodes along history $h$ are characterized by physical invasion ( $I_j(\alpha_j)$, Chapter 8) or coercive extraction (political means (coercive extortion), Chapter 12), physical stocks are contracted: $\omega(i, t_k, h, m) < u(\alpha_{\text{complete}}, m)$.
-4. By the menu-stripping theorem (Chapter 8, [Theorem 8.16](../natural_language/08_social_interaction_property_and_exchange.md#theorem-816-the-coercive-menu-stripping-equivalence-theorem)), physical factor contractions strip downstream completion actions from the feasible menu: $`\alpha_{\text{complete}} \notin \mathcal{A}_{\text{feas}}(i, t_k, h)`$.
+4. By the menu-stripping theorem (Chapter 8, [Theorem 8.19](../natural_language/08_social_interaction_property_and_exchange.md#theorem-819-the-coercive-menu-stripping-equivalence-theorem)), physical factor contractions strip downstream completion actions from the feasible menu: $`\alpha_{\text{complete}} \notin \mathcal{A}_{\text{feas}}(i, t_k, h)`$.
 5. Under systemic coercion or predatory invasion, long-horizon roundabout actions become physically infeasible or strictly dominated, reducing human action to hand-to-mouth immediate consumption.
 6. Therefore, peaceful, non-invasive social interaction is the antecedent causal prerequisite that physically permits capital tools to be produced, accumulated, and deployed. Physical tools cannot generate the non-invasive conditions required for their own physical survival. $\blacksquare$
 

@@ -43,7 +43,7 @@ Praxeologically, this information is strictly inaccessible to any central observ
 ### 2.3 The Disregard of Physical Stock Conservation
 Optimal taxation theory models taxes as frictionless scalar deductions from a continuous output stream $Y$. 
 
-In the physical world, production requires concrete complementary factor combinations (Chapter 4, [Definition 4.10](../natural_language/04_marginal_allocation_and_imputation.md#definition-410-comparison-of-two-allocated-sets); Chapter 8, [Theorem 8.16](../natural_language/08_social_interaction_property_and_exchange.md#theorem-816-the-coercive-menu-stripping-equivalence-theorem)). Levying a tax contracts the physical stock of capital goods $\omega(i, t, h, m)$ available to producers, stripping previously feasible production processes from their menus and distorting the multi-stage structure of capital.
+In the physical world, production requires concrete complementary factor combinations (Chapter 4, [Definition 4.10](../natural_language/04_marginal_allocation_and_imputation.md#definition-410-comparison-of-two-allocated-sets); Chapter 8, [Theorem 8.19](../natural_language/08_social_interaction_property_and_exchange.md#theorem-819-the-coercive-menu-stripping-equivalence-theorem)). Levying a tax contracts the physical stock of capital goods $\omega(i, t, h, m)$ available to producers, stripping previously feasible production processes from their menus and distorting the multi-stage structure of capital.
 
 ---
 
@@ -98,7 +98,7 @@ Neoclassical public finance posits that a head tax (lump-sum tax) generates zero
 
 Praxeologically, this is an illusion resulting from ignoring physical factor constraints:
 1. A lump-sum tax forces the physical surrender of scarce means $\omega(i, t, h, m)$ under penalty of invasive punitive force ($I_{j \to i}$).
-2. Contracting physical endowments directly strips previously feasible actions from the taxpayer's menu (Chapter 8, [Theorem 8.16](../natural_language/08_social_interaction_property_and_exchange.md#theorem-816-the-coercive-menu-stripping-equivalence-theorem)), forcing taxpayers to adjust their intertemporal plans and capital maintenance.
+2. Contracting physical endowments directly strips previously feasible actions from the taxpayer's menu (Chapter 8, [Theorem 8.19](../natural_language/08_social_interaction_property_and_exchange.md#theorem-819-the-coercive-menu-stripping-equivalence-theorem)), forcing taxpayers to adjust their intertemporal plans and capital maintenance.
 3. Every tax redistributes resources coercively, creating a Calhoun partition between net payers and net consumers. No tax can ever be economically neutral.
 
 ### 4.2 The "Excess Burden" Misconception

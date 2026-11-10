@@ -184,19 +184,270 @@ theorem competition_is_not_coercion
   intro h_ext
   exact h_comp.2.1 h_ext.1
 
-theorem rothbard_megger_trichotomy_mutual_exclusivity
+/-- Autarkic non-interference: neither agent invades the other's stock, agent `i`'s
+realized end equals the passive baseline, and agent `j` strictly prefers the joint outcome
+to the passive baseline. -/
+def IsAutarkicNonInterference [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
+    (α_i α_j : W.Action) : Prop :=
+  ¬ EndogenouslyInvasiveI i j t h α_i ∧
+  ¬ EndogenouslyInvasiveJ i j t h α_j ∧
+  jointEndI i j t h α_i α_j = jointEndI i j t h W.alpha_zero W.alpha_zero ∧
+  W.Preference j t h (jointEndJ i j t h α_i α_j)
+    (jointEndJ i j t h W.alpha_zero W.alpha_zero)
+
+/-- Unilateral gift: neither agent invades the other's stock, recipient `i` strictly prefers
+the joint outcome to baseline, and donor `j` does not strictly prefer the outcome. -/
+def IsUnilateralGift [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
+    (α_i α_j : W.Action) : Prop :=
+  ¬ EndogenouslyInvasiveI i j t h α_i ∧
+  ¬ EndogenouslyInvasiveJ i j t h α_j ∧
+  W.Preference i t h (jointEndI i j t h α_i α_j)
+    (jointEndI i j t h W.alpha_zero W.alpha_zero) ∧
+  ¬ W.Preference j t h (jointEndJ i j t h α_i α_j)
+    (jointEndJ i j t h W.alpha_zero W.alpha_zero)
+
+/-- Destructive aggression: agent `j` physically invades `i`'s stock without purposeful
+compliance by `i`, reducing `i`'s stock below clean title `title_i`, while `i` strictly
+prefers the uninvaded baseline to the outcome and does not invade `j`. -/
+def IsPureDestructiveAggression [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
+    (title_i : W.Means → ℕ) (α_i α_j : W.Action) : Prop :=
+  let branch := jointBranch i j t h W.alpha_zero α_j
+  EndogenouslyInvasiveJ i j t h α_j ∧
+  ¬ PurposefulResponseI i j t h α_i α_j ∧
+  (∃ m : W.Means,
+    W.omega i (W.ExpectedMaturation i W.alpha_zero t branch) branch m < title_i m) ∧
+  W.Preference i t h (jointEndI i j t h W.alpha_zero W.alpha_zero)
+    (jointEndI i j t h α_i α_j) ∧
+  ¬ EndogenouslyInvasiveI i j t h α_i
+
+/-- Defensive title recovery: agent `j` reduces `i`'s present physical possession without
+extortive compliance, while preserving all of `i`'s legitimate title `title_i`, and `j`
+strictly prefers the outcome to baseline. -/
+def IsRestitutionRecovery [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
+    (title_i : W.Means → ℕ) (α_i α_j : W.Action) : Prop :=
+  let branch := jointBranch i j t h W.alpha_zero α_j
+  EndogenouslyInvasiveJ i j t h α_j ∧
+  ¬ PurposefulResponseI i j t h α_i α_j ∧
+  (∀ m : W.Means,
+    title_i m ≤ W.omega i (W.ExpectedMaturation i W.alpha_zero t branch) branch m) ∧
+  W.Preference j t h (jointEndJ i j t h α_i α_j)
+    (jointEndJ i j t h W.alpha_zero W.alpha_zero)
+
+/-- Mutual combat / bilateral war: both agents enact physically invasive actions against each other,
+neither complies under threat, and both strictly prefer the autonomous baseline (peace) to the
+destructive combat outcome. -/
+def IsMutualCombat [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
+    (α_i α_j : W.Action) : Prop :=
+  EndogenouslyInvasiveI i j t h α_i ∧
+  EndogenouslyInvasiveJ i j t h α_j ∧
+  ¬ PurposefulResponseI i j t h α_i α_j ∧
+  W.Preference i t h (jointEndI i j t h W.alpha_zero W.alpha_zero)
+    (jointEndI i j t h α_i α_j) ∧
+  W.Preference j t h (jointEndJ i j t h W.alpha_zero W.alpha_zero)
+    (jointEndJ i j t h α_i α_j)
+
+/-- Coordination failure / bilateral malinvestment: neither agent physically invades the other,
+but through uncoordinated action, both agents strictly prefer the autonomous baseline
+to the realized joint outcome, and agent `j` fails to gain even conditionally. -/
+def IsCoordinationFailure [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
+    (α_i α_j : W.Action) : Prop :=
+  ¬ EndogenouslyInvasiveI i j t h α_i ∧
+  ¬ EndogenouslyInvasiveJ i j t h α_j ∧
+  W.Preference i t h (jointEndI i j t h W.alpha_zero W.alpha_zero)
+    (jointEndI i j t h α_i α_j) ∧
+  W.Preference j t h (jointEndJ i j t h W.alpha_zero W.alpha_zero)
+    (jointEndJ i j t h α_i α_j) ∧
+  ¬ W.Preference j t h (jointEndJ i j t h α_i α_j) (jointEndJ i j t h α_i W.alpha_zero)
+
+/-- Passive inaction / peaceful coexistence: both agents refrain from acting,
+producing exact autonomous baseline outcomes for both agents. -/
+def IsPassiveInaction [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
+    (α_i α_j : W.Action) : Prop :=
+  ¬ EndogenouslyInvasiveI i j t h α_i ∧
+  ¬ EndogenouslyInvasiveJ i j t h α_j ∧
+  jointEndI i j t h α_i α_j = jointEndI i j t h W.alpha_zero W.alpha_zero ∧
+  jointEndJ i j t h α_i α_j = jointEndJ i j t h W.alpha_zero W.alpha_zero
+
+/-- When agent `j`'s invasive action physically contracts agent `i`'s stock of means `m`
+below the requirement for a valued end `e` that `i`'s baseline stock attains, `i`'s baseline
+bundle teleologically dominates the invaded bundle, precluding respondent gain. -/
+theorem physical_invasion_depriving_valued_end_precludes_respondent_gain
     [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}
-    (α_i α_j : W.Action) :
+    (α_i α_j : W.Action) (m : W.Means) (e : W.Ends)
+    (b_base b_inv : W.Means → ℕ)
+    (h_base_end : jointEndI i j t h W.alpha_zero W.alpha_zero = W.BundleEnd b_base)
+    (h_inv_end : jointEndI i j t h α_i α_j = W.BundleEnd b_inv)
+    (h_valued : W.ValuedEnd i t h e)
+    (h_unique : ∀ e', W.ValuedEnd i t h e' → e' = e)
+    (h_req_base : ∀ m', W.requirement e m' ≤ b_base m')
+    (h_inv_short : b_inv m < W.requirement e m) :
+    ¬ W.Preference i t h (jointEndI i j t h α_i α_j)
+        (jointEndI i j t h W.alpha_zero W.alpha_zero) := by
+  have h_dom : W.SubjectiveTeleologicalDominates i t h b_base b_inv := by
+    have h_attains : JointlyAttains W.requirement b_base {e} := by
+      intro m'
+      rw [Finset.sum_singleton]
+      exact h_req_base m'
+    have h_misses : ¬ JointlyAttains W.requirement b_inv {e} := by
+      intro h_att
+      have h_m := h_att m
+      rw [Finset.sum_singleton] at h_m
+      exact (Nat.not_le_of_gt h_inv_short) h_m
+    exact subjective_teleological_dominates_of_unique_valued_end
+      W.requirement (W.ValuedEnd i t h) e b_base b_inv h_unique h_valued h_attains h_misses
+  have h_base_pref :=
+    W.teleological_bundle_dominance_induces_preference i t h b_base b_inv h_dom
+  rw [← h_base_end, ← h_inv_end] at h_base_pref
+  exact W.pref_asymm i t h h_base_pref
+
+/-- Pairwise mutual exclusivity across all ten bilateral interaction classes:
+voluntary exchange, coercive extortion, market competition, autarkic non-interference,
+unilateral gift, pure destructive aggression, defensive restitution, mutual combat,
+coordination failure, and passive inaction. -/
+theorem praxeological_interaction_classes_pairwise_mutual_exclusivity
+    [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}
+    (title_i : W.Means → ℕ) (α_i α_j : W.Action) :
     ¬ (IsVoluntaryExchange i j t h α_i α_j ∧ IsCoerciveExtortion i j t h α_i α_j) ∧
     ¬ (IsVoluntaryExchange i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
-    ¬ (IsCoerciveExtortion i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) := by
-  refine ⟨?_, ?_, ?_⟩
-  · rintro ⟨h_vol, h_ext⟩
-    exact h_vol.2.1 h_ext.1
-  · rintro ⟨h_vol, h_comp⟩
-    exact W.pref_asymm i t h h_vol.2.2.1 h_comp.2.2.2
-  · rintro ⟨h_ext, h_comp⟩
-    exact h_comp.2.1 h_ext.1
+    ¬ (IsCoerciveExtortion i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsAutarkicNonInterference i j t h α_i α_j ∧ IsVoluntaryExchange i j t h α_i α_j) ∧
+    ¬ (IsAutarkicNonInterference i j t h α_i α_j ∧ IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsAutarkicNonInterference i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsAutarkicNonInterference i j t h α_i α_j ∧ IsUnilateralGift i j t h α_i α_j) ∧
+    ¬ (IsAutarkicNonInterference i j t h α_i α_j ∧
+        IsPureDestructiveAggression i j t h title_i α_i α_j) ∧
+    ¬ (IsAutarkicNonInterference i j t h α_i α_j ∧
+        IsRestitutionRecovery i j t h title_i α_i α_j) ∧
+    ¬ (IsUnilateralGift i j t h α_i α_j ∧ IsVoluntaryExchange i j t h α_i α_j) ∧
+    ¬ (IsUnilateralGift i j t h α_i α_j ∧ IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsUnilateralGift i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsUnilateralGift i j t h α_i α_j ∧
+        IsPureDestructiveAggression i j t h title_i α_i α_j) ∧
+    ¬ (IsUnilateralGift i j t h α_i α_j ∧
+        IsRestitutionRecovery i j t h title_i α_i α_j) ∧
+    ¬ (IsPureDestructiveAggression i j t h title_i α_i α_j ∧
+        IsVoluntaryExchange i j t h α_i α_j) ∧
+    ¬ (IsPureDestructiveAggression i j t h title_i α_i α_j ∧
+        IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsPureDestructiveAggression i j t h title_i α_i α_j ∧
+        IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsPureDestructiveAggression i j t h title_i α_i α_j ∧
+        IsRestitutionRecovery i j t h title_i α_i α_j) ∧
+    ¬ (IsRestitutionRecovery i j t h title_i α_i α_j ∧
+        IsVoluntaryExchange i j t h α_i α_j) ∧
+    ¬ (IsRestitutionRecovery i j t h title_i α_i α_j ∧
+        IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsRestitutionRecovery i j t h title_i α_i α_j ∧
+        IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsMutualCombat i j t h α_i α_j ∧ IsVoluntaryExchange i j t h α_i α_j) ∧
+    ¬ (IsMutualCombat i j t h α_i α_j ∧ IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsMutualCombat i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsMutualCombat i j t h α_i α_j ∧ IsAutarkicNonInterference i j t h α_i α_j) ∧
+    ¬ (IsMutualCombat i j t h α_i α_j ∧ IsUnilateralGift i j t h α_i α_j) ∧
+    ¬ (IsMutualCombat i j t h α_i α_j ∧
+        IsPureDestructiveAggression i j t h title_i α_i α_j) ∧
+    ¬ (IsMutualCombat i j t h α_i α_j ∧
+        IsRestitutionRecovery i j t h title_i α_i α_j) ∧
+    ¬ (IsCoordinationFailure i j t h α_i α_j ∧ IsVoluntaryExchange i j t h α_i α_j) ∧
+    ¬ (IsCoordinationFailure i j t h α_i α_j ∧ IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsCoordinationFailure i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsCoordinationFailure i j t h α_i α_j ∧ IsAutarkicNonInterference i j t h α_i α_j) ∧
+    ¬ (IsCoordinationFailure i j t h α_i α_j ∧ IsUnilateralGift i j t h α_i α_j) ∧
+    ¬ (IsCoordinationFailure i j t h α_i α_j ∧
+        IsPureDestructiveAggression i j t h title_i α_i α_j) ∧
+    ¬ (IsCoordinationFailure i j t h α_i α_j ∧
+        IsRestitutionRecovery i j t h title_i α_i α_j) ∧
+    ¬ (IsCoordinationFailure i j t h α_i α_j ∧ IsMutualCombat i j t h α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧ IsVoluntaryExchange i j t h α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧ IsCoerciveExtortion i j t h α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧ IsMarketCompetition i j t h α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧ IsAutarkicNonInterference i j t h α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧ IsUnilateralGift i j t h α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧
+        IsPureDestructiveAggression i j t h title_i α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧
+        IsRestitutionRecovery i j t h title_i α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧ IsMutualCombat i j t h α_i α_j) ∧
+    ¬ (IsPassiveInaction i j t h α_i α_j ∧ IsCoordinationFailure i j t h α_i α_j) := by
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_,
+          ?_, ?_, ?_, ?_, ?_, ?_, ?_,
+          ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_,
+          ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · rintro ⟨h_vol, h_ext⟩; exact h_vol.2.1 h_ext.1
+  · rintro ⟨h_vol, h_comp⟩; exact W.pref_asymm i t h h_vol.2.2.1 h_comp.2.2.2
+  · rintro ⟨h_ext, h_comp⟩; exact h_comp.2.1 h_ext.1
+  · rintro ⟨h_aut, h_vol⟩
+    have h_p := h_vol.2.2.1
+    rw [h_aut.2.2.1] at h_p
+    exact W.pref_irrefl i t h _ h_p
+  · rintro ⟨h_aut, h_ext⟩; exact h_aut.2.1 h_ext.1
+  · rintro ⟨h_aut, h_comp⟩
+    have h_p := h_comp.2.2.2
+    rw [h_aut.2.2.1] at h_p
+    exact W.pref_irrefl i t h _ h_p
+  · rintro ⟨h_aut, h_gift⟩
+    have h_p := h_gift.2.2.1
+    rw [h_aut.2.2.1] at h_p
+    exact W.pref_irrefl i t h _ h_p
+  · rintro ⟨h_aut, h_dest⟩; exact h_aut.2.1 h_dest.1
+  · rintro ⟨h_aut, h_rec⟩; exact h_aut.2.1 h_rec.1
+  · rintro ⟨h_gift, h_vol⟩; exact h_gift.2.2.2 h_vol.2.2.2
+  · rintro ⟨h_gift, h_ext⟩; exact h_gift.2.1 h_ext.1
+  · rintro ⟨h_gift, h_comp⟩; exact W.pref_asymm i t h h_gift.2.2.1 h_comp.2.2.2
+  · rintro ⟨h_gift, h_dest⟩; exact h_gift.2.1 h_dest.1
+  · rintro ⟨h_gift, h_rec⟩; exact h_gift.2.1 h_rec.1
+  · rintro ⟨h_dest, h_vol⟩; exact h_vol.2.1 h_dest.1
+  · rintro ⟨h_dest, h_ext⟩; exact h_dest.2.1 h_ext.2.1
+  · rintro ⟨h_dest, h_comp⟩; exact h_comp.2.1 h_dest.1
+  · rintro ⟨h_dest, h_rec⟩
+    obtain ⟨m, h_lt⟩ := h_dest.2.2.1
+    have h_ge := h_rec.2.2.1 m
+    exact Nat.not_le_of_gt h_lt h_ge
+  · rintro ⟨h_rec, h_vol⟩; exact h_vol.2.1 h_rec.1
+  · rintro ⟨h_rec, h_ext⟩; exact h_rec.2.1 h_ext.2.1
+  · rintro ⟨h_rec, h_comp⟩; exact h_comp.2.1 h_rec.1
+  · rintro ⟨h_com, h_vol⟩; exact h_vol.2.1 h_com.2.1
+  · rintro ⟨h_com, h_ext⟩; exact h_com.2.2.1 h_ext.2.1
+  · rintro ⟨h_com, h_comp⟩; exact h_comp.2.1 h_com.2.1
+  · rintro ⟨h_com, h_aut⟩; exact h_aut.2.1 h_com.2.1
+  · rintro ⟨h_com, h_gift⟩; exact h_gift.2.1 h_com.2.1
+  · rintro ⟨h_com, h_dest⟩; exact h_dest.2.2.2.2 h_com.1
+  · rintro ⟨h_com, h_rec⟩; exact W.pref_asymm j t h h_rec.2.2.2 h_com.2.2.2.2
+  · rintro ⟨h_cf, h_vol⟩; exact W.pref_asymm i t h h_vol.2.2.1 h_cf.2.2.1
+  · rintro ⟨h_cf, h_ext⟩; exact h_cf.2.1 h_ext.1
+  · rintro ⟨h_cf, h_comp⟩; exact h_cf.2.2.2.2 h_comp.2.2.1
+  · rintro ⟨h_cf, h_aut⟩
+    have h_p := h_cf.2.2.1
+    rw [h_aut.2.2.1] at h_p
+    exact W.pref_irrefl i t h _ h_p
+  · rintro ⟨h_cf, h_gift⟩; exact W.pref_asymm i t h h_gift.2.2.1 h_cf.2.2.1
+  · rintro ⟨h_cf, h_dest⟩; exact h_cf.2.1 h_dest.1
+  · rintro ⟨h_cf, h_rec⟩; exact h_cf.2.1 h_rec.1
+  · rintro ⟨h_cf, h_com⟩; exact h_cf.2.1 h_com.2.1
+  · rintro ⟨h_in, h_vol⟩
+    have h_p := h_vol.2.2.1
+    rw [h_in.2.2.1] at h_p
+    exact W.pref_irrefl i t h _ h_p
+  · rintro ⟨h_in, h_ext⟩; exact h_in.2.1 h_ext.1
+  · rintro ⟨h_in, h_comp⟩
+    have h_p := h_comp.2.2.2
+    rw [h_in.2.2.1] at h_p
+    exact W.pref_irrefl i t h _ h_p
+  · rintro ⟨h_in, h_aut⟩
+    have h_p := h_aut.2.2.2
+    rw [h_in.2.2.2] at h_p
+    exact W.pref_irrefl j t h _ h_p
+  · rintro ⟨h_in, h_gift⟩
+    have h_p := h_gift.2.2.1
+    rw [h_in.2.2.1] at h_p
+    exact W.pref_irrefl i t h _ h_p
+  · rintro ⟨h_in, h_dest⟩; exact h_in.2.1 h_dest.1
+  · rintro ⟨h_in, h_rec⟩; exact h_in.2.1 h_rec.1
+  · rintro ⟨h_in, h_com⟩; exact h_in.2.1 h_com.2.1
+  · rintro ⟨h_in, h_cf⟩
+    have h_p := h_cf.2.2.1
+    rw [h_in.2.2.1] at h_p
+    exact W.pref_irrefl i t h _ h_p
 
 theorem endogenous_invasion_iff_menu_stripping
     [W : ActionFrame] {i j : W.Agent} {t : W.Moment} {h : W.History}

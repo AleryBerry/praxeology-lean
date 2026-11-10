@@ -13,28 +13,20 @@ In Chapters 1–4, an action's consequence was evaluated at a single actual node
 2. **The Temporal & Counterfactual Gap (Maturation Delay):** Actions take time to mature. Evaluating an action requires projecting the decision moment onto a plausible history, selecting a branch that executes the action, and waiting for its physical consequence to mature.
 3. **The Appraisal Gap:** Cross-world anticipated outcomes must be bridged to the single ordinal preference ranking $\succ_{i,t,h}$ without resorting to cardinal expected utility.
 
-The decision-and-regret architecture proceeds through the following pipeline:
+The decision-and-regret architecture proceeds through the following sequential structure:
 
-```mermaid
-flowchart TD
-    subgraph ExAnte ["1. Ex-Ante Prospective Deliberation"]
-        MinPi["1. Plausible Histories: min_π(i, t)"]
-        Tau["2. Temporal Projection: τ(i, t, h')"]
-        Sigma["3. Branch Selection: σ(i, t', α, h')"]
-        Mature["4. Maturation Delay: μ(i, α, t', h_α)"]
-        Out["5. Projected Outcome: O_M(i, α, t, h')"]
-        Choice["6. Purposeful Choice: P_ex-ante / P_dox"]
-        MinPi --> Tau --> Sigma --> Mature --> Out --> Choice
-    end
-    subgraph ExPost ["2. Ex-Post Resolution & Regret"]
-        Actual["7. Realized History & Maturation: (h_actual, τ_actual)"]
-        ChoicePart["8. Choice Partition: Π_i(t, β)"]
-        Counterfactual["9. Counterfactual Branch: (h_cf, τ_cf)"]
-        Regret["10. Cross-Branch Regret"]
-        Choice -. Enactment .-> Actual
-        Actual --> ChoicePart --> Counterfactual --> Regret
-    end
-```
+| Deliberative Stage | Epistemic and Physical Mechanism | Formal Representation |
+| :--- | :--- | :--- |
+| **1. Plausible Histories** | Identification of minimally plausible histories | $\min_{\pi}(i, t)$ |
+| **2. Temporal Projection** | Evaluation moment projected forward along plausible branch | $\tau(i, t, h')$ |
+| **3. Branch Selection** | Selected counterfactual continuation for alternative action | $\sigma(i, t', \alpha, h')$ |
+| **4. Maturation Delay** | Physical production or transaction maturation interval | $\mu(i, \alpha, t', h_\alpha)$ |
+| **5. Projected Outcome** | Matured outcome bundle evaluated at decision horizon | $O_M(i, \alpha, t, h')$ |
+| **6. Purposeful Choice** | Ex-ante choice optimality under doxastic plausibility | $`\mathsf{P}_{\text{ex ante}}(i, t, h, \alpha)`$ |
+| **7. Realized History** | Actual historical realization and terminal state | $(h_{\text{actual}}, \tau_{\text{actual}})$ |
+| **8. Choice Partition** | Historical equivalence partition of unselected branches | $\Pi_i(t, \beta)$ |
+| **9. Counterfactual Branch** | Unselected feasible alternative branch in shared context | $(h_{\text{cf}}, \tau_{\text{cf}})$ |
+| **10. Cross-Branch Regret** | Ex-post ordinal preference for unchosen alternative | $R(i, \alpha_0, t, \tau, h) \succ_i R(i, \alpha, t, \tau, h)$ |
 
 ### Guide to New Symbols and Operators
 
@@ -464,10 +456,10 @@ There is a finite model satisfying the branching-time, inventory-transition, cho
 
 ## Section 5.6 Independent Conjectured Scenarios and Cross-Forecast Physical Invariance
 
-In addition to history-indexed plausibility strata where anticipated outcomes are evaluated along counterfactual branches of the actual economy, the formal architecture provides an independent subjective deliberation framework (`Subjective.lean` and `Veridical.lean`).
+In addition to history-indexed plausibility strata where anticipated outcomes are evaluated along counterfactual branches of the actual economy, the formal architecture provides an independent subjective deliberation framework.
 
 ### Definition 5.26 (Subjective Scenario Systems)
-A **Scenario System** (`ScenarioSystem`) introduces an independent carrier type $\mathcal{S}$ of conjectured scenarios distinct from actual historical paths $\mathcal{H}$:
+A **Scenario System** introduces an independent set $\mathcal{S}$ of conjectured scenarios distinct from actual historical paths $\mathcal{H}$:
 1. **Scenario Anchor**: Each scenario $s \in \mathcal{S}$ is anchored to a specific decision moment $t \in \mathcal{T}$ via $\text{anchor}(s) = t$.
 2. **Observation Agreement**: Deliberation at $(i, t, h)$ is constrained by observation equivalence: an actor only considers scenarios matching current local observations:
 
@@ -476,14 +468,14 @@ $$
 $$
 
 3. **Scenario Menus and Ends**: Each scenario assigns a contemplated menu $`\mathcal{A}_{\mathrm{menu}}(i, s)`$ and associates each action with an anticipated prospective end $`\text{End}_{\mathrm{scen}}(i, \alpha, s) \in \mathcal{E}`$.
-4. **Subjective Plausibility and Purposefulness**: The actor evaluates actions across a nonempty set of minimally plausible scenarios $\mathrm{MinPlausible}(i, t) \subseteq \mathcal{S}$ using unanimous appraisal (`Subjective.UnanimousAppraisalRule`) and executes a purposeful act (`Subjective.PurposefulAct`).
+4. **Subjective Plausibility and Purposefulness**: The actor evaluates actions across a nonempty set of minimally plausible scenarios $\mathrm{MinPlausible}(i, t) \subseteq \mathcal{S}$ using unanimous appraisal and executes a purposeful act.
 
-This decoupling is essential: it allows an agent to hold a mistaken or non-veridical forecast (such as expecting four units of a complementary factor to be available in an auction when physical nature only supplies two) without requiring a physically impossible history to exist within the physical `ActionFrame`.
+This distinction is essential: it allows an agent to hold a mistaken forecast (such as expecting four units of a complementary factor to be available in an auction when nature only provides two) without requiring a physically impossible history to exist in reality.
 
 ### Theorem 5.27 (The Cross-Forecast Physical Invariance Theorem)
-In a veridical scenario system (`VeridicalScenarioSystem`), actual histories embed into scenarios (`embedHistory : \mathcal{H} \to \mathcal{S}`). 
+In a veridical scenario system, actual histories embed into scenarios via an injection $e : \mathcal{H} \to \mathcal{S}$. 
 
-Suppose an agent's subjective forecast changes from scenario $s_1$ to scenario $s_2$ (where both scenarios are observation-equivalent with actual history $h$ at decision moment $t$), but the actor's enacted physical action $\alpha = \text{enacted}(i, t, h)$ remains unchanged. Then:
+Suppose an agent's subjective forecast changes from scenario $s_1$ to scenario $s_2$ (where both scenarios match actual history $h$ in current observations at decision moment $t$), but the actor's enacted physical action $\alpha = \text{enacted}(i, t, h)$ remains unchanged. Then:
 
 $$
 \forall m \in \mathcal{M}, \quad \omega(i, t', h, m; s_1) = \omega(i, t', h, m; s_2)
@@ -491,7 +483,7 @@ $$
 
 *Altering an agent's subjective beliefs, expectations, or conjectured scenarios without altering the physically enacted action has zero causal impact on actual physical stock transitions.*
 
-**Proof.** Physical inventory transitions are governed strictly by the transition balance equation $\omega(i, t', h, m) + u(\alpha, m) = \omega(i, t, h, m) + y(\alpha, m)$ ([Axiom 2.12](02_time_histories_and_physical_execution.md#axiom-212-physical-matter-conservation-and-inventory-transition)). Because initial stocks $\omega(i, t, h, m)$, physical factor usage $u(\alpha, m)$, and yield $y(\alpha, m)$ depend solely on physical reality and the enacted action $\alpha$, subjective scenario labels exert zero causal pull on material stocks. $\blacksquare$
+**Proof.** Physical inventory transitions are governed strictly by the transition balance equation $\omega(i, t', h, m) + u(\alpha, m) = \omega(i, t, h, m) + y(\alpha, m)$ ([Axiom 2.12](02_time_histories_and_physical_execution.md#axiom-212-physical-matter-conservation-and-inventory-transition)). Because initial stocks $\omega(i, t, h, m)$, physical factor usage $u(\alpha, m)$, and yield $y(\alpha, m)$ depend solely on physical reality and the enacted action $\alpha$, subjective thoughts and scenario labels have no causal effect on physical stocks. $\blacksquare$
 
 ## Conclusion
 

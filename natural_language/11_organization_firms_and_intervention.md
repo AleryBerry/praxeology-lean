@@ -252,7 +252,7 @@ $$
 
 If the price bounds narrow strictly for an input used in positive quantity, the corresponding cash requirement falls strictly. The proposition is conditional on the bounds being narrower; it does not infer price convergence from monetary coordination alone.
 
-A monetary disturbance can also change which agents can pay the prevailing price. In the modeled Cantillon network grounded in the Action Frame (`CantillonNetwork`), a downstream agent's physical cash balance $\omega(i, t_{\text{post}}, h, m_{\text{money}}) = \omega(i, t_{\text{pre}}, h, m_{\text{money}}) = M$ remains unchanged while the price moves from $P_0$ to $P_1$, with $0 < P_0 \le M < P_1$. By [Proposition 9.23](09_money_prices_and_calculation.md#proposition-923-cantillon-network-purchasing-power-dilution) (`cantillon_network_purchasing_power_dilution`), the division-free affordability conclusions are
+A monetary disturbance can also change which agents can pay the prevailing price. In a trade network where credit enters at a specific point, a downstream agent's physical cash balance $\omega(i, t_{\text{post}}, h, m_{\text{money}}) = \omega(i, t_{\text{pre}}, h, m_{\text{money}}) = M$ remains unchanged while the price rises from $P_0$ to $P_1$, with $0 < P_0 \le M < P_1$. By [Proposition 9.23](09_money_prices_and_calculation.md#proposition-923-cantillon-network-purchasing-power-dilution), the division-free affordability conclusions are
 
 $$
 1\cdot P_0\le M,\qquad
@@ -505,7 +505,7 @@ b_{\text{merge}}(h')&\succ_{\mathrm{end},i,t,h}b_{\text{retain}}(h')
 \end{aligned}
 $$
 
-The relation compares attainability of valued ends, not raw physical quantities. In the `ActionFrame`, action outcomes are grounded in their projected commodity bundles, and teleological bundle dominance natively induces strict preference between the realized ends (`teleological_bundle_dominance_induces_preference`). Partial integration is therefore strictly preferred to the other three action outcomes on each plausible history. A model with one valued end can establish the needed bundle relation from a recorded receipt once the end's requirement and the receipt comparison have been specified.
+The relation compares attainability of valued ends, not raw physical quantities. Action outcomes are grounded in their projected commodity bundles, and teleological bundle dominance induces strict preference between the realized ends. Partial integration is therefore strictly preferred to the other three action outcomes on each plausible history. A model with one valued end can establish the needed bundle relation from a recorded receipt once the end's requirement and the receipt comparison have been specified.
 
 ### Definition 11.30 (Entrepreneurial Firm-Boundary Decision)
 At a node $\langle t,h\rangle$, an **entrepreneurial firm-boundary decision** specifies:
@@ -660,6 +660,53 @@ Suppose the money-adoption process of Chapter 9 starts with at least one adopter
 **Proof.** The network-adoption result supplies a finite iterate at which the designated medium is universally accepted. The assumed monotonicity of the price-box schedule makes the final box no wider than the initial one. For each nonnegative input quantity, its upper-bound price contribution therefore weakly falls; summing gives weakly lower precautionary demand. Any initial cash balance covering the earlier demand also covers the lower final demand. $\square$
 
 [Proposition 11.39](#proposition-1139-network-adoption-can-improve-price-box-cash-coverage) composes network adoption with a price-box schedule that assigns no-wider bounds to larger acceptance profiles. Given that schedule, universal acceptance supplies weakly lower upper-bound cash demand and preserves initial coverage. The schedule is an explicit input to this connection between monetary adoption and cash coverage.
+
+## Monetary Debasement and the Breakdown of Employment
+
+The boundary of the firm depends not only on coordination costs and market signals, but also on the stability of the money used to set and pay wages.
+
+### Theorem 11.40 (The Inflationary Delegation Contract Breakdown Theorem)
+Consider an employment contract between a principal and a worker $i$. The worker agrees to perform a production task $\alpha_{\mathrm{task}}$ in exchange for an agreed wage $P_{\mathrm{post}}$ paid after completion.
+
+Suppose high inflation destroys the purchasing power of money such that:
+1. The agreed wage can no longer purchase consumption goods: at higher prices $P_{\mathrm{price}}$, the worker cannot afford any positive quantity $q > 0$:
+
+$$
+\forall q > 0, \quad P_{\mathrm{post}} < q \cdot P_{\mathrm{price}}
+$$
+
+2. Working ($\alpha_{\mathrm{task}}$) uses up physical energy $m_{\mathrm{effort}}$, leaving the worker with less energy than needed for rest and recovery ($e_{\mathrm{rest}}$):
+
+$$
+\omega_i(m_{\mathrm{effort}}) - u(\alpha_{\mathrm{task}}, m_{\mathrm{effort}}) < req(e_{\mathrm{rest}}, m_{\mathrm{effort}})
+$$
+
+while resting ($\alpha_0$) preserves enough energy to meet that requirement:
+
+$$
+req(e_{\mathrm{rest}}, m_{\mathrm{effort}}) \le \omega_i(m_{\mathrm{effort}})
+$$
+
+3. The worker evaluates choices by the goals they achieve (teleological bundle dominance).
+
+Then:
+1. The rest bundle teleologically dominates the work bundle:
+
+$$
+b_{\mathrm{idle}} \succ_{\mathrm{teleo}} b_{\mathrm{work}}
+$$
+
+2. Performing the assigned task fails the undominatedness condition of purposeful action:
+
+$$
+\neg \mathsf{P}(i, t, h, \alpha_{\mathrm{task}})
+$$
+
+Consequently, the worker chooses not to work, and the firm's employment relationship breaks down.
+
+**Proof.** Because $P_{\mathrm{post}}$ buys no consumer goods, working yields no physical return. Meanwhile, working exhausts the worker's energy below what is needed for rest ( $req(e_{\mathrm{rest}}, m_{\mathrm{effort}})$ ). In contrast, staying home uses no energy and allows the worker to rest. Because resting meets an essential need while working provides no compensation, staying home strictly dominates working ($b_{\mathrm{idle}} \succ_{\mathrm{teleo}} b_{\mathrm{work}}$). Since not working ($\alpha_0$) is feasible and preferred, working fails the purposefulness condition of [Definition 3.1](03_preference_purpose_and_opportunity_cost.md#definition-31-physical-scarcity-predicate). $\blacksquare$
+
+Theorem 11.40 shows why employment contracts break down during severe inflation. When wages lose their purchasing power, workers stop showing up. The firm does not break down from poor management or communication problems; it dissolves because working no longer provides the goods needed to justify the effort.
 
 ## Conclusion
 

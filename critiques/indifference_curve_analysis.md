@@ -107,7 +107,7 @@ The neoclassical optimality condition $MRS = P_1 / P_2$ conflates two categorica
 
 **Proof.**
 1. By Chapter 3 and Chapter 4, an individual evaluates physical means by assigning them to a discrete ranked value scale of prospective ends: $e_1 \succ e_2 \succ \dots \succ e_n$.
-2. By Chapter 8 ([Theorem 8.24](../natural_language/08_social_interaction_property_and_exchange.md#theorem-824-the-double-inequality-of-voluntary-exchange-theorem), The Double Inequality of Exchange), an agent enters into a market purchase of good $m_1$ at monetary price $P_1$ if and only if:
+2. By Chapter 8 ([Theorem 8.27](../natural_language/08_social_interaction_property_and_exchange.md#theorem-827-the-double-inequality-of-voluntary-exchange-theorem), The Double Inequality of Exchange), an agent enters into a market purchase of good $m_1$ at monetary price $P_1$ if and only if:
 
 $$
 \text{End}(i, \text{acquire } m_1) \succ_{i,t,h} \text{End}(i, \text{retain } P_1 \text{ tokens})

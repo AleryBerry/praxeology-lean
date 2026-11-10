@@ -1011,4 +1011,63 @@ theorem subjective_trade_frame_boundary_is_bilateral_exchange :
       BilateralMoment.root tradeHistory 1 tradeMeans0 1 tradeMeans1 := by
   exact (subjectiveTradeBoundaryNetwork.market_evidence ⟨rfl, rfl⟩).exchange
 
+/-- When upstream monetary expansion dilutes purchasing power so that an operator's fixed
+nominal compensation cannot purchase consumption goods, while executing the delegated task
+depletes effort means below the requirement for a valued rest end, remaining idle
+teleologically dominates executing the task, precluding purposeful task execution. -/
+theorem inflationary_delegation_contract_hollow_out
+    {W : ActionFrame} {V : DelegationVocabulary W}
+    (P : DelegationProposal V) (X : DelegationExecution P)
+    (net : CantillonNetwork (W := W))
+    (h_op_downstream : P.operator = net.downstream)
+    (h_wage_matches : net.M_downstream = P.compensationQuantity)
+    (m_effort : W.Means) (e_rest : W.Ends)
+    (b_work b_idle : W.Means → ℕ)
+    (h_end_task : W.End_of P.operator X.task X.workMoment P.history = W.BundleEnd b_work)
+    (h_end_idle : W.End_of P.operator W.alpha_zero X.workMoment P.history = W.BundleEnd b_idle)
+    (h_valued : W.ValuedEnd P.operator X.workMoment P.history e_rest)
+    (h_unique : ∀ e', W.ValuedEnd P.operator X.workMoment P.history e' → e' = e_rest)
+    (h_idle_attains : ∀ m, W.requirement e_rest m ≤ b_idle m)
+    (h_work_short : b_work m_effort < W.requirement e_rest m_effort) :
+    P.operator = net.downstream ∧
+    CanAffordQuantity 1 net.P_pre P.compensationQuantity ∧
+    (∀ q, 0 < q → ¬ CanAffordQuantity q net.P_post P.compensationQuantity) ∧
+    W.SubjectiveTeleologicalDominates P.operator X.workMoment P.history b_idle b_work ∧
+    ¬ @PurposefulAct W P.operator X.workMoment P.history X.task := by
+  have h_aff_pre : CanAffordQuantity 1 net.P_pre P.compensationQuantity := by
+    rw [← h_wage_matches]
+    exact net.one_unit_affordable_before
+  have h_not_aff_post : ∀ q, 0 < q → ¬ CanAffordQuantity q net.P_post P.compensationQuantity := by
+    intro q hq
+    rw [← h_wage_matches]
+    exact net.no_positive_quantity_affordable_after q hq
+  have h_dom :
+      W.SubjectiveTeleologicalDominates P.operator X.workMoment P.history b_idle b_work := by
+    have h_attains : JointlyAttains W.requirement b_idle {e_rest} := by
+      intro m
+      rw [Finset.sum_singleton]
+      exact h_idle_attains m
+    have h_misses : ¬ JointlyAttains W.requirement b_work {e_rest} := by
+      intro h_att
+      have h_m := h_att m_effort
+      rw [Finset.sum_singleton] at h_m
+      exact (Nat.not_le_of_gt h_work_short) h_m
+    exact subjective_teleological_dominates_of_unique_valued_end
+      W.requirement (W.ValuedEnd P.operator X.workMoment P.history)
+      e_rest b_idle b_work h_unique h_valued h_attains h_misses
+  have h_pref_idle :
+      W.Preference P.operator X.workMoment P.history
+        (W.End_of P.operator W.alpha_zero X.workMoment P.history)
+        (W.End_of P.operator X.task X.workMoment P.history) := by
+    rw [h_end_idle, h_end_task]
+    exact W.teleological_bundle_dominance_induces_preference
+      P.operator X.workMoment P.history b_idle b_work h_dom
+  have h_not_purp_task :
+      ¬ @PurposefulAct W P.operator X.workMoment P.history X.task := by
+    intro h_purp
+    have h_base_feas := W.alpha_zero_feasible P.operator X.workMoment P.history
+    have h_undom := h_purp.2.2.2 W.alpha_zero h_base_feas
+    exact h_undom h_pref_idle
+  exact ⟨h_op_downstream, h_aff_pre, h_not_aff_post, h_dom, h_not_purp_task⟩
+
 end Praxeology

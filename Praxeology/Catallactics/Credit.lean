@@ -1807,4 +1807,29 @@ theorem fiduciary_origination_and_cash_shortfall_contract_comparison {W : Action
     T_nat.money T_nat.collateralQuantity T_nat.collateral h_short_nat
   exact ⟨h_rep_lt, h_rate_lt, h_tot, h_infeas.1, h_infeas.2⟩
 
+/-- Under legal tender distortions where tendering bad money is feasible and strictly
+preferred to tendering undervalued contract money, offering contract repayment is strictly
+non-purposeful, even when contract money is held by the borrower. -/
+theorem gresham_solvent_repayment_withholding_non_purposeful
+    {W : ActionFrame} [BilateralExchangeFrame W]
+    {T : PawnLoanTerms W} (h : W.History)
+    (m_bad : W.Means)
+    (e_tender_good e_tender_bad : W.Ends)
+    (α_tender : W.Agent → W.Means → W.Action)
+    (h_offer_is_good_tender :
+      α_tender T.borrower T.money =
+        W.Offer T.borrower T.lender T.repayment T.money T.collateralQuantity T.collateral)
+    (h_tender_pref : W.Preference T.borrower T.maturity h e_tender_bad e_tender_good)
+    (h_bad_feas : α_tender T.borrower m_bad ∈ W.A_feas T.borrower T.maturity h)
+    (h_end_bad : W.End_of T.borrower (α_tender T.borrower m_bad) T.maturity h =
+      e_tender_bad)
+    (h_end_good : W.End_of T.borrower (α_tender T.borrower T.money) T.maturity h =
+      e_tender_good) :
+    ¬ @PurposefulAct W T.borrower T.maturity h
+      (W.Offer T.borrower T.lender T.repayment T.money T.collateralQuantity T.collateral) := by
+  intro h_purp
+  have h_undom := h_purp.2.2.2 (α_tender T.borrower m_bad) h_bad_feas
+  rw [← h_end_bad, ← h_end_good, h_offer_is_good_tender] at h_tender_pref
+  exact h_undom h_tender_pref
+
 end Praxeology

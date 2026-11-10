@@ -150,7 +150,7 @@ $$
 
 This proves the ranking for the sequence specified in [Definition 4.2](#definition-42-a-finite-one-unit-allocation). $\blacksquare$
 
-To deduce the realized allocation from purposeful choice, we ground actions in the `ActionFrame`'s teleological structure. Each action $\alpha$ produces a commodity bundle $\text{stockOf}(\alpha)$, so that its realized end is the bundle end:
+To deduce the realized allocation from purposeful choice, we ground actions in the teleological structure of human action. Each action $\alpha$ produces a commodity bundle $\text{stockOf}(\alpha)$, so that its realized end is the bundle end:
 
 $$
 \text{outcome}(i, \alpha, t, h) = \text{BundleEnd}(\text{stockOf}(\alpha))
@@ -159,10 +159,10 @@ $$
 When a feasible action $\alpha_{\text{opt}}$ attains the optimal allocation $S^{\ast}(k)$, requiring $k$ units of means $m$, while any alternative feasible nonpassive action $\alpha$ attains a suboptimal bundle requiring at most $k$ units, the optimal bundle teleologically dominates the suboptimal bundle:
 
 $$
-\text{SubjectiveTeleologicalDominates}(i, t, h, \text{stockOf}(\alpha_{\text{opt}}), \text{stockOf}(\alpha))
+\text{stockOf}(\alpha_{\text{opt}}) \succ_{\mathrm{teleo}} \text{stockOf}(\alpha)
 $$
 
-By the foundational praxeological principle of the Action Frame (`teleological_bundle_dominance_induces_preference`), teleological bundle dominance natively induces strict preference between the realized ends:
+Because teleological bundle dominance induces strict preference between the realized ends:
 
 $$
 \text{outcome}(i, \alpha_{\text{opt}}, t, h) \succ_{i,t,h} \text{outcome}(i, \alpha, t, h)
@@ -202,7 +202,7 @@ The atomic case specified which end the allocation adds. For a general finite se
 Let $S \subseteq \mathcal{E}$ be a non-empty finite set of ends fulfilled by an agent's available means. An end $e_{\text{min}} \in S$ is a **least-urgent end** of $S$ if no other fulfilled end in $S$ is strictly less preferred than $e_{\text{min}}$:
 
 $$
-\text{IsLeastUrgentEnd}(\succ_{i,t,h}, S, e_{\text{min}}) \iff e_{\text{min}} \in S \wedge \forall e \in S, \quad \neg(e_{\text{min}} \succ_{i,t,h} e)
+\text{LeastUrgentEnd}(\succ_{i,t,h}, S, e_{\text{min}}) \iff e_{\text{min}} \in S \wedge \forall e \in S, \quad \neg(e_{\text{min}} \succ_{i,t,h} e)
 $$
 
 ### Lemma 4.16 (Finite Strict Orders Have Minimal Elements)
@@ -224,7 +224,7 @@ In all cases, a minimal element exists. $\blacksquare$
 Let $S \subseteq \mathcal{E}$ be a non-empty finite set of fulfilled ends, and let $\succ_{i,t,h}$ be transitive and asymmetric. Then some end in $S$ is not strictly preferred to any end in $S$:
 
 $$
-\exists e_{\text{sacrifice}} \in S, \quad \text{IsLeastUrgentEnd}(\succ_{i,t,h}, S, e_{\text{sacrifice}})
+\exists e_{\text{sacrifice}} \in S, \quad \text{LeastUrgentEnd}(\succ_{i,t,h}, S, e_{\text{sacrifice}})
 $$
 
 This lemma identifies the exact minimal element of any finite strict order, providing the mathematical foundation for marginal loss: when an allocation rule assigns goods to ranked ends, the marginal unit lost is precisely the least-urgent end in that set.
@@ -456,10 +456,10 @@ This coincidence holds regardless of differing physical factor quantities expend
 
 ### Section 4.4 Concrete Action Frame Realizations: Allocation Choice and Complementarity
 
-The formal framework provides concrete constructive witnesses that instantiate these marginal allocation and complementarity theorems inside finite physical action frames:
-1. **Discrete Subset Allocation (`AllocationChoice`)**: For a finite set of ranked uses with declining marginal weights, an agent allocating a discrete stock chooses a subset of uses. Increasing the stock from $1$ to $2$ units strictly extends the allocated set by adding the next highest-ranked marginal use while preserving earlier allocations (`allocation_step_extends`).
-2. **Action Frame Embedding (`AllocationActionFrame`)**: Two agents with identical ordinal rankings over three uses and distinct stocks ($1$ vs. $2$ units) are embedded in a finite branching `ActionFrame`. Subjective allocation ends remain strictly distinct from the physical means used to attain them. Undominated choices are selected by ordinal preference without embedding an external optimum relation into the frame.
-3. **Complementary Ends Requirement (`ComplementaryEndsRequirement`)**: Characterizes complementary factors directly on the action frame's technology ($W.\text{requirement}$) and inventory ($W.\omega$). When complement factor $m_2$ is absent from inventory, extra units of factor $m_1$ cannot attain the complementary end $e$, verifying that isolated complementary factors have zero imputed marginal yield when their complements are unavailable (`missing_complement_precludes_purposeful_act`, `complementary_stock_enables_purposeful_act`).
+The formal framework provides concrete constructive witnesses that instantiate these marginal allocation and complementarity theorems:
+1. **Discrete Subset Allocation**: For a finite set of ranked uses with declining marginal weights, an agent allocating a discrete stock chooses a subset of uses. Increasing the stock from $1$ to $2$ units strictly extends the allocated set by adding the next highest-ranked marginal use while preserving earlier allocations.
+2. **Action Frame Embedding**: Two agents with identical ordinal rankings over three uses and distinct stocks ($1$ vs. $2$ units) are embedded in a finite branching Action Frame. Subjective allocation ends remain strictly distinct from the physical means used to attain them. Undominated choices are selected by ordinal preference without embedding an external optimum relation into the frame.
+3. **Complementary Ends Requirement**: Characterizes complementary factors directly through technology requirements $req(e, m)$ and physical inventory $\omega$. When complement factor $m_2$ is absent from inventory, extra units of factor $m_1$ cannot attain the complementary end $e$, verifying that isolated complementary factors have zero imputed marginal yield when their complements are unavailable.
 
 ## Conclusion
 

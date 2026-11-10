@@ -50,7 +50,7 @@ To evaluate the Rentier Black Hole against the operational reality of human acti
 The domain of physical means $\mathcal{M}$ partitions into:
 1. **Reproducible Capital Goods** ($m_K, m_C \in \mathcal{M}$): Intermediate physical tools and materials requiring physical production actions $\alpha_{\text{prod}} \in \mathcal{A}$ where inputs are consumed ( $u(\alpha_{\text{prod}}, m_C) > 0$ ) to yield outputs ( $y(\alpha_{\text{prod}}, m_K) > 0$ ) across discrete branching time $t \prec t'$ (Chapters 1 and 2).
 2. **Non-Reproducible Spatial Locations** ( $`m_R \in \mathcal{M}_{\text{spatial}}`$ ): Physical land parcels bounded by nature, satisfying $\forall \alpha \in \mathcal{A}, y(\alpha, m_R) = 0$.
-3. **Secondary Market Title Transfers** ($\alpha_{\text{trade}} \in \mathcal{A}$): Bilateral exchange of spatial title $m_R$ for money tokens $m_{\text{money}}$ at nominal price $P_R$ (Chapter 8, [Definition 8.20](../natural_language/08_social_interaction_property_and_exchange.md#definition-820-matched-offer-and-acceptance)). By [Proposition 8.21 (Physical Balances of Matched Exchange)](../natural_language/08_social_interaction_property_and_exchange.md#proposition-821-physical-balances-of-matched-exchange):
+3. **Secondary Market Title Transfers** ($\alpha_{\text{trade}} \in \mathcal{A}$): Bilateral exchange of spatial title $m_R$ for money tokens $m_{\text{money}}$ at nominal price $P_R$ (Chapter 8, [Definition 8.23](../natural_language/08_social_interaction_property_and_exchange.md#definition-823-matched-offer-and-acceptance)). By [Proposition 8.24 (Physical Balances of Matched Exchange)](../natural_language/08_social_interaction_property_and_exchange.md#proposition-824-physical-balances-of-matched-exchange):
 
 $$
 \omega(A, t', h, m_{\text{money}}) = \omega(A, t, h, m_{\text{money}}) + P_R, \quad \omega(B, t', h, m_{\text{money}}) = \omega(B, t, h, m_{\text{money}}) - P_R
@@ -81,7 +81,7 @@ where $\sum_j P_j Q_{P,j}$ is realized monetary revenue from physical outputs, w
 ### Definition 4 (Statutory Interventionist Remedies)
 Interventionist proposals seek to resolve the singularity through coercive controls:
 1. **Georgist Land Value Taxation (LVT):** Developed real estate is an indivisible physical composite $m_{\text{real}} = \langle m_R, m_I \rangle \in \mathcal{M}$ of spatial site $m_R$ and capital improvements $m_I$. The state assessor decrees an administrative division $`\hat{V}_{\text{real}} = \hat{V}_L + \hat{V}_I`$ and levies tax liability $`T_L = \tau_L \hat{V}_L`$ with $\tau_L \in (0, 1]$.
-2. **Coercive Capital Controls and Foreign-Buyer Prohibitions:** Cross-border real estate purchases are excised from feasible menus (Chapter 8, [Definition 8.15](../natural_language/08_social_interaction_property_and_exchange.md#definition-815-directed-physical-invasion-and-action-axiom-menu-stripping)):
+2. **Coercive Capital Controls and Foreign-Buyer Prohibitions:** Cross-border real estate purchases are excised from feasible menus (Chapter 8, [Definition 8.18](../natural_language/08_social_interaction_property_and_exchange.md#definition-818-directed-physical-invasion-and-action-axiom-menu-stripping)):
 
 $$
 \mathcal{A}_{\text{feas}}^{\text{restricted}}(i, t, h) = \mathcal{A}_{\text{feas}}(i, t, h) \setminus \{ \alpha \in \mathcal{A}_{\text{trade}} \mid \text{Buyer}(\alpha) \notin \mathcal{I}_{\text{domestic}} \}
@@ -145,7 +145,7 @@ $$
 When foreign exporters recycle domestic fiat earnings into domestic structural rentier assets, the foreign exchange market clears through the financial account, pinning the domestic currency above its merchandise fundamental and financing domestic subsistence consumption via territorial alienation.
 
 **Proof.**
-1. In Chapter 8 ([Definition 8.20](../natural_language/08_social_interaction_property_and_exchange.md#definition-820-matched-offer-and-acceptance)) and Chapter 9 ([Theorem 9.15](../natural_language/09_money_prices_and_calculation.md#theorem-915-the-böhm-bawerk-discrete-marginal-pair-bracket-theorem)), market prices—including the foreign exchange rate $S$—are established by the intersection of reservation bids across all traded items.
+1. In Chapter 8 ([Definition 8.23](../natural_language/08_social_interaction_property_and_exchange.md#definition-823-matched-offer-and-acceptance)) and Chapter 9 ([Theorem 9.15](../natural_language/09_money_prices_and_calculation.md#theorem-915-the-böhm-bawerk-discrete-marginal-pair-bracket-theorem)), market prices—including the foreign exchange rate $S$—are established by the intersection of reservation bids across all traded items.
 2. Domestic consumers purchase foreign physical subsistence goods $m_{\text{food}}$ at import bill $M = S \cdot P_{\text{food}}^{\ast} Q_{\text{food}}$.
 3. In the absence of secondary asset sales, foreign exporters must purchase domestic manufactured exports $X = P_X Q_X$ or sell domestic currency on the foreign exchange market, driving $S$ down until $X = M$.
 4. When secondary structural rentier assets $`m_R \in \mathcal{M}_{\text{spatial}}`$ are open to foreign acquisition, foreign exporters use accumulated fiat balances to purchase domestic land titles: $\text{Inflow} = P_R \Delta K_R^{\text{foreign}}$.
@@ -169,7 +169,7 @@ In an unhampered market with 100% reserve money (the absence of fiduciary credit
 
 **Proof.**
 1. **Conservation of Money Tokens:**
-   - Let buyer $B$ purchase parcel $m_R$ from seller $A$ at price $P_R$. By [Proposition 8.21 (Physical Balances of Matched Exchange)](../natural_language/08_social_interaction_property_and_exchange.md#proposition-821-physical-balances-of-matched-exchange):
+   - Let buyer $B$ purchase parcel $m_R$ from seller $A$ at price $P_R$. By [Proposition 8.24 (Physical Balances of Matched Exchange)](../natural_language/08_social_interaction_property_and_exchange.md#proposition-824-physical-balances-of-matched-exchange):
 
 $$
 \omega(B, t', h, m_{\text{money}}) = \omega(B, t, h, m_{\text{money}}) - P_R, \quad \omega(A, t', h, m_{\text{money}}) = \omega(A, t, h, m_{\text{money}}) + P_R
@@ -247,15 +247,15 @@ Physical survival actions become infeasible ( $`\alpha_{\text{surv}} \notin \mat
 Voluntary international trade in agricultural goods does not cause foreign immiseration or industrial arrest. The failure of a food-exporting developing nation to industrialize stems from domestic coercive predation and institutional insecurity that drives capital flight into foreign safe havens.
 
 **Proof.**
-1. By [Theorem 8.24 (The Double Inequality of Voluntary Exchange Theorem)](../natural_language/08_social_interaction_property_and_exchange.md#theorem-824-the-double-inequality-of-voluntary-exchange-theorem), voluntary bilateral trade between foreign agriculturalists and domestic importers satisfies:
+1. By [Theorem 8.27 (The Double Inequality of Voluntary Exchange Theorem)](../natural_language/08_social_interaction_property_and_exchange.md#theorem-827-the-double-inequality-of-voluntary-exchange-theorem), voluntary bilateral trade between foreign agriculturalists and domestic importers satisfies:
 
 $$
 \text{End}(\text{Foreign}, m_{\text{money}}) \succ_{\text{Foreign}} \text{End}(\text{Foreign}, m_{\text{food}})
 $$
 
 Foreign producers trade food only because they rank received purchasing power above retained food. Conflating voluntary trade with coercive colonial requisitions violates Chapter 12 ([Theorem 12.1](../natural_language/12_state_and_fiscal_political_economy.md#theorem-121-the-coercive-invariance-of-public-services-theorem): economic means (voluntary exchange) vs. political means (coercive extortion)).
-2. By [Theorem 8.28](../natural_language/08_social_interaction_property_and_exchange.md#theorem-828-the-law-of-association-and-comparative-advantage-theorem), expanded export revenues increase the foreign community's aggregate savings pool. In an unhampered market, agricultural profits are deposited in loan markets, lowering interest rates and financing domestic manufacturing ($K_M^{\ast}$).
-3. Foreign wealth-holders recycle export proceeds into London or New York real estate ($K_R^{\text{foreign}}$) rather than domestic factories ($K_M^{\ast}$) only when domestic institutions exercise predatory taxation, arbitrary confiscation, or currency debasement (Chapter 12, [Propositions 12.10](../natural_language/12_state_and_fiscal_political_economy.md#proposition-1210-purposeful-fiscal-choice-under-the-stated-bounds) and 12.6):
+2. By [Theorem 8.31](../natural_language/08_social_interaction_property_and_exchange.md#theorem-831-the-law-of-association-and-comparative-advantage-theorem), expanded export revenues increase the foreign community's aggregate savings pool. In an unhampered market, agricultural profits are deposited in loan markets, lowering interest rates and financing domestic manufacturing ($K_M^{\ast}$).
+3. Foreign wealth-holders recycle export proceeds into London or New York real estate ($K_R^{\text{foreign}}$) rather than domestic factories ($K_M^{\ast}$) only when domestic institutions exercise predatory taxation, arbitrary confiscation, or currency debasement (Chapter 12, [Propositions 12.12](../natural_language/12_state_and_fiscal_political_economy.md#proposition-1212-purposeful-fiscal-choice-under-the-stated-bounds) and 12.6):
 
 $$
 \mathbb{E}[r_{\text{domestic manufacturing}}] - \text{ConfiscationRisk} < 0
@@ -290,5 +290,5 @@ Coordination is restored by establishing the **Unhampered Market Regime**:
 
 Under this unhampered framework:
 - Positive originary time preference ($\iota > 0$, Chapter 7, [Theorem 7.16](../natural_language/07_time_preference_interest_and_capital.md#theorem-716-the-master-positive-time-preference-and-originary-interest-synthesis)) anchors the interest floor under explicit discounting premises, forcing real estate return ratios to compress monotonically ($r_R \downarrow \iota$) as asset prices rise, eliminating the portfolio divergence threshold $T^{\ast}$.
-- Because secondary title transfers conserve monetary tokens ([Proposition 8.21](../natural_language/08_social_interaction_property_and_exchange.md#proposition-821-physical-balances-of-matched-exchange)), liquid capital is never destroyed or trapped in existing land.
-- Restoring building feasibility eliminates physical supply bottlenecks, enterprise parity preserves physical capital inventories ($I_P \ge \delta_P K_P$), and peaceful bilateral trade coordinates international exchange through mutual Ricardian comparative advantage ([Theorem 8.28](../natural_language/08_social_interaction_property_and_exchange.md#theorem-828-the-law-of-association-and-comparative-advantage-theorem)) rather than immiseration.
+- Because secondary title transfers conserve monetary tokens ([Proposition 8.24](../natural_language/08_social_interaction_property_and_exchange.md#proposition-824-physical-balances-of-matched-exchange)), liquid capital is never destroyed or trapped in existing land.
+- Restoring building feasibility eliminates physical supply bottlenecks, enterprise parity preserves physical capital inventories ($I_P \ge \delta_P K_P$), and peaceful bilateral trade coordinates international exchange through mutual Ricardian comparative advantage ([Theorem 8.31](../natural_language/08_social_interaction_property_and_exchange.md#theorem-831-the-law-of-association-and-comparative-advantage-theorem)) rather than immiseration.

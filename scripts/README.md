@@ -115,7 +115,43 @@ python3 scripts/update_natural_language_links.py --dump-index markdown > docs/DE
 
 ---
 
-## 3. `fix_markdown_math.py`
+## 3. `relink_natural_language.py`
+
+### Purpose
+A high-level refactoring and relinking framework designed for reorganizing, expanding, or renumbering chapters in `natural_language/`. When chapters are restructured (such as expanding Chapter 8 from 7 to 10 interaction classes, shifting Theorem 8.24 to Theorem 8.27), citations across `critiques/`, `spec/`, and `README.md` can point to outdated declaration numbers or obsolete anchor slugs. `relink_natural_language.py` extracts title semantics from link anchors and parentheticals, matches them against current declarations using a semantic index and legacy alias dictionary, and atomically rewrites both the link text and target URLs in-place.
+
+### Features
+- **Semantic Title & Anchor Slug Resolution**: Extracts canonical titles directly from markdown slugs and parentheticals, correctly distinguishing shifted declaration numbers from altered titles.
+- **Legacy Alias Mapping**: Contains historical alias dictionaries (e.g. mapping legacy partition slugs and older titles to current canonical theorems) to enable smooth refactoring transitions.
+- **Atomic Link Rewriting**: Synchronously updates cited numbers (e.g., `Theorem 8.24` -> `Theorem 8.27`) and anchor targets (e.g., `#theorem-824-...` -> `#theorem-827-...`) across prose without disrupting surrounding markdown formatting or code blocks.
+- **Chapter-Level Reference Resolution**: Validates and updates whole-chapter references (e.g., `[Chapter 10](10_....md#chapter-10-...)`).
+- **Diff & Dry-Run Modes**: Supports `--diff` to output standard unified diffs and `--dry-run` to preview proposed updates before writing to disk.
+- **CI / Gatekeeper Mode (`--check`)**: Exits with `0` when all cross-document references are fully aligned, and `1` when outdated links or broken anchors require remediation.
+
+### Command-Line Options
+| Option | Description |
+|---|---|
+| `--check` | CI mode: exits with `0` if all links are valid, `1` if any are outdated. |
+| `--dry-run` | Previews proposed relinking changes without writing to disk. |
+| `--diff` | Prints unified diffs of proposed link updates to stdout. |
+| `--path <PATH>` | Audit a specific Markdown file or subdirectory. Defaults to entire repository. |
+| `--root <DIR>` | Specifies repository root (defaults to `.`). |
+
+### Usage Examples
+```bash
+# Verify that all cross-document natural language links are synchronized (CI check)
+python3 scripts/relink_natural_language.py --check
+
+# Preview proposed relinking diff after chapter restructuring
+python3 scripts/relink_natural_language.py --diff
+
+# Automatically apply relinking updates across all Markdown files in the repository
+python3 scripts/relink_natural_language.py
+```
+
+---
+
+## 4. `fix_markdown_math.py`
 
 ### Purpose
 Identifies and automatically repairs KaTeX and GitHub Flavored Markdown (GFM) math rendering errors across all documentation.
@@ -174,7 +210,7 @@ python3 scripts/fix_markdown_math.py --path spec/02_action_and_preference.md --f
 
 ---
 
-## 4. `check_markdown_math.py`
+## 5. `check_markdown_math.py`
 
 This read-only checker validates structural math syntax in Markdown without
 changing files. It checks fenced display math and inline math while ignoring
@@ -199,7 +235,7 @@ itself remains read-only.
 python3 scripts/check_markdown_math.py
 
 # Check a specific document or directory
-python3 scripts/check_markdown_math.py --path natural_language/08_price_signals_firms_and_intervention.md
+python3 scripts/check_markdown_math.py --path natural_language/08_social_interaction_property_and_exchange.md
 ```
 
 The checker exits with `1` when it finds a math syntax issue, making it
@@ -207,7 +243,7 @@ suitable for CI.
 
 ---
 
-## 5. `audit_adhoc_premises.py`
+## 6. `audit_adhoc_premises.py`
 
 ### Purpose
 Audits the Lean 4 formalization for ad-hoc premise wrappers, exogenous macroeconomic shock structures, ungrounded subjective flips, and detached interaction payoff matrices.
@@ -229,7 +265,7 @@ python3 scripts/audit_adhoc_premises.py --check
 
 ---
 
-## 6. `audit_axiomatic_floor.py`
+## 7. `audit_axiomatic_floor.py`
 
 Heuristic source-pattern screen for ontological leakage, `omit ... in` bypasses, shadow doxastic frames, and implicational bridge stuffing.
 
@@ -239,7 +275,19 @@ python3 scripts/audit_axiomatic_floor.py
 
 ---
 
-## 7. Recommended CI / Pre-Commit Workflow
+## 8. `audit_constructive_axioms.py`
+
+### Purpose
+Inspects all environment declarations in compiled Lean oleans to audit constructive axiom dependencies (specifically flagging `propext`, `Classical.choice`, and `Quot.sound`).
+
+```bash
+# Check axiom dependencies across the formal codebase
+python3 scripts/audit_constructive_axioms.py --check
+```
+
+---
+
+## 9. Recommended CI / Pre-Commit Workflow
 
 These tools are designed to run in continuous integration workflows (e.g. GitHub Actions) or as pre-commit hooks to prevent documentation regressions:
 
@@ -249,8 +297,10 @@ These tools are designed to run in continuous integration workflows (e.g. GitHub
   run: |
     python3 scripts/update_theorem_links.py --check
     python3 scripts/update_natural_language_links.py --check
+    python3 scripts/relink_natural_language.py --check
     python3 scripts/fix_markdown_math.py --check
     python3 scripts/check_markdown_math.py
     python3 scripts/audit_adhoc_premises.py --check
     python3 scripts/audit_axiomatic_floor.py
+    python3 scripts/audit_constructive_axioms.py --check
 ```

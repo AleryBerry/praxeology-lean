@@ -233,10 +233,10 @@ $$
 
 *Saving and provision for the future do not demonstrate negative time preference; they demonstrate a purposeful present choice for security over immediate consumption.*
 
-**Proof.** Preference asymmetry and irreflexivity ensure that strict preference $e_{\mathrm{sec}} \succ e_{\mathrm{spend}}$ and $e_{\mathrm{sec}} \succ \mathsf{End}(\alpha_0)$ rules out any weak dominance of $\alpha_{\mathrm{save}}$ by $\alpha_{\mathrm{spend}}$ or $\alpha_0$ on the three-action menu (`CurrentSecurityChoiceEvidence.saving_undominated_except_spending`). Together with physical execution, undominatedness establishes that saving is a purposeful act (`current_security_choice_is_purposeful`). In turn, the explicit ranking $e_{\mathrm{sec}} \succ e_{\mathrm{spend}}$ establishes that saving strictly dominates immediate spending in the actor's present evaluation (`CurrentSecurityChoiceEvidence.saving_dominates_spending`). Constructively witnessed in `Praxeology/Marginal.lean` by `finiteCurrentSecurityChoiceEvidence`. $\square$
+**Proof.** Preference asymmetry and irreflexivity ensure that strict preference $e_{\mathrm{sec}} \succ e_{\mathrm{spend}}$ and $e_{\mathrm{sec}} \succ \mathsf{End}(\alpha_0)$ rule out any weak dominance of $\alpha_{\mathrm{save}}$ by $\alpha_{\mathrm{spend}}$ or $\alpha_0$ on the three-action menu. Together with physical execution, undominatedness establishes that saving is a purposeful act. In turn, the explicit ranking $e_{\mathrm{sec}} \succ e_{\mathrm{spend}}$ establishes that saving strictly dominates immediate spending in the actor's present evaluation. $\square$
 
 ### Theorem 7.16 (The Master Positive Time Preference and Originary Interest Synthesis)
-Under the combined structural evidence of positive time preference (`PositiveTimePreferenceEvidence`), current security choice (`CurrentSecurityChoiceEvidence`), and discrete originary interest (`DiscreteOriginaryInterestEvidence`):
+Under the combined structural evidence of positive time preference, current security choice, and discrete originary interest:
 1. **Universal Dated Preference**: For any fixed end $e$ and any precedence pair $t_1 \prec t_2$ along history $h$, earlier attainment is strictly preferred to later attainment:
 
 $$
@@ -255,7 +255,7 @@ $$
 \delta \ge 1 \quad \wedge \quad \mathsf{End}(i, t, h, \alpha_{\mathrm{retain}}) \succ_{i,t,h} \mathsf{End}(i, t, h, \alpha_{\mathrm{u4u}})
 $$
 
-**Proof.** Verified directly by `unified_universal_positive_time_preference_and_saving_resolution` in `Praxeology/Marginal.lean`. The three parts resolve the classical tension between positive time preference, saving/insurance, and positive interest in a single coherent model. $\square$
+**Proof.** Direct composition of earlier control dominance, security evaluation, and positive originary interest. The three parts resolve the classical tension between positive time preference, saving/insurance, and positive interest in a single coherent framework. $\square$
 
 ---
 

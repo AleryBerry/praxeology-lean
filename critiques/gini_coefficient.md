@@ -42,7 +42,7 @@ y(t, h) = \langle y_1(t, h), y_2(t, h), \dots, y_n(t, h) \rangle \in \mathbb{R}_
 $$
 
 ### Definition 2 (Multidimensional Action Menus and Non-Monetary Amenities)
-In human action (Chapter 3, [Definitions 3.8](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-38-purposeful-choice-relative-to-a-relation)–[3.10](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-310-active-purposeful-choice); Chapter 8, [Propositions 8.13](../natural_language/08_social_interaction_property_and_exchange.md#proposition-813-conditional-improvement-does-not-imply-voluntary-gain)–[8.18](../natural_language/08_social_interaction_property_and_exchange.md#proposition-818-peaceful-competition-excludes-anchored-extortion)), an employment or entrepreneurial action $`\alpha \in \mathcal{A}_{\text{feas}}(i, t, h)`$ yields a composite physical outcome bundle:
+In human action (Chapter 3, [Definitions 3.8](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-38-purposeful-choice-relative-to-a-relation)–[3.10](../natural_language/03_preference_purpose_and_opportunity_cost.md#definition-310-active-purposeful-choice); Chapter 8, [Propositions 8.13](../natural_language/08_social_interaction_property_and_exchange.md#proposition-813-conditional-improvement-does-not-imply-voluntary-gain)–[8.22](../natural_language/08_social_interaction_property_and_exchange.md#theorem-822-pairwise-mutual-exclusivity-of-bilateral-interaction-predicates)), an employment or entrepreneurial action $`\alpha \in \mathcal{A}_{\text{feas}}(i, t, h)`$ yields a composite physical outcome bundle:
 
 $$
 m_{\text{comp}}(\alpha) = \langle P_{\text{wage}}, m_{\text{leisure}}, m_{\text{risk}}, m_{\text{autonomy}}, m_{\text{location}} \rangle
@@ -128,7 +128,7 @@ The Gini coefficient sums differences in monetary tokens across individuals, tre
 
 **Proof.**
 1. By Chapter 3, human utility is purely ordinal: an acting agent ranks discrete ends $e_1 \succ_i e_2 \succ_i e_3$. Ordinal rankings cannot be mapped to cardinal numbers ( $u_i(e) \in \mathbb{R}$ ), nor can differences between rankings be assigned mathematical intervals.
-2. By Chapter 8 ([Theorem 8.24](../natural_language/08_social_interaction_property_and_exchange.md#theorem-824-the-double-inequality-of-voluntary-exchange-theorem), [Proposition 8.25](../natural_language/08_social_interaction_property_and_exchange.md#proposition-825-purposefulness-on-a-binary-trade-menu)), voluntary exchange coordinates distinct individuals without requiring or establishing interpersonal utility comparisons. There exists no mathematical operation by which the subjective satisfaction of agent $i$ can be added to, or subtracted from, the subjective satisfaction of agent $j$:
+2. By Chapter 8 ([Theorem 8.27](../natural_language/08_social_interaction_property_and_exchange.md#theorem-827-the-double-inequality-of-voluntary-exchange-theorem), [Proposition 8.28](../natural_language/08_social_interaction_property_and_exchange.md#proposition-828-purposefulness-on-a-binary-trade-menu)), voluntary exchange coordinates distinct individuals without requiring or establishing interpersonal utility comparisons. There exists no mathematical operation by which the subjective satisfaction of agent $i$ can be added to, or subtracted from, the subjective satisfaction of agent $j$:
 
 $$
 \forall i \neq j, \quad u_i \not\sim u_j
@@ -149,7 +149,7 @@ $$
 ## 4. Catallactic Fallacies of Coercive Redistribution
 
 ### Marginal Productivity Imputation under Consumer Sovereignty
-In an unhampered market, monetary incomes are not arbitrarily distributed from an aggregate pool; they are earned catallactically through voluntary bilateral exchanges (Chapter 8, [Theorem 8.24](../natural_language/08_social_interaction_property_and_exchange.md#theorem-824-the-double-inequality-of-voluntary-exchange-theorem) and [Proposition 8.25](../natural_language/08_social_interaction_property_and_exchange.md#proposition-825-purposefulness-on-a-binary-trade-menu)):
+In an unhampered market, monetary incomes are not arbitrarily distributed from an aggregate pool; they are earned catallactically through voluntary bilateral exchanges (Chapter 8, [Theorem 8.27](../natural_language/08_social_interaction_property_and_exchange.md#theorem-827-the-double-inequality-of-voluntary-exchange-theorem) and [Proposition 8.28](../natural_language/08_social_interaction_property_and_exchange.md#proposition-828-purposefulness-on-a-binary-trade-menu)):
 - **Wages:** Market wage rates equal the **Discounted Marginal Value Product** (DMVP) of labor services imputed backward from consumer demand (Chapter 4; Chapter 9, [Proposition 9.29](../natural_language/09_money_prices_and_calculation.md#proposition-929-cost-reducing-factor-substitution-raises-net-return-and-return-ratio)). A worker commanding a high wage does so because sovereign consumers place an intense valuation on the goods that worker produces.
 - **Profits:** Entrepreneurial profits represent the reward for successfully anticipating future consumer desires and reallocating scarce resources to eliminate price discrepancies in branching time (Chapter 10).
 

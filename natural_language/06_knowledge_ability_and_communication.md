@@ -4,13 +4,13 @@ We begin with three questions that must not be conflated. Does some action guara
 
 ## Ability and Know-How
 
-Let $W$ be an action frame. A decision index $x \in W.\text{DecisionIndex}$ is a pair $x = \langle t, h \rangle$ consisting of a moment $t$ and a history $h$ passing through $t$ ($t \in h$). At each decision index $x$, an agent $i$ has a set $`\mathcal{A}_{\mathrm{feas}}(i, x.\text{moment}, x.\text{history})`$ of available actions. An action choice determines a choice cell of decision indices sharing the same moment $x.\text{moment}$ where the agent enacts that action. We write $P : W.\text{DecisionIndex} \to \text{Prop}$ for the target proposition the agent seeks to guarantee.
+Let $\mathcal{X}$ be the set of decision nodes, where each node $x = \langle t, h \rangle \in \mathcal{X}$ consists of a moment $t \in \mathcal{T}$ and a history $h \in \mathcal{H}$ passing through $t$ ($t \in h$). At each decision node $x = \langle t, h \rangle$, an agent $i$ has a set $`\mathcal{A}_{\mathrm{feas}}(i, t, h)`$ of available actions. An action choice determines a choice cell of decision nodes sharing the same moment $t$ where the agent enacts that action. We write $`P : \mathcal{X} \to \{\mathrm{True}, \mathrm{False}\}`$ for the target proposition the agent seeks to guarantee.
 
 ### Definition 6.1 (Guarantee and Causal Ability)
-Action $\alpha$ *guarantees* $P$ for agent $i$ at decision index $x$ when it is feasible there and every decision index $y$ sharing moment $x.\text{moment}$ where $i$ enacts $\alpha$ satisfies $P(y)$:
+Action $\alpha$ *guarantees* $P$ for agent $i$ at decision node $x = \langle t, h \rangle$ when it is feasible there and every decision node $y = \langle t, h' \rangle$ sharing moment $t$ where $i$ enacts $\alpha$ satisfies $P(y)$:
 
 $$
-\text{Guarantees}_i(x, \alpha, P) \iff \alpha \in \mathcal{A}_{\mathrm{feas}}(i, x.\text{moment}, x.\text{history}) \land \forall y \in W.\text{DecisionIndex},\; (y.\text{moment} = x.\text{moment} \land \text{enacted}(i, y.\text{moment}, y.\text{history}) = \alpha \implies P(y)).
+\text{Guarantees}_i(x, \alpha, P) \iff \alpha \in \mathcal{A}_{\mathrm{feas}}(i, t, h) \land \forall y = \langle t, h' \rangle \in \mathcal{X},\; (\text{enacted}(i, t, h') = \alpha \implies P(y)).
 $$
 
 The agent has *causal ability* to bring about $P$ at $x$ when at least one action guarantees it:
