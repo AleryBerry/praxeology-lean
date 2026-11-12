@@ -198,7 +198,7 @@ remain independent of repayment. -/
 theorem workshop_repayment_evidence_is_incompatible_with_credit_shock_member
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort WorkshopActionFrame Context Entrepreneur)
-    {e : Entrepreneur} (_he : e ∈ C.entrepreneurs)
+    {e : Entrepreneur}
     (R : CreditRepayment (C.project e).funding.advance) : False := by
   exact workshop_repayment_evidence_incompatible
     (C.project e).funding.terms (C.project e).funding.advance R

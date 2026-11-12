@@ -19,7 +19,7 @@ This note focuses on the **fundamental conceptual and structural differences** b
 | :--- | :--- | :--- | :--- |
 | **Temporal Structure** | Single linear chain (like $\mathbb{N}$ ) | Forward-branching Kripke tree | Human action is counterfactual: choosing one action leaves alternate branches unchosen. Branching time also enables modeling uncertainty, error, and regret. |
 | **Preference & Choice** | Strict total order (Menu-Comparability) | Strict partial order (minimal asymmetric poset) | Does not assume agents can rank every unchosen alternative; resolves Buridan ties naturally via undominated choice without indifference curves. |
-| **Opportunity Cost** | Scalar maximum after erasing the chosen end | Dual set-valued frontiers ([`ActionOCSet`](../Praxeology/Action.lean#L742) & [`StrictOCSet`](../Praxeology/Action.lean#L748)) | Prevents unnatural discontinuities when multiple foregone actions achieve the same top end. |
+| **Opportunity Cost** | Scalar maximum after erasing the chosen end | Dual set-valued frontiers ([`ActionOCSet`](../Praxeology/Action.lean#L724) & [`StrictOCSet`](../Praxeology/Action.lean#L730)) | Prevents unnatural discontinuities when multiple foregone actions achieve the same top end. |
 | **Inaction & Felt Unease** | Always-acting (inaction is not distinguished) | Distinguished baseline inaction ( $\alpha_0$ ) | Directly formalizes Mises's "felt unease": active action must strictly improve over doing nothing: $\text{End}(\alpha^{\ast}) \succ \text{End}(\alpha_0)$. |
 | **Feasibility & Transitions** | Externally stipulated availability (`Avail`) | Endogenous physical conservation and causal transitions | Physical means are tracked across time; actions consume and produce goods, determining what is feasible at future moments. |
 | **Marginal Utility (DMU)** | Postulated allotment schedule parallel to action | Discrete economizing on homogeneous means units | Derives DMU directly from purposeful allocation; accounts for Rothbard's discrete technological quantum (complementarity / 30-log cabin). |
@@ -48,8 +48,8 @@ This note focuses on the **fundamental conceptual and structural differences** b
 
 * **Komendarczyk et al.:** Opportunity cost is defined as the single best end among the unchosen options, computed by erasing the chosen end from the menu and finding the maximum of the remainder.
 * **`praxeology-lean`:** Distinguishes between foregone *actions* (means lost) and foregone *ends*, formalizing both as set-valued undominated frontiers:
-  1. [`ActionOCSet`](../Praxeology/Action.lean#L742): The undominated ends among all unchosen actions.
-  2. [`StrictOCSet`](../Praxeology/Action.lean#L748): The undominated ends among foregone ends strictly distinct from the chosen end.
+  1. [`ActionOCSet`](../Praxeology/Action.lean#L724): The undominated ends among all unchosen actions.
+  2. [`StrictOCSet`](../Praxeology/Action.lean#L730): The undominated ends among foregone ends strictly distinct from the chosen end.
 * **The Core Insight:** If two distinct actions yield the same top end (e.g., hunting in Sector A vs. Sector B both yield 10 deer), erasing that end completely deletes Sector B from the cost set, creating an unnatural mathematical discontinuity. `ActionOCSet` retains the shared end, ensuring continuity across tie boundaries while still matching the traditional definition whenever ends are distinct.
 
 ### 2.4 Inaction, "Felt Uneasiness", and Refraining

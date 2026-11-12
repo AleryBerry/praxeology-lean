@@ -383,11 +383,18 @@ class ActionFrame where
     intro h
     exact h
 
-  /-- Endowment changes by the agent's own action use and yield for nontrade
-  actions. In particular this rules out a one-step stock loss to an idle
-  agent, even when another agent acts. -/
+  /-- Predicate characterizing whether an action physically seizes from or invades
+      target agent `i`. Defaults to False in peaceful / purely catallactic models. -/
+  IsInvasiveOn : Action → Agent → Prop := fun _ _ => False
+  alpha_zero_not_invasive : ∀ i, ¬ IsInvasiveOn alpha_zero i := by
+    intro _ h
+    exact h
+
+  /-- Endowment changes by action use and yield for nontrade actions when agent `i`
+      is uninvaded by all other agents. -/
   law_in_re_transition : ∀ i t t' h α m,
     ¬ IsTradeAction α →
+    (∀ j, ¬ IsInvasiveOn (enacted j t h) i) →
     enacted i t h = α →
     IsNextMoment Precedence mem_hist t t' h →
     omega i t' h m + use_means α m = omega i t h m + yield_means α m
@@ -637,6 +644,36 @@ theorem BilateralExchangeFrame.alpha_zero_not_trade
   · exact B.alpha_zero_ne_offer h_eq
   · exact B.alpha_zero_ne_accept h_eq
 
+/-- Optional coercive transfer structure for ActionFrames supporting unilateral physical seizure. -/
+class CoerciveTransferFrame (W : ActionFrame) where
+  Seize : W.Agent → W.Agent → ℕ → W.Means → W.Action
+  seize_not_trade : ∀ j i q m, ¬ W.IsTradeAction (Seize j i q m)
+  seize_invasive_iff : ∀ j i q m k,
+    W.IsInvasiveOn (Seize j i q m) k ↔ (k = i ∧ j ≠ i ∧ 0 < q)
+  seize_transfer_law : ∀ j i q m t t' h m',
+    j ≠ i →
+    q ≤ W.omega i t h m →
+    W.enacted j t h = Seize j i q m →
+    W.enacted i t h = W.alpha_zero →
+    (∀ k, k ≠ j → k ≠ i →
+      ¬ W.IsInvasiveOn (W.enacted k t h) i ∧ ¬ W.IsInvasiveOn (W.enacted k t h) j) →
+    IsNextMoment W.Precedence W.mem_hist t t' h →
+    (W.omega j t' h m' = W.omega j t h m' + (if m' = m then q else 0)) ∧
+    (W.omega i t' h m' + (if m' = m then q else 0) = W.omega i t h m')
+
+@[reducible]
+def ActionFrame.Seize (W : ActionFrame) [C : CoerciveTransferFrame W] :
+    W.Agent → W.Agent → ℕ → W.Means → W.Action :=
+  C.Seize
+
+theorem ActionFrame.seize_not_trade (W : ActionFrame) [C : CoerciveTransferFrame W] :
+    ∀ j i q m, ¬ W.IsTradeAction (W.Seize j i q m) :=
+  C.seize_not_trade
+
+theorem ActionFrame.seize_invasive_iff (W : ActionFrame) [C : CoerciveTransferFrame W] :
+    ∀ j i q m k, W.IsInvasiveOn (W.Seize j i q m) k ↔ (k = i ∧ j ≠ i ∧ 0 < q) :=
+  C.seize_invasive_iff
+
 /-- Optional intertemporal composite ends for models formalizing time preference
     and originary interest. -/
 class IntertemporalEnds (W : ActionFrame) where
@@ -685,40 +722,44 @@ theorem ActionFrame.A_feas_bundle_invariant (W : ActionFrame) (i : W.Agent) (t :
       W.A_cont_bundle_invariant i t h1_in h2_in]
   simp only [W.omega_bundle_invariant i t _ h1_in h2_in]
 
-/-- Proposition 2.13: Inaction preserves endowments across temporal transitions. -/
+/-- Proposition 2.13: Inaction preserves endowments across temporal transitions when uninvaded. -/
 theorem ActionFrame.inaction_preserves_endowments (W : ActionFrame)
     (i : W.Agent) (t t' : W.Moment) (h : W.History)
     (h_enacted : W.enacted i t h = W.alpha_zero)
+    (h_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) i)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
     ∀ m, W.omega i t' h m = W.omega i t h m := by
   intro m
   have h_tr := W.law_in_re_transition i t t' h W.alpha_zero m
-    W.alpha_zero_not_trade h_enacted h_next
+    W.alpha_zero_not_trade h_uninvaded h_enacted h_next
   rw [W.use_means_alpha_zero m, W.yield_means_alpha_zero m,
       Nat.add_zero, Nat.add_zero] at h_tr
   exact h_tr
 
-/-- Proposition 2.14 (Part 1): Pure production reflects yield in ending inventory. -/
+/-- Proposition 2.14 (Part 1): Pure production reflects yield in ending inventory when uninvaded. -/
 theorem ActionFrame.pure_production_yield_only (W : ActionFrame)
     (i : W.Agent) (t t' : W.Moment) (h : W.History) (α : W.Action) (m : W.Means)
     (h_not_trade : ¬ W.IsTradeAction α)
+    (h_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) i)
     (h_use : W.use_means α m = 0)
     (h_enacted : W.enacted i t h = α)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
     W.omega i t' h m = W.omega i t h m + W.yield_means α m := by
-  have h_tr := W.law_in_re_transition i t t' h α m h_not_trade h_enacted h_next
+  have h_tr := W.law_in_re_transition i t t' h α m h_not_trade h_uninvaded h_enacted h_next
   rw [h_use, Nat.add_zero] at h_tr
   exact h_tr
 
-/-- Proposition 2.14 (Part 2): Pure consumption reflects use in ending inventory balance. -/
+/-- Proposition 2.14 (Part 2):
+Pure consumption reflects use in ending inventory balance when uninvaded. -/
 theorem ActionFrame.pure_consumption_use_only (W : ActionFrame)
     (i : W.Agent) (t t' : W.Moment) (h : W.History) (α : W.Action) (m : W.Means)
     (h_not_trade : ¬ W.IsTradeAction α)
+    (h_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) i)
     (h_yield : W.yield_means α m = 0)
     (h_enacted : W.enacted i t h = α)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
     W.omega i t' h m + W.use_means α m = W.omega i t h m := by
-  have h_tr := W.law_in_re_transition i t t' h α m h_not_trade h_enacted h_next
+  have h_tr := W.law_in_re_transition i t t' h α m h_not_trade h_uninvaded h_enacted h_next
   rw [h_yield, Nat.add_zero] at h_tr
   exact h_tr
 
@@ -1614,32 +1655,36 @@ theorem phys_feas_of_mem_feas (i : Agent) (t : Moment) (h : History) (α : Actio
     α ∈ A_feas i t h → ∀ m, use_means α m ≤ omega i t h m :=
   fun h_mem => (W.A_feas_coupling i t h α).mp h_mem |>.2
 
-/-- Proposition 2.13: Inaction preserves endowments across temporal transitions. -/
+/-- Proposition 2.13: Inaction preserves endowments across temporal transitions when uninvaded. -/
 theorem inaction_preserves_endowments (i : Agent) (t t' : Moment) (h : History)
     (h_enacted : W.enacted i t h = α₀)
+    (h_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) i)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
     ∀ m, omega i t' h m = omega i t h m :=
-  W.inaction_preserves_endowments i t t' h h_enacted h_next
+  W.inaction_preserves_endowments i t t' h h_enacted h_uninvaded h_next
 
-/-- Proposition 2.14 (Part 1): Pure production reflects yield in ending inventory. -/
+/-- Proposition 2.14 (Part 1): Pure production reflects yield in ending inventory when uninvaded. -/
 theorem pure_production_yield_only (i : Agent) (t t' : Moment) (h : History)
     (α : Action) (m : Means)
     (h_not_trade : ¬ W.IsTradeAction α)
+    (h_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) i)
     (h_use : use_means α m = 0)
     (h_enacted : W.enacted i t h = α)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
     omega i t' h m = omega i t h m + yield_means α m :=
-  W.pure_production_yield_only i t t' h α m h_not_trade h_use h_enacted h_next
+  W.pure_production_yield_only i t t' h α m h_not_trade h_uninvaded h_use h_enacted h_next
 
-/-- Proposition 2.14 (Part 2): Pure consumption reflects use in ending inventory balance. -/
+/-- Proposition 2.14 (Part 2):
+Pure consumption reflects use in ending inventory balance when uninvaded. -/
 theorem pure_consumption_use_only (i : Agent) (t t' : Moment) (h : History)
     (α : Action) (m : Means)
     (h_not_trade : ¬ W.IsTradeAction α)
+    (h_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) i)
     (h_yield : yield_means α m = 0)
     (h_enacted : W.enacted i t h = α)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
     omega i t' h m + use_means α m = omega i t h m :=
-  W.pure_consumption_use_only i t t' h α m h_not_trade h_yield h_enacted h_next
+  W.pure_consumption_use_only i t t' h α m h_not_trade h_uninvaded h_yield h_enacted h_next
 
 /-- Enacted trajectory primitive: the physical action enacted by agent i at ⟨t, h⟩. -/
 abbrev enacted (i : Agent) (t : Moment) (h : History) : Action :=
@@ -1759,13 +1804,6 @@ theorem min_plausible_node_incidence (i : Agent) (t : Moment) :
 theorem tau_centering (i : Agent) (t : Moment) (h : History) (h_mem : t ∈ h) :
     tau i t h = t :=
   W.tau_centering i t h h_mem
-
-/-- Feasibility holds at each projected history when `hstable` holds. -/
-theorem projected_feasibility (hstable : ActionFrame.ProjectedFeasibility W)
-    (i : Agent) (t : Moment) (h h' : History) (α : Action)
-    (ht : t ∈ h) (hh' : h' ∈ MinPlausible i t) (hα : α ∈ A_feas i t h) :
-    α ∈ A_feas i (tau i t h') h' :=
-  hstable i t h h' α ht hh' hα
 
 /-- The minimal plausibility set is non-empty. -/
 theorem min_plausible_nonempty (i : Agent) (t : Moment) : (MinPlausible i t).Nonempty :=
@@ -1907,6 +1945,7 @@ def IsSelfTradeAction (i : Agent) (α : Action) : Prop :=
 theorem joint_profile_conservation_law
     (i : Agent) (t t' : Moment) (h : History) (m : Means)
     (h_next : IsNextMoment Precedence W.mem_hist t t' h)
+    (h_uninvaded : ∀ j, ¬ W.IsInvasiveOn (enacted j t h) i)
     (h_self : W.IsTradeAction (enacted i t h) → IsSelfTradeAction i (enacted i t h)) :
     omega i t' h m + realized_use_means i (fun a => enacted a t h) m =
     omega i t h m + realized_yield_means i (fun a => enacted a t h) m := by
@@ -2002,7 +2041,7 @@ theorem joint_profile_conservation_law
             · apply h_uni
               right
               exact ⟨j, qA, mA, qB, mB, h_acc, Or.inr h_off_j⟩
-      exact W.law_in_re_transition i t t' h α m h_not_tr rfl h_next
+      exact W.law_in_re_transition i t t' h α m h_not_tr h_uninvaded rfl h_next
 
 end MultiAgentTransitions
 
@@ -2033,6 +2072,8 @@ theorem hulsmann_path_dependent_availability
     (h_next2 : IsNextMoment Precedence W.mem_hist t t2' h2)
     (h_not_tr1 : ¬ W.IsTradeAction α_build)
     (h_not_tr2 : ¬ W.IsTradeAction α_consume)
+    (h_uninv1 : ∀ j, ¬ W.IsInvasiveOn (enacted j t h1) i)
+    (h_uninv2 : ∀ j, ¬ W.IsInvasiveOn (enacted j t h2) i)
     (h_init1 : omega i t h1 m_cap = 0)
     (h_init2 : omega i t h2 m_cap = 0)
     (h_exec1 : enacted i t h1 = α_build)
@@ -2047,9 +2088,9 @@ theorem hulsmann_path_dependent_availability
     β_downstream ∉ A_feas i t2' h2 := by
   dsimp [use_means, yield_means, omega] at h_use_build h_yield_build h_use_cons h_yield_cons
   dsimp [use_means, yield_means, omega] at h_init1 h_init2 h_req_down
-  have h_tr1 := W.law_in_re_transition i t t1' h1 α_build m_cap h_not_tr1 h_exec1 h_next1
+  have h_tr1 := W.law_in_re_transition i t t1' h1 α_build m_cap h_not_tr1 h_uninv1 h_exec1 h_next1
   rw [h_use_build, h_init1, h_yield_build, Nat.add_zero, Nat.zero_add] at h_tr1
-  have h_tr2 := W.law_in_re_transition i t t2' h2 α_consume m_cap h_not_tr2 h_exec2 h_next2
+  have h_tr2 := W.law_in_re_transition i t t2' h2 α_consume m_cap h_not_tr2 h_uninv2 h_exec2 h_next2
   rw [h_use_cons, h_init2, h_yield_cons, Nat.add_zero, Nat.zero_add] at h_tr2
   refine ⟨h_tr1, h_tr2, ?_⟩
   apply infeasible_of_insufficient_endowment i t2' h2 β_downstream m_cap

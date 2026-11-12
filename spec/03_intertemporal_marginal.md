@@ -77,7 +77,7 @@ Legacy schedule structures have been retired in favor of direct ActionFrame allo
 
 ## 3. Marginal sacrifice and complementarity
 
-[`finite_preference_relation_has_least_element`](../Praxeology/Marginal.lean#L556)
+[`finite_preference_relation_has_least_element`](../Praxeology/Marginal.lean#L557)
 is an order-theoretic result:
 transitivity on a finite nonempty set gives an element with no strictly
 preferred successor in that set. By itself it does not prove that reducing a
@@ -106,7 +106,7 @@ Finite menu satiation is formalized by
 [`action_frame_attainable_ends_finite`](../Praxeology/Marginal.lean#L260).
 
 The discrete quantum result
-[`teleological_quantum_capacity_bound`](../Praxeology/Marginal.lean#L520)
+[`teleological_quantum_capacity_bound`](../Praxeology/Marginal.lean#L521)
 says
 that a remainder smaller than q cannot finance an additional complete use
 when every listed end requires q units. This is an allocation-capacity bound,
@@ -114,13 +114,13 @@ not a theorem that the remainder has no economic use in every technology.
 
 ## 4. Time preference and interest
 
-[`causal_enacted_consumption_demonstrates_nonneg_time_pref`](../Praxeology/Marginal.lean#L659)
+[`causal_enacted_consumption_demonstrates_nonneg_time_pref`](../Praxeology/Marginal.lean#L660)
 derives that, when a
 later same-end action remains feasible in the modeled open horizon, purposeful
 enactment rules out preferring that later outcome to the enacted outcome. It
 does not derive strict preference from purposefulness alone.
 
-[`strict_time_preference_from_distinct_end_dominance`](../Praxeology/Marginal.lean#L714)
+[`strict_time_preference_from_distinct_end_dominance`](../Praxeology/Marginal.lean#L715)
 has stronger premises. It
 assumes the enacted action dominates every feasible action with a distinct
 outcome (DistinctEndDominantAct), an available later deferral, and injective
@@ -128,8 +128,8 @@ timed ends. Under those assumptions it derives strict preference for the
 nearer dated end. It is not a universal theorem about every act or every
 agent.
 
-[`positive_originary_interest`](../Praxeology/Marginal.lean#L769) and
-[`purposeful_positive_originary_interest`](../Praxeology/Marginal.lean#L801)
+[`positive_originary_interest`](../Praxeology/Marginal.lean#L770) and
+[`purposeful_positive_originary_interest`](../Praxeology/Marginal.lean#L802)
 derive a larger future repayment quantity in the specified exchange setup.
 Their conclusions depend on strict time preference, an accepted exchange,
 synchrony monotonicity, transitivity, or purposeful choice with a feasible
@@ -138,7 +138,7 @@ positive nominal rate in every monetary institution.
 
 ## 5. Seasonal saving and production
 
-[`teleological_resolution_of_saving_and_insurance`](../Praxeology/Marginal.lean#L1092)
+[`saving_dominance_excludes_feasting`](../Praxeology/Marginal.lean#L1089)
 assumes the relevant dated preferences and their ordering. It packages those
 premises into a consistency result; it does not derive seasonal saving from
 the ActionFrame axioms or establish that all saving expresses positive time

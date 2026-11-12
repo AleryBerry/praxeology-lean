@@ -374,6 +374,8 @@ theorem delegated_firm_cycle_regret
         ActionFrame.DecisionIndex.history, ActionFrame.DecisionIndex.moment]
         using h_safe_bundle_dominates } }
   have h_cycle := cycleScenario.regret_of_starvation h_starve h_req h_exchange_purposeful.2
+  have h_blocked := completion_infeasible_of_factor_starvation
+    D.principal postTransfer D.history completion complementary h_starve h_req
   have h_tuple :
       (threeStageFirmNetwork S.delegation S.market S.principalIsMarketSeller
         S.historyAligned S.marketAfterWork).HasFirmStructure ∧
@@ -396,7 +398,7 @@ theorem delegated_firm_cycle_regret
       ActionFrame.decisionIndex, ActionFrame.DecisionIndex.history,
       ActionFrame.DecisionIndex.moment] using
       ⟨h_structure, h_cycle.1.capitalStockAfter, h_cycle.2,
-      h_cycle.1.completionBlocked, h_cycle.1.purposefulInvestment,
+      h_blocked.1, h_exchange_purposeful.2,
       h_cycle.1.contextualRegret⟩
   rcases h_tuple with ⟨h_firm, h_capital, h_complementary,
     h_blocked, h_purposeful, h_regret⟩
@@ -873,6 +875,8 @@ theorem operational_firm_cycle_regret
       physicalOutcomes := h_physical_outcomes
       safeBundleDominates := h_safe_bundle_dominates } }
   have h_cycle := cycleScenario.regret_of_starvation h_starve h_req h_purposeful_pair.2
+  have h_blocked := completion_infeasible_of_factor_starvation
+    D.principal postTransfer D.history completion complementary h_starve h_req
   have h_result : OperationalFirmBoundaryConclusion S.decision ∧
       OperationalFirmCycleWitness S := by
     simpa [cycleScenario, I, O] using
@@ -882,7 +886,7 @@ theorem operational_firm_cycle_regret
     by simpa [O] using h_firm,
     h_same_history, h_work_precedes_sale,
     ⟨h_cycle.1.capitalStockAfter, h_cycle.2,
-      h_cycle.1.completionBlocked, h_cycle.1.purposefulInvestment,
+      h_blocked.1, h_purposeful_pair.2,
       h_cycle.1.contextualRegret⟩⟩
   exact ⟨h_result.1, h_result.2⟩
 

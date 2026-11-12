@@ -328,7 +328,10 @@ theorem abct_grounded_action_frame_master :
   have h_purp : PurposefulAct (0 : Fin 2) .root (3 : Fin 4) abctGroundedInvestment :=
     abctGroundedInvestment_purposeful
   have h_cycle := S.regret_of_starvation h_starve h_req h_purp
-  exact ⟨h_cycle.1.capitalStockAfter, h_cycle.2, h_cycle.1.completionBlocked,
-    h_cycle.1.purposefulInvestment, h_cycle.1.contextualRegret⟩
+  have h_blocked := completion_infeasible_of_factor_starvation
+    (0 : Fin 2) .leaf3 (3 : Fin 4) abctGroundedCompletion (2 : Fin 3)
+    h_starve h_req
+  exact ⟨h_cycle.1.capitalStockAfter, h_cycle.2, h_blocked.1,
+    h_purp, h_cycle.1.contextualRegret⟩
 
 end Praxeology

@@ -43,10 +43,11 @@ def InventoryStep.ofWellFormedAction
     {W : ActionFrame} [BilateralExchangeFrame W] {i : W.Agent}
     {h : W.History} {t t' : W.Moment} {α : W.Action}
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
+    (h_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) i)
     (h_exec : W.enacted i t h = α) (h_well : W.WellFormedAction i α) :
     InventoryStep W i h t t' := by
   cases h_well with
-  | nontrade h_nontrade => exact .production α h_exec h_nontrade h_next
+  | nontrade h_nontrade => exact .production α h_exec h_nontrade h_uninvaded h_next
   | offer j qA mA qB mB h_agents h_action =>
       have h_offer := h_exec.trans h_action
       by_cases h_accept : W.enacted j t h = W.Accept j i qA mA qB mB
@@ -64,10 +65,11 @@ theorem InventoryStep.exists_of_wellFormedAction
     {W : ActionFrame} [BilateralExchangeFrame W] {i : W.Agent}
     {h : W.History} {t t' : W.Moment} {α : W.Action}
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
+    (h_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) i)
     (h_exec : W.enacted i t h = α)
     (h_well : W.WellFormedAction i α) :
     Nonempty (InventoryStep W i h t t') :=
-  ⟨InventoryStep.ofWellFormedAction h_next h_exec h_well⟩
+  ⟨InventoryStep.ofWellFormedAction h_next h_uninvaded h_exec h_well⟩
 
 /-- Classify a well-formed enacted action without enumerating the full action
 type or invoking classical choice. -/
@@ -75,16 +77,18 @@ theorem InventoryStep.exists_of_wellFormedEnactedAction
     {W : ActionFrame} [BilateralExchangeFrame W] {i : W.Agent}
     {h : W.History} {t t' : W.Moment}
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
+    (h_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) i)
     (h_well : W.WellFormedEnactedAction i t h) :
     Nonempty (InventoryStep W i h t t') :=
-  ⟨InventoryStep.ofWellFormedAction h_next rfl h_well⟩
+  ⟨InventoryStep.ofWellFormedAction h_next h_uninvaded rfl h_well⟩
 
 def InventoryStep.ofWellFormedEnactedAction
     {W : ActionFrame} [BilateralExchangeFrame W] {i : W.Agent}
     {h : W.History} {t t' : W.Moment}
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
+    (h_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) i)
     (h_well : W.WellFormedEnactedAction i t h) : InventoryStep W i h t t' :=
-  InventoryStep.ofWellFormedAction h_next rfl h_well
+  InventoryStep.ofWellFormedAction h_next h_uninvaded rfl h_well
 
 /-- A finite-tree execution certificate over an existing ActionFrame. The
 frame remains the source of actions, endowments, ends, preferences, and
@@ -106,6 +110,9 @@ structure FiniteInventoryProgram (W : ActionFrame) [BilateralExchangeFrame W]
     W.enacted i (presentation.moment t) (presentation.history h) = actionProfile i t h
   actionProfile_wellFormed : ∀ (i : W.Agent) (t : T.Node) (h : T.History),
     T.MemHist t h → W.WellFormedAction i (actionProfile i t h)
+  actionProfile_uninvaded : ∀ (i : W.Agent) (t : T.Node) (h : T.History),
+    T.MemHist t h →
+    ∀ j, ¬ W.IsInvasiveOn (W.enacted j (presentation.moment t) (presentation.history h)) i
 
 namespace FiniteInventoryProgram
 
@@ -124,6 +131,7 @@ def step {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     exact T.ancestor_of_parent hv (T.ancestor_refl _)
   have humem : T.MemHist u P.history := T.ancestor_trans hpu hmem
   exact InventoryStep.ofWellFormedAction hnext
+    (P.actionProfile_uninvaded i u P.history humem)
     (P.actionProfile_matches i u P.history humem)
     (P.actionProfile_wellFormed i u P.history humem)
 
@@ -325,6 +333,9 @@ structure FiniteEconomySpec (W : ActionFrame) [BilateralExchangeFrame W]
     W.enacted i (presentation.moment t) (presentation.history h) = actionProfile i t h
   actionProfile_wellFormed : ∀ (i : W.Agent) (t : T.Node) (h : T.History),
     T.MemHist t h → W.WellFormedAction i (actionProfile i t h)
+  actionProfile_uninvaded : ∀ (i : W.Agent) (t : T.Node) (h : T.History),
+    T.MemHist t h →
+    ∀ j, ¬ W.IsInvasiveOn (W.enacted j (presentation.moment t) (presentation.history h)) i
   valuedEndProfile : W.Agent → T.Node → T.History → W.Ends → Prop
   valuedEndProfile_matches : ∀ (i : W.Agent) (t : T.Node) (h : T.History)
       (w : W.Ends), T.MemHist t h →
@@ -346,7 +357,8 @@ def inventoryProgram {W : ActionFrame} [BilateralExchangeFrame W]
     initialEndowment_matches := fun i m => S.initialEndowment_matches i m h
     actionProfile := S.actionProfile
     actionProfile_matches := S.actionProfile_matches
-    actionProfile_wellFormed := S.actionProfile_wellFormed }
+    actionProfile_wellFormed := S.actionProfile_wellFormed
+    actionProfile_uninvaded := S.actionProfile_uninvaded }
 
 end FiniteEconomySpec
 

@@ -456,7 +456,7 @@ theorem w_sigma_realization (i : WorkshopAgent) (t : WMoment) (h h' : WorkshopHi
   }
 
 theorem w_sigma_centering (i : WorkshopAgent) (t : WMoment) (h' : WorkshopHist)
-    {α : WorkshopAction} (_ht' : wmem t h') (h_enact : w_enacted i t h' = α) :
+    {α : WorkshopAction} (h_enact : w_enacted i t h' = α) :
     w_sigma i t α h' = h' := by
   subst h_enact
   dsimp [w_sigma]
@@ -742,7 +742,9 @@ theorem w_enacted_eq_future_choice (i : WorkshopAgent) (t u : WMoment)
       w_enacted_eq_future_choice i t u h2 htu hu2]
   sigma := w_sigma
   sigma_realization := w_sigma_realization
-  sigma_centering := w_sigma_centering
+  sigma_centering := by
+    intro i t h' α _ht' h_enact
+    exact w_sigma_centering i t h' h_enact
   sigma_co_agency := by
     intro i j t h h' α hij ht hα ht'
     exact w_sigma_co_agency i j t h h' α hij ht hα ht'
@@ -756,7 +758,7 @@ theorem w_enacted_eq_future_choice (i : WorkshopAgent) (t u : WMoment)
       | exact ⟨by decide, Or.inr (by decide)⟩
     }
   law_in_re_transition := by
-    intro i t t' h α m h_not_tr h_enact h_next
+    intro i t t' h α m h_not_tr _h_uninv h_enact h_next
     rcases workshop_next_moment_cases h_next with
       ⟨rfl, rfl, rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl⟩ |
       ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ |

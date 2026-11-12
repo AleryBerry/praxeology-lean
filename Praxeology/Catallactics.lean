@@ -1080,37 +1080,52 @@ def IsActionFrameInvasion (i j : Agent) (t t' : Moment) (h : History)
 clean-title stock and strips tight contemplated actions from `i`'s feasible menu. -/
 theorem actionFrame_invasion_strips_feasible_menu
     (i j : Agent) (t t' : Moment) (h : History)
-    (title_i : Means → ℕ) (α_j : Action) (m_inv : Means) (β : Action)
-    (_h_clean : title_i m_inv ≤ omega i t h m_inv)
-    (h_contract : omega i t' (jointBranch i j t h α₀ α_j) m_inv < title_i m_inv)
+    (title : Agent → Means → ℕ) (α_j : Action) (m_inv : Means) (β : Action)
+    (h_clean : title i m_inv ≤ omega i t (jointBranch i j t h α₀ α_j) m_inv)
+    (h_contract : omega i t' (jointBranch i j t h α₀ α_j) m_inv < title i m_inv)
     (h_feas : β ∈ A_feas i t (jointBranch i j t h α₀ α_j))
     (h_cont : β ∈ A_cont i t' (jointBranch i j t h α₀ α_j))
-    (h_tight : use_means β m_inv = title_i m_inv) :
-    FeasibleMenuStripped i t t' (jointBranch i j t h α₀ α_j) β := by
-  refine ⟨h_feas, h_cont, ?_⟩
-  intro h_feas'
-  have h_le := (W.A_feas_coupling i t' (jointBranch i j t h α₀ α_j) β).mp h_feas' |>.2 m_inv
-  dsimp [use_means, omega] at *
-  rw [h_tight] at h_le
-  omega
+    (h_tight : use_means β m_inv = title i m_inv) :
+    FeasibleMenuStripped i t t' (jointBranch i j t h α₀ α_j) β ∧
+    IsPathDependentTitleInvasion title i t t'
+      (jointBranch i j t h α₀ α_j) m_inv := by
+  have h_menu_stripped :
+      FeasibleMenuStripped i t t' (jointBranch i j t h α₀ α_j) β := by
+    refine ⟨h_feas, h_cont, ?_⟩
+    intro h_feas'
+    have h_le :=
+      (W.A_feas_coupling i t' (jointBranch i j t h α₀ α_j) β).mp h_feas' |>.2 m_inv
+    dsimp [use_means, omega] at *
+    rw [h_tight] at h_le
+    omega
+  refine ⟨h_menu_stripped, ?_⟩
+  dsimp [IsPathDependentTitleInvasion]
+  exact ⟨h_contract, lt_of_lt_of_le h_contract h_clean⟩
 
 theorem actionFrame_invasion_strips_menu_of_history
     (i j : Agent) (t t' : Moment) (h : History)
-    (title_i : Means → ℕ) (α_j : Action) (m_inv : Means) (β : Action)
+    (title : Agent → Means → ℕ) (α_j : Action) (m_inv : Means) (β : Action)
     (ht : mem_hist t h)
     (ht_branch : mem_hist t (jointBranch i j t h α₀ α_j))
-    (h_clean : title_i m_inv ≤ omega i t h m_inv)
-    (h_contract : omega i t' (jointBranch i j t h α₀ α_j) m_inv < title_i m_inv)
+    (h_clean : ∀ m, title i m ≤ omega i t h m)
+    (h_contract : omega i t' (jointBranch i j t h α₀ α_j) m_inv < title i m_inv)
     (h_feas : β ∈ A_feas i t h)
     (h_cont : β ∈ A_cont i t' (jointBranch i j t h α₀ α_j))
-    (h_tight : use_means β m_inv = title_i m_inv) :
-    FeasibleMenuStripped i t t' (jointBranch i j t h α₀ α_j) β := by
+    (h_tight : use_means β m_inv = title i m_inv) :
+    FeasibleMenuStripped i t t' (jointBranch i j t h α₀ α_j) β ∧
+    IsPathDependentTitleInvasion title i t t'
+      (jointBranch i j t h α₀ α_j) m_inv := by
   have h_feas_joint : β ∈ A_feas i t (jointBranch i j t h α₀ α_j) := by
     have h_eq : A_feas i t (jointBranch i j t h α₀ α_j) = A_feas i t h :=
       A_feas_bundle_invariant i t ht_branch ht
     rwa [h_eq]
-  exact actionFrame_invasion_strips_feasible_menu i j t t' h title_i α_j m_inv β
-    h_clean h_contract h_feas_joint h_cont h_tight
+  have h_clean_branch : title i m_inv ≤ omega i t (jointBranch i j t h α₀ α_j) m_inv := by
+    have h_omega := W.omega_bundle_invariant i t m_inv ht ht_branch
+    calc
+      title i m_inv ≤ omega i t h m_inv := h_clean m_inv
+      _ = omega i t (jointBranch i j t h α₀ α_j) m_inv := h_omega
+  exact actionFrame_invasion_strips_feasible_menu i j t t' h title α_j m_inv β
+    h_clean_branch h_contract h_feas_joint h_cont h_tight
 
 /-- Purposeful action by `i` on a joint branch `(α_i, α_j)` strictly improves upon
 the conditional baseline `(α₀, α_j)` holding `j`'s action fixed. -/
@@ -2258,29 +2273,24 @@ theorem network_marketable_universal_money_emergence
 /-- At a fixed point, maximal marketability and connected unmet demand force
 the seed's medium to become universally accepted. -/
 theorem coupled_network_universal_money_emergence
-    [Finite Means] [Fintype Agent] [DecidableEq Agent]
+    [Fintype Agent] [DecidableEq Agent]
     (G : TradingNetwork Agent) (Supplies : Agent → Means)
     (Demands : Agent → Means → Prop)
-    [∀ Γ i m, Decidable (NetworkMarketableAdopt G Supplies Demands Γ i m)]
     (seed : Agent) (m_star : Means) (Γ_star : Means → Finset Agent)
-    (h_fix : PhiNetworkMarketable G Supplies Demands Γ_star = Γ_star)
     (h_seed : seed ∈ Γ_star m_star)
     (h_max : ∀ m' : Means, (Γ_star m').card ≤ (Γ_star m_star).card)
+    (h_adoption_closed : ∀ i,
+      NetworkMarketableAdopt G Supplies Demands Γ_star i m_star →
+        i ∈ Γ_star m_star)
     (h_conn : NetworkWantsConnected G Supplies Demands seed) :
     IsNetworkUniversalMoney Γ_star m_star := by
-  classical
   dsimp [IsNetworkUniversalMoney]
   by_contra h_not_univ
   obtain ⟨k, j, hk, hj, hadj, hdem⟩ :=
     h_conn (Γ_star m_star) h_seed h_not_univ
   have h_adopt : NetworkMarketableAdopt G Supplies Demands Γ_star k m_star :=
     ⟨h_max, ⟨j, hadj, hdem, hj⟩⟩
-  have h_in_phi : k ∈ PhiNetworkMarketable G Supplies Demands Γ_star m_star := by
-    dsimp [PhiNetworkMarketable, PhiNet]
-    rw [Finset.mem_union, Finset.mem_filter]
-    exact Or.inr ⟨Finset.mem_univ k, h_adopt⟩
-  rw [h_fix] at h_in_phi
-  exact hk h_in_phi
+  exact hk (h_adoption_closed k h_adopt)
 
 end NetworkMoneyEmergence
 
@@ -2396,9 +2406,9 @@ def RingTradingNetwork (N : ℕ) (_hN : 3 ≤ N) : TradingNetwork (Fin N) where
 def RingDemands (N : ℕ) (i : Fin N) (m : Fin N) : Prop :=
   m.val = (i.val + 1) % N
 
-/-- Adjacent agents on the ring do not satisfy both demand predicates. -/
-theorem ring_direct_barter_failure (N : ℕ) (hN : 3 ≤ N) (i j : Fin N)
-    (_hadj : (RingTradingNetwork N hN).adjacent i j) :
+/-- No two agents on a ring of at least three nodes mutually demand each
+other's good, so direct barter cannot satisfy both directed demands. -/
+theorem ring_direct_barter_failure (N : ℕ) (hN : 3 ≤ N) (i j : Fin N) :
     ¬ (RingDemands N i j ∧ RingDemands N j i) := by
   intro ⟨h_ij, h_ji⟩
   dsimp [RingDemands] at h_ij h_ji
@@ -2873,6 +2883,8 @@ structure MultilateralClearingScenario
     W.Offer seller buyer 1 M.m_good price M.m_money
   otherParticipantsIdle : ∀ a ∈ M.Buyers ∪ M.Sellers,
     a ≠ buyer → a ≠ seller → enacted a moment history = α₀
+  otherParticipantsUninvaded : ∀ a ∈ M.Buyers ∪ M.Sellers,
+    a ≠ buyer → a ≠ seller → ∀ j, ¬ W.IsInvasiveOn (enacted j moment history) a
 
 /-- Named outcome of one certified multilateral clearing step. -/
 structure MultilateralClearingConclusion
@@ -2920,8 +2932,9 @@ theorem action_frame_multilateral_market_clearing
         omega a S.next S.history m = omega a S.moment S.history m := by
     intro a ha hab has m
     have h_a_inert := S.otherParticipantsIdle a ha hab has
+    have h_uninv := S.otherParticipantsUninvaded a ha hab has
     have h_law := W.law_in_re_transition a S.moment S.next S.history α₀ m
-      alpha_zero_not_trade h_a_inert S.successor
+      alpha_zero_not_trade h_uninv h_a_inert S.successor
     rw [W.use_means_alpha_zero, W.yield_means_alpha_zero] at h_law
     rw [Nat.add_zero, Nat.add_zero] at h_law
     exact h_law

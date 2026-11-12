@@ -354,7 +354,7 @@ private theorem next_is_root_leaf {t t' : Moment} {h : History}
       fin_cases i <;> fin_cases j <;> simp_all
     | some h₀ => rfl
   law_in_re_transition := by
-    intro i t t' h a m _hnontrade hen hnext
+    intro i t t' h a m _hnontrade _huninv hen hnext
     have ⟨ht, ht'⟩ := next_is_root_leaf hnext
     subst t
     subst t'

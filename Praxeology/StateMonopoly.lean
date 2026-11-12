@@ -40,31 +40,6 @@ def IsPoliticalMeans [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.His
     (α_i α_state : W.Action) : Prop :=
   IsCoerciveExtortion i j t h α_i α_state
 
-/-- Classifies a physically invasive tax interaction under the stated
-preference and public-good assumptions. -/
-theorem physically_invasive_tax_with_public_good_classification
-    [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
-    (α_comply α_tax : W.Action)
-    (public_good : W.Action → W.Action → ℕ)
-    (h_service : 0 < public_good α_comply α_tax)
-    (h_invasive : EndogenouslyInvasiveJ i j t h α_tax)
-    (h_comply_beats_prison :
-      W.Preference i t h (jointEndI i j t h α_comply α_tax)
-        (jointEndI i j t h W.alpha_zero α_tax))
-    (h_dissent :
-      W.Preference i t h (jointEndI i j t h W.alpha_zero W.alpha_zero)
-        (jointEndI i j t h α_comply α_tax))
-    (h_state_gains :
-      W.Preference j t h (jointEndJ i j t h α_comply α_tax)
-        (jointEndJ i j t h W.alpha_zero W.alpha_zero)) :
-    IsPoliticalMeans i j t h α_comply α_tax ∧
-    ¬ IsEconomicMeans i j t h α_comply α_tax ∧
-    PurposefulResponseI i j t h α_comply α_tax ∧
-    0 < public_good α_comply α_tax := by
-  refine ⟨⟨h_invasive, h_comply_beats_prison, h_dissent, h_state_gains⟩,
-    ?_, h_comply_beats_prison, h_service⟩
-  exact fun h_econ => h_econ.2.1 h_invasive
-
 /-- Majoritarian voting does not transmute coercive tax extraction into economic means:
 even if an extraction policy is enacted by a winning coalition j, if it is physically invasive
 of taxpayer i's endowment, it is classified strictly as political means (coercive extortion)
@@ -86,6 +61,34 @@ theorem majoritarian_coalition_tax_is_political_means
     ¬ IsEconomicMeans i j t h α_comply α_tax := by
   refine ⟨⟨h_invasive, h_comply_beats_punishment, h_taxpayer_dissent, h_coalition_gains⟩, ?_⟩
   exact fun h_econ => h_econ.2.1 h_invasive
+
+/-- Physical invasion classifies the tax interaction as political rather than
+voluntary exchange or peaceful market competition. Preference evidence
+establishes the coercive classification; the invasion itself excludes both
+peaceful classifications. -/
+theorem physically_invasive_tax_classification
+    [W : ActionFrame] (i j : W.Agent) (t : W.Moment) (h : W.History)
+    (α_comply α_tax : W.Action)
+    (h_invasive : EndogenouslyInvasiveJ i j t h α_tax)
+    (h_comply_beats_punishment :
+      W.Preference i t h (jointEndI i j t h α_comply α_tax)
+        (jointEndI i j t h W.alpha_zero α_tax))
+    (h_taxpayer_dissent :
+      W.Preference i t h (jointEndI i j t h W.alpha_zero W.alpha_zero)
+        (jointEndI i j t h α_comply α_tax))
+    (h_coalition_gains :
+      W.Preference j t h (jointEndJ i j t h α_comply α_tax)
+        (jointEndJ i j t h W.alpha_zero W.alpha_zero)) :
+    IsPoliticalMeans i j t h α_comply α_tax ∧
+    ¬ IsEconomicMeans i j t h α_comply α_tax ∧
+    ¬ IsMarketCompetition i j t h α_comply α_tax := by
+  have h_political : IsPoliticalMeans i j t h α_comply α_tax :=
+    ⟨h_invasive, h_comply_beats_punishment, h_taxpayer_dissent, h_coalition_gains⟩
+  refine ⟨h_political, ?_, ?_⟩
+  · intro h_exchange
+    exact h_exchange.2.1 h_invasive
+  · intro h_market
+    exact h_market.2.1 h_invasive
 
 
 -- Section 2: Taxpayers and Tax-Consumers
@@ -160,7 +163,8 @@ theorem no_universal_net_subsidy [W : ActionFrame]
 theorem finsetSum_law_in_re_transition
     [W : ActionFrame] (Cohort : Finset W.Agent) (t t' : W.Moment) (h : W.History) (m : W.Means)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
-    (h_nontrade : ∀ a ∈ Cohort, ¬ W.IsTradeAction (W.enacted a t h)) :
+    (h_nontrade : ∀ a ∈ Cohort, ¬ W.IsTradeAction (W.enacted a t h))
+    (h_uninvaded : ∀ a ∈ Cohort, ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) a) :
     (∑ a ∈ Cohort, W.omega a t' h m) +
       ∑ a ∈ Cohort, W.use_means (W.enacted a t h) m =
     (∑ a ∈ Cohort, W.omega a t h m) +
@@ -169,7 +173,7 @@ theorem finsetSum_law_in_re_transition
   apply Finset.sum_congr rfl
   intro a ha
   exact W.law_in_re_transition a t t' h (W.enacted a t h) m
-    (h_nontrade a ha) rfl h_next
+    (h_nontrade a ha) (h_uninvaded a ha) rfl h_next
 
 
 def FiscalTransferSystem.ofTransition
@@ -178,6 +182,7 @@ def FiscalTransferSystem.ofTransition
     (deadweight_loss : ℕ)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
     (h_nontrade : ∀ a ∈ Cohort, ¬ W.IsTradeAction (W.enacted a t h))
+    (h_uninvaded : ∀ a ∈ Cohort, ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) a)
     (h_transfer_balance : (∑ a ∈ Cohort, W.yield_means (W.enacted a t h) m) + deadweight_loss =
       ∑ a ∈ Cohort, W.use_means (W.enacted a t h) m) :
     FiscalTransferSystem W where
@@ -186,7 +191,7 @@ def FiscalTransferSystem.ofTransition
   ω_post := fun a => W.omega a t' h m
   deadweight_loss := deadweight_loss
   h_conservation := by
-    have h_trans := finsetSum_law_in_re_transition Cohort t t' h m h_next h_nontrade
+    have h_trans := finsetSum_law_in_re_transition Cohort t t' h m h_next h_nontrade h_uninvaded
     omega
 
 
@@ -196,13 +201,14 @@ theorem calhoun_action_frame_class_partition
     (deadweight_loss : ℕ)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
     (h_nontrade : ∀ a ∈ Cohort, ¬ W.IsTradeAction (W.enacted a t h))
+    (h_uninvaded : ∀ a ∈ Cohort, ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) a)
     (h_transfer_balance : (∑ a ∈ Cohort, W.yield_means (W.enacted a t h) m) + deadweight_loss =
       ∑ a ∈ Cohort, W.use_means (W.enacted a t h) m)
     (s : W.Agent) (hs_mem : s ∈ Cohort)
     (hs_gain : W.omega s t h m < W.omega s t' h m) :
     ∃ b : W.Agent, b ∈ Cohort ∧ W.omega b t' h m < W.omega b t h m := by
   let F := FiscalTransferSystem.ofTransition Cohort t t' h m deadweight_loss
-    h_next h_nontrade h_transfer_balance
+    h_next h_nontrade h_uninvaded h_transfer_balance
   have hs_cons : IsNetTaxConsumer F s := ⟨hs_mem, hs_gain⟩
   obtain ⟨b, hb_payer⟩ := calhoun_fiscal_class_partition F s hs_cons
   exact ⟨b, hb_payer.1, hb_payer.2⟩
@@ -215,6 +221,7 @@ theorem calhoun_taxpayer_menu_stripped
     (deadweight_loss : ℕ)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
     (h_nontrade : ∀ a ∈ Cohort, ¬ W.IsTradeAction (W.enacted a t h))
+    (h_uninvaded : ∀ a ∈ Cohort, ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) a)
     (h_transfer_balance : (∑ a ∈ Cohort, W.yield_means (W.enacted a t h) m) + deadweight_loss =
       ∑ a ∈ Cohort, W.use_means (W.enacted a t h) m)
     (s : W.Agent) (hs_mem : s ∈ Cohort)
@@ -226,7 +233,7 @@ theorem calhoun_taxpayer_menu_stripped
       FeasibleMenuStripped b t t' h α := by
   obtain ⟨b, hb_mem, hb_lt⟩ :=
     calhoun_action_frame_class_partition Cohort t t' h m deadweight_loss
-      h_next h_nontrade h_transfer_balance s hs_mem hs_gain
+      h_next h_nontrade h_uninvaded h_transfer_balance s hs_mem hs_gain
   refine ⟨b, hb_mem, ?_⟩
   intro α h_feas h_cont h_tight
   have h_contract : StockContractedAt b t t' h m := hb_lt
@@ -787,11 +794,10 @@ theorem state_monopoly_political_economy_master_synthesis [W : ActionFrame] {i j
     {t : W.Moment} {h : W.History}
     (S : StateMonopolyMasterEvidence (W := W) (i := i) (j := j) (t := t) (h := h)) :
     StateMonopolyMasterConclusion S := by
-  have h_tax := physically_invasive_tax_with_public_good_classification
-    i j t h S.taxation.comply S.taxation.tax S.taxation.publicGood
-    S.taxation.servicePositive S.taxation.taxPhysicallyInvasive
-    S.taxation.complianceBeatsPrison S.taxation.dissentBeatsCompliance
-    S.taxation.stateGains
+  have h_tax := physically_invasive_tax_classification
+    i j t h S.taxation.comply S.taxation.tax
+    S.taxation.taxPhysicallyInvasive S.taxation.complianceBeatsPrison
+    S.taxation.dissentBeatsCompliance S.taxation.stateGains
   exact ⟨⟨h_tax.1, h_tax.2.1⟩,
     territorial_judicial_monopoly_self_exoneration S.ruling.monopoly
       S.ruling.subject S.ruling.subjectInTerritory S.ruling.moment S.ruling.history
@@ -801,20 +807,6 @@ theorem state_monopoly_political_economy_master_synthesis [W : ActionFrame] {i j
 
 -- Section 6: Non-Vacuity Classification
 
-
-/-- Given supplied tax, service, and preference evidence, the interaction is
-classified as political means and yields purposeful compliance. This theorem
-does not construct an inhabited evidence package. -/
-theorem taxation_with_public_goods_from_supplied_evidence [W : ActionFrame] {i j : W.Agent}
-    {t : W.Moment} {h : W.History}
-    (E : PublicGoodsTaxationEvidence (W := W) (i := i) (j := j) (t := t) (h := h)) :
-    IsPoliticalMeans i j t h E.comply E.tax ∧
-    ¬ IsEconomicMeans i j t h E.comply E.tax ∧
-    PurposefulResponseI i j t h E.comply E.tax ∧
-    0 < E.publicGood E.comply E.tax :=
-  physically_invasive_tax_with_public_good_classification
-    i j t h E.comply E.tax E.publicGood E.servicePositive E.taxPhysicallyInvasive
-    E.complianceBeatsPrison E.dissentBeatsCompliance E.stateGains
 
 section
 

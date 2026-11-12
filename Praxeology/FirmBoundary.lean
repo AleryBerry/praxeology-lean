@@ -359,25 +359,47 @@ theorem kirznerian_alertness_discovery_expansion
     fun β hβ => (h_dom_all β hβ).2, h_undom, h_uniq⟩
 
 
-def DiscoveryRegret [W : ActionFrame]
+def PurposefulOnContemplated [W : ActionFrame]
+    (B : BoundedContemplationContext W) (α : W.Action) : Prop :=
+  α ∈ B.A_cont ∧
+  α ∈ W.A_feas B.i B.t B.h ∧
+  @Exec W B.i B.t α B.h ∧
+  (α = W.alpha_zero ∨ B.Pref (B.End_of α) (B.End_of W.alpha_zero)) ∧
+  ∀ β, β ∈ B.A_cont → β ∈ W.A_feas B.i B.t B.h →
+    ¬ B.Pref (B.End_of β) (B.End_of α)
+
+
+structure DiscoveryRegret [W : ActionFrame]
     (B : BoundedContemplationContext W)
-    (α_chosen : W.Action) (α_overlooked : W.Action) : Prop :=
-  α_chosen ∈ B.A_cont ∧
-  α_overlooked ∈ B.A_phys ∧
-  α_overlooked ∉ B.A_cont ∧
-  B.Pref (B.End_of α_overlooked) (B.End_of α_chosen)
+    (α_chosen : W.Action) (α_overlooked : W.Action) : Prop where
+  locallyPurposeful : PurposefulOnContemplated B α_chosen
+  globallyNotPurposeful :
+    ¬ @PurposefulAct W B.i B.t B.h α_chosen
+  distinctOutcomes : B.End_of α_overlooked ≠ B.End_of α_chosen
+  distinctActions : α_overlooked ≠ α_chosen
 
 
 theorem discovery_regret_of_overlooked_opportunity
     [W : ActionFrame]
     (B : BoundedContemplationContext W)
     (α_chosen α_overlooked : W.Action)
-    (h_chosen : α_chosen ∈ B.A_cont)
-    (h_phys : α_overlooked ∈ B.A_phys)
-    (h_novel : α_overlooked ∉ B.A_cont)
+    (h_chosen : PurposefulOnContemplated B α_chosen)
+    (h_overlooked_feasible : α_overlooked ∈ W.A_feas B.i B.t B.h)
+    (h_overlooked_novel : α_overlooked ∉ B.A_cont)
     (h_pref : B.Pref (B.End_of α_overlooked) (B.End_of α_chosen)) :
     DiscoveryRegret B α_chosen α_overlooked :=
-  ⟨h_chosen, h_phys, h_novel, h_pref⟩
+  { locallyPurposeful := h_chosen
+    globallyNotPurposeful := by
+      intro h_global
+      exact h_global.2.2.2 α_overlooked h_overlooked_feasible h_pref
+    distinctOutcomes := by
+      intro h_same
+      exact B.pref_asymm h_pref (h_same ▸ h_pref)
+    distinctActions := by
+      intro h_same
+      have h_cont : α_overlooked ∈ B.A_cont := by
+        simpa [h_same] using h_chosen.1
+      exact h_overlooked_novel h_cont }
 
 
 -- Section 2: Price Box Inclusion and Production Chains
@@ -487,8 +509,6 @@ def SignalMerge (spread threshold : ℕ) : Bool := decide (threshold < spread)
 
 theorem critical_attenuation_signal_extinction
     (ΔP_out R1 R2 db_int db_u : ℕ)
-    (_h_pos1 : 1 ≤ R1)
-    (_h_pos2 : 1 ≤ R2)
     (h_crit_low : R1 * R2 * db_u < ΔP_out)
     (h_crit_high : ΔP_out ≤ R1 * db_int + R1 * R2 * db_u) :
     SignalSplit ΔP_out (SplitSignalThreshold R1 R2 db_int db_u) = false ∧
@@ -577,45 +597,11 @@ theorem positive_prices_and_ordinal_rank_sum_reversal :
   refine ⟨by omega, by omega, le_total _ _⟩
 
 
-theorem viable_coalescence_window
-    (L K K_min : ℕ)
-    (ΔP_out R1 R2 db_u : ℕ)
-    (h_K_min : 1 ≤ K_min)
-    (h_K_ge : K_min ≤ K)
-    (geometry : FirmCoalescenceGeometry L K)
-    (h_signal : SignalMerge ΔP_out (MergeSignalThreshold R1 R2 db_u) = true) :
-    1 ≤ K ∧
-    SignalMerge ΔP_out (MergeSignalThreshold R1 R2 db_u) = true ∧
-    0 < geometry.external.remaining := by
-  refine ⟨le_trans h_K_min h_K_ge, h_signal, ?_⟩
-  exact geometry.externalPositive
-
-
-theorem viable_coalescence_noise_and_market_window
-    (L K K_min grid_step : ℕ)
-    (ΔP_out R1 R2 db_u : ℕ)
-    (h_step : 0 < grid_step)
-    (h_K_min : 2 ≤ K_min)
-    (h_K_ge : K_min ≤ K)
-    (geometry : FirmCoalescenceGeometry L K)
-    (h_signal : SignalMerge ΔP_out (MergeSignalThreshold R1 R2 db_u) = true) :
-    CoalescedQuantizationNoise
-      geometry.external grid_step <
-      TotalQuantizationNoise L grid_step ∧
-    SignalMerge ΔP_out (MergeSignalThreshold R1 R2 db_u) = true ∧
-    0 < geometry.external.remaining := by
-  have hK2 : 2 ≤ K := le_trans h_K_min h_K_ge
-  let external := geometry.external
-  exact ⟨firm_coalescence_noise_reduction external grid_step h_step hK2,
-    h_signal, geometry.externalPositive⟩
-
 
 theorem viable_coalescence_critical_attenuation_window
     (L K K_min grid_step : ℕ)
     (ΔP_out R1 R2 db_int db_u : ℕ)
     (h_step : 0 < grid_step)
-    (h_pos1 : 1 ≤ R1)
-    (h_pos2 : 1 ≤ R2)
     (h_crit_low : R1 * R2 * db_u < ΔP_out)
     (h_crit_high : ΔP_out ≤ R1 * db_int + R1 * R2 * db_u)
     (h_K_min : 2 ≤ K_min)
@@ -629,7 +615,7 @@ theorem viable_coalescence_critical_attenuation_window
     0 < geometry.external.remaining := by
   have ⟨h_split_zero, h_merge_pos⟩ :=
     critical_attenuation_signal_extinction ΔP_out R1 R2 db_int db_u
-      h_pos1 h_pos2 h_crit_low h_crit_high
+      h_crit_low h_crit_high
   have hK2 : 2 ≤ K := le_trans h_K_min h_K_ge
   let external := geometry.external
   have h_noise := firm_coalescence_noise_reduction external grid_step h_step hK2
@@ -740,7 +726,6 @@ theorem firm_price_signal_observation_eq_both_signals
 
 theorem critical_attenuation_observation_equivalences
     (ΔP_out R1 R2 db_int db_u : ℕ)
-    (h_pos1 : 1 ≤ R1) (h_pos2 : 1 ≤ R2)
     (h_crit_low : R1 * R2 * db_u < ΔP_out)
     (h_crit_high : ΔP_out ≤ R1 * db_int + R1 * R2 * db_u)
     (s : FirmInformationState) :
@@ -751,7 +736,7 @@ theorem critical_attenuation_observation_equivalences
         (SignalMerge ΔP_out (MergeSignalThreshold R1 R2 db_u)) s =
       informationObservation .bothSignals s := by
   have hsignals := critical_attenuation_signal_extinction ΔP_out R1 R2 db_int db_u
-    h_pos1 h_pos2 h_crit_low h_crit_high
+    h_crit_low h_crit_high
   refine ⟨?_, ?_⟩
   · rw [hsignals.1]
     exact firm_price_signal_observation_eq_demand_hidden s
@@ -1345,7 +1330,7 @@ theorem information_firm_preference_from_stock_order
   have h_app (α : W.Action) (hα : α ∈ W.A_feas i t h) :
       W.ProjectedAppraisable i t α := by
     intro h' hh'
-    exact projected_feasibility V.h_projected_feasibility i t h h' α
+    exact V.h_projected_feasibility i t h h' α
       V.h_at_node hh' hα
   have h_weak : ∀ h' ∈ W.MinPlausible i t,
       W.MaturationEnd i V.α_merge t h' = W.MaturationEnd i β t h' ∨
@@ -1484,7 +1469,7 @@ theorem purposeful_firm_coalescence_from_information
   have hpref := information_grounded_firm_preferences dec
   have h_win := viable_coalescence_critical_attenuation_window
     L K K_min grid_step ΔP_out R1 R2 db_int db_u
-    dec.h_step dec.h_pos1 dec.h_pos2
+    dec.h_step
     dec.h_crit_low dec.h_crit_high dec.h_K_min dec.h_K_ge dec.coalescenceGeometry
   have h_pref_split : Preference i t h dec.e_merge dec.e_split := hpref.1
   have h_pref_soc : Preference i t h dec.e_merge dec.e_complete := hpref.2.1
@@ -1559,7 +1544,7 @@ theorem firm_preference_deduced_from_primitive_end_dominance
   have h_app (α : W.Action) (hα : α ∈ W.A_feas i t h) :
       W.ProjectedAppraisable i t α := by
     intro h' hh'
-    exact projected_feasibility V.h_projected_feasibility i t h h' α
+    exact V.h_projected_feasibility i t h h' α
       V.h_at_node hh' hα
   have h_ground (α : W.Action) : ∀ h' ∈ W.MinPlausible i t,
       let t' := W.tau i t h'
@@ -1666,7 +1651,7 @@ theorem purposeful_firm_coalescence_from_valued_ends
       _ = dec.e_retain := dec.h_action_end_retain
   have h_win := viable_coalescence_critical_attenuation_window
     L K K_min grid_step ΔP_out R1 R2 db_int db_u
-    dec.h_step dec.h_pos1 dec.h_pos2
+    dec.h_step
     dec.h_crit_low dec.h_crit_high dec.h_K_min dec.h_K_ge dec.coalescenceGeometry
   have h_no_split : ¬ PurposefulAct i t h_merge dec.α_split := by
     intro h_purp
@@ -1915,8 +1900,8 @@ theorem purposeful_operational_firm_boundary_from_observed_prices
   refine ⟨purposeful_operational_firm_boundary dec, ?_⟩
   intro h' hh'
   have hsignals := critical_attenuation_observation_equivalences ΔP_out R1 R2 db_int db_u
-    dec.information.h_pos1 dec.information.h_pos2 dec.information.h_crit_low
-    dec.information.h_crit_high (dec.information.stateOf h')
+    dec.information.h_crit_low dec.information.h_crit_high
+    (dec.information.stateOf h')
   rcases hsignals with ⟨hsplit, hmerge⟩
   rw [← h_spread]
   constructor
@@ -1998,20 +1983,34 @@ theorem credit_expansion_expands_hop_horizon
 
 theorem artificial_conglomeration_firm_boundary_distortion
     (ΔP_boom R_nat R_credit db_comp V_safe : ℕ)
+    (nat_headroom credit_surplus : ℕ)
     (upstream_blur joint_cost_blur ext_opp_loss W_nat grid_step Δz_abs : ℕ)
+    (h_nat_headroom : ΔP_boom + nat_headroom =
+      R_nat * (V_safe + db_comp))
+    (h_credit_surplus : R_credit * (V_safe + db_comp) + credit_surplus =
+      ΔP_boom)
+    (h_credit_surplus_pos : 0 < credit_surplus)
     (h_pos_vol : 0 < Δz_abs)
-    (h_cred_boom : R_credit * (V_safe + db_comp) < ΔP_boom)
-    (h_nat_restraint : ΔP_boom ≤ R_nat * (V_safe + db_comp))
     (h_internal_blindness : W_nat + grid_step < upstream_blur + joint_cost_blur + ext_opp_loss) :
-    ReturnAbove ΔP_boom R_credit db_comp V_safe ∧
     ReturnAtMost ΔP_boom R_nat db_comp V_safe ∧
+    ReturnAbove ΔP_boom R_credit db_comp V_safe ∧
+    R_credit < R_nat ∧
     SpotMarketUncertainty W_nat grid_step Δz_abs <
       InternalFirmUncertainty upstream_blur joint_cost_blur ext_opp_loss Δz_abs := by
-  refine ⟨?_, ?_, ?_⟩
-  · exact h_cred_boom
-  · exact h_nat_restraint
-  · dsimp [SpotMarketUncertainty, InternalFirmUncertainty]
+  have h_credit_boom : R_credit * (V_safe + db_comp) < ΔP_boom := by
+    omega
+  have h_nat_restraint : ΔP_boom ≤ R_nat * (V_safe + db_comp) := by
+    omega
+  have h_product : R_credit * (V_safe + db_comp) <
+      R_nat * (V_safe + db_comp) := lt_of_lt_of_le h_credit_boom h_nat_restraint
+  have h_rate_order : R_credit < R_nat := by
+    exact Nat.lt_of_mul_lt_mul_right (a := V_safe + db_comp) h_product
+  have h_uncertainty : SpotMarketUncertainty W_nat grid_step Δz_abs <
+      InternalFirmUncertainty upstream_blur joint_cost_blur ext_opp_loss Δz_abs := by
+    dsimp [SpotMarketUncertainty, InternalFirmUncertainty]
     exact Nat.mul_lt_mul_of_pos_right h_internal_blindness h_pos_vol
+  exact ⟨by simpa [ReturnAtMost] using h_nat_restraint,
+    by simpa [ReturnAbove] using h_credit_boom, h_rate_order, h_uncertainty⟩
 
 
 /-- A finite ActionFrame witness for the stated purposefulness alternatives,

@@ -146,7 +146,7 @@ def TruthfulDominant [DecidableEq Agent]
 
 def truthfulStrategy
     (reveal : ∀ i, P.Private i → P.Report i) : P.Strategy :=
-  fun i private _view => reveal i private
+  fun i priv _view => reveal i priv
 
 /-- Dominant truthful reporting supplies an ex-post equilibrium. Efficiency
 requires a separate theorem about the executed outcome. -/
@@ -291,10 +291,11 @@ variable {Person Good : Type} [DecidableEq Person] [DecidableEq Good]
 /-- The deduction is applied to verified work, with overlarge deductions
 clamped by natural subtraction. Issuance records do not certify work by
 themselves; callers must provide the physical observation. -/
-private def issue (S : CertificateState Person Good)
+def issue (S : CertificateState Person Good)
     (person : Person) (verifiedHours deduction : ℕ) :
     CertificateState Person Good :=
-  { S with balance := Function.update S.balance person
+  { S with
+    balance := Function.update S.balance person
       (S.balance person + (verifiedHours - deduction)) }
 
 /-- A work ledger joins the physical production state to the certificate
@@ -371,7 +372,7 @@ theorem WorkLedger.exhausted_run_cannot_repeat {Task : Type} [DecidableEq Task]
 def redeem (S : CertificateState Person Good) (cost : Good → ℕ)
     (person : Person) (good : Good) (quantity : ℕ) :
     CertificateState Person Good :=
-  if h : quantity ≤ S.stock good ∧ cost good * quantity ≤ S.balance person then
+  if quantity ≤ S.stock good ∧ cost good * quantity ≤ S.balance person then
     { balance := Function.update S.balance person
         (S.balance person - cost good * quantity)
       stock := Function.update S.stock good (S.stock good - quantity)
@@ -383,7 +384,7 @@ def redeem (S : CertificateState Person Good) (cost : Good → ℕ)
 theorem issue_other (S : CertificateState Person Good) (person other : Person)
     (verifiedHours deduction : ℕ) (h : other ≠ person) :
     (S.issue person verifiedHours deduction).balance other = S.balance other := by
-  simp [issue, Function.update_noteq h]
+  simp [issue, Function.update_of_ne h]
 
 theorem issue_records_verified_net_hours
     (S : CertificateState Person Good) (person : Person)
@@ -408,8 +409,8 @@ theorem redeem_conserves_good
     (S.redeem cost person good quantity).stock good +
       (S.redeem cost person good quantity).consumed person good =
       S.stock good + S.consumed person good := by
-  simp [redeem, h, Nat.sub_add_cancel h.1, Nat.add_assoc, Nat.add_left_comm,
-    Nat.add_comm]
+  simp [redeem, h]
+  omega
 
 theorem redeem_conserves_claim
     (S : CertificateState Person Good) (cost : Good → ℕ)
@@ -500,30 +501,34 @@ theorem acceptance_absent_preserves_state (S : SpotState) (quantity payment : �
 
 theorem successful_trade_conserves_goods (S : SpotState)
     (quantity payment : ℕ) (sellerOffers buyerAccepts : Bool)
-    (h : sellerOffers && buyerAccepts && decide (quantity ≤ S.sellerStock) &&
-      decide (payment ≤ S.buyerCash) = true) :
+    (h : (sellerOffers && buyerAccepts && decide (quantity ≤ S.sellerStock) &&
+      decide (payment ≤ S.buyerCash)) = true) :
     (S.settle quantity payment sellerOffers buyerAccepts).sellerStock +
       (S.settle quantity payment sellerOffers buyerAccepts).buyerStock =
       S.sellerStock + S.buyerStock := by
-  have hstock : quantity ≤ S.sellerStock := by
-    have h' : decide (quantity ≤ S.sellerStock) = true :=
-      (Bool.and_eq_true.mp (Bool.and_eq_true.mp h).1).2
-    exact of_decide_eq_true h'
-  simp [settle, h]
+  have h' := h
+  revert h'
+  cases sellerOffers <;> cases buyerAccepts <;> simp
+  intro hq _
+  unfold settle
+  rw [h]
+  dsimp
   omega
 
 theorem successful_trade_conserves_cash (S : SpotState)
     (quantity payment : ℕ) (sellerOffers buyerAccepts : Bool)
-    (h : sellerOffers && buyerAccepts && decide (quantity ≤ S.sellerStock) &&
-      decide (payment ≤ S.buyerCash) = true) :
+    (h : (sellerOffers && buyerAccepts && decide (quantity ≤ S.sellerStock) &&
+      decide (payment ≤ S.buyerCash)) = true) :
     (S.settle quantity payment sellerOffers buyerAccepts).buyerCash +
       (S.settle quantity payment sellerOffers buyerAccepts).sellerCash =
       S.buyerCash + S.sellerCash := by
-  have hcash : payment ≤ S.buyerCash := by
-    have h' : decide (payment ≤ S.buyerCash) = true :=
-      (Bool.and_eq_true.mp h).2
-    exact of_decide_eq_true h'
-  simp [settle, h]
+  have h' := h
+  revert h'
+  cases sellerOffers <;> cases buyerAccepts <;> simp
+  intro _ hc
+  unfold settle
+  rw [h]
+  dsimp
   omega
 
 end SpotState

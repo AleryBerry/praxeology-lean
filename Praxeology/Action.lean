@@ -501,38 +501,6 @@ theorem three_option_menu_consistency
     exact h_undom3 h_pref23
   exact ⟨h_act1, h_not_act2, h_not_act3⟩
 
-/-- A Buridan tie between two distinct actions serving the same end is fully compatible
-with purposeful action: an agent may purposefully enact one option while demonstrating
-preference over the other, with tie undominatedness discharged by irreflexivity of preference. -/
-theorem buridan_tie_compatible_with_purposeful_act
-    (i : Agent) (t : Moment) (h : History)
-    (α1 α2 : Action)
-    (h_diff : α1 ≠ α2)
-    (h_feas1 : α1 ∈ A_feas i t h)
-    (h_feas2 : α2 ∈ A_feas i t h)
-    (h_exec : Exec i t α1 h)
-    (h_unease : α1 = α₀ ∨ Preference i t h (End_of i α1 t h) (End_of i α₀ t h))
-    (h_same_end : End_of i α1 t h = End_of i α2 t h)
-    (h_undom_distinct : ∀ β ∈ A_feas i t h,
-      End_of i β t h ≠ End_of i α1 t h → ¬ Preference i t h (End_of i β t h) (End_of i α1 t h)) :
-    α1 ≠ α2 ∧
-    End_of i α1 t h = End_of i α2 t h ∧
-    PurposefulAct i t h α1 ∧
-    DemonstratedPref i t h α1 α2 := by
-  have h_undom : ∀ β ∈ A_feas i t h, ¬ Preference i t h (End_of i β t h) (End_of i α1 t h) := by
-    intro β hβ
-    by_cases h_end : End_of i β t h = End_of i α1 t h
-    · intro h_pref
-      rw [h_end] at h_pref
-      exact pref_irrefl i t h (End_of i α1 t h) h_pref
-    · exact h_undom_distinct β hβ h_end
-  have h_act : PurposefulAct i t h α1 := ⟨h_feas1, h_exec, h_unease, h_undom⟩
-  have h_dem : DemonstratedPref i t h α1 α2 := by
-    refine ⟨h_act, ?_⟩
-    rw [Finset.mem_erase]
-    exact ⟨h_diff.symm, h_feas2⟩
-  exact ⟨h_diff, h_same_end, h_act, h_dem⟩
-
 end ActionFoundations
 
 
@@ -762,6 +730,45 @@ theorem end_of_mem_action_ocset_of_tie (i : Agent) (t : Moment) (h : History) (�
   rcases Finset.mem_image.mp he' with ⟨γ, hγ, rfl⟩
   have hγ_feas : γ ∈ A_feas i t h := Finset.mem_of_mem_erase hγ
   exact h_act.2.2.2 γ hγ_feas
+
+/-- A Buridan tie leaves the realized end among foregone opportunity-cost
+ends: the alternative action is excluded from purposeful enactment, while its
+shared end remains in `ActionOCSet`. -/
+theorem buridan_tie_compatible_with_purposeful_act
+    (i : Agent) (t : Moment) (h : History)
+    [∀ a b, Decidable (Preference i t h a b)]
+    (α1 α2 : Action)
+    (h_diff : α1 ≠ α2)
+    (h_feas1 : α1 ∈ A_feas i t h)
+    (h_feas2 : α2 ∈ A_feas i t h)
+    (h_exec : Exec i t α1 h)
+    (h_unease : α1 = α₀ ∨ Preference i t h (End_of i α1 t h) (End_of i α₀ t h))
+    (h_same_end : End_of i α1 t h = End_of i α2 t h)
+    (h_undom_distinct : ∀ β ∈ A_feas i t h,
+      End_of i β t h ≠ End_of i α1 t h →
+        ¬ Preference i t h (End_of i β t h) (End_of i α1 t h)) :
+    PurposefulAct i t h α1 ∧
+    DemonstratedPref i t h α1 α2 ∧
+    End_of i α1 t h ∈ ActionOCSet i t h α1 := by
+  have h_undom : ∀ β ∈ A_feas i t h,
+      ¬ Preference i t h (End_of i β t h) (End_of i α1 t h) := by
+    intro β hβ
+    by_cases h_end : End_of i β t h = End_of i α1 t h
+    · intro h_pref
+      rw [h_end] at h_pref
+      exact pref_irrefl i t h (End_of i α1 t h) h_pref
+    · exact h_undom_distinct β hβ h_end
+  have h_act : PurposefulAct i t h α1 := ⟨h_feas1, h_exec, h_unease, h_undom⟩
+  have h_dem : DemonstratedPref i t h α1 α2 := by
+    refine ⟨h_act, ?_⟩
+    rw [Finset.mem_erase]
+    exact ⟨h_diff.symm, h_feas2⟩
+  have h_foregone : α2 ∈ ForegoneActions i t h α1 := by
+    dsimp [ForegoneActions]
+    exact Finset.mem_erase.mpr ⟨h_diff.symm, h_feas2⟩
+  have h_tied_end_in_ocset := end_of_mem_action_ocset_of_tie
+    i t h α1 h_act α2 h_foregone h_same_end.symm
+  exact ⟨h_act, h_dem, h_tied_end_in_ocset⟩
 
 
 theorem strict_ocset_nonempty_of_star_order (i : Agent) (t : Moment) (h : History)
@@ -1108,13 +1115,15 @@ theorem opportunity_cost_independent_of_minimal_action
 theorem universal_action_not_proved_by_local_assertion
     (i : Agent) (t0 t1 : Moment) (h0 h1 : History) (α β : Action)
     (h_act : PurposefulAct i t0 h0 α)
-    (_h_idle : enacted i t1 h1 = α₀)
+    (h_idle : enacted i t1 h1 = α₀)
     (h_feas_β : β ∈ A_feas i t1 h1)
     (h_pref_β : Preference i t1 h1 (End_of i β t1 h1) (End_of i α₀ t1 h1)) :
-    PurposefulAct i t0 h0 α ∧ ¬ PurposefulAct i t1 h1 α₀ := by
+    PurposefulAct i t0 h0 α ∧
+    ¬ PurposefulAct i t1 h1 (enacted i t1 h1) := by
   refine ⟨h_act, ?_⟩
-  intro h_purp_idle
-  have h_undom := h_purp_idle.2.2.2 β h_feas_β
+  intro h_purp_enacted
+  rw [h_idle] at h_purp_enacted
+  have h_undom := h_purp_enacted.2.2.2 β h_feas_β
   exact h_undom h_pref_β
 
 end IndependenceExamples
@@ -1565,10 +1574,10 @@ theorem doxastic_unanimous_undominated_of_purposeful_act
   have h_unan : ActionFrame.UnanimousDominates F i t h (MinPlausible i t) β (enacted i t h) := h_all
   have h_beta_app : F.ProjectedAppraisable i t β := by
     intro h' hh'
-    exact projected_feasibility h_projected i t h h' β h_act.2.1.1 hh' hβ
+    exact h_projected i t h h' β h_act.2.1.1 hh' hβ
   have h_enacted_app : F.ProjectedAppraisable i t (enacted i t h) := by
     intro h' hh'
-    exact projected_feasibility h_projected i t h h' (enacted i t h) h_act.2.1.1 hh' h_act.1
+    exact h_projected i t h h' (enacted i t h) h_act.2.1.1 hh' h_act.1
   have h_pref := ActionFrame.doxastic_unanimous_bridge F i β (enacted i t h) t h
     ⟨h_beta_app, h_enacted_app⟩ h_unan
   exact h_act.2.2.2 β hβ h_pref
@@ -1587,19 +1596,19 @@ theorem plausible_support_doxastic_of_purposeful_act
     have h_app : ∀ h' ∈ MinPlausible i t,
         (enacted i t h) ∈ A_feas i (tau i t h') h' ∧ α₀ ∈ A_feas i (tau i t h') h' := by
       intro h' hh'
-      exact ⟨projected_feasibility h_projected i t h h' (enacted i t h)
+      exact ⟨h_projected i t h h' (enacted i t h)
         h_act.1.2.1.1 hh' h_act.1.1,
-        projected_feasibility h_projected i t h h' α₀ h_act.1.2.1.1 hh' h_base⟩
+        h_projected i t h h' α₀ h_act.1.2.1.1 hh' h_base⟩
     obtain ⟨h_wit, hh_wit, h_wit_pref⟩ := F.doxastic_plausible_support
       i (enacted i t h) α₀ t h h_app h_pref
     exact ⟨h_wit, hh_wit, h_wit_pref⟩
   · intro β hβ h_wp
     have h_beta_app : F.ProjectedAppraisable i t β := by
       intro h' hh'
-      exact projected_feasibility h_projected i t h h' β h_act.1.2.1.1 hh' hβ
+      exact h_projected i t h h' β h_act.1.2.1.1 hh' hβ
     have h_enacted_app : F.ProjectedAppraisable i t (enacted i t h) := by
       intro h' hh'
-      exact projected_feasibility h_projected i t h h' (enacted i t h)
+      exact h_projected i t h h' (enacted i t h)
         h_act.1.2.1.1 hh' h_act.1.1
     have h_pref := ActionFrame.doxastic_weak_pareto_bridge F i β (enacted i t h) t h
       ⟨h_beta_app, h_enacted_app⟩ h_wp
@@ -1617,10 +1626,10 @@ theorem purposeful_act_of_doxastic_dominance
   have ⟨_h_in, h_feas, _h_base_feas, _h_branch_feas, _h_nonempty, h_unease, h_undom⟩ := h_dox
   have h_enacted_app : F.ProjectedAppraisable i t (enacted i t h) := by
     intro h' hh'
-    exact projected_feasibility h_projected i t h h' (enacted i t h) h_mem hh' h_feas
+    exact h_projected i t h h' (enacted i t h) h_mem hh' h_feas
   have h_base_app : F.ProjectedAppraisable i t α₀ := by
     intro h' hh'
-    exact projected_feasibility h_projected i t h h' α₀ h_mem hh' _h_base_feas
+    exact h_projected i t h h' α₀ h_mem hh' _h_base_feas
   refine ⟨h_feas, ⟨h_mem, rfl⟩, ?_, ?_⟩
   · right
     exact ActionFrame.doxastic_unanimous_bridge F i (enacted i t h) α₀ t h
@@ -1628,7 +1637,7 @@ theorem purposeful_act_of_doxastic_dominance
   · intro β hβ h_pref
     have h_beta_app : F.ProjectedAppraisable i t β := by
       intro h' hh'
-      exact projected_feasibility h_projected i t h h' β h_mem hh' hβ
+      exact h_projected i t h h' β h_mem hh' hβ
     have h_unan := h_app β (enacted i t h) h_beta_app h_enacted_app h_pref
     exact h_undom β hβ h_unan
 
@@ -1646,10 +1655,10 @@ theorem doxastic_dominance_of_purposeful_act
   refine ⟨h_in, h_act.1, h_base, h_branch, F.min_plausible_nonempty i t, ?_, ?_⟩
   · have h_enacted_app : F.ProjectedAppraisable i t (enacted i t h) := by
       intro h' hh'
-      exact projected_feasibility h_projected i t h h' (enacted i t h) h_act.2.1.1 hh' h_act.1
+      exact h_projected i t h h' (enacted i t h) h_act.2.1.1 hh' h_act.1
     have h_base_app : F.ProjectedAppraisable i t α₀ := by
       intro h' hh'
-      exact projected_feasibility h_projected i t h h' α₀ h_act.2.1.1 hh' h_base
+      exact h_projected i t h h' α₀ h_act.2.1.1 hh' h_base
     exact h_app (enacted i t h) α₀ h_enacted_app h_base_app h_unease
   · exact doxastic_unanimous_undominated_of_purposeful_act i t h h_projected h_act
 
@@ -1929,6 +1938,8 @@ theorem precommitment_prunes_temptation
     (h_next_commit : IsNextMoment W.Precedence W.mem_hist t₁ t₂ h_commit)
     (h_next_uncommitted : IsNextMoment W.Precedence W.mem_hist t₁ t₂ h_uncommitted)
     (h_not_trade_commit : ¬ W.IsTradeAction α_commit)
+    (h_uninvaded_commit : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t₁ h_commit) i)
+    (h_uninvaded_uncommitted : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t₁ h_uncommitted) i)
     (h_enacted_commit : W.enacted i t₁ h_commit = α_commit)
     (h_enacted_uncommitted : W.enacted i t₁ h_uncommitted = W.alpha_zero)
     (h_depletion : W.omega i t₁ h_commit m + W.yield_means α_commit m <
@@ -1942,7 +1953,7 @@ theorem precommitment_prunes_temptation
     α_consume ∈ W.A_feas i t₂ h_uncommitted ∧
     PurposefulAct i t₂ h_commit α_save := by
   have h_tr_commit := W.law_in_re_transition i t₁ t₂ h_commit α_commit m
-    h_not_trade_commit h_enacted_commit h_next_commit
+    h_not_trade_commit h_uninvaded_commit h_enacted_commit h_next_commit
   have h_short : W.omega i t₂ h_commit m < W.use_means α_consume m := by
     omega
   have h_not_feas : α_consume ∉ W.A_feas i t₂ h_commit := by
@@ -1950,7 +1961,7 @@ theorem precommitment_prunes_temptation
     have h_le := ((W.A_feas_coupling i t₂ h_commit α_consume).mp h_feas).2 m
     omega
   have h_tr_uncommitted := W.inaction_preserves_endowments i t₁ t₂ h_uncommitted
-    h_enacted_uncommitted h_next_uncommitted m
+    h_enacted_uncommitted h_uninvaded_uncommitted h_next_uncommitted m
   have h_feas_uncommitted : α_consume ∈ W.A_feas i t₂ h_uncommitted := by
     rw [W.A_feas_coupling]
     refine ⟨h_uncommitted_cont, ?_⟩

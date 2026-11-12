@@ -284,6 +284,7 @@ theorem intertemporal_consumption_stock_and_service [BilateralExchangeFrame W]
     {m : W.Means} (A : ServiceAccounting W Service)
     (α_consume : W.Action) (k : ℕ) (s : Service)
     (h_not_trade : ¬ W.IsTradeAction α_consume)
+    (h_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) i)
     (h_execute : W.enacted i t h = α_consume)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
     (h_stock : W.omega i t h m = k)
@@ -292,10 +293,10 @@ theorem intertemporal_consumption_stock_and_service [BilateralExchangeFrame W]
     (h_service : A.yield_service α_consume s = 1) :
     W.omega i t' h m + 1 = k ∧
     (InventoryRun.step
-      (InventoryStep.production α_consume h_execute h_not_trade h_next)
+      (InventoryStep.production α_consume h_execute h_not_trade h_uninvaded h_next)
       (InventoryRun.done t')).totalService A s = 1 := by
   have h_stock_law := W.law_in_re_transition i t t' h α_consume m
-    h_not_trade h_execute h_next
+    h_not_trade h_uninvaded h_execute h_next
   rw [h_use, h_yield, h_stock] at h_stock_law
   exact ⟨h_stock_law, by
     simp [InventoryRun.totalService, InventoryStep.action, h_service]⟩
@@ -762,12 +763,11 @@ theorem purposeful_unit_for_unit_exchange_rejected (i : Agent) (t : Moment) (h :
 
 /-! The positive repayment-premium conclusion follows from the stated
 intertemporal preference, acceptance comparison, same-date quantity
-monotonicity, and transitivity. `_hq` marks that the represented principal is
-positive for the loan interpretation; the arithmetic inequality itself does
-not use this domain condition. This theorem concerns ordinal quantity and
-timing comparisons, not a nominal loan rate. -/
+monotonicity, and transitivity. A positive principal makes the derived
+repayment quantity strictly greater than one unit. This theorem concerns
+ordinal quantity and timing comparisons, not a nominal loan rate. -/
 theorem positive_originary_interest (i : Agent) (t : Moment) (h : History)
-    (m : Means) (q q' : ℕ) (_hq : 0 < q)
+    (m : Means) (q q' : ℕ) (h_q : 0 < q)
     (τ1 τ2 : Moment)
     (h_pos_tp : Preference i t h (timedQuantityEnd m q τ1) (timedQuantityEnd m q τ2))
     (h_accept : Preference i t h (timedQuantityEnd m q' τ2) (timedQuantityEnd m q τ1))
@@ -776,7 +776,7 @@ theorem positive_originary_interest (i : Agent) (t : Moment) (h : History)
       timedQuantityEnd m q τ2 = timedQuantityEnd m q' τ2)
     (h_trans : ∀ e1 e2 e3,
       Preference i t h e1 e2 → Preference i t h e2 e3 → Preference i t h e1 e3) :
-    q < q' ∧ (∃ δ : ℕ, δ ≥ 1 ∧ q' = q + δ) := by
+    q < q' ∧ 1 < q' ∧ (∃ δ : ℕ, δ ≥ 1 ∧ q' = q + δ) := by
   have h_lt : q < q' := by
     by_contra h_not_lt
     have h_le : q' ≤ q := by omega
@@ -791,7 +791,7 @@ theorem positive_originary_interest (i : Agent) (t : Moment) (h : History)
       exact pref_irrefl i t h (timedQuantityEnd m q' τ2) h_pref_cycle
   have h_prem : ∃ δ : ℕ, δ ≥ 1 ∧ q' = q + δ := by
     refine ⟨q' - q, by omega, by omega⟩
-  exact ⟨h_lt, h_prem⟩
+  exact ⟨h_lt, by omega, h_prem⟩
 
 
 /-! This version additionally requires the loan action to be purposeful and a
@@ -799,7 +799,7 @@ feasible comparison action preserving the original quantity at the earlier
 date. It derives the quantity premium under the same explicit preference laws;
 it is not a theorem about every contract or a nominal interest rate. -/
 theorem purposeful_positive_originary_interest (i : Agent) (t : Moment) (h : History)
-    (m : Means) (q q' : ℕ) (_hq : 0 < q) (τ1 τ2 : Moment)
+    (m : Means) (q q' : ℕ) (h_q : 0 < q) (τ1 τ2 : Moment)
     (h_pos_tp : Preference i t h (timedQuantityEnd m q τ1) (timedQuantityEnd m q τ2))
     (α_pres α_loan : Action)
     (h_pres_feas : α_pres ∈ A_feas i t h)
@@ -811,7 +811,7 @@ theorem purposeful_positive_originary_interest (i : Agent) (t : Moment) (h : His
       timedQuantityEnd m q τ2 = timedQuantityEnd m q' τ2)
     (h_trans : ∀ e1 e2 e3,
       Preference i t h e1 e2 → Preference i t h e2 e3 → Preference i t h e1 e3) :
-    q < q' ∧ (∃ δ : ℕ, δ ≥ 1 ∧ q' = q + δ) := by
+    q < q' ∧ 1 < q' ∧ (∃ δ : ℕ, δ ≥ 1 ∧ q' = q + δ) := by
   have h_undom := h_loan_purp.2.2.2 α_pres h_pres_feas
   rw [h_loan_end, h_pres_end] at h_undom
   have h_lt : q < q' := by
@@ -827,7 +827,7 @@ theorem purposeful_positive_originary_interest (i : Agent) (t : Moment) (h : His
       rw [← h_mono_eq] at h_undom
       exact h_undom h_pos_tp
   have h_prem : ∃ δ : ℕ, δ ≥ 1 ∧ q' = q + δ := ⟨q' - q, by omega, by omega⟩
-  exact ⟨h_lt, h_prem⟩
+  exact ⟨h_lt, by omega, h_prem⟩
 
 
 theorem capital_accumulation_unlocks_action_menu_epoch
@@ -836,6 +836,7 @@ theorem capital_accumulation_unlocks_action_menu_epoch
     (q_primitive q_high : ℕ) (τ_prim τ_high : Moment)
     (h_next : IsNextMoment Precedence W.mem_hist t0 t1 h)
     (h_not_tr_b : ¬ W.IsTradeAction α_build := by intro h; cases h)
+    (h_uninv_b : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t0 h) i)
     (h_exec_build : enacted i t0 h = α_build)
     (h_init_cap : W.omega i t0 h m_cap = 0)
     (h_use_build : W.use_means α_build m_cap = 0)
@@ -853,7 +854,8 @@ theorem capital_accumulation_unlocks_action_menu_epoch
     A_feas i t0 h ⊂ A_feas i t1 h ∧
     q_primitive < q_high ∧
     Preference i t1 h (End_of i α_roundabout t1 h) (End_of i α_primitive t0 h) := by
-  have h_tr := W.law_in_re_transition i t0 t1 h α_build m_cap h_not_tr_b h_exec_build h_next
+  have h_tr := W.law_in_re_transition i t0 t1 h α_build m_cap
+    h_not_tr_b h_uninv_b h_exec_build h_next
   rw [h_use_build, h_init_cap, h_yield_build, Nat.add_zero] at h_tr
   have h_cap_t1 : W.omega i t1 h m_cap = 1 := by omega
   have h_infeas_t0 : α_roundabout ∉ A_feas i t0 h := by
@@ -1269,11 +1271,12 @@ theorem causal_intertemporal_chain_non_vacuous :
       @Preference FiniteBranchingModel i t h e1 e3 := by
     intro e1 e2 e3 h12 h23
     exact Nat.lt_trans h23 h12
-  obtain ⟨hq_lt, ⟨δ, hδ_ge, hq'_eq⟩⟩ :=
-    @positive_originary_interest FiniteBranchingModel _ i t h m q q' Nat.zero_lt_one τ1 τ2
+  obtain ⟨_hq_lt, hq'_gt_one, ⟨δ, hδ_ge, hq'_eq⟩⟩ :=
+    @positive_originary_interest FiniteBranchingModel _ i t h m q q' (by decide) τ1 τ2
       h_pos_tp h_accept h_sync_mono h_trans
   exact ⟨i, t, h, m, q, q', α_cons, τ1, h_purp, h_dom, h_causal_oeh, h_not_post,
-         ⟨τ2, δ, Nat.zero_lt_one, h_lt, hq_lt, hδ_ge, hq'_eq, h_pos_tp, h_u4u⟩⟩
+         ⟨τ2, δ, (by decide), h_lt, (by simpa [q] using hq'_gt_one),
+          hδ_ge, hq'_eq, h_pos_tp, h_u4u⟩⟩
 
 end Praxeology
 

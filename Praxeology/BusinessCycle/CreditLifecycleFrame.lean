@@ -750,20 +750,20 @@ theorem lifecycle_sigma_realizes_choice :
 set_option maxHeartbeats 1000000 in
 -- Exhaustive finite case split across CreditLifecycleFrame moments and histories
 theorem lifecycle_sigma_co_agency_idle :
-    ∀ i j t h, i ≠ j → lifecycleMemHist t h →
+    ∀ i j t h, i ≠ j →
       lifecycleEnacted j t (lifecycleSigma i t .idle h) =
         lifecycleEnacted j t h := by
-  intro i j t h hij hmem
+  intro i j t h hij
   exact lifecycle_sigma_menu_coagency i j t h .idle (Or.inl rfl) hij
 
 set_option maxHeartbeats 1000000 in
 -- Exhaustive finite case split across CreditLifecycleFrame moments and histories
 theorem lifecycle_sigma_co_agency_choice :
-    ∀ i j t h, i ≠ j → lifecycleMemHist t h →
+    ∀ i j t h, i ≠ j →
       lifecycleEnacted j t
         (lifecycleSigma i t (creditLifecycleChoice i t) h) =
           lifecycleEnacted j t h := by
-  intro i j t h hij hmem
+  intro i j t h hij
   exact lifecycle_sigma_menu_coagency i j t h (creditLifecycleChoice i t)
     (Or.inr rfl) hij
 
@@ -1142,7 +1142,7 @@ theorem lifecycle_next_moment_unique {t u v : Node} {h : History}
 
 theorem lifecycle_next_moment_eq {t t' : Node} {h : History}
     (hnext : IsNextMoment lifecyclePrecedence lifecycleMemHist t t' h)
-    (_ht : lifecycleMemHist t h) : t' = lifecycleNextMoment t h := by
+    : t' = lifecycleNextMoment t h := by
   have htlt := lifecycle_precedence_source_lt_six t t' hnext.2.2.1
   exact lifecycle_next_moment_unique hnext
     (lifecycleNextMoment_is_next t h htlt hnext.1)
@@ -1394,16 +1394,16 @@ def creditLifecycleActionFrame : ActionFrame := by
       change α ∈ creditLifecycleActionsAt i t at hα_cont
       rcases eventMenu_mem_cases hα_cont with hIdle | hChoice
       · subst α
-        exact lifecycle_sigma_co_agency_idle i j t h' hij hh'
+        exact lifecycle_sigma_co_agency_idle i j t h' hij
       · subst α
-        exact lifecycle_sigma_co_agency_choice i j t h' hij hh'
+        exact lifecycle_sigma_co_agency_choice i j t h' hij
     IsTradeAction := creditLifecycleTradeAction
     alpha_zero_not_trade := by
       intro h
       rcases h with ⟨_, _, _, _, _, _, h⟩ | ⟨_, _, _, _, _, _, h⟩ <;> cases h
     law_in_re_transition := by
-      intro i t t' h α m hnot hα hnext
-      rw [lifecycle_next_moment_eq hnext hnext.1]
+      intro i t t' h α m hnot _huninv hα hnext
+      rw [lifecycle_next_moment_eq hnext]
       cases α with
       | idle =>
           simp only [creditLifecycleUseMeans, creditLifecycleYieldMeans]
@@ -1486,7 +1486,7 @@ instance creditLifecycleBilateralExchangeFrame :
   unilateral_offer_noop := by
     intro i j qA mA qB mB t t' h m h_offer h_not_accept hnext
     dsimp only [ActionFrame.enacted, ActionFrame.omega] at *
-    rw [lifecycle_next_moment_eq hnext hnext.1]
+    rw [lifecycle_next_moment_eq hnext]
     have hIsOffer : isOfferFromTo (lifecycleEnacted i t h) i j = true := by
       rw [h_offer]
       dsimp [isOfferFromTo]
@@ -1501,7 +1501,7 @@ instance creditLifecycleBilateralExchangeFrame :
   unilateral_accept_noop := by
     intro j i qA mA qB mB t t' h m h_accept h_not_offer hnext
     dsimp only [ActionFrame.enacted, ActionFrame.omega] at *
-    rw [lifecycle_next_moment_eq hnext hnext.1]
+    rw [lifecycle_next_moment_eq hnext]
     have hIsAccept : isAcceptFromTo (lifecycleEnacted j t h) j i = true := by
       rw [h_accept]
       dsimp [isAcceptFromTo]
@@ -1516,7 +1516,7 @@ instance creditLifecycleBilateralExchangeFrame :
   bilateral_transfer_law := by
     intro i j qA mA qB mB t t' h m hij h_offer h_accept hnext
     dsimp only [ActionFrame.enacted, ActionFrame.omega] at *
-    rw [lifecycle_next_moment_eq hnext hnext.1]
+    rw [lifecycle_next_moment_eq hnext]
     have hMatched :
         isMatchingTrade (lifecycleEnacted i t h) (lifecycleEnacted j t h) i j = true := by
       rw [h_offer, h_accept]

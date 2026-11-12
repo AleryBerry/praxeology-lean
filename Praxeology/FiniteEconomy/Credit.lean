@@ -44,6 +44,7 @@ structure FiniteFiduciaryIssueRow {W : ActionFrame} [BilateralExchangeFrame W]
   reserveOutputZero : W.yield_means action reserve = 0
   otherAgentsIdle : ∀ a, a ≠ issuer →
     S.actionProfile a node history = W.alpha_zero
+  noninvasive : ∀ a, ¬ W.IsInvasiveOn action a
 
 namespace FiniteFiduciaryIssueRow
 
@@ -71,7 +72,8 @@ def instantiate {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec
       moneyOutput := J.moneyOutput
       reserveInputZero := J.reserveInputZero
       reserveOutputZero := J.reserveOutputZero
-      otherAgentsIdle := ?_ }
+      otherAgentsIdle := ?_
+      noninvasive := J.noninvasive }
   · calc
       W.enacted J.issuer (frame.moment J.node) (frame.history J.history)
           = S.actionProfile J.issuer J.node J.history :=
@@ -135,37 +137,67 @@ end FiniteCreditAdvanceRow
 advance and its generic origination certificate. -/
 structure FiniteFiduciaryOriginationRow {W : ActionFrame} [BilateralExchangeFrame W]
     {T : FiniteTreeSpec} (S : FiniteEconomySpec W T) where
-  terms : PawnLoanTerms W
   issue : FiniteFiduciaryIssueRow S
-  advance : FiniteCreditAdvanceRow S terms
-  lender_is_issuer : terms.lender = issue.issuer
-  money_matches : terms.money = issue.money
-  principal_matches : terms.principal = issue.principal
+  borrower : W.Agent
+  collateral : W.Means
+  promisedRepayment : ℕ
+  collateralQuantity : ℕ
+  maturity : W.Moment
+  distinctAgents : issue.issuer ≠ borrower
+  distinctGoods : issue.money ≠ collateral
+  collateralPositive : 0 < collateralQuantity
+  advance : FiniteCreditAdvanceRow S
+    { lender := issue.issuer
+      borrower := borrower
+      money := issue.money
+      collateral := collateral
+      principal := issue.principal
+      promisedRepayment := promisedRepayment
+      collateralQuantity := collateralQuantity
+      maturity := maturity
+      distinctAgents := distinctAgents
+      distinctGoods := distinctGoods
+      principalPositive := issue.principalPositive
+      collateralPositive := collateralPositive }
   history_matches : advance.history = issue.history
   advance_follows_issue : advance.node = issue.nextNode
-  nonparticipants_idle : ∀ a, a ≠ terms.lender → a ≠ terms.borrower →
+  nonparticipants_idle : ∀ a, a ≠ issue.issuer → a ≠ borrower →
     W.enacted a (S.presentation.moment advance.node)
       (S.presentation.history advance.history) = W.alpha_zero
+  nonparticipants_uninvaded : ∀ a, a ≠ issue.issuer → a ≠ borrower →
+    ∀ j, ¬ W.IsInvasiveOn (W.enacted j (S.presentation.moment advance.node)
+      (S.presentation.history advance.history)) a
 
 namespace FiniteFiduciaryOriginationRow
 
+/-- Loan terms use the issue's issuer, medium, and principal by construction.
+Only the borrower, collateral, repayment terms, and maturity remain row data. -/
+def terms {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
+    {S : FiniteEconomySpec W T} (J : FiniteFiduciaryOriginationRow S) : PawnLoanTerms W :=
+  { lender := J.issue.issuer
+    borrower := J.borrower
+    money := J.issue.money
+    collateral := J.collateral
+    principal := J.issue.principal
+    promisedRepayment := J.promisedRepayment
+    collateralQuantity := J.collateralQuantity
+    maturity := J.maturity
+    distinctAgents := J.distinctAgents
+    distinctGoods := J.distinctGoods
+    principalPositive := J.issue.principalPositive
+    collateralPositive := J.collateralPositive }
+
 /-- Compile finite issue/advance evidence into the general origination type. -/
-theorem instantiate {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
+theorem compile {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
     {S : FiniteEconomySpec W T} (J : FiniteFiduciaryOriginationRow S) :
-    FiduciaryOrigination J.terms J.issue.instantiate J.advance.instantiate := by
-  refine
-    { lender_is_issuer := J.lender_is_issuer
-      money_matches := J.money_matches
-      principal_matches := J.principal_matches
-      history_matches := ?_
-      advance_follows_issue := ?_
-      nonparticipants_idle := J.nonparticipants_idle }
-  · change S.presentation.history J.advance.history =
-      S.presentation.history J.issue.history
-    exact congrArg S.presentation.history J.history_matches
-  · change S.presentation.moment J.advance.node =
-      S.presentation.moment J.issue.nextNode
-    exact congrArg S.presentation.moment J.advance_follows_issue
+    FiduciaryOrigination J.terms J.issue.instantiate J.advance.instantiate :=
+  { lender_is_issuer := rfl
+    money_matches := rfl
+    principal_matches := rfl
+    history_matches := congrArg S.presentation.history J.history_matches
+    advance_follows_issue := congrArg S.presentation.moment J.advance_follows_issue
+    nonparticipants_idle := J.nonparticipants_idle
+    nonparticipants_uninvaded := J.nonparticipants_uninvaded }
 
 /-- The compiler emits the generic bank-ledger event consumed by the
 ActionFrame-polymorphic balance-sheet accounting theorems. -/
@@ -175,7 +207,7 @@ def bankEvent {W : ActionFrame} [BilateralExchangeFrame W] {T : FiniteTreeSpec}
   { terms := J.terms
     issuance := J.issue.instantiate
     advance := J.advance.instantiate
-    origination := J.instantiate }
+    origination := J.compile }
 
 end FiniteFiduciaryOriginationRow
 

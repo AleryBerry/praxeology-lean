@@ -404,7 +404,7 @@ and physical ledger follow the existing stage and interpreter. -/
     | _ => False
   alpha_zero_not_trade := by intro h; cases h
   law_in_re_transition := by
-    intro i t t' h a m hnot ha hnext
+    intro i t t' h a m hnot _huninv ha hnext
     cases t with
     | some p =>
         have hfalse := hnext.2.2.1

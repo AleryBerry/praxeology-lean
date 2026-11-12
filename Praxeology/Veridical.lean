@@ -79,8 +79,8 @@ noncomputable def veridicalScenarioFrame (W : ActionFrame) : SubjectiveScenarioF
 /-- The canonical veridical frame satisfies the VeridicalAppraisal bridge. -/
 theorem veridicalScenarioFrame_is_veridical (W : ActionFrame) :
     (veridicalScenarioFrame W).VeridicalAppraisal := by
-  apply SubjectiveScenarioFrame.veridicalAppraisal_of_actual_scenario_selection
-  intro i t h α h_mem
+  constructor
+  intro i t h α h_mem _h_feas
   dsimp [veridicalScenarioFrame]
   split_ifs
   rfl
@@ -88,8 +88,7 @@ theorem veridicalScenarioFrame_is_veridical (W : ActionFrame) :
 /-- In the canonical veridical frame, subjective purposefulness coincides with
 the ActionFrame's single `PurposefulAct` predicate. -/
 @[simp] theorem purposefulAct_iff_veridical (W : ActionFrame)
-    {i : W.Agent} {t : W.Moment} {h : W.History} {α : W.Action}
-    (_h_mem : W.mem_hist t h) :
+    {i : W.Agent} {t : W.Moment} {h : W.History} {α : W.Action} :
     (veridicalScenarioFrame W).PurposefulAct i t h α ↔
       @Praxeology.PurposefulAct W i t h α := by
   dsimp [SubjectiveScenarioFrame.PurposefulAct, PurposefulActWithEnd,
@@ -228,7 +227,7 @@ theorem allocation_stock_one_purposeful_in_veridical_frame :
       (allocationFrameRealize ({0} : Finset (Fin 3))) := by
   have hmem : AllocationActionFrame.allocationChoiceFrame.mem_hist
       none allocationFramePurposeHistory := Or.inl rfl
-  exact (purposefulAct_iff_veridical AllocationActionFrame.allocationChoiceFrame hmem).2
+  exact (purposefulAct_iff_veridical AllocationActionFrame.allocationChoiceFrame).2
     allocationFrame_stock_one_purposeful_prefix
 
 /-- The stock-two purposeful prefix choice lifts to the veridical scenario frame. -/
@@ -238,7 +237,7 @@ theorem allocation_stock_two_purposeful_in_veridical_frame :
       (allocationFrameRealize ({0, 1} : Finset (Fin 3))) := by
   have hmem : AllocationActionFrame.allocationChoiceFrame.mem_hist
       none allocationFramePurposeHistory := Or.inl rfl
-  exact (purposefulAct_iff_veridical AllocationActionFrame.allocationChoiceFrame hmem).2
+  exact (purposefulAct_iff_veridical AllocationActionFrame.allocationChoiceFrame).2
     allocationFrame_stock_two_purposeful_prefix
 
 /-- Veridical scenario frame for the matched two-good spot exchange witness. -/
@@ -266,7 +265,7 @@ theorem workshop_entrepreneur_proposal_in_veridical_frame :
     workshopVeridicalScenarioFrame.PurposefulAct
       .entrepreneur WMoment.root (0 : WorkshopHist) WorkshopAction.proposeScope := by
   have hmem : WorkshopActionFrame.mem_hist WMoment.root (0 : WorkshopHist) := trivial
-  exact (purposefulAct_iff_veridical WorkshopActionFrame hmem).2
+  exact (purposefulAct_iff_veridical WorkshopActionFrame).2
     entrepreneur_purposeful_proposal
 
 /-- Grand Unification: Allocation, spot exchange, and firm organization are all

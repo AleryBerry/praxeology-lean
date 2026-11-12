@@ -245,8 +245,7 @@ theorem fiveStageSupplyChain_history_unique
 run. -/
 theorem fiveStageSupplyChain_runAt_successful
     (h : fiveStageSupplyChainTree.History)
-    (t : fiveStageSupplyChainTree.Node)
-    (_ht : fiveStageSupplyChainTree.MemHist t h) :
+    (t : fiveStageSupplyChainTree.Node) :
     ∃ state, fiveStageSupplyChainProgram.runAt h t = some state := by
   have hbound : t.val ≤ 9 := by
     have hlt := t.isLt
@@ -268,7 +267,7 @@ def fiveStageSupplyChainSolventProgram :
   SolventFinitePhysicalProgram.ofSuccessfulAt fiveStageSupplyChainProgram
     (by
       intro h t ht
-      exact fiveStageSupplyChain_runAt_successful h t ht)
+      exact fiveStageSupplyChain_runAt_successful h t)
 
 /-- The total state view reaches the same terminal retail service as the
 original optional interpreter. -/

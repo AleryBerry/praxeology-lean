@@ -89,11 +89,37 @@ abbrev PurposefulAct (i : W.Agent) (t : W.Moment) (h : W.History)
     (W.Preference i t h) i t h α
 
 /-- An optional bridge showing that appraisal in a particular model is
-veridical. The scenario system itself does not require this bridge. -/
+veridical on feasible actions. Feasible-menu coverage is enough for choice
+proofs; the scenario system itself does not require this bridge. -/
 structure VeridicalAppraisal : Prop where
   appraised_as_actual_scenario : ∀ i t h α, W.mem_hist t h →
+    α ∈ W.A_feas i t h →
     M.appraisedEnd i t h α =
       M.scenarioEnd i α (M.actualScenario i t h)
+
+/-- If the only plausible scenario at each decision is its actual scenario,
+then appraisal agrees with actual ends on every feasible action. The
+scenario-menu coverage field supplies the action membership needed by the
+appraisal agreement rule. -/
+theorem veridicalAppraisal_of_singleton_actual_plausible
+    (h_singleton : ∀ i t h, W.mem_hist t h →
+      M.MinPlausible i t = {M.actualScenario i t h}) :
+    M.VeridicalAppraisal := by
+  refine ⟨?_⟩
+  intro i t h α h_mem h_feas
+  have h_actual : M.actualScenario i t h ∈ M.MinPlausible i t := by
+    rw [h_singleton i t h h_mem]
+    simp
+  apply M.appraisedEnd_respects_agreement i t h α
+    (M.scenarioEnd i α (M.actualScenario i t h)) h_mem
+  intro s hs
+  have hs_eq : s = M.actualScenario i t h := by
+    rw [h_singleton i t h h_mem] at hs
+    simpa using hs
+  subst s
+  exact ⟨M.plausible_menus_cover_actual_options i t h
+    (M.actualScenario i t h) h_mem h_actual h_feas,
+    rfl⟩
 
 /-- A scenario-grounded choice certificate records physical feasibility and
 execution separately from subjective improvement and menu undominatedness.
@@ -129,29 +155,23 @@ theorem purposefulAct_of_appraisal_certificate
   have hsubjective : M.PurposefulAct i t h α :=
     M.purposefulAct_of_appraisal_certificate_subjective C
   have hprojection (β : W.Action) :
+      β ∈ W.A_feas i t h →
       (fun j γ s h' => M.IntendedEnd j s h' γ) i β t h = End_of i β t h := by
+    intro hβ
     change M.appraisedEnd i t h β = End_of i β t h
-    rw [V.appraised_as_actual_scenario i t h β C.executes.1]
+    rw [V.appraised_as_actual_scenario i t h β C.executes.1 hβ]
     exact M.actual_scenario_end i t h β C.executes.1
   refine ⟨hsubjective.1, hsubjective.2.1, ?_, ?_⟩
   · rcases hsubjective.2.2.1 with hzero | himproves
     · exact Or.inl hzero
     · exact Or.inr (by
-        rw [hprojection α, hprojection W.alpha_zero] at himproves
+        rw [hprojection α C.feasible,
+          hprojection W.alpha_zero (W.alpha_zero_feasible i t h)] at himproves
         exact himproves)
   · intro β hβ hbetter
     have hnot := hsubjective.2.2.2 β hβ
-    rw [← hprojection β, ← hprojection α] at hbetter
+    rw [← hprojection β hβ, ← hprojection α C.feasible] at hbetter
     exact hnot hbetter
-
-/-- A veridical appraisal rule is obtained when the model's explicit rule
-selects the scenario embedding of the actual economy. Membership of that
-embedded scenario in `MinPlausible` remains unnecessary. -/
-theorem veridicalAppraisal_of_actual_scenario_selection
-    (hselect : ∀ i t h α, W.mem_hist t h →
-      M.appraisedEnd i t h α = M.scenarioEnd i α (M.actualScenario i t h)) :
-    M.VeridicalAppraisal :=
-  ⟨hselect⟩
 
 end SubjectiveScenarioFrame
 

@@ -41,13 +41,13 @@ medium, and connected unmet demand. It is relative to the defined finite
 network adoption operator and the supplied network/wants relation.
 
 The theorem
-[`network_money_emergence_narrows_price_box_and_expands_solvency`](../Praxeology/Catallactics.lean#L3667)
+[`network_money_emergence_narrows_price_box_and_expands_solvency`](../Praxeology/Catallactics.lean#L3670)
 adds a `NetworkPriceBoxSchedule` whose monotonicity links adoption-profile
 growth to price-box narrowing. The resulting cash-demand and solvent-profile
 conclusions are derived from that supplied schedule and its definitions; the
 price-box response itself is not derived from the adoption process.
 
-[`greshams_law_circulation_collapse`](../Praxeology/Catallactics.lean#L3867)
+[`greshams_law_circulation_collapse`](../Praxeology/Catallactics.lean#L3850)
 assumes a finite group of tenders, a two-medium tender choice, purposeful
 tendering, and a preference for the modeled bad-medium outcome over the
 good-medium outcome. Under those premises it proves the group does not tender
@@ -92,7 +92,7 @@ The credit module records advances, fiduciary issuance, repayment, and unpaid
 maturity as separate lifecycle evidence. Its accounting theorems derive
 inventory changes from matched ActionFrame transfers and state when
 redemption offers are infeasible for insufficient balances. The result
-[`fiduciary_origination_and_cash_shortfall_contract_comparison`](../Praxeology/Catallactics/Credit.lean#L1771)
+[`fiduciary_origination_and_cash_shortfall_contract_comparison`](../Praxeology/Catallactics/Credit.lean#L1796)
 has additional strong premises: two terms share borrower, principal, and
 money; a purposeful fiduciary issuance, origination, advance, and repayment
 are represented; and the borrower's cash immediately before repayment falls
@@ -104,13 +104,13 @@ cash shortfall from a loan market, project technology, or monetary expansion.
 
 ## 5. Economic-calculation examples
 
-[`socialist_calculation_incommensurability`](../Praxeology/Catallactics.lean#L3947)
+[`socialist_calculation_incommensurability`](../Praxeology/Catallactics.lean#L3930)
 constructs two strictly order-preserving rank assignments under which the
 sum of two selected ranks reverses. It is a counterexample to using that
 particular sum of ordinal ranks as an invariant comparison; it does not prove
 that all calculation procedures in nonmarket institutions are impossible.
 
-[`action_frame_socialist_calculation_impossibility`](../Praxeology/Catallactics.lean#L4084)
+[`action_frame_socialist_calculation_impossibility`](../Praxeology/Catallactics.lean#L4067)
 is a conditional two-economy planner result. It assumes physically
 incomparable methods, matching observations and ends across two records, and
 opposite stipulated local preference flags. It then proves that any

@@ -171,31 +171,6 @@ theorem fiveProjectBankNoteIssuance_expands_advances :
     enacted.state.stock fiveProjectBank (fiveProjectCollateralGood 3) = 1 := by
   decide
 
-/-- Results of the named five-project run used by the conclusion assembler.
-These are scenario-specific evidence, not a general causal mechanism. -/
-structure FiveProjectConclusionEvidence where
-  credit_expansion :
-    (fiveProjectNamedProgramRun
-      (fiveProjectRegimeData .fiduciaryExpansion)).cursor.actualAdvances.map
-        LoanReservationBid.borrower = [0, 1, 2, 3]
-  production_malinvestment :
-    (fiveProjectNamedProgramRun
-      (fiveProjectRegimeData .fiduciaryExpansion)).cursor.completedProjects.map
-        LoanReservationBid.borrower = [0, 1]
-  defaults :
-    (fiveProjectNamedProgramRun
-      (fiveProjectRegimeData .fiduciaryExpansion)).cursor.actualDefaults.map
-        LoanReservationBid.borrower = [2, 3]
-  household_saving_purposeful :
-    @PurposefulAct fiveProjectHouseholdSavingActionFrame fiveProjectHousehold
-      FiniteEconomyProgram.ProgramMoment.root fiveProjectHouseholdSavingSuffix.selectedHistory
-      fiveProjectHouseholdSavingAction
-  borrower_two_purposeful : fiveProjectProjectTwoPurposefulAcceptance
-  borrower_three_purposeful : fiveProjectProjectThreePurposefulAcceptance
-  borrower_two_regret : fiveProjectProjectTwoEntryRegret
-  borrower_three_regret : fiveProjectProjectThreeEntryRegret
-  cautious_replay : fiveProjectCautiousReplayMatches
-
 /-- The causal conclusions synthesized by the Austrian Business Cycle Theory:
 1. Crisis generation: contractual defaults emerge at maturity.
 2. Malinvestment bound: completions are strictly bounded by physical factor supply.
@@ -246,60 +221,56 @@ structure FiveProjectConclusion where
     fiveProjectProjectTwoPurposefulAcceptance ∧
     fiveProjectProjectThreePurposefulAcceptance
 
-/-- Package conclusions already established for the named five-project run.
-The premise record supplies defaults, purposefulness and regret; this theorem
-also derives elementary comparisons from the supplied completion and advance
-lists. It does not derive those facts from the rate or squeeze fields. -/
-theorem assemble_five_project_cycle_conclusion
-    (P : FiveProjectConclusionEvidence) : FiveProjectConclusion := {
-  cycle_generated := P.defaults
-  malinvestment_proved := by
-    have hcomp := P.production_malinvestment
-    have hlen := congrArg List.length hcomp
-    simp only [List.length_map] at hlen
-    rw [hlen]
-    decide
-  expansion_exceeds_conservation := by
-    have hcomp := P.production_malinvestment
-    have hadv := P.credit_expansion
-    have hlen_comp := congrArg List.length hcomp
-    have hlen_adv := congrArg List.length hadv
-    simp only [List.length_map] at hlen_comp hlen_adv
-    rw [hlen_comp, hlen_adv]
-    decide
-  stranded_projects_exact_difference := by
-    have hadv := P.credit_expansion
-    have hcomp := P.production_malinvestment
-    have hdef := P.defaults
-    rw [hadv, hcomp, hdef]
-    decide
-  cautious_avoids_default := ⟨rfl, P.cautious_replay.1, P.cautious_replay.2⟩
-  regret_established := ⟨P.borrower_two_regret, P.borrower_three_regret⟩
-  purposefulness_unified :=
-    ⟨P.household_saving_purposeful, P.borrower_two_purposeful, P.borrower_three_purposeful⟩
-}
-
-theorem fiveProject_austrian_business_cycle_master_premises :
-    FiveProjectConclusionEvidence := {
-  credit_expansion := by decide
-  production_malinvestment := by decide
-  defaults := by decide
-  household_saving_purposeful := fiveProjectHouseholdSavingAction_purposeful
-  borrower_two_purposeful := fiveProjectProjectTwoAcceptanceAction_purposeful
-  borrower_three_purposeful := fiveProjectProjectThreeAcceptanceAction_purposeful
-  borrower_two_regret := fiveProjectProjectTwoAcceptance_hasContextMatchedRegret
-  borrower_three_regret := fiveProjectProjectThreeAcceptance_hasContextMatchedRegret
-  cautious_replay := by unfold fiveProjectCautiousReplayMatches; decide
-}
-
 set_option maxRecDepth 4096 in
 /-- The named fiduciary-expansion scenario's full behavioral synthesis. The
 physical calculations derive the quote, real-input shortage, completions,
 repayments, and defaults. The separately proved scenario comparisons derive
-purposefulness; the two replay comparisons derive regret. -/
+purposefulness; the two replay comparisons derive regret. It composes the
+executable run and behavioral results directly, without an intermediate
+evidence record. -/
 theorem fiveProject_fiduciary_causal_cycle_master :
-    FiveProjectConclusion :=
-  assemble_five_project_cycle_conclusion fiveProject_austrian_business_cycle_master_premises
+    FiveProjectConclusion := by
+  have h_credit_expansion :
+      (fiveProjectNamedProgramRun
+        (fiveProjectRegimeData .fiduciaryExpansion)).cursor.actualAdvances.map
+          LoanReservationBid.borrower = [0, 1, 2, 3] := by
+    decide
+  have h_production_malinvestment :
+      (fiveProjectNamedProgramRun
+        (fiveProjectRegimeData .fiduciaryExpansion)).cursor.completedProjects.map
+          LoanReservationBid.borrower = [0, 1] := by
+    decide
+  have h_defaults :
+      (fiveProjectNamedProgramRun
+        (fiveProjectRegimeData .fiduciaryExpansion)).cursor.actualDefaults.map
+          LoanReservationBid.borrower = [2, 3] := by
+    decide
+  have h_cautious_replay : fiveProjectCautiousReplayMatches := by
+    unfold fiveProjectCautiousReplayMatches
+    decide
+  exact {
+    cycle_generated := h_defaults
+    malinvestment_proved := by
+      have hlen := congrArg List.length h_production_malinvestment
+      simp only [List.length_map] at hlen
+      rw [hlen]
+      decide
+    expansion_exceeds_conservation := by
+      have hlen_comp := congrArg List.length h_production_malinvestment
+      have hlen_adv := congrArg List.length h_credit_expansion
+      simp only [List.length_map] at hlen_comp hlen_adv
+      rw [hlen_comp, hlen_adv]
+      decide
+    stranded_projects_exact_difference := by
+      rw [h_credit_expansion, h_production_malinvestment, h_defaults]
+      decide
+    cautious_avoids_default := ⟨rfl, h_cautious_replay.1, h_cautious_replay.2⟩
+    regret_established := ⟨fiveProjectProjectTwoAcceptance_hasContextMatchedRegret,
+      fiveProjectProjectThreeAcceptance_hasContextMatchedRegret⟩
+    purposefulness_unified :=
+      ⟨fiveProjectHouseholdSavingAction_purposeful,
+        fiveProjectProjectTwoAcceptanceAction_purposeful,
+        fiveProjectProjectThreeAcceptanceAction_purposeful⟩ }
 
 end Praxeology
 

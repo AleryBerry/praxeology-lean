@@ -9,20 +9,20 @@ repository; those claims are removed pending a separate formal development.
 
 ## 1. Alternative histories and shared context
 
-[`AlternativeHistoryImprovement`](../Praxeology/Action.lean#L1241) records a feasible
+[`AlternativeHistoryImprovement`](../Praxeology/Action.lean#L1223) records a feasible
 alternative action with a better outcome on another history. It does not say
 that the alternative outcome is generated under circumstances comparable to
 the realized outcome. The weaker cross-history comparison should not by itself
 be described as causal regret.
 
-[`ContextMatchedRegret`](../Praxeology/Action.lean#L1270) adds a
+[`ContextMatchedRegret`](../Praxeology/Action.lean#L1252) adds a
 `ContextCorrespondence`: one context must be compatible with the decision
 history, and it must admit both the actual outcome and the foregone alternative
 outcome. The preference comparison is then made between those outcomes.
-[`GuaranteedContextRegret`](../Praxeology/Action.lean#L1316) strengthens this by
+[`GuaranteedContextRegret`](../Praxeology/Action.lean#L1298) strengthens this by
 requiring a nonempty set of admitted alternative outcomes and requiring every
 such outcome to be preferred to the actual one. The theorem
-[`guaranteedContextRegret_implies_contextMatchedRegret`](../Praxeology/Action.lean#L1330)
+[`guaranteedContextRegret_implies_contextMatchedRegret`](../Praxeology/Action.lean#L1312)
 derives the weaker existential comparison from the guaranteed one.
 
 The context correspondence and its admissibility relation are substantive
@@ -31,7 +31,7 @@ themselves, prove that a causal context has been held fixed.
 
 ## 2. Entrepreneurial regret from blocked completion
 
-[`ContextualCycleEvaluation.regret`](../Praxeology/Entrepreneurship.lean#L451)
+[`ContextualCycleEvaluation.regret`](../Praxeology/Entrepreneurship.lean#L449)
 derives matched regret from an explicit safe alternative, a shared-context
 certificate, admissibility certificates for the actual and safe outcomes,
 physical grounding of outcomes in endowments, and a teleological dominance

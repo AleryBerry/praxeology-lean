@@ -139,8 +139,7 @@ theorem ground_viable_coalescence_critical_attenuation :
     externalPositive := by decide
   }
   exact viable_coalescence_critical_attenuation_window 4 2 2 10 16 2 2 10 3
-    (by decide) (by decide) (by decide) (by decide) (by decide)
-    (by decide) (by decide) geometry
+    (by decide) (by decide) (by decide) (by decide) (by decide) geometry
 
 /-- Ground instantiation of Theorem 9.6: Macro-aggregate regime non-identifiability witness. -/
 theorem ground_abct_regime_non_identifiability_witness :
@@ -243,10 +242,12 @@ theorem ground_bohm_bawerk_roundabout_necessity
       @Preference FiniteBranchingModel i t h e1 e3) :
     q_direct < q_roundabout ∧
     (∃ δ_cap : ℕ, δ_cap ≥ 1 ∧ q_roundabout = q_direct + δ_cap) :=
-  purposeful_positive_originary_interest (W := FiniteBranchingModel)
-    i t h m q_direct q_roundabout hq τ_direct τ_later h_pos_tp
-    α_direct α_roundabout h_direct_feas h_direct_end h_round_end
-    h_round_purp h_sync_mono h_trans
+  by
+    have h_interest := purposeful_positive_originary_interest (W := FiniteBranchingModel)
+      i t h m q_direct q_roundabout hq τ_direct τ_later h_pos_tp
+      α_direct α_roundabout h_direct_feas h_direct_end h_round_end
+      h_round_purp h_sync_mono h_trans
+    exact ⟨h_interest.1, h_interest.2.2⟩
 
 /-- Ground instantiation of Theorem 9.1: Master non-identifiability principle. -/
 theorem ground_non_identifiability_of_divergent_models
@@ -512,13 +513,14 @@ theorem ground_calhoun_action_frame_class_partition
     (deadweight_loss : ℕ)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h)
     (h_nontrade : ∀ a ∈ Cohort, ¬ W.IsTradeAction (W.enacted a t h))
+    (h_uninvaded : ∀ a ∈ Cohort, ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) a)
     (h_transfer_balance : (∑ a ∈ Cohort, W.yield_means (W.enacted a t h) m) + deadweight_loss =
       ∑ a ∈ Cohort, W.use_means (W.enacted a t h) m)
     (s : W.Agent) (hs_mem : s ∈ Cohort)
     (hs_gain : W.omega s t h m < W.omega s t' h m) :
     ∃ b : W.Agent, b ∈ Cohort ∧ W.omega b t' h m < W.omega b t h m :=
   calhoun_action_frame_class_partition Cohort t t' h m deadweight_loss
-    h_next h_nontrade h_transfer_balance s hs_mem hs_gain
+    h_next h_nontrade h_uninvaded h_transfer_balance s hs_mem hs_gain
 
 /-- Ground instantiation of Theorem 11.2'': Calhoun partition in multi-moment inventory runs. -/
 theorem ground_calhoun_action_frame_run_class_partition
@@ -572,11 +574,13 @@ theorem ground_lockean_homesteading_non_invasive
     (h_home : IsLockeanHomesteading α m)
     (h_exec_i : W.enacted i t h = α)
     (h_passive_j : W.enacted j t h = W.alpha_zero)
+    (h_uninvaded_i : ∀ k, ¬ W.IsInvasiveOn (W.enacted k t h) i)
+    (h_uninvaded_j : ∀ k, ¬ W.IsInvasiveOn (W.enacted k t h) j)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
     W.omega i t h m < W.omega i t' h m ∧
     (∀ m', W.omega j t' h m' = W.omega j t h m') ∧
     ResourceMenuPreserved j t t' h :=
-  lockean_homesteading_non_invasive h_home h_exec_i h_passive_j h_next
+  lockean_homesteading_non_invasive h_home h_exec_i h_passive_j h_uninvaded_i h_uninvaded_j h_next
 
 /-- Ground instantiation of simultaneous contemplation on unowned external resources:
 Contemplated actions requiring unowned resources are already infeasible at t;
@@ -589,6 +593,8 @@ theorem ground_unowned_resource_contemplation_not_feasible
     (h_home : IsLockeanHomesteading α m)
     (h_exec_i : W.enacted i t h = α)
     (h_passive_j : W.enacted j t h = W.alpha_zero)
+    (h_uninvaded_i : ∀ k, ¬ W.IsInvasiveOn (W.enacted k t h) i)
+    (h_uninvaded_j : ∀ k, ¬ W.IsInvasiveOn (W.enacted k t h) j)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
     β ∉ W.A_feas j t h ∧
     W.omega i t h m < W.omega i t' h m ∧
@@ -596,11 +602,15 @@ theorem ground_unowned_resource_contemplation_not_feasible
     ResourceMenuPreserved j t t' h ∧
     ∀ γ, ¬ FeasibleMenuStripped j t t' h γ :=
   unowned_resource_contemplation_not_feasible_and_first_appropriation_non_invasive
-    h_unowned_j h_req_β h_home h_exec_i h_passive_j h_next
+    h_unowned_j h_req_β h_home h_exec_i h_passive_j h_uninvaded_i h_uninvaded_j h_next
 
 /-- Ground instantiation of the Thief-and-Baker path-dependent title trace:
 Baker recovering stolen flour from thief is restitution, preserving clean title,
 hence is NOT a path-dependent invasion despite contracting thief's physical stock. -/
+theorem ground_theft_and_restitution_conclusion
+    [W : ActionFrame] (T : TheftAndRestitutionTrace) : TheftAndRestitutionConclusion T :=
+  theft_and_restitution_conclusion T
+
 theorem ground_baker_recovery_not_path_dependent_invasion
     [W : ActionFrame]
     (baker thief : W.Agent) (flour : W.Means) (q : ℕ)
@@ -613,6 +623,8 @@ theorem ground_baker_recovery_not_path_dependent_invasion
     (α_loss α_gain : W.Action)
     (h_not_tr_loss : ¬ W.IsTradeAction α_loss)
     (h_not_tr_gain : ¬ W.IsTradeAction α_gain)
+    (h_uninv_loss : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t0 h) baker)
+    (h_uninv_gain : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t0 h) thief)
     (h_loss_u : W.use_means α_loss flour = q)
     (h_loss_y : W.yield_means α_loss flour = 0)
     (h_gain_u : W.use_means α_gain flour = 0)
@@ -623,6 +635,8 @@ theorem ground_baker_recovery_not_path_dependent_invasion
     (α_surrender α_recov : W.Action)
     (h_not_tr_surr : ¬ W.IsTradeAction α_surrender)
     (h_not_tr_rec : ¬ W.IsTradeAction α_recov)
+    (h_uninv_surr : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t1 h) thief)
+    (h_uninv_rec : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t1 h) baker)
     (h_surr_u : W.use_means α_surrender flour = q)
     (h_surr_y : W.yield_means α_surrender flour = 0)
     (h_rec_u : W.use_means α_recov flour = 0)
@@ -635,8 +649,10 @@ theorem ground_baker_recovery_not_path_dependent_invasion
     W.omega baker t2 h flour = title baker flour :=
   baker_recovery_restitution_not_path_dependent_invasion
     baker thief flour q h_ne t0 t1 t2 h title h_clean0 h_avail0
-    h_next01 α_loss α_gain h_not_tr_loss h_not_tr_gain h_loss_u h_loss_y h_gain_u h_gain_y
+    h_next01 α_loss α_gain h_not_tr_loss h_not_tr_gain h_uninv_loss h_uninv_gain
+    h_loss_u h_loss_y h_gain_u h_gain_y
     h_enact_loss0 h_enact_gain0 h_next12 α_surrender α_recov h_not_tr_surr h_not_tr_rec
+    h_uninv_surr h_uninv_rec
     h_surr_u h_surr_y h_rec_u h_rec_y h_enact_surr1 h_enact_rec1
 
 /-- Ground instantiation of targeted complementary factor sabotage:
@@ -662,9 +678,10 @@ theorem ground_unpaid_maturity_borrower_menu_preserved
     (D : UnpaidMaturity A)
     (t_post : W.Moment)
     (h_succ : IsNextMoment W.Precedence W.mem_hist T.maturity t_post A.history)
+    (h_borrower_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j T.maturity A.history) T.borrower)
     (h_borrower_idle : W.enacted T.borrower T.maturity A.history = W.alpha_zero) :
     ResourceMenuPreserved T.borrower T.maturity t_post A.history :=
-  D.borrower_resource_menu_preserved t_post h_succ h_borrower_idle
+  D.borrower_resource_menu_preserved t_post h_succ h_borrower_uninvaded h_borrower_idle
 
 /-- Ground instantiation of state extraction vs clean title:
 In a cohort where initial possession equals clean title, any state beneficiary
@@ -686,13 +703,15 @@ theorem ground_purposeful_lockean_homesteading_non_invasive
     {α : W.Action} {m : W.Means}
     (h_home : PurposefulLockeanHomesteading i t h α m)
     (h_passive_j : W.enacted j t h = W.alpha_zero)
+    (h_uninvaded_i : ∀ k, ¬ W.IsInvasiveOn (W.enacted k t h) i)
+    (h_uninvaded_j : ∀ k, ¬ W.IsInvasiveOn (W.enacted k t h) j)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
     W.Preference i t h (W.End_of i α t h) (W.End_of i W.alpha_zero t h) ∧
     W.omega i t h m < W.omega i t' h m ∧
     (∀ m', W.omega j t' h m' = W.omega j t h m') ∧
     ResourceMenuPreserved j t t' h ∧
     ∀ γ, ¬ FeasibleMenuStripped j t t' h γ :=
-  purposeful_lockean_homesteading_non_invasive h_home h_passive_j h_next
+  purposeful_lockean_homesteading_non_invasive h_home h_passive_j h_uninvaded_i h_uninvaded_j h_next
 
 /-- Ground instantiation of the Action-Axiom equivalence between endogenous invasion
 and feasible-menu stripping under tight-action richness. -/
@@ -709,16 +728,18 @@ Invading j against i contracts clean-title stock and strips tight actions from i
 theorem ground_actionFrame_invasion_strips_feasible_menu
     [W : ActionFrame]
     (i j : W.Agent) (t t' : W.Moment) (h : W.History)
-    (title_i : W.Means → ℕ) (α_j : W.Action) (m_inv : W.Means) (β : W.Action)
+    (title : W.Agent → W.Means → ℕ) (α_j : W.Action) (m_inv : W.Means) (β : W.Action)
     (ht : W.mem_hist t h)
     (ht_branch : W.mem_hist t (jointBranch i j t h W.alpha_zero α_j))
-    (h_clean : title_i m_inv ≤ W.omega i t h m_inv)
-    (h_contract : W.omega i t' (jointBranch i j t h W.alpha_zero α_j) m_inv < title_i m_inv)
+    (h_clean : ∀ m, title i m ≤ W.omega i t h m)
+    (h_contract : W.omega i t' (jointBranch i j t h W.alpha_zero α_j) m_inv < title i m_inv)
     (h_feas : β ∈ W.A_feas i t h)
     (h_cont : β ∈ W.A_cont i t' (jointBranch i j t h W.alpha_zero α_j))
-    (h_tight : W.use_means β m_inv = title_i m_inv) :
-    FeasibleMenuStripped i t t' (jointBranch i j t h W.alpha_zero α_j) β :=
-  actionFrame_invasion_strips_menu_of_history i j t t' h title_i α_j m_inv β
+    (h_tight : W.use_means β m_inv = title i m_inv) :
+    FeasibleMenuStripped i t t' (jointBranch i j t h W.alpha_zero α_j) β ∧
+    IsPathDependentTitleInvasion title i t t'
+      (jointBranch i j t h W.alpha_zero α_j) m_inv :=
+  actionFrame_invasion_strips_menu_of_history i j t t' h title α_j m_inv β
     ht ht_branch h_clean h_contract h_feas h_cont h_tight
 
 /-- Ground instantiation of Catallactic Bottleneck Pre-Emption:
@@ -731,6 +752,7 @@ theorem ground_catallactic_bottleneck_preemption_preserves_menu_but_blocks_compl
     (i : W.Agent) (t t' : W.Moment) (h : W.History)
     (completion : W.Action) (complementary : W.Means)
     (h_passive_i : W.enacted i t h = W.alpha_zero)
+    (h_uninvaded_i : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) i)
     (h_starve_i : W.omega i t h complementary = 0)
     (h_req : 0 < W.use_means completion complementary)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
@@ -740,7 +762,7 @@ theorem ground_catallactic_bottleneck_preemption_preserves_menu_but_blocks_compl
     W.omega i t' h complementary = 0 ∧
     BlockedCompletion i t' h completion :=
   catallactic_bottleneck_preemption_preserves_menu_but_blocks_completion
-    i t t' h completion complementary h_passive_i h_starve_i h_req h_next
+    i t t' h completion complementary h_passive_i h_uninvaded_i h_starve_i h_req h_next
 
 /-- Ground instantiation of Catallactic Bottleneck Pre-Emption Cycle Regret:
 Derives the complete entrepreneurial cycle conclusion under factor starvation. -/
@@ -793,15 +815,17 @@ propagates a settlement freeze and strips feasible spot-trade actions downstream
 even though aggregate media is 100% conserved across the economy. -/
 theorem ground_network_liquidity_freeze_cascade
     [W : ActionFrame] [BilateralExchangeFrame W]
-    (sellerA intermediaryB borrowerC : W.Agent)
+    (sellerA intermediaryB : W.Agent)
     (issuer : W.Agent)
     (t t' : W.Moment) (h : W.History)
     (T_BC : PawnLoanTerms W) (A_BC : CreditAdvance T_BC)
     (h_lender : T_BC.lender = intermediaryB)
-    (h_borrower : T_BC.borrower = borrowerC)
+    (h_uninv_idle : ∀ a, a ≠ T_BC.lender → a ≠ T_BC.borrower →
+      ∀ j, ¬ W.IsInvasiveOn (W.enacted j A_BC.moment A_BC.history) a)
     (h_idle : ∀ a, a ≠ T_BC.lender → a ≠ T_BC.borrower →
       W.enacted a A_BC.moment A_BC.history = W.alpha_zero)
     (h_succ : IsNextMoment W.Precedence W.mem_hist t t' h)
+    (h_uninv_B : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) intermediaryB)
     (qA : ℕ) (mA : W.Means) (price : ℕ)
     (h_short : W.omega intermediaryB t h T_BC.money < price)
     (h_freeze : W.enacted intermediaryB t h = W.alpha_zero) :
@@ -817,8 +841,9 @@ theorem ground_network_liquidity_freeze_cascade
     W.Accept intermediaryB sellerA qA mA price T_BC.money ∉ W.A_feas intermediaryB t' h ∧
     ¬ @PurposefulAct W intermediaryB t' h
       (W.Accept intermediaryB sellerA qA mA price T_BC.money) :=
-  network_liquidity_freeze_cascade sellerA intermediaryB borrowerC issuer
-    t t' h T_BC A_BC h_lender h_borrower h_idle h_succ qA mA price h_short h_freeze
+  network_liquidity_freeze_cascade sellerA intermediaryB issuer
+    t t' h T_BC A_BC h_lender h_uninv_idle h_idle h_succ h_uninv_B
+    qA mA price h_short h_freeze
 
 /-- Ground instantiation of Compositionally Self-Falsifying Cohort Forecasts:
 A cohort of entrepreneurs facing shared factor demand simultaneously experience
@@ -857,6 +882,8 @@ theorem ground_lockean_proviso_abundant_alternative_remains_feasible
     (h_homestead_i : IsLockeanHomesteading α m)
     (h_exec_i : W.enacted i t h = α)
     (h_passive_j : W.enacted j t h = W.alpha_zero)
+    (h_uninvaded_i : ∀ k, ¬ W.IsInvasiveOn (W.enacted k t h) i)
+    (h_uninvaded_j : ∀ k, ¬ W.IsInvasiveOn (W.enacted k t h) j)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
     β ∈ W.A_feas j t h ∧
     β ∈ W.A_feas j t' h ∧
@@ -864,7 +891,8 @@ theorem ground_lockean_proviso_abundant_alternative_remains_feasible
     StockPreserved j t t' h ∧
     ResourceMenuPreserved j t t' h :=
   lockean_proviso_abundant_alternative_remains_feasible
-    h_home_j h_cont_t h_cont_t' h_homestead_i h_exec_i h_passive_j h_next
+    h_home_j h_cont_t h_cont_t' h_homestead_i h_exec_i h_passive_j
+    h_uninvaded_i h_uninvaded_j h_next
 
 /-- Ground instantiation of sole resource appropriation:
 When an unappropriated resource `m` is unowned by bystander `j`, actions requiring `m` were
@@ -877,6 +905,8 @@ theorem ground_sole_resource_appropriation_preserves_feasible_menu
     (h_homestead_i : IsLockeanHomesteading α m)
     (h_exec_i : W.enacted i t h = α)
     (h_passive_j : W.enacted j t h = W.alpha_zero)
+    (h_uninvaded_i : ∀ k, ¬ W.IsInvasiveOn (W.enacted k t h) i)
+    (h_uninvaded_j : ∀ k, ¬ W.IsInvasiveOn (W.enacted k t h) j)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
     γ ∉ W.A_feas j t h ∧
     W.omega i t h m < W.omega i t' h m ∧
@@ -884,7 +914,8 @@ theorem ground_sole_resource_appropriation_preserves_feasible_menu
     ResourceMenuPreserved j t t' h ∧
     (∀ β, ¬ FeasibleMenuStripped j t t' h β) :=
   sole_resource_appropriation_preserves_feasible_menu
-    h_unowned_j h_req_γ h_homestead_i h_exec_i h_passive_j h_next
+    h_unowned_j h_req_γ h_homestead_i h_exec_i h_passive_j
+    h_uninvaded_i h_uninvaded_j h_next
 
 /-- Ground instantiation of invasion precluding respondent gain:
 When `j`'s invasive action physically contracts `i`'s stock of means `m` below the requirement

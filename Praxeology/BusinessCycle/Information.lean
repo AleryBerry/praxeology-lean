@@ -54,22 +54,6 @@ def ActionFrame.marketSignalKnowledge (W : ActionFrame)
   symm := by intro _ _ _ h; exact h.symm
   trans := by intro _ _ _ _ h₁ h₂; exact h₁.trans h₂
 
-theorem ActionFrame.same_market_signal_indistinguishable
-    (W : ActionFrame)
-    (read : W.Agent → W.DecisionIndex → CatallacticMarketSignal W.Means)
-    (i : W.Agent) (x y : W.DecisionIndex)
-    (h : read i x = read i y) :
-    (W.marketSignalKnowledge read).indistinguishable i x y := h
-
-/-- Different Catallactics readings distinguish two ActionFrame decision
-nodes under the signal-based knowledge relation. -/
-theorem ActionFrame.different_market_signals_distinguishable
-    (W : ActionFrame)
-    (read : W.Agent → W.DecisionIndex → CatallacticMarketSignal W.Means)
-    (i : W.Agent) (x y : W.DecisionIndex)
-    (h : read i x ≠ read i y) :
-    ¬ (W.marketSignalKnowledge read).indistinguishable i x y := h
-
 /-- Regime knowledge derived directly from an ActionFrame-indexed
 Catallactics signal reader. The regime label is not itself observable. -/
 def ActionFrame.creditRegimeKnowledge (W : ActionFrame)

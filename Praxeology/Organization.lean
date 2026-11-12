@@ -194,6 +194,7 @@ structure DelegationCompensationEvidence {W : ActionFrame} [BilateralExchangeFra
   work_to_transfer_is_next : IsNextMoment W.Precedence W.mem_hist
     X.workMoment transferMoment P.history
   task_enacted : W.enacted P.operator X.workMoment P.history = X.task
+  task_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j X.workMoment P.history) P.operator
   task_is_physical_production : ¬ W.IsTradeAction X.task
   recipe_goods_distinct : rawMaterial ≠ deliveredGood ∧ operatorCapacity ≠ deliveredGood ∧
     rawMaterial ≠ operatorCapacity
@@ -224,7 +225,7 @@ theorem DelegationCompensationEvidence.delivered_stock_from_task
     (E : DelegationCompensationEvidence P X) :
     E.deliveredQuantity ≤ W.omega P.operator E.transferMoment P.history E.deliveredGood := by
   have hbalance := W.law_in_re_transition P.operator X.workMoment E.transferMoment P.history
-    X.task E.deliveredGood E.task_is_physical_production E.task_enacted
+    X.task E.deliveredGood E.task_is_physical_production E.task_uninvaded E.task_enacted
     E.work_to_transfer_is_next
   rw [E.task_does_not_consume_delivered_good, E.no_opening_delivery_stock,
     Nat.add_zero, Nat.zero_add] at hbalance
@@ -861,14 +862,6 @@ theorem OrganizationNetwork.boundary_witness_exchange {W : ActionFrame}
       (O.market_evidence h).qA (O.market_evidence h).mA
       (O.market_evidence h).qB (O.market_evidence h).mB :=
   (O.market_evidence h).exchange
-
-/-- The interface terms satisfy `freshlyBargained`. -/
-theorem FreshlyBargainedInterface.boundary_witness_has_fresh_terms {W : ActionFrame}
-    [BilateralExchangeFrame W]
-    {V : DelegationVocabulary W} {M : MarketBargainingMeaning W}
-    {E : IndependentMarketInterface V M} (F : FreshlyBargainedInterface E) :
-    M.freshlyBargained E.seller E.buyer E.moment E.history E.qA E.mA E.qB E.mB :=
-  F.terms_freshly_bargained
 
 /-- An internal edge has purposeful assignment, acceptance, and task actions. -/
 theorem OrganizationNetwork.internal_edge_has_purposeful_direction {W : ActionFrame}

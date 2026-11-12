@@ -857,7 +857,7 @@ constructor, not an implication of physical feasibility. -/
       | _ => False
     alpha_zero_not_trade := by intro h; cases h
     law_in_re_transition := by
-      intro i t t' h action m hnot haction hnext
+      intro i t t' h action m hnot _huninv haction hnext
       have hbalance := program.transitionBalance operations hstable t t' h hnext i m
       cases action with
       | idle =>

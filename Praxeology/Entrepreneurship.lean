@@ -149,7 +149,6 @@ theorem purposeful_investment_of_funding_and_appraisal
     (i : W.Agent) (x : W.DecisionIndex)
     (investment : W.Action) (grossRate : ℚ)
     (funding : EntrepreneurialCreditFunding i x grossRate)
-    (_h_investment_active : investment ≠ W.alpha_zero)
     (h_pref : W.Preference i x.moment x.history
       (W.End_of i investment x.moment x.history)
       (W.End_of i W.alpha_zero x.moment x.history))
@@ -529,10 +528,6 @@ structure EntrepreneurialCycleConclusion {W : ActionFrame} [BilateralExchangeFra
     {Context : Type} (S : EntrepreneurialCycleScenario W Context) : Prop where
   capitalStockAfter : W.omega S.investment.i S.investment.next
     S.investment.x.history S.investment.capital = 1
-  completionBlocked : S.investment.completion ∉ W.A_feas S.investment.i
-    S.investment.next S.investment.x.history
-  purposefulInvestment : PurposefulAct S.investment.i S.investment.x.moment
-    S.investment.x.history S.investment.investment
   contextualRegret : ContextMatchedRegret S.evaluation.correspondence
     S.investment.i S.investment.x S.investment.actualMaturity
     S.investment.investment S.investment.safeAction
@@ -557,11 +552,9 @@ theorem EntrepreneurialCycleScenario.regret_of_blocked_completion
     S.evaluation.contextCompatible S.evaluation.actualAdmitted
     S.evaluation.safeAdmitted S.evaluation.physicalOutcomes
     S.evaluation.safeBundleDominates
-  rcases hcore with ⟨h_capital, _, h_blocked, h_choice, h_regret⟩
+  rcases hcore with ⟨h_capital, _, _h_blocked, _h_choice, h_regret⟩
   exact {
     capitalStockAfter := h_capital
-    completionBlocked := h_blocked
-    purposefulInvestment := h_choice
     contextualRegret := h_regret }
 
 /-- Starvation supplies the common blocked-completion certificate. -/
@@ -698,6 +691,7 @@ theorem catallactic_bottleneck_preemption_preserves_menu_but_blocks_completion
     (i : W.Agent) (t t' : W.Moment) (h : W.History)
     (completion : W.Action) (complementary : W.Means)
     (h_passive_i : W.enacted i t h = W.alpha_zero)
+    (h_uninvaded_i : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) i)
     (h_starve_i : W.omega i t h complementary = 0)
     (h_req : 0 < W.use_means completion complementary)
     (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
@@ -706,7 +700,7 @@ theorem catallactic_bottleneck_preemption_preserves_menu_but_blocks_completion
     (∀ γ, ¬ FeasibleMenuStripped i t t' h γ) ∧
     W.omega i t' h complementary = 0 ∧
     BlockedCompletion i t' h completion := by
-  have h_stock_i := W.inaction_preserves_endowments i t t' h h_passive_i h_next
+  have h_stock_i := W.inaction_preserves_endowments i t t' h h_passive_i h_uninvaded_i h_next
   have h_pres_i : StockPreserved i t t' h := by
     intro m
     have h_eq := h_stock_i m

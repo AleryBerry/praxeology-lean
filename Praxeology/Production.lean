@@ -41,6 +41,7 @@ inductive InventoryStep (W : ActionFrame) [BilateralExchangeFrame W] (i : W.Agen
   | production {t t'} (α : W.Action)
       (h_exec : W.enacted i t h = α)
       (h_nontrade : ¬ W.IsTradeAction α)
+      (h_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) i)
       (h_next : IsNextMoment W.Precedence W.mem_hist t t' h) :
       InventoryStep W i h t t'
   | matchedOffer {t t'} (j : W.Agent) (qA : ℕ) (mA : W.Means) (qB : ℕ) (mB : W.Means)
@@ -71,7 +72,7 @@ def InventoryStep.action {W : ActionFrame} [BilateralExchangeFrame W]
     {i : W.Agent} {h : W.History} {t t' : W.Moment}
     (s : InventoryStep W i h t t') : W.Action :=
   match s with
-  | .production α _ _ _ => α
+  | .production α _ _ _ _ => α
   | .matchedOffer j qA mA qB mB _ _ _ _ => W.Offer i j qA mA qB mB
   | .matchedAccept j qA mA qB mB _ _ _ _ => W.Accept i j qA mA qB mB
   | .unmatchedOffer j qA mA qB mB _ _ _ => W.Offer i j qA mA qB mB
@@ -82,7 +83,7 @@ def InventoryStep.effectiveUse {W : ActionFrame} [BilateralExchangeFrame W]
     {i : W.Agent} {h : W.History} {t t' : W.Moment}
     (s : InventoryStep W i h t t') (m : W.Means) : ℕ :=
   match s with
-  | .production α _ _ _ => W.use_means α m
+  | .production α _ _ _ _ => W.use_means α m
   | .matchedOffer _ _ _ _ _ _ _ _ _ => W.use_means s.action m
   | .matchedAccept _ _ _ _ _ _ _ _ _ => W.use_means s.action m
   | .unmatchedOffer _ _ _ _ _ _ _ _ => 0
@@ -93,7 +94,7 @@ def InventoryStep.effectiveYield {W : ActionFrame} [BilateralExchangeFrame W]
     {i : W.Agent} {h : W.History} {t t' : W.Moment}
     (s : InventoryStep W i h t t') (m : W.Means) : ℕ :=
   match s with
-  | .production α _ _ _ => W.yield_means α m
+  | .production α _ _ _ _ => W.yield_means α m
   | .matchedOffer _ _ _ _ _ _ _ _ _ => W.yield_means s.action m
   | .matchedAccept _ _ _ _ _ _ _ _ _ => W.yield_means s.action m
   | .unmatchedOffer _ _ _ _ _ _ _ _ => 0
@@ -104,7 +105,7 @@ def InventoryStep.productionYield {W : ActionFrame} [BilateralExchangeFrame W]
     {i : W.Agent} {h : W.History} {t t' : W.Moment}
     (s : InventoryStep W i h t t') (m : W.Means) : ℕ :=
   match s with
-  | .production α _ _ _ => W.yield_means α m
+  | .production α _ _ _ _ => W.yield_means α m
   | .matchedOffer _ _ _ _ _ _ _ _ _ => 0
   | .matchedAccept _ _ _ _ _ _ _ _ _ => 0
   | .unmatchedOffer _ _ _ _ _ _ _ _ => 0
@@ -115,7 +116,7 @@ def InventoryStep.tradeYield {W : ActionFrame} [BilateralExchangeFrame W]
     {i : W.Agent} {h : W.History} {t t' : W.Moment}
     (s : InventoryStep W i h t t') (m : W.Means) : ℕ :=
   match s with
-  | .production _ _ _ _ => 0
+  | .production _ _ _ _ _ => 0
   | .matchedOffer _ _ _ _ _ _ _ _ _ => W.yield_means s.action m
   | .matchedAccept _ _ _ _ _ _ _ _ _ => W.yield_means s.action m
   | .unmatchedOffer _ _ _ _ _ _ _ _ => 0
@@ -237,7 +238,7 @@ def InventoryStep.IsProductionAt {W : ActionFrame} [BilateralExchangeFrame W]
     {t t' : W.Moment} (step : InventoryStep W i h t t')
     (moment : W.Moment) (action : W.Action) : Prop :=
   match step with
-  | .production α _ _ _ => t = moment ∧ α = action
+  | .production α _ _ _ _ => t = moment ∧ α = action
   | _ => False
 
 
@@ -349,20 +350,19 @@ theorem InventoryRun.inventory_balance {i : Agent} {h : History}
       have hstep : W.omega i v h m + head.effectiveUse m =
           W.omega i t h m + head.effectiveYield m := by
         cases head with
-        | production α h_exec h_nontrade h_next =>
-            exact W.law_in_re_transition i t v h α m h_nontrade h_exec h_next
+        | production α h_exec h_nontrade h_uninvaded h_next =>
+            dsimp [InventoryStep.effectiveUse, InventoryStep.effectiveYield]
+            exact W.law_in_re_transition i t v h α m h_nontrade h_uninvaded h_exec h_next
         | matchedOffer j qA mA qB mB h_agents h_offer h_accept h_next =>
             have htransfer := (W.bilateral_transfer_law i j qA mA qB mB t v h m
               h_agents h_offer h_accept h_next).1
-            change W.omega i v h m + W.use_means (W.Offer i j qA mA qB mB) m =
-              W.omega i t h m + W.yield_means (W.Offer i j qA mA qB mB) m
+            dsimp [InventoryStep.effectiveUse, InventoryStep.effectiveYield, InventoryStep.action]
             rw [W.use_means_offer, W.yield_means_offer]
             exact htransfer
         | matchedAccept j qA mA qB mB h_agents h_accept h_offer h_next =>
             have htransfer := (W.bilateral_transfer_law j i qA mA qB mB t v h m
               h_agents h_offer h_accept h_next).2
-            change W.omega i v h m + W.use_means (W.Accept i j qA mA qB mB) m =
-              W.omega i t h m + W.yield_means (W.Accept i j qA mA qB mB) m
+            dsimp [InventoryStep.effectiveUse, InventoryStep.effectiveYield, InventoryStep.action]
             rw [W.use_means_accept, W.yield_means_accept]
             exact htransfer
         | unmatchedOffer j qA mA qB mB h_offer h_not_accept h_next =>
@@ -490,7 +490,6 @@ structure VeridicalInventoryProjection (W : ActionFrame) (i : W.Agent)
 actual history agrees with the physical inventory at the action-selected continuation. -/
 theorem projectedStock_eq_actual_stock_of_veridical
     {i : W.Agent} {α : W.Action} {t : W.Moment} {h : W.History}
-    (_V : VeridicalInventoryProjection W i t h)
     (ht : W.tau i t h = t) :
     projectedStock W i α t h =
       fun m => W.omega i (W.ExpectedMaturation i α t (W.sigma i t α h))
@@ -557,32 +556,37 @@ theorem stockContractedAt_strips_tight_action
   dsimp [StockContractedAt, use_means, omega] at *
   omega
 
-/-- A pure Lockean homesteading action for means `m` uses zero units of any means
-and yields a positive quantity of `m`. -/
+/-- A pure Lockean homesteading action for means `m` uses zero units of any means,
+yields a positive quantity of `m`, and is not invasive on any agent. -/
 def IsLockeanHomesteading (α : Action) (m : Means) : Prop :=
-  ¬ W.IsTradeAction α ∧ (∀ m', use_means α m' = 0) ∧ 0 < yield_means α m
+  ¬ W.IsTradeAction α ∧ (∀ m', use_means α m' = 0) ∧ 0 < yield_means α m ∧
+  (∀ k, ¬ W.IsInvasiveOn α k)
 
 /-- A purposeful Lockean homesteading action is an enacted purposeful action
-that is non-trade, uses zero units of any means, and yields a positive quantity of `m`. -/
+that is non-trade, uses zero units of any means, yields a positive quantity of `m`,
+and is non-invasive on any agent. -/
 def PurposefulLockeanHomesteading (i : Agent) (t : Moment) (h : History)
     (α : Action) (m : Means) : Prop :=
   PurposefulAct i t h α ∧ IsLockeanHomesteading α m
 
 /-- Lockean homesteading by `i` strictly increases `i`'s stock of `m` while leaving
-every passive bystander `j`'s stock and resource-feasible menu completely intact. -/
+every passive bystander `j`'s stock and resource-feasible menu completely intact,
+provided both agents remain uninvaded by third parties. -/
 theorem lockean_homesteading_non_invasive
     {i j : Agent} {t t' : Moment} {h : History} {α : Action} {m : Means}
     (h_homestead : IsLockeanHomesteading α m)
     (h_exec_i : enacted i t h = α)
     (h_passive_j : enacted j t h = α₀)
+    (h_uninvaded_i : ∀ k, ¬ W.IsInvasiveOn (enacted k t h) i)
+    (h_uninvaded_j : ∀ k, ¬ W.IsInvasiveOn (enacted k t h) j)
     (h_next : IsNextMoment Precedence W.mem_hist t t' h) :
     omega i t h m < omega i t' h m ∧
     (∀ m', omega j t' h m' = omega j t h m') ∧
     ResourceMenuPreserved j t t' h := by
   have h_prod_i := W.pure_production_yield_only i t t' h α m
-    h_homestead.1 (h_homestead.2.1 m) h_exec_i h_next
-  have h_y : 0 < W.yield_means α m := h_homestead.2.2
-  have h_stock_j := W.inaction_preserves_endowments j t t' h h_passive_j h_next
+    h_homestead.1 h_uninvaded_i (h_homestead.2.1 m) h_exec_i h_next
+  have h_y : 0 < W.yield_means α m := h_homestead.2.2.1
+  have h_stock_j := W.inaction_preserves_endowments j t t' h h_passive_j h_uninvaded_j h_next
   have h_strict_i : omega i t h m < omega i t' h m := by
     dsimp [omega] at *
     omega
@@ -599,6 +603,8 @@ theorem purposeful_lockean_homesteading_non_invasive
     {i j : Agent} {t t' : Moment} {h : History} {α : Action} {m : Means}
     (h_home : PurposefulLockeanHomesteading i t h α m)
     (h_passive_j : enacted j t h = α₀)
+    (h_uninvaded_i : ∀ k, ¬ W.IsInvasiveOn (enacted k t h) i)
+    (h_uninvaded_j : ∀ k, ¬ W.IsInvasiveOn (enacted k t h) j)
     (h_next : IsNextMoment Precedence W.mem_hist t t' h) :
     Preference i t h (End_of i α t h) (End_of i α₀ t h) ∧
     omega i t h m < omega i t' h m ∧
@@ -610,7 +616,7 @@ theorem purposeful_lockean_homesteading_non_invasive
   have h_ne_a0 : α ≠ α₀ := by
     rintro rfl
     have h_y0 := W.yield_means_alpha_zero m
-    have h_pos := h_homestead.2.2
+    have h_pos := h_homestead.2.2.1
     dsimp [yield_means] at h_pos
     rw [h_y0] at h_pos
     exact Nat.lt_irrefl 0 h_pos
@@ -619,7 +625,8 @@ theorem purposeful_lockean_homesteading_non_invasive
     · contradiction
     · exact h_p
   obtain ⟨h_gain_i, h_stock_j, h_menu_j⟩ :=
-    lockean_homesteading_non_invasive h_homestead h_exec_i h_passive_j h_next
+    lockean_homesteading_non_invasive h_homestead h_exec_i h_passive_j
+      h_uninvaded_i h_uninvaded_j h_next
   have h_pres_j : StockPreserved j t t' h := fun m' => by rw [h_stock_j m']
   refine ⟨h_pref, h_gain_i, h_stock_j, h_menu_j, ?_⟩
   intro γ
@@ -637,6 +644,8 @@ theorem unowned_resource_contemplation_not_feasible_and_first_appropriation_non_
     (h_homestead_i : IsLockeanHomesteading α m)
     (h_exec_i : enacted i t h = α)
     (h_passive_j : enacted j t h = α₀)
+    (h_uninvaded_i : ∀ k, ¬ W.IsInvasiveOn (enacted k t h) i)
+    (h_uninvaded_j : ∀ k, ¬ W.IsInvasiveOn (enacted k t h) j)
     (h_next : IsNextMoment Precedence W.mem_hist t t' h) :
     β ∉ A_feas j t h ∧
     omega i t h m < omega i t' h m ∧
@@ -649,7 +658,8 @@ theorem unowned_resource_contemplation_not_feasible_and_first_appropriation_non_
     dsimp [omega, use_means] at *
     omega
   obtain ⟨h_gain_i, h_stock_j, h_menu_j⟩ :=
-    lockean_homesteading_non_invasive h_homestead_i h_exec_i h_passive_j h_next
+    lockean_homesteading_non_invasive h_homestead_i h_exec_i h_passive_j
+      h_uninvaded_i h_uninvaded_j h_next
   have h_pres_j : StockPreserved j t t' h := fun m' => by rw [h_stock_j m']
   refine ⟨h_infeas_β, h_gain_i, h_pres_j, h_menu_j, ?_⟩
   intro γ
@@ -674,6 +684,8 @@ theorem lockean_proviso_abundant_alternative_remains_feasible
     (h_homestead_i : IsLockeanHomesteading α m)
     (h_exec_i : enacted i t h = α)
     (h_passive_j : enacted j t h = α₀)
+    (h_uninvaded_i : ∀ k, ¬ W.IsInvasiveOn (enacted k t h) i)
+    (h_uninvaded_j : ∀ k, ¬ W.IsInvasiveOn (enacted k t h) j)
     (h_next : IsNextMoment Precedence W.mem_hist t t' h) :
     β ∈ A_feas j t h ∧
     β ∈ A_feas j t' h ∧
@@ -685,7 +697,8 @@ theorem lockean_proviso_abundant_alternative_remains_feasible
     rw [W.A_feas_coupling]
     refine ⟨h_cont_t, fun m' => by rw [h_zero m']; exact Nat.zero_le _⟩
   obtain ⟨h_gain_i, h_stock_j, h_menu_j⟩ :=
-    lockean_homesteading_non_invasive h_homestead_i h_exec_i h_passive_j h_next
+    lockean_homesteading_non_invasive h_homestead_i h_exec_i h_passive_j
+      h_uninvaded_i h_uninvaded_j h_next
   have h_pres_j : StockPreserved j t t' h := fun m' => by rw [h_stock_j m']
   have h_feas_t' : β ∈ A_feas j t' h := by
     rw [W.A_feas_coupling]
@@ -703,6 +716,8 @@ theorem sole_resource_appropriation_preserves_feasible_menu
     (h_homestead_i : IsLockeanHomesteading α m)
     (h_exec_i : enacted i t h = α)
     (h_passive_j : enacted j t h = α₀)
+    (h_uninvaded_i : ∀ k, ¬ W.IsInvasiveOn (enacted k t h) i)
+    (h_uninvaded_j : ∀ k, ¬ W.IsInvasiveOn (enacted k t h) j)
     (h_next : IsNextMoment Precedence W.mem_hist t t' h) :
     γ ∉ A_feas j t h ∧
     omega i t h m < omega i t' h m ∧
@@ -715,7 +730,8 @@ theorem sole_resource_appropriation_preserves_feasible_menu
     dsimp [omega, use_means] at *
     omega
   obtain ⟨h_gain_i, h_stock_j, h_menu_j⟩ :=
-    lockean_homesteading_non_invasive h_homestead_i h_exec_i h_passive_j h_next
+    lockean_homesteading_non_invasive h_homestead_i h_exec_i h_passive_j
+      h_uninvaded_i h_uninvaded_j h_next
   have h_pres_j : StockPreserved j t t' h := fun m' => by rw [h_stock_j m']
   refine ⟨h_infeas_γ, h_gain_i, h_pres_j, h_menu_j, ?_⟩
   intro β
@@ -736,13 +752,128 @@ def IsPathDependentTitleInvasion (title : W.Agent → W.Means → ℕ)
     (a : W.Agent) (t t' : W.Moment) (h : W.History) (m : W.Means) : Prop :=
   W.omega a t' h m < title a m ∧ W.omega a t' h m < W.omega a t h m
 
+/-- A one-step non-trade paired transfer step where one agent's consumption
+matches another agent's production yield. -/
+structure NonTradeTransferStep (fromAgent toAgent : W.Agent)
+    (m : W.Means) (q : ℕ) (t t' : W.Moment) (h : W.History) where
+  α_loss : W.Action
+  α_gain : W.Action
+  not_tr_loss : ¬ W.IsTradeAction α_loss
+  not_tr_gain : ¬ W.IsTradeAction α_gain
+  loss_u : W.use_means α_loss m = q
+  loss_y : W.yield_means α_loss m = 0
+  gain_u : W.use_means α_gain m = 0
+  gain_y : W.yield_means α_gain m = q
+  enacted_loss : W.enacted fromAgent t h = α_loss
+  enacted_gain : W.enacted toAgent t h = α_gain
+  uninvaded_loss : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) fromAgent
+  uninvaded_gain : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) toAgent
+  next_moment : IsNextMoment W.Precedence W.mem_hist t t' h
+
+/-- The physical inventory deltas resulting from a verified non-trade transfer step. -/
+theorem NonTradeTransferStep.inventory_deltas
+    {fromAgent toAgent : W.Agent} {m : W.Means} {q : ℕ}
+    {t t' : W.Moment} {h : W.History}
+    (step : NonTradeTransferStep fromAgent toAgent m q t t' h) :
+    W.omega fromAgent t' h m = W.omega fromAgent t h m - q ∧
+    W.omega toAgent t' h m = W.omega toAgent t h m + q := by
+  have h_loss := W.pure_consumption_use_only fromAgent t t' h step.α_loss m
+    step.not_tr_loss step.uninvaded_loss step.loss_y step.enacted_loss step.next_moment
+  rw [step.loss_u] at h_loss
+  have h_gain := W.pure_production_yield_only toAgent t t' h step.α_gain m
+    step.not_tr_gain step.uninvaded_gain step.gain_u step.enacted_gain step.next_moment
+  rw [step.gain_y] at h_gain
+  exact ⟨by omega, by omega⟩
+
+/-- A two-step trace bundling initial title anchor, theft transfer, and recovery restitution. -/
+structure TheftAndRestitutionTrace where
+  baker : W.Agent
+  thief : W.Agent
+  flour : W.Means
+  q : ℕ
+  hne : thief ≠ baker
+  t0 : W.Moment
+  t1 : W.Moment
+  t2 : W.Moment
+  h : W.History
+  title : W.Agent → W.Means → ℕ
+  clean0 : ∀ a m, W.omega a t0 h m = title a m
+  avail0 : q ≤ W.omega baker t0 h flour
+  theft : NonTradeTransferStep baker thief flour q t0 t1 h
+  recovery : NonTradeTransferStep thief baker flour q t1 t2 h
+
+/-- Modular conclusion record for theft and restitution. -/
+structure TheftAndRestitutionConclusion (T : TheftAndRestitutionTrace) : Prop where
+  theft_is_title_invasion :
+    0 < T.q → IsPathDependentTitleInvasion T.title T.baker T.t0 T.t1 T.h T.flour
+  recovery_reduces_thief_possession :
+    0 < T.q → IsPresentMomentReduction T.thief T.t1 T.t2 T.h T.flour
+  recovery_not_title_invasion :
+    ¬ IsPathDependentTitleInvasion T.title T.thief T.t1 T.t2 T.h T.flour
+  baker_title_restored :
+    W.omega T.baker T.t2 T.h T.flour = T.title T.baker T.flour
+
+/-- Single-parameter master theorem for theft and recovery restitution. -/
+theorem theft_and_restitution_conclusion
+    (T : TheftAndRestitutionTrace) : TheftAndRestitutionConclusion T := by
+  obtain ⟨h_s1_baker, h_s1_thief⟩ := T.theft.inventory_deltas
+  obtain ⟨h_s2_thief, h_s2_baker⟩ := T.recovery.inventory_deltas
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · intro h_pos_q
+    dsimp [IsPathDependentTitleInvasion]
+    have h_title_eq : T.title T.baker T.flour = W.omega T.baker T.t0 T.h T.flour := by
+      rw [← T.clean0 T.baker T.flour]
+    rw [h_s1_baker, h_title_eq]
+    exact ⟨Nat.sub_lt_self h_pos_q T.avail0, Nat.sub_lt_self h_pos_q T.avail0⟩
+  · intro h_pos_q
+    dsimp [IsPresentMomentReduction]
+    rw [h_s2_thief, h_s1_thief]
+    omega
+  · dsimp [IsPathDependentTitleInvasion]
+    intro ⟨h_lt_title, _⟩
+    have h_thief_title : T.title T.thief T.flour = W.omega T.thief T.t0 T.h T.flour := by
+      rw [← T.clean0 T.thief T.flour]
+    rw [h_thief_title, h_s2_thief, h_s1_thief] at h_lt_title
+    omega
+  · rw [h_s2_baker, h_s1_baker]
+    have h_baker_clean : T.title T.baker T.flour = W.omega T.baker T.t0 T.h T.flour := by
+      rw [← T.clean0 T.baker T.flour]
+    have h_le := T.avail0
+    rw [h_baker_clean]
+    omega
+
+/-- A one-step unilateral seizure step under `CoerciveTransferFrame W` where the aggressor
+seizes `q` units of `m` from a passive victim. -/
+structure CoerciveSeizureStep [CoerciveTransferFrame W]
+    (aggressor victim : W.Agent) (m : W.Means) (q : ℕ) (t t' : W.Moment) (h : W.History) where
+  hne : aggressor ≠ victim
+  avail : q ≤ W.omega victim t h m
+  enacted_aggressor : W.enacted aggressor t h = CoerciveTransferFrame.Seize aggressor victim q m
+  enacted_victim : W.enacted victim t h = W.alpha_zero
+  uninvaded_bystanders : ∀ k, k ≠ aggressor → k ≠ victim →
+    ¬ W.IsInvasiveOn (W.enacted k t h) victim ∧ ¬ W.IsInvasiveOn (W.enacted k t h) aggressor
+  next_moment : IsNextMoment W.Precedence W.mem_hist t t' h
+
+/-- Physical inventory deltas from a verified unilateral coercive seizure. -/
+theorem CoerciveSeizureStep.inventory_deltas
+    [CoerciveTransferFrame W] {aggressor victim : W.Agent}
+    {m : W.Means} {q : ℕ} {t t' : W.Moment} {h : W.History}
+    (step : CoerciveSeizureStep aggressor victim m q t t' h) :
+    W.omega victim t' h m + q = W.omega victim t h m ∧
+    W.omega aggressor t' h m = W.omega aggressor t h m + q := by
+  have h_law := CoerciveTransferFrame.seize_transfer_law aggressor victim q m t t' h m
+    step.hne step.avail step.enacted_aggressor step.enacted_victim step.uninvaded_bystanders
+    step.next_moment
+  simp only [ite_true] at h_law
+  exact ⟨h_law.2, h_law.1⟩
+
 /-- Classify a supplied two-step paired loss and gain trace. The premises
 represent the baker's loss by the baker's own action and the thief's gain by
 the thief's own action; they do not model unilateral seizure from an idle
 victim. The second transition likewise supplies both parties' actions. -/
 theorem baker_recovery_restitution_not_path_dependent_invasion
     (baker thief : W.Agent) (flour : W.Means) (q : ℕ)
-    (_h_ne : thief ≠ baker)
+    (h_ne : thief ≠ baker)
     (t0 t1 t2 : W.Moment) (h : W.History)
     (title : W.Agent → W.Means → ℕ)
     (h_clean0 : ∀ a m, W.omega a t0 h m = title a m)
@@ -751,6 +882,8 @@ theorem baker_recovery_restitution_not_path_dependent_invasion
     (α_loss α_gain : W.Action)
     (h_not_tr_loss : ¬ W.IsTradeAction α_loss)
     (h_not_tr_gain : ¬ W.IsTradeAction α_gain)
+    (h_uninv_loss : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t0 h) baker)
+    (h_uninv_gain : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t0 h) thief)
     (h_loss_u : W.use_means α_loss flour = q)
     (h_loss_y : W.yield_means α_loss flour = 0)
     (h_gain_u : W.use_means α_gain flour = 0)
@@ -761,6 +894,8 @@ theorem baker_recovery_restitution_not_path_dependent_invasion
     (α_surrender α_recov : W.Action)
     (h_not_tr_surr : ¬ W.IsTradeAction α_surrender)
     (h_not_tr_rec : ¬ W.IsTradeAction α_recov)
+    (h_uninv_surr : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t1 h) thief)
+    (h_uninv_rec : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t1 h) baker)
     (h_surr_u : W.use_means α_surrender flour = q)
     (h_surr_y : W.yield_means α_surrender flour = 0)
     (h_rec_u : W.use_means α_recov flour = 0)
@@ -771,44 +906,26 @@ theorem baker_recovery_restitution_not_path_dependent_invasion
     (0 < q → IsPresentMomentReduction thief t1 t2 h flour) ∧
     ¬ IsPathDependentTitleInvasion title thief t1 t2 h flour ∧
     W.omega baker t2 h flour = title baker flour := by
-  have h_baker_t1 := W.pure_consumption_use_only baker t0 t1 h α_loss flour
-    h_not_tr_loss h_loss_y h_enact_loss0 h_next01
-  rw [h_loss_u] at h_baker_t1
-  have h_s1_baker : W.omega baker t1 h flour = W.omega baker t0 h flour - q := by
-    omega
-  have h_s1_thief := W.pure_production_yield_only thief t0 t1 h α_gain flour
-    h_not_tr_gain h_gain_u h_enact_gain0 h_next01
-  rw [h_gain_y] at h_s1_thief
-  have h_thief_t2 := W.pure_consumption_use_only thief t1 t2 h α_surrender flour
-    h_not_tr_surr h_surr_y h_enact_surr1 h_next12
-  rw [h_surr_u] at h_thief_t2
-  have h_s2_thief : W.omega thief t2 h flour = W.omega thief t1 h flour - q := by
-    omega
-  have h_s2_baker := W.pure_production_yield_only baker t1 t2 h α_recov flour
-    h_not_tr_rec h_rec_u h_enact_rec1 h_next12
-  rw [h_rec_y] at h_s2_baker
-  refine ⟨?_, ?_, ?_, ?_⟩
-  · intro h_pos_q
-    dsimp [IsPathDependentTitleInvasion]
-    have h_title_eq : title baker flour = W.omega baker t0 h flour := by
-      rw [← h_clean0 baker flour]
-    rw [h_s1_baker, h_title_eq]
-    exact ⟨Nat.sub_lt_self h_pos_q h_avail0, Nat.sub_lt_self h_pos_q h_avail0⟩
-  · intro h_pos_q
-    dsimp [IsPresentMomentReduction]
-    rw [h_s2_thief, h_s1_thief]
-    omega
-  · dsimp [IsPathDependentTitleInvasion]
-    intro ⟨h_lt_title, _⟩
-    have h_thief_title : title thief flour = W.omega thief t0 h flour := by
-      rw [← h_clean0 thief flour]
-    rw [h_thief_title, h_s2_thief, h_s1_thief] at h_lt_title
-    omega
-  · rw [h_s2_baker, h_s1_baker]
-    have h_baker_clean : title baker flour = W.omega baker t0 h flour := by
-      rw [← h_clean0 baker flour]
-    rw [h_baker_clean]
-    omega
+  let trace : TheftAndRestitutionTrace :=
+    { baker := baker
+      thief := thief
+      flour := flour
+      q := q
+      hne := h_ne
+      t0 := t0
+      t1 := t1
+      t2 := t2
+      h := h
+      title := title
+      clean0 := h_clean0
+      avail0 := h_avail0
+      theft := ⟨α_loss, α_gain, h_not_tr_loss, h_not_tr_gain, h_loss_u, h_loss_y,
+        h_gain_u, h_gain_y, h_enact_loss0, h_enact_gain0, h_uninv_loss, h_uninv_gain, h_next01⟩
+      recovery := ⟨α_surrender, α_recov, h_not_tr_surr, h_not_tr_rec, h_surr_u, h_surr_y,
+        h_rec_u, h_rec_y, h_enact_surr1, h_enact_rec1, h_uninv_surr, h_uninv_rec, h_next12⟩ }
+  have concl := theft_and_restitution_conclusion trace
+  exact ⟨concl.theft_is_title_invasion, concl.recovery_reduces_thief_possession,
+    concl.recovery_not_title_invasion, concl.baker_title_restored⟩
 
 end PropertyLedgerTraces
 

@@ -173,7 +173,7 @@ def entrepreneurUnpaidCollateralCustody :
         (by decide) (by decide) (by decide) hadvance)
       (.step
         (.production creditLifecycleActionFrame.alpha_zero (by decide)
-          (@alpha_zero_not_trade creditLifecycleActionFrame) hproduction)
+          (@alpha_zero_not_trade creditLifecycleActionFrame) (fun _ h => h) hproduction)
         (.step
           (.unmatchedAccept .entrepreneur 2 creditLifecycleMoney 1
             creditLifecycleCollateral (by decide) (by decide) hrepayment)

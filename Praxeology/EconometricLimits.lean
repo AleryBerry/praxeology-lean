@@ -159,7 +159,6 @@ theorem lucas_critique_policy_invariance_failure
     (i : W.Agent) (t : W.Moment) (h : W.History)
     (α_star β : W.Action)
     (h_distinct : α_star ≠ β)
-    (_h_enacted : W.enacted i t h = α_star)
     (hβ_in : β ∈ W.A_feas i t h)
     (e_great : W.Ends)
     (h_dominate : interp.Preference i t h e_great (interp.End_of i α_star t h)) :

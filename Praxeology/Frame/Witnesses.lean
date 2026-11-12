@@ -426,7 +426,7 @@ def finite_model_maturation (i : Fin 2) (α : ModelAction) (t : Fin 4) (h : Fin 
       | accept _ _ _ _ _ _ => exact ⟨Or.inr rfl, Or.inr ⟨rfl, Fin.succ_ne_zero h⟩⟩
     · exact ⟨ht, Or.inl rfl⟩
   law_in_re_transition := by
-    intro i t t' h α m _h_not_tr h_enact _h_next
+    intro i t t' h α m _h_not_tr _h_uninv h_enact _h_next
     fin_cases i <;> fin_cases t <;> fin_cases h <;> {
       dsimp [ActionFrame.enacted] at h_enact
       subst h_enact
@@ -1076,7 +1076,7 @@ theorem bilateral_subjective_trade_dominance (i : Fin 2) :
     · cases h_eq
     · cases h_eq
   law_in_re_transition := by
-    intro i t t' h α m h_not_tr h_enact h_next
+    intro i t t' h α m h_not_tr _h_uninv h_enact h_next
     rcases bilateral_next_moment_cases h_next with
       ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩ | ⟨rfl, rfl, rfl⟩
     · fin_cases i <;> {

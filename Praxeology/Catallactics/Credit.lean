@@ -555,12 +555,23 @@ structure FiduciaryNoteIssuance {W : ActionFrame} [BilateralExchangeFrame W] whe
   reserveOutputZero : W.yield_means action reserve = 0
   otherAgentsIdle : ∀ a, a ≠ issuer →
     W.enacted a moment history = W.alpha_zero
+  noninvasive : ∀ a, ¬ W.IsInvasiveOn action a
+
+/-- In a fiduciary note issuance where bystanders are idle and note creation is noninvasive,
+every agent is uninvaded during the issuance transition. -/
+theorem FiduciaryNoteIssuance.uninvaded {W : ActionFrame} [BilateralExchangeFrame W]
+    (I : FiduciaryNoteIssuance (W := W)) (a : W.Agent) :
+    ∀ j, ¬ W.IsInvasiveOn (W.enacted j I.moment I.history) a := by
+  intro j
+  by_cases hj : j = I.issuer
+  · subst hj; rw [I.enacted]; exact I.noninvasive a
+  · rw [I.otherAgentsIdle j hj]; exact W.alpha_zero_not_invasive a
 
 /-- The actual inventory witness associated with a note-issuance certificate. -/
 def FiduciaryNoteIssuance.inventoryStep {W : ActionFrame} [BilateralExchangeFrame W]
     (I : FiduciaryNoteIssuance (W := W)) :
     InventoryStep W I.issuer I.history I.moment I.nextMoment :=
-  .production I.action I.enacted I.nontrade I.successor
+  .production I.action I.enacted I.nontrade (I.uninvaded I.issuer) I.successor
 
 /-- Note printing raises the issuer's spendable media by exactly the printed
 principal. -/
@@ -590,7 +601,7 @@ theorem FiduciaryNoteIssuance.other_media_unchanged {W : ActionFrame} [Bilateral
     W.omega a I.nextMoment I.history I.money =
       W.omega a I.moment I.history I.money := by
   have h := W.law_in_re_transition a I.moment I.nextMoment I.history
-    W.alpha_zero I.money alpha_zero_not_trade (I.otherAgentsIdle a ha) I.successor
+    W.alpha_zero I.money alpha_zero_not_trade (I.uninvaded a) (I.otherAgentsIdle a ha) I.successor
   rw [W.use_means_alpha_zero, W.yield_means_alpha_zero] at h
   omega
 
@@ -629,6 +640,8 @@ structure FiduciaryOrigination {W : ActionFrame} [BilateralExchangeFrame W] (T :
   advance_follows_issue : A.moment = I.nextMoment
   nonparticipants_idle : ∀ a, a ≠ T.lender → a ≠ T.borrower →
     W.enacted a A.moment A.history = W.alpha_zero
+  nonparticipants_uninvaded : ∀ a, a ≠ T.lender → a ≠ T.borrower →
+    ∀ j, ¬ W.IsInvasiveOn (W.enacted j A.moment A.history) a
 
 /-- Name the physical issuance certificate as a balance-sheet event. It is
 still just an `InventoryStep.production` together with ActionFrame purpose
@@ -670,7 +683,7 @@ def borrowerOriginationRun {W : ActionFrame} [BilateralExchangeFrame W] {T : Paw
     exact h.symm
   let issueStep : InventoryStep W T.borrower I.history I.moment I.nextMoment :=
     .production W.alpha_zero (I.otherAgentsIdle T.borrower hBorrowerIssuer)
-      alpha_zero_not_trade I.successor
+      alpha_zero_not_trade (I.uninvaded T.borrower) I.successor
   have issueRun : InventoryRun W T.borrower I.history I.moment I.nextMoment :=
     .step issueStep (.done I.nextMoment)
   have hadvance : InventoryRun W T.borrower I.history I.nextMoment A.nextMoment := by
@@ -811,7 +824,8 @@ theorem FiduciaryOrigination.third_party_media_unchanged
       _ = T.lender := O.lender_is_issuer.symm
   have hIssue := I.other_media_unchanged haIssuer
   have hAdvance := W.law_in_re_transition a A.moment A.nextMoment A.history
-    W.alpha_zero T.money alpha_zero_not_trade (O.nonparticipants_idle a haLender haBorrower)
+    W.alpha_zero T.money alpha_zero_not_trade (O.nonparticipants_uninvaded a haLender haBorrower)
+    (O.nonparticipants_idle a haLender haBorrower)
     A.successor
   rw [W.use_means_alpha_zero, W.yield_means_alpha_zero] at hAdvance
   rw [O.history_matches, O.advance_follows_issue, O.money_matches] at hAdvance
@@ -885,6 +899,14 @@ structure CreditRepayment {W : ActionFrame} [BilateralExchangeFrame W] {T : Pawn
     T.repayment T.money T.collateralQuantity T.collateral
 
 namespace CreditRepayment
+
+/-- The advance decision precedes repayment: the settlement edge follows the
+decision, and repayment itself follows settlement. -/
+theorem advance_decision_precedes_repayment
+    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
+    {A : CreditAdvance T} (R : CreditRepayment A) :
+    W.Precedence A.moment R.moment :=
+  W.moment_lt_trans A.successor.2.2.1 R.afterAdvance
 
 /-- The borrower's matched repayment inventory step, derived from the
 purposeful redemption and its ActionFrame enactment. -/
@@ -1075,7 +1097,7 @@ private theorem inventoryRun_endpoint_mem_history {W : ActionFrame}
       cases tail with
       | done v =>
           cases head with
-          | production _ _ _ hnext => exact hnext.2.1
+          | production _ _ _ _ hnext => exact hnext.2.1
           | matchedOffer _ _ _ _ _ _ _ _ hnext => exact hnext.2.1
           | matchedAccept _ _ _ _ _ _ _ _ hnext => exact hnext.2.1
           | unmatchedOffer _ _ _ _ _ _ _ hnext => exact hnext.2.1
@@ -1144,11 +1166,12 @@ theorem UnpaidMaturity.borrower_stock_preserved_at_default
     (_D : UnpaidMaturity A)
     (t_post : W.Moment)
     (h_succ : IsNextMoment W.Precedence W.mem_hist T.maturity t_post A.history)
+    (h_borrower_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j T.maturity A.history) T.borrower)
     (h_borrower_idle : W.enacted T.borrower T.maturity A.history = W.alpha_zero) :
     StockPreserved T.borrower T.maturity t_post A.history := by
   intro m
   have h_trans := W.law_in_re_transition T.borrower T.maturity t_post A.history
-    W.alpha_zero m alpha_zero_not_trade h_borrower_idle h_succ
+    W.alpha_zero m alpha_zero_not_trade h_borrower_uninvaded h_borrower_idle h_succ
   rw [W.use_means_alpha_zero, W.yield_means_alpha_zero, Nat.add_zero, Nat.add_zero] at h_trans
   change W.omega T.borrower T.maturity A.history m ≤ W.omega T.borrower t_post A.history m
   rw [h_trans]
@@ -1159,14 +1182,16 @@ theorem UnpaidMaturity.borrower_stock_not_contracted
     (D : UnpaidMaturity A)
     (t_post : W.Moment)
     (h_succ : IsNextMoment W.Precedence W.mem_hist T.maturity t_post A.history)
+    (h_borrower_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j T.maturity A.history) T.borrower)
     (h_borrower_idle : W.enacted T.borrower T.maturity A.history = W.alpha_zero)
     (m : W.Means) :
     ¬ StockContractedAt T.borrower T.maturity t_post A.history m := by
-  have h_pres := D.borrower_stock_preserved_at_default t_post h_succ h_borrower_idle
+  have h_pres := D.borrower_stock_preserved_at_default
+    t_post h_succ h_borrower_uninvaded h_borrower_idle
   intro h_contr
   dsimp [StockContractedAt] at h_contr
   have h_trans := W.law_in_re_transition T.borrower T.maturity t_post A.history
-    W.alpha_zero m alpha_zero_not_trade h_borrower_idle h_succ
+    W.alpha_zero m alpha_zero_not_trade h_borrower_uninvaded h_borrower_idle h_succ
   rw [W.use_means_alpha_zero, W.yield_means_alpha_zero, Nat.add_zero, Nat.add_zero] at h_trans
   change W.omega T.borrower t_post A.history m <
     W.omega T.borrower T.maturity A.history m at h_contr
@@ -1180,10 +1205,11 @@ theorem UnpaidMaturity.borrower_resource_menu_preserved
     (D : UnpaidMaturity A)
     (t_post : W.Moment)
     (h_succ : IsNextMoment W.Precedence W.mem_hist T.maturity t_post A.history)
+    (h_borrower_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j T.maturity A.history) T.borrower)
     (h_borrower_idle : W.enacted T.borrower T.maturity A.history = W.alpha_zero) :
     ResourceMenuPreserved T.borrower T.maturity t_post A.history :=
   stockPreserved_implies_resourceMenuPreserved T.borrower T.maturity t_post A.history
-    (D.borrower_stock_preserved_at_default t_post h_succ h_borrower_idle)
+    (D.borrower_stock_preserved_at_default t_post h_succ h_borrower_uninvaded h_borrower_idle)
 
 /-- Repayment settles the contract and returns the collateral under the stated
 matched-exchange evidence. -/
@@ -1259,14 +1285,15 @@ then spot purchase acceptance is infeasible (and non-purposeful) in both media. 
 theorem infeasible_accept_of_split_media_endowment {W : ActionFrame} [BilateralExchangeFrame W]
     (buyer seller : W.Agent) (t : W.Moment) (h : W.History)
     (qA : ℕ) (mA : W.Means) (price : ℕ) (m₁ m₂ : W.Means)
-    (_h_distinct : m₁ ≠ m₂)
-    (_h_sum_covers : price ≤ W.omega buyer t h m₁ + W.omega buyer t h m₂)
+    (h_distinct : m₁ ≠ m₂)
     (h_short₁ : W.omega buyer t h m₁ < price)
-    (h_short₂ : W.omega buyer t h m₂ < price) :
+    (h_short₂ : W.omega buyer t h m₂ < price)
+    (h_sum_covers : price ≤ W.omega buyer t h m₁ + W.omega buyer t h m₂) :
     W.Accept buyer seller qA mA price m₁ ∉ W.A_feas buyer t h ∧
     W.Accept buyer seller qA mA price m₂ ∉ W.A_feas buyer t h ∧
     ¬ @PurposefulAct W buyer t h (W.Accept buyer seller qA mA price m₁) ∧
-    ¬ @PurposefulAct W buyer t h (W.Accept buyer seller qA mA price m₂) := by
+    ¬ @PurposefulAct W buyer t h (W.Accept buyer seller qA mA price m₂) ∧
+    price ≤ ({m₁, m₂} : Finset W.Means).sum (fun m => W.omega buyer t h m) := by
   have h_infeas₁ : W.Accept buyer seller qA mA price m₁ ∉ W.A_feas buyer t h := by
     intro h_feas
     have h_le := (accept_spot_trade_feasible_iff buyer seller t h qA mA price m₁).mp
@@ -1277,7 +1304,12 @@ theorem infeasible_accept_of_split_media_endowment {W : ActionFrame} [BilateralE
     have h_le := (accept_spot_trade_feasible_iff buyer seller t h qA mA price m₂).mp
       h_feas |>.2
     omega
-  refine ⟨h_infeas₁, h_infeas₂, fun hp => h_infeas₁ hp.1, fun hp => h_infeas₂ hp.1⟩
+  have h_aggregate : price ≤
+      ({m₁, m₂} : Finset W.Means).sum (fun m => W.omega buyer t h m) := by
+    rw [Finset.sum_pair h_distinct]
+    simpa [Nat.add_comm] using h_sum_covers
+  exact ⟨h_infeas₁, h_infeas₂, fun hp => h_infeas₁ hp.1,
+    fun hp => h_infeas₂ hp.1, h_aggregate⟩
 
 /-- Cross-agent aggregation impossibility: even if two buyers' combined holdings of medium
 `m_money` cover `price`, if neither buyer individually holds `price`, neither buyer can
@@ -1285,13 +1317,15 @@ feasibly or purposefully enact the spot purchase. -/
 theorem infeasible_accept_of_split_agent_endowment {W : ActionFrame} [BilateralExchangeFrame W]
     (buyer₁ buyer₂ seller : W.Agent) (t : W.Moment) (h : W.History)
     (qA : ℕ) (mA : W.Means) (price : ℕ) (m_money : W.Means)
-    (_h_sum_covers : price ≤ W.omega buyer₁ t h m_money + W.omega buyer₂ t h m_money)
     (h_short₁ : W.omega buyer₁ t h m_money < price)
-    (h_short₂ : W.omega buyer₂ t h m_money < price) :
+    (h_short₂ : W.omega buyer₂ t h m_money < price)
+    (h_sum_covers : price ≤ W.omega buyer₁ t h m_money +
+      W.omega buyer₂ t h m_money) :
     W.Accept buyer₁ seller qA mA price m_money ∉ W.A_feas buyer₁ t h ∧
     W.Accept buyer₂ seller qA mA price m_money ∉ W.A_feas buyer₂ t h ∧
     ¬ @PurposefulAct W buyer₁ t h (W.Accept buyer₁ seller qA mA price m_money) ∧
-    ¬ @PurposefulAct W buyer₂ t h (W.Accept buyer₂ seller qA mA price m_money) := by
+    ¬ @PurposefulAct W buyer₂ t h (W.Accept buyer₂ seller qA mA price m_money) ∧
+    0 < W.omega buyer₁ t h m_money ∧ 0 < W.omega buyer₂ t h m_money := by
   have h_infeas₁ : W.Accept buyer₁ seller qA mA price m_money ∉ W.A_feas buyer₁ t h := by
     intro h_feas
     have h_le := (accept_spot_trade_feasible_iff buyer₁ seller t h qA mA price m_money).mp
@@ -1302,12 +1336,17 @@ theorem infeasible_accept_of_split_agent_endowment {W : ActionFrame} [BilateralE
     have h_le := (accept_spot_trade_feasible_iff buyer₂ seller t h qA mA price m_money).mp
       h_feas |>.2
     omega
-  refine ⟨h_infeas₁, h_infeas₂, fun hp => h_infeas₁ hp.1, fun hp => h_infeas₂ hp.1⟩
+  have h_both_positive : 0 < W.omega buyer₁ t h m_money ∧
+      0 < W.omega buyer₂ t h m_money := by omega
+  exact ⟨h_infeas₁, h_infeas₂, fun hp => h_infeas₁ hp.1,
+    fun hp => h_infeas₂ hp.1, h_both_positive.1, h_both_positive.2⟩
 
 /-- A non-fiduciary credit advance strictly conserves `totalMedia` when non-participants
 enact `alpha_zero`. -/
 theorem CreditAdvance.totalMedia_conserved {W : ActionFrame} [BilateralExchangeFrame W]
     {T : PawnLoanTerms W} (A : CreditAdvance T) (issuer : W.Agent)
+    (h_uninvaded : ∀ a, a ≠ T.lender → a ≠ T.borrower →
+      ∀ j, ¬ W.IsInvasiveOn (W.enacted j A.moment A.history) a)
     (h_idle : ∀ a, a ≠ T.lender → a ≠ T.borrower →
       W.enacted a A.moment A.history = W.alpha_zero) :
     totalMedia issuer T.money A.nextMoment A.history =
@@ -1329,7 +1368,8 @@ theorem CreditAdvance.totalMedia_conserved {W : ActionFrame} [BilateralExchangeF
     have haLender : a ≠ T.lender := haL
     have haBorrower : a ≠ T.borrower := haB
     have h_law := W.law_in_re_transition a A.moment A.nextMoment A.history
-      W.alpha_zero T.money alpha_zero_not_trade (h_idle a haLender haBorrower) A.successor
+      W.alpha_zero T.money alpha_zero_not_trade (h_uninvaded a haLender haBorrower)
+      (h_idle a haLender haBorrower) A.successor
     rw [W.use_means_alpha_zero, W.yield_means_alpha_zero, Nat.add_zero, Nat.add_zero] at h_law
     exact h_law
   exact finset_sum_pair_update Finset.univ T.borrower T.lender
@@ -1543,7 +1583,6 @@ If Tier 1 has a strictly higher reserve-to-deposit ratio than Tier 2, then Tier 
 coverage ratio is strictly less than the consolidated banking system coverage ratio. -/
 theorem asymmetric_tier_coverage_divergence
     (R₁ R₂ D₁ D₂ : ℕ)
-    (_hD₁ : 0 < D₁) (_hD₂ : 0 < D₂)
     (h_tier_ineq : R₂ * D₁ < R₁ * D₂) :
     R₂ * (D₁ + D₂) < (R₁ + R₂) * D₂ := by
   rw [Nat.mul_add, Nat.add_mul]
@@ -1588,6 +1627,7 @@ theorem automated_sweep_two_step_vs_freeze_dichotomy {W : ActionFrame} [Bilatera
     (buyer seller : W.Agent) (t t' : W.Moment) (h : W.History)
     (qA : ℕ) (mA : W.Means) (price : ℕ) (m_money : W.Means)
     (h_succ : IsNextMoment W.Precedence W.mem_hist t t' h)
+    (h_uninvaded : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) buyer)
     (h_short : W.omega buyer t h m_money < price) :
     (∀ (T : PawnLoanTerms W) (A : CreditAdvance T),
       T.borrower = buyer →
@@ -1610,7 +1650,7 @@ theorem automated_sweep_two_step_vs_freeze_dichotomy {W : ActionFrame} [Bilatera
     omega
   · intro h_idle
     have h_trans := W.law_in_re_transition buyer t t' h W.alpha_zero m_money
-      alpha_zero_not_trade h_idle h_succ
+      alpha_zero_not_trade h_uninvaded h_idle h_succ
     rw [W.use_means_alpha_zero, W.yield_means_alpha_zero] at h_trans
     have h_short' : W.omega buyer t' h m_money < price := by omega
     exact macro_sum_underdetermines_spot_feasibility
@@ -1626,15 +1666,17 @@ trade with upstream vendor `A` becomes strictly infeasible and non-purposeful, p
 liquidity crises and payment freezes propagate through contract networks under 100% money
 conservation. -/
 theorem network_liquidity_freeze_cascade {W : ActionFrame} [BilateralExchangeFrame W]
-    (sellerA intermediaryB borrowerC : W.Agent)
+    (sellerA intermediaryB : W.Agent)
     (issuer : W.Agent)
     (t t' : W.Moment) (h : W.History)
     (T_BC : PawnLoanTerms W) (A_BC : CreditAdvance T_BC)
     (h_lender : T_BC.lender = intermediaryB)
-    (_h_borrower : T_BC.borrower = borrowerC)
+    (h_uninv_idle : ∀ a, a ≠ T_BC.lender → a ≠ T_BC.borrower →
+      ∀ j, ¬ W.IsInvasiveOn (W.enacted j A_BC.moment A_BC.history) a)
     (h_idle : ∀ a, a ≠ T_BC.lender → a ≠ T_BC.borrower →
       W.enacted a A_BC.moment A_BC.history = W.alpha_zero)
     (h_succ : IsNextMoment W.Precedence W.mem_hist t t' h)
+    (h_uninv_B : ∀ j, ¬ W.IsInvasiveOn (W.enacted j t h) intermediaryB)
     (qA : ℕ) (mA : W.Means) (price : ℕ)
     (h_short : W.omega intermediaryB t h T_BC.money < price)
     (h_freeze : W.enacted intermediaryB t h = W.alpha_zero) :
@@ -1650,7 +1692,7 @@ theorem network_liquidity_freeze_cascade {W : ActionFrame} [BilateralExchangeFra
     W.Accept intermediaryB sellerA qA mA price T_BC.money ∉ W.A_feas intermediaryB t' h ∧
     ¬ @PurposefulAct W intermediaryB t' h
       (W.Accept intermediaryB sellerA qA mA price T_BC.money) := by
-  have h_conserved := A_BC.totalMedia_conserved issuer h_idle
+  have h_conserved := A_BC.totalMedia_conserved issuer h_uninv_idle h_idle
   have h_dec := A_BC.lender_media_decreases
   rw [h_lender] at h_dec
   have h_strip : ∀ β,
@@ -1663,7 +1705,7 @@ theorem network_liquidity_freeze_cascade {W : ActionFrame} [BilateralExchangeFra
     rw [h_lender] at h_strip'
     exact h_strip' h_feas h_cont h_tight
   have h_dichotomy := automated_sweep_two_step_vs_freeze_dichotomy
-    intermediaryB sellerA t t' h qA mA price T_BC.money h_succ h_short
+    intermediaryB sellerA t t' h qA mA price T_BC.money h_succ h_uninv_B h_short
   have h_frozen := h_dichotomy.2 h_freeze
   exact ⟨h_conserved, h_dec, h_strip, h_frozen.1, h_frozen.2⟩
 
@@ -1671,11 +1713,10 @@ theorem network_liquidity_freeze_cascade {W : ActionFrame} [BilateralExchangeFra
 while strictly encumbering collateral and expanding total base money in the economy. -/
 theorem standing_lolr_origination_restores_reserve_and_expands_base {W : ActionFrame}
     [BilateralExchangeFrame W]
-    (bank cb : W.Agent) (m_reserve : W.Means) (q : ℕ)
+    (bank : W.Agent) (m_reserve : W.Means) (q : ℕ)
     (T : PawnLoanTerms W) (I : FiduciaryIssuanceStep W) (A : CreditAdvance T)
     (O : FiduciaryOrigination T I A)
     (h_borrower : T.borrower = bank)
-    (_h_issuer : I.issuer = cb)
     (h_money : I.money = m_reserve)
     (h_reserve_cov : q ≤ bankReserve bank m_reserve I.moment I.history + T.principal) :
     q ≤ bankReserve bank m_reserve A.nextMoment I.history ∧
@@ -1698,7 +1739,7 @@ theorem standing_lolr_origination_restores_reserve_and_expands_base {W : ActionF
     exact h_ne_orig h_eq
   have h_idle := I.otherAgentsIdle bank h_ne
   have h_step := W.law_in_re_transition bank I.moment I.nextMoment I.history
-    W.alpha_zero T.collateral alpha_zero_not_trade h_idle I.successor
+    W.alpha_zero T.collateral alpha_zero_not_trade (I.uninvaded bank) h_idle I.successor
   rw [W.use_means_alpha_zero, W.yield_means_alpha_zero] at h_step
   have h_col : W.omega bank A.nextMoment I.history T.collateral + T.collateralQuantity =
       W.omega bank I.moment I.history T.collateral := by omega

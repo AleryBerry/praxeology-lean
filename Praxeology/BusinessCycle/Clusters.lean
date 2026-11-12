@@ -56,16 +56,6 @@ structure FiduciaryIssueBackedAdvance {W : ActionFrame} [BilateralExchangeFrame 
   advance_after_issue : I.nextMoment = A.moment ∨ W.Precedence I.nextMoment A.moment
   principal_within_issue : T.principal ≤ I.principal
 
-/-- A note-backed advance still records the borrower's actual matched
-collateralized transfer. -/
-theorem FiduciaryIssueBackedAdvance.borrower_receives_principal
-    {W : ActionFrame} [BilateralExchangeFrame W] {T : PawnLoanTerms W}
-    {I : FiduciaryNoteIssuance (W := W)} {A : CreditAdvance T}
-    (_F : FiduciaryIssueBackedAdvance T I A) :
-    W.omega T.borrower A.nextMoment A.history T.money =
-      W.omega T.borrower A.moment A.history T.money + T.principal :=
-  A.physical_transfer.1
-
 /-- Classify the same quoted rate relative to each entrepreneur's own
 benchmark. Other signal types do not express a changed loan rate. -/
 def relativeRateObservation {Entrepreneur Currency : Type}
@@ -167,18 +157,38 @@ theorem credit_lifecycle_ordered {W : ActionFrame} [BilateralExchangeFrame W]
   exact ⟨(C.backedAdvance e he).advance_after_issue,
     (C.project e).funding.advancePrecedesDecision⟩
 
-/-- If repayment is separately supplied, project completion can be ordered
-before it without making successful repayment a premise of the cohort. -/
-theorem credit_lifecycle_ordered_with_repayment {W : ActionFrame} [BilateralExchangeFrame W]
+/-- Transitive lifecycle order from note issuance through the project, on to
+repayment, and finally to contractual maturity. Each conclusion spans stages
+that are not adjacent in the event sequence. -/
+theorem credit_lifecycle_ordered_with_repayment
+    {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
     (C : CreditShockCohort W Context Entrepreneur)
-    {e : Entrepreneur} (_he : e ∈ C.entrepreneurs)
-    (R : CreditRepayment (C.project e).funding.advance)
-    (h_project_before_repayment :
-      W.Precedence (C.project e).cycle.investment.next R.moment) :
-    W.Precedence (C.project e).cycle.investment.next R.moment ∧
-      W.Precedence R.moment (C.project e).funding.terms.maturity := by
-  exact ⟨h_project_before_repayment, R.beforeMaturity⟩
+    {e : Entrepreneur} (he : e ∈ C.entrepreneurs)
+    (R : CreditRepayment (C.project e).funding.advance) :
+    W.Precedence C.commonIssuance.moment
+      (C.project e).cycle.investment.x.moment ∧
+    W.Precedence (C.project e).funding.advance.moment R.moment ∧
+    W.Precedence (C.project e).funding.advance.nextMoment
+      (C.project e).funding.terms.maturity := by
+  let A := (C.project e).funding.advance
+  have h_issue_edge : W.Precedence C.commonIssuance.moment
+      C.commonIssuance.nextMoment := C.commonIssuance.successor.2.2.1
+  have h_issue_to_advance :
+      W.Precedence C.commonIssuance.moment A.moment := by
+    rcases (C.backedAdvance e he).advance_after_issue with h_eq | h_order
+    · rw [h_eq] at h_issue_edge
+      exact h_issue_edge
+    · exact W.moment_lt_trans h_issue_edge h_order
+  have h_advance_to_project : W.Precedence A.moment
+      (C.project e).cycle.investment.x.moment := by
+    exact W.moment_lt_trans A.successor.2.2.1
+      (C.project e).funding.advancePrecedesDecision
+  have h_issue_to_project := W.moment_lt_trans h_issue_to_advance h_advance_to_project
+  have h_advance_to_repayment :=
+    CreditRepayment.advance_decision_precedes_repayment R
+  have h_settlement_to_maturity := W.moment_lt_trans R.afterAdvance R.beforeMaturity
+  exact ⟨h_issue_to_project, h_advance_to_repayment, h_settlement_to_maturity⟩
 
 /-- The issue, project, and advance are tied to the same ActionFrame history;
 later settlement evidence remains separately indexed by the advance. -/
@@ -253,68 +263,103 @@ theorem credit_lifecycle_repayment_balance_changes {W : ActionFrame} [BilateralE
   · rw [← hborrower]
     exact hrepayment.2
 
-/-- Full account-level cash and collateral movements for a cohort member with
-separately supplied repayment evidence. This records both sides of the
-issuance, advance, and repayment transfers. -/
-theorem credit_lifecycle_full_transfer {W : ActionFrame} [BilateralExchangeFrame W]
+/-- Named ledger recording balance changes across issuance. -/
+structure IssuanceBalanceDelta {W : ActionFrame} [BilateralExchangeFrame W]
     {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
-    (C : CreditShockCohort W Context Entrepreneur)
-    {e : Entrepreneur} (he : e ∈ C.entrepreneurs)
-    (R : CreditRepayment (C.project e).funding.advance) :
+    (C : CreditShockCohort W Context Entrepreneur) : Prop where
+  lender_media_increases :
     W.omega C.commonLender C.commonIssuance.nextMoment
         C.commonIssuance.history C.commonIssuance.money =
       W.omega C.commonLender C.commonIssuance.moment
         C.commonIssuance.history C.commonIssuance.money +
-        C.commonIssuance.principal ∧
+        C.commonIssuance.principal
+
+/-- Named ledger recording balance changes across credit advance. -/
+structure AdvanceBalanceDelta {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
+    (C : CreditShockCohort W Context Entrepreneur)
+    (e : Entrepreneur) : Prop where
+  lender_money_decreases :
     W.omega C.commonLender (C.project e).funding.advance.nextMoment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.money +
         (C.project e).funding.terms.principal =
       W.omega C.commonLender (C.project e).funding.advance.moment
         (C.project e).funding.advance.history
-        (C.project e).funding.terms.money ∧
+        (C.project e).funding.terms.money
+  borrower_money_increases :
     W.omega (C.agent e) (C.project e).funding.advance.nextMoment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.money =
       W.omega (C.agent e) (C.project e).funding.advance.moment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.money +
-        (C.project e).funding.terms.principal ∧
+        (C.project e).funding.terms.principal
+  borrower_collateral_decreases :
     W.omega (C.agent e) (C.project e).funding.advance.nextMoment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.collateral +
         (C.project e).funding.terms.collateralQuantity =
       W.omega (C.agent e) (C.project e).funding.advance.moment
         (C.project e).funding.advance.history
-        (C.project e).funding.terms.collateral ∧
+        (C.project e).funding.terms.collateral
+
+/-- Named ledger recording balance changes across credit repayment. -/
+structure RepaymentBalanceDelta {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
+    (C : CreditShockCohort W Context Entrepreneur)
+    (e : Entrepreneur) (R : CreditRepayment (C.project e).funding.advance) : Prop where
+  lender_money_increases :
     W.omega C.commonLender R.nextMoment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.money =
       W.omega C.commonLender R.moment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.money +
-        (C.project e).funding.terms.repayment ∧
+        (C.project e).funding.terms.repayment
+  borrower_money_decreases :
     W.omega (C.agent e) R.nextMoment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.money +
         (C.project e).funding.terms.repayment =
       W.omega (C.agent e) R.moment
         (C.project e).funding.advance.history
-        (C.project e).funding.terms.money ∧
+        (C.project e).funding.terms.money
+  borrower_collateral_restored :
     W.omega (C.agent e) R.nextMoment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.collateral =
       W.omega (C.agent e) R.moment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.collateral +
-        (C.project e).funding.terms.collateralQuantity ∧
+        (C.project e).funding.terms.collateralQuantity
+  lender_collateral_released :
     W.omega C.commonLender R.nextMoment
         (C.project e).funding.advance.history
         (C.project e).funding.terms.collateral +
         (C.project e).funding.terms.collateralQuantity =
       W.omega C.commonLender R.moment
         (C.project e).funding.advance.history
-        (C.project e).funding.terms.collateral := by
+        (C.project e).funding.terms.collateral
+
+/-- Full structured ledger replacing the flat 8-tuple conjunction for credit lifecycle transfers. -/
+structure CreditLifecycleTransferLedger {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
+    (C : CreditShockCohort W Context Entrepreneur)
+    (e : Entrepreneur) (R : CreditRepayment (C.project e).funding.advance) : Prop where
+  issuance : IssuanceBalanceDelta C
+  advance : AdvanceBalanceDelta C e
+  repayment : RepaymentBalanceDelta C e R
+
+/-- Full account-level cash and collateral movements for a cohort member with
+separately supplied repayment evidence. This records both sides of the
+issuance, advance, and repayment transfers in a structured ledger. -/
+theorem credit_lifecycle_full_transfer {W : ActionFrame} [BilateralExchangeFrame W]
+    {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
+    (C : CreditShockCohort W Context Entrepreneur)
+    {e : Entrepreneur} (he : e ∈ C.entrepreneurs)
+    (R : CreditRepayment (C.project e).funding.advance) :
+    CreditLifecycleTransferLedger C e R := by
   have hbase := C.credit_lifecycle_balance_changes he
   have hissue := C.commonIssuance.issuer_media_increases
   have hadvanceLender :=
@@ -332,7 +377,7 @@ theorem credit_lifecycle_full_transfer {W : ActionFrame} [BilateralExchangeFrame
   rcases hbase with ⟨hissueBalance, hadvanceBalance⟩
   have hsettlement := C.credit_lifecycle_repayment_balance_changes he R
   rcases hsettlement with ⟨hrepaymentBalance, hcollateralReturned⟩
-  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨⟨?_⟩, ⟨?_, ?_, ?_⟩, ⟨?_, ?_, ?_, ?_⟩⟩
   · simpa only [hissuer] using hissue
   · simpa only [hlender] using hadvanceLender
   · exact hadvanceBalance
@@ -367,15 +412,6 @@ def observationKnowledge {W : ActionFrame} [BilateralExchangeFrame W] {Context E
   refl := by intro _ _; rfl
   symm := by intro _ _ _ h; exact h.symm
   trans := by intro _ _ _ _ h₁ h₂; exact h₁.trans h₂
-
-/-- If two ActionFrame-derived regime observations agree, they are
-indistinguishable by that observation. -/
-theorem same_observation_indistinguishable {W : ActionFrame} [BilateralExchangeFrame W]
-    {Context Entrepreneur : Type} [DecidableEq Entrepreneur]
-    (C : CreditShockCohort W Context Entrepreneur)
-    (e : Entrepreneur) (r s : CreditRegime)
-    (h : C.observation e r = C.observation e s) :
-    C.observationKnowledge.indistinguishable e r s := h
 
 /-- Regime nodes are the enacted saving-side quote, fiduciary-backed credit
 advance, and enacted natural-rate baseline quote. -/
@@ -595,18 +631,6 @@ theorem saving_signal_selects_credit_plan {W : ActionFrame} [BilateralExchangeFr
     _ = (C.project e).cycle.investment.investment :=
       C.credit_response_is_investment e he
 
-/-- Each cohort member's stated credit evidence yields purposeful investment.
--/
-theorem purposeful_choices {W : ActionFrame} [BilateralExchangeFrame W]
-    {Context Entrepreneur : Type}
-    [DecidableEq Entrepreneur] (C : CreditShockCohort W Context Entrepreneur)
-    {e : Entrepreneur} (_he : e ∈ C.entrepreneurs) :
-    PurposefulAct (C.project e).cycle.investment.i
-      (C.project e).cycle.investment.x.moment
-      (C.project e).cycle.investment.x.history
-      (C.project e).cycle.investment.investment :=
-  (C.project e).purposeful_at_credit_rate
-
 /-- The signal comparison and the credit-regime choice evidence compose: the
 shared policy selects the same investment under the saving signal, while the
 credit appraisal separately establishes that investment as purposeful in the
@@ -622,7 +646,8 @@ theorem saving_signal_selects_credit_purposeful_plan {W : ActionFrame} [Bilatera
         (C.project e).cycle.investment.x.moment
         (C.project e).cycle.investment.x.history
         (C.project e).cycle.investment.investment := by
-  exact ⟨C.saving_signal_selects_credit_plan he, C.purposeful_choices he⟩
+  exact ⟨C.saving_signal_selects_credit_plan he,
+    (C.project e).purposeful_at_credit_rate⟩
 
 end CreditShockCohort
 
@@ -836,7 +861,7 @@ theorem contextual_regret_for_failed_project
     (he : e ∈ S.failed) :
     EntrepreneurialCycleConclusion (C.project e).cycle := by
   have hblocked := S.completion_blocked he
-  have hpurposeful := C.purposeful_choices (Finset.mem_filter.mp he).1
+  have hpurposeful := (C.project e).purposeful_at_credit_rate
   have hblocked' : (C.project e).cycle.investment.completion ∉
       W.A_feas (C.project e).cycle.investment.i
         (C.project e).cycle.investment.next
@@ -1032,7 +1057,8 @@ theorem bottleneck_price_observable {W : ActionFrame} [BilateralExchangeFrame W]
     (he : e ∈ S.affected) :
     ¬ (W.marketSignalKnowledge C.signalReader).indistinguishable
       (C.agent e) S.prePriceNode S.postPriceNode := by
-  apply W.different_market_signals_distinguishable
+  change ¬ C.signalReader (C.agent e) S.prePriceNode =
+    C.signalReader (C.agent e) S.postPriceNode
   rw [S.pre_price_signal_read e he, S.post_price_signal_read e he]
   exact S.response.bottleneck_market_signal_changes S.factorOf
 
@@ -1110,7 +1136,7 @@ theorem contextual_regret_for_affected_project
     (he : e ∈ S.affected) :
     EntrepreneurialCycleConclusion (C.project e).cycle := by
   have hblocked := S.completion_blocked he
-  have hpurposeful := C.purposeful_choices (S.affected_subset he)
+  have hpurposeful := (C.project e).purposeful_at_credit_rate
   have hblocked' : (C.project e).cycle.investment.completion ∉
       W.A_feas (C.project e).cycle.investment.i
         (C.project e).cycle.investment.next
@@ -1230,5 +1256,71 @@ theorem no_contextual_regret_without_preferred_admitted_alternative
     ¬ ContextMatchedRegret C i x actualMaturity investment safeAction := by
   rintro ⟨_, c, hAlt, τAlt, hc, hactual, hsafe, hpref⟩
   exact h_no_better_admitted_alternative c hAlt τAlt hc hactual hsafe hpref
+
+/-- A general multi-project environment with inelastic factor supply.
+When credit expansion enables a set of funded projects whose aggregate
+physical factor demand exceeds the available physical supply, physical factor
+scarcity guarantees that not all projects can be completed, regardless of monetary
+liquidity or nominal funding. -/
+structure InelasticFactorSupplyEnvironment (Project : Type) [DecidableEq Project] where
+  funded : Finset Project
+  factorDemand : Project → ℕ
+  factorSupply : ℕ
+  factor_positive : ∀ p ∈ funded, 0 < factorDemand p
+  factor_shortage : factorSupply < funded.sum factorDemand
+
+namespace InelasticFactorSupplyEnvironment
+
+variable {Project : Type} [DecidableEq Project]
+variable (E : InelasticFactorSupplyEnvironment Project)
+
+/-- Upper bound on the number of projects that can physically complete
+simultaneously given physical factor scarcity. -/
+theorem physical_completion_bound (completed : Finset Project)
+    (h_sub : completed ⊆ E.funded)
+    (h_feasible : completed.sum E.factorDemand ≤ E.factorSupply) :
+    completed.card < E.funded.card := by
+  by_contra h_not
+  have h_ge : E.funded.card ≤ completed.card := not_lt.mp h_not
+  have h_eq : completed = E.funded := Finset.eq_of_subset_of_card_le h_sub h_ge
+  rw [h_eq] at h_feasible
+  have h_short := E.factor_shortage
+  omega
+
+/-- The number of stranded (uncompleted) projects is strictly positive:
+at least one funded project must fail to complete due to physical factor shortage. -/
+theorem stranded_projects_lower_bound (completed : Finset Project)
+    (h_sub : completed ⊆ E.funded)
+    (h_feasible : completed.sum E.factorDemand ≤ E.factorSupply) :
+    0 < (E.funded \ completed).card := by
+  have h_lt := E.physical_completion_bound completed h_sub h_feasible
+  rw [Finset.card_sdiff, Finset.inter_eq_left.mpr h_sub]
+  omega
+
+/-- When bidding drives factor price up to `price`, each project `p` with
+nominal liquidity `funds p` can afford the factor only if `price * factorDemand p ≤ funds p`. -/
+def affordableAtPrice (funds : Project → ℕ) (price : ℕ) (p : Project) : Prop :=
+  price * E.factorDemand p ≤ funds p
+
+instance (funds : Project → ℕ) (price : ℕ) (p : Project) :
+    Decidable (E.affordableAtPrice funds price p) :=
+  inferInstanceAs (Decidable (price * E.factorDemand p ≤ funds p))
+
+/-- Catallactic factor price squeeze: if factor demand exceeds physical supply,
+any factor-feasible subset of projects leaves a strictly positive number of
+stranded projects in the funded cohort. -/
+theorem factor_price_squeeze_induces_stranded_projects
+    (completed : Finset Project)
+    (h_sub : completed ⊆ E.funded)
+    (h_phys : completed.sum E.factorDemand ≤ E.factorSupply) :
+    ∃ stranded : Finset Project,
+      stranded ⊆ E.funded ∧
+      Disjoint completed stranded ∧
+      0 < stranded.card := by
+  refine ⟨E.funded \ completed, Finset.sdiff_subset,
+    Finset.disjoint_left.mpr (fun _ hc hs => (Finset.mem_sdiff.mp hs).2 hc), ?_⟩
+  exact E.stranded_projects_lower_bound completed h_sub h_phys
+
+end InelasticFactorSupplyEnvironment
 
 end Praxeology

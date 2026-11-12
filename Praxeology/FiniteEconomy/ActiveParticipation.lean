@@ -170,8 +170,7 @@ theorem participationAction_production {C cohort : Nat}
 
 /-- Every agent in a `5C`-agent chain is assigned one productive operation at
 its unique even-numbered production moment. -/
-theorem participation_agent_has_production {C : Nat} (_hC : 0 < C)
-    (actor : Fin (5 * C)) :
+theorem participation_agent_has_production {C : Nat} (actor : Fin (5 * C)) :
     ∃ moment : Nat, moment < 9 * C ∧ ∃ op,
       participationAction moment actor = .operate op := by
   let cohort := actor.val / 5

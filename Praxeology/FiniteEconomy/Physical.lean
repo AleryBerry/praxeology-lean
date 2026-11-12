@@ -77,10 +77,10 @@ def seize [DecidableEq Agent] [DecidableEq Means]
     (S : PhysicalState Agent Means Service) (actor victim : Agent)
     (good : Means) (quantity : ℕ) : PhysicalState Agent Means Service :=
   if actor ≠ victim ∧ quantity ≤ S.stock victim good then
-    { S with stock := Function.update
+    { S with stock := (Function.update
         (Function.update S.stock victim
           (Function.update (S.stock victim) good (S.stock victim good - quantity)))
-        actor (Function.update (S.stock actor) good (S.stock actor good + quantity)) }
+        actor (Function.update (S.stock actor) good (S.stock actor good + quantity))) }
   else S
 
 /-- A successful unilateral transfer reduces the victim's stock by the
@@ -91,7 +91,11 @@ theorem seize_victim_balance [DecidableEq Agent] [DecidableEq Means]
     (hne : actor ≠ victim) (hstock : quantity ≤ S.stock victim good) :
     (S.seize actor victim good quantity).stock victim good + quantity =
       S.stock victim good := by
-  simp [seize, hne, hne.symm, hstock, Nat.sub_add_cancel hstock]
+  dsimp [seize]
+  split_ifs with h
+  · simp only [Function.update_of_ne hne.symm, Function.update_self]
+    exact Nat.sub_add_cancel hstock
+  · exfalso; exact h ⟨hne, hstock⟩
 
 /-- The same transition credits the aggressor with the quantity removed. -/
 theorem seize_actor_balance [DecidableEq Agent] [DecidableEq Means]
@@ -100,7 +104,10 @@ theorem seize_actor_balance [DecidableEq Agent] [DecidableEq Means]
     (hne : actor ≠ victim) (hstock : quantity ≤ S.stock victim good) :
     (S.seize actor victim good quantity).stock actor good =
       S.stock actor good + quantity := by
-  simp [seize, hne, hstock]
+  dsimp [seize]
+  split_ifs with h
+  · simp only [Function.update_self]
+  · exfalso; exact h ⟨hne, hstock⟩
 
 /-- The two agents' aggregate stock is conserved by the transfer. -/
 theorem seize_conserves_pair [DecidableEq Agent] [DecidableEq Means]
