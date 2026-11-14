@@ -80,20 +80,52 @@ $$
 
 ## 3. Calculation Impossibility on Capital Antichains
 
-**Conditional concern.** When an administrative rule receives identical reports from states requiring different factor allocations, it cannot choose correctly in both. The existing Lean result does not establish that public ownership forces such identical reports. A comparison with a Lange-style price process requires its demand, reporting, adjustment, and settlement rules.
+**Restricted-interface result and conditional concern.** When an administrative
+rule receives identical reports from states requiring different factor
+allocations, it cannot choose correctly in both (Chapter 9, [Theorem 9.35](../natural_language/09_money_prices_and_calculation.md#theorem-935-calculation-impossibility-under-conflicting-indistinguishable-states)).
+Wait-free general impossibility across arbitrary information-rich algorithms is
+not claimed: per Mises, *Human Action* (Chapter XXVI, §1, "The Problem"), when
+complete technological recipes, inventories, and settled valuations of ultimate
+ends are already supplied prior to technique commitment, calculation controls
+succeed (Chapter 9, [Theorem 9.58](../natural_language/09_money_prices_and_calculation.md#theorem-958-six-positive-institutional-and-informational-calculation-controls) and [Theorem 9.59](../natural_language/09_money_prices_and_calculation.md#theorem-959-exact-capital-antichain-equivalence-for-two-factor-bottleneck-conflicts)).
 
-The physical antichain result says that two factor vectors need not be
-coordinatewise comparable. The ordinal rank-sum result says a particular sum
-of ordinal encodings is not invariant. Neither result evaluates the
-administrative-price process or every price schedule it might generate.
-To test this concern, the planning board needs an explicit rule for observing
-demand, updating prices, assigning public inputs, compensating managers, and
-allocating final goods. Reports and work choices must be strategic actions.
-The current [calculation comparison register](../spec/11_strategic_calculation.md)
-records these as open institutional questions.
+The formal praxeological analysis captures both the information-timing boundary
+and payoff-insensitivity mechanisms across several established results:
+
+- **Strategic payoff insensitivity:** When managerial remuneration and personal
+  endowments are decoupled from operational performance and reported factor
+  requests, constant reports form ex-post equilibria and truthful reporting of
+  factor productivity is never strictly preferred (Chapter 9, [Proposition 9.38](../natural_language/09_money_prices_and_calculation.md#proposition-938-managerial-payoff-insensitivity-and-babbling-equilibria)).
+- **Constructed IO, transcript, and zero-queue quote impossibility:** Over the
+  constructed physical economy (Chapter 9, [Definition 9.45](../natural_language/09_money_prices_and_calculation.md#definition-945-the-shared-physical-calculation-economy-and-common-executed-prefix)),
+  where methods $(2, 1)$ and $(1, 2)$ form a physical capital antichain ([Definition 9.24](../natural_language/09_money_prices_and_calculation.md#definition-924-physical-input-order-and-antichains))
+  inside a price-box indeterminacy cone between $(1, 3)$ and $(3, 1)$ ([Proposition 9.56](../natural_language/09_money_prices_and_calculation.md#proposition-956-price-box-indeterminacy-cone-witness-for-the-target-techniques)),
+  [Theorem 9.52](../natural_language/09_money_prices_and_calculation.md#theorem-952-labor-voucher-calculation-impossibility-under-equal-embodied-hours)
+  and [Theorem 9.54](../natural_language/09_money_prices_and_calculation.md#theorem-954-input-output-and-administered-price-calculation-impossibility)
+  prove failure for any deterministic planning rule restricted to the
+  pre-commitment voucher or input-output record and shared replies before
+  downstream valuation reports arrive. Furthermore, [Proposition 9.55](../natural_language/09_money_prices_and_calculation.md#proposition-955-multi-round-transcript-invariance-and-pre-commitment-zero-queue-quote-rigidity)
+  proves that multi-round transcripts remain blind and zero measured
+  pre-commitment factor queues leave CPB administered factor quotes unchanged,
+  masking downstream capital scarcity.
+- **Antichain necessity and sufficiency & positive controls:** Within the
+  parameterized two-factor bottleneck family, [Theorem 9.59](../natural_language/09_money_prices_and_calculation.md#theorem-959-exact-capital-antichain-equivalence-for-two-factor-bottleneck-conflicts)
+  proves that a physical capital antichain is both necessary and sufficient for
+  unsolvability under world-blind records, complemented by six positive controls
+  covering physical dominance, reverse dominance with an equal-bundle tie,
+  single-factor technology, shared appraisals, distinguishing reports, and full
+  information ([Theorem 9.58](../natural_language/09_money_prices_and_calculation.md#theorem-958-six-positive-institutional-and-informational-calculation-controls)),
+  while [Theorem 9.61](../natural_language/09_money_prices_and_calculation.md#theorem-961-teleological-dominance-of-easy-work-and-downstream-bottleneck-starvation)
+  and [Theorem 9.62](../natural_language/09_money_prices_and_calculation.md#theorem-962-equal-effort-control-restores-purposeful-bottleneck-production-and-downstream-feasibility)
+  demonstrate worker effort divergence under flat time vouchers alongside its
+  equal-effort control.
+
+The broader comparison with a full dynamic, strategic multi-agent Lange price
+process under unrestricted reports and equilibrium convergence remains tracked
+in the [calculation comparison register](../spec/11_strategic_calculation.md).
 
 > [!NOTE]
-> The five steps above present an economic argument. The current formal theorem proves only the restricted-record implication. Its stronger institutional conclusion remains a research target.
+> The five steps above present an economic argument. The formal theorems prove impossibility strictly for the explicitly modeled pre-commitment input-output, transcript, zero-queue administered-price, and clock-hour voucher interfaces (alongside full-information controls), not for an unrestricted dynamic Lange economy where all future consumer valuations are already disclosed pre-commitment.
 
 ---
 

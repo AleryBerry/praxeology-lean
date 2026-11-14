@@ -46,7 +46,7 @@ The physical stocks of capital equipment, raw materials, and energy across all a
 MMT asserts that deficit-financed token creation activates unemployed labor services $m_{\text{labor}}$ without consuming scarce complementary capital stocks or disrupting existing private production structures.
 
 ### Definition 3 (The Staged Network Inflow Schedule)
-Let $d(i)$ be the assigned network distance of agent $i$ from the state currency injection node (Chapter 9, [Proposition 9.33](../natural_language/09_money_prices_and_calculation.md#proposition-933-a-downstream-bid-can-remain-below-the-wave-price)). At stage $k$, the currency increment $\delta > 0$ enters an agent's effective bid if and only if $d(i) \le k$.
+Let $d(i)$ be the assigned network distance of agent $i$ from the state currency injection node (Chapter 9, [Proposition 9.63](../natural_language/09_money_prices_and_calculation.md#proposition-963-a-downstream-bid-can-remain-below-the-wave-price)). At stage $k$, the currency increment $\delta > 0$ enters an agent's effective bid if and only if $d(i) \le k$.
 
 ### Definition 4 (The ZIRP Mandate)
 The state mandates a nominal credit interest rate equal to zero: $\text{creditRate} = 0$.
@@ -77,7 +77,7 @@ Therefore, creating nominal fiat tokens cannot transform an infeasible physical 
 **Proposition.** Injected currency does not spread uniformly across the economy; it bids scarce complementary capital away from existing private production lines, triggering mid-chain project abandonment.
 
 **Proof.**
-1. By [Proposition 9.33](../natural_language/09_money_prices_and_calculation.md#proposition-933-a-downstream-bid-can-remain-below-the-wave-price) (Chapter 9), under a staged injection schedule, early recipients at distance $d(i) \le k$ possess expanded effective purchasing power, bidding prices up to $P_{\text{wave}}$.
+1. By [Proposition 9.63](../natural_language/09_money_prices_and_calculation.md#proposition-963-a-downstream-bid-can-remain-below-the-wave-price) (Chapter 9), under a staged injection schedule, early recipients at distance $d(i) \le k$ possess expanded effective purchasing power, bidding prices up to $P_{\text{wave}}$.
 2. Downstream private producers at distance $d(j) > k$ operate at base reservation bids $v_j < P_{\text{wave}}$.
 3. Because labor cannot produce without complementary tools and intermediate inputs $(u(\alpha, m_C) > 0)$, state-funded employers bid scarce materials and equipment away from private enterprises.
 4. Starved of complementary factors, downstream private production lines find $u(\alpha, m_C) > \omega(j, t, h, m_C)$, forcing them into physical infeasibility.

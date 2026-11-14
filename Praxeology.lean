@@ -16,6 +16,8 @@ public import Praxeology.EpistemicAbility
 public import Praxeology.Marginal
 public import Praxeology.Catallactics
 public import Praxeology.EconomicCalculation
+public import Praxeology.EconomicCalculation.Incentives
+public import Praxeology.EconomicCalculation.Institutions
 public import Praxeology.Catallactics.Credit
 public import Praxeology.Catallactics.ProgramExchangeWitness
 public import Praxeology.Production

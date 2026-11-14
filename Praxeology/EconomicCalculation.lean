@@ -59,7 +59,7 @@ theorem solvable_iff_common_decision [Inhabited Decision]
     have hr : ∃ x, P.observe x = P.observe s := ⟨s, rfl⟩
     change P.acceptable s (if hr' : ∃ x, P.observe x = P.observe s then
       (h (P.observe s) hr').choose else default)
-    rw [dif_pos hr]
+    simp only [hr, ↓reduceDIte]
     exact (h (P.observe s) hr).choose_spec s rfl
 
 /-- Equal records alone cause no obstruction. The acceptable-decision sets
@@ -189,6 +189,50 @@ theorem implementation_requires_equilibrium [DecidableEq Agent]
     (h : P.FullyImplementsPareto) :
     ∃ s : P.Strategy, P.ExPostEquilibrium s := h.1
 
+/-- An unverified report is payoff-insensitive when changing agent `i`'s report
+leaves agent `i` indifferent among all resulting outcomes. -/
+def ReportPayoffInsensitive [DecidableEq Agent] : Prop :=
+  ∀ types (reports : ∀ i, P.Report i) i (r₁ r₂ : P.Report i),
+    P.weaklyPrefers types i
+      (P.execute types (P.instruct (P.replace reports i r₁)))
+      (P.execute types (P.instruct (P.replace reports i r₂)))
+
+/-- Every agent sends a fixed type-independent report. -/
+def constantStrategy (constReport : ∀ i, P.Report i) : P.Strategy :=
+  fun i _ _ => constReport i
+
+/-- When pre-commitment reports do not affect an agent's personal outcome,
+every type-independent babbling profile is an ex-post equilibrium. -/
+theorem babbling_equilibrium_of_payoff_insensitive [DecidableEq Agent]
+    (constReport : ∀ i, P.Report i) (h : P.ReportPayoffInsensitive) :
+    P.ExPostEquilibrium (P.constantStrategy constReport) := by
+  intro types i alternative
+  have h_same :
+      P.replace (P.reports types (P.constantStrategy constReport)) i (constReport i) =
+        P.reports types (P.constantStrategy constReport) := by
+    funext j
+    by_cases hji : j = i
+    · subst j
+      simp [replace, reports, constantStrategy]
+    · simp [replace, hji]
+  have h_flat := h types (P.reports types (P.constantStrategy constReport)) i
+    (constReport i) alternative
+  rw [h_same] at h_flat
+  exact h_flat
+
+/-- When reports are payoff-insensitive, truthful reporting is never strictly
+preferred to an arbitrary alternative report. -/
+theorem not_strictly_prefers_truth_of_payoff_insensitive [DecidableEq Agent]
+    (reveal : ∀ i, P.Private i → P.Report i)
+    (h : P.ReportPayoffInsensitive)
+    (types : ∀ i, P.Private i) (otherReports : ∀ i, P.Report i)
+    (i : Agent) (alternative : P.Report i) :
+    ¬ P.StrictlyPrefers types i
+      (P.execute types (P.instruct (P.replace otherReports i (reveal i (types i)))))
+      (P.execute types (P.instruct (P.replace otherReports i alternative))) := by
+  intro hstrict
+  exact hstrict.2 (h types otherReports i alternative (reveal i (types i)))
+
 end ReportingProtocol
 
 /-- Physical consumption and labor remain comparable across institutions.
@@ -286,7 +330,7 @@ structure CertificateState (Person Good : Type) where
 
 namespace CertificateState
 
-variable {Person Good : Type} [DecidableEq Person] [DecidableEq Good]
+variable {Person Good : Type} [DecidableEq Person]
 
 /-- The deduction is applied to verified work, with overlarge deductions
 clamped by natural subtraction. Issuance records do not certify work by
@@ -297,6 +341,20 @@ def issue (S : CertificateState Person Good)
   { S with
     balance := Function.update S.balance person
       (S.balance person + (verifiedHours - deduction)) }
+
+theorem issue_other (S : CertificateState Person Good) (person other : Person)
+    (verifiedHours deduction : ℕ) (h : other ≠ person) :
+    (S.issue person verifiedHours deduction).balance other = S.balance other := by
+  simp [issue, Function.update_of_ne h]
+
+theorem issue_records_verified_net_hours
+    (S : CertificateState Person Good) (person : Person)
+    (verifiedHours deduction : ℕ) :
+    (S.issue person verifiedHours deduction).balance person =
+      S.balance person + (verifiedHours - deduction) := by
+  simp [issue]
+
+variable [DecidableEq Good]
 
 /-- A work ledger joins the physical production state to the certificate
 ledger. Remaining capacity is consumed when a run is executed. -/
@@ -381,18 +439,6 @@ def redeem (S : CertificateState Person Good) (cost : Good → ℕ)
           (S.consumed person good + quantity)) }
   else S
 
-theorem issue_other (S : CertificateState Person Good) (person other : Person)
-    (verifiedHours deduction : ℕ) (h : other ≠ person) :
-    (S.issue person verifiedHours deduction).balance other = S.balance other := by
-  simp [issue, Function.update_of_ne h]
-
-theorem issue_records_verified_net_hours
-    (S : CertificateState Person Good) (person : Person)
-    (verifiedHours deduction : ℕ) :
-    (S.issue person verifiedHours deduction).balance person =
-      S.balance person + (verifiedHours - deduction) := by
-  simp [issue]
-
 theorem redeem_preserves_stock_if_unfunded
     (S : CertificateState Person Good) (cost : Good → ℕ)
     (person : Person) (good : Good) (quantity : ℕ)
@@ -421,6 +467,54 @@ theorem redeem_conserves_claim
       cost good * quantity = S.balance person := by
   simp [redeem, h, Nat.sub_add_cancel h.2]
 
+/-- Atomic certificate redemption updating both the certificate stock and the
+synchronized public production stock when they match. -/
+def WorkLedger.redeem {Task : Type}
+    (L : WorkLedger (Person := Person) (Good := Good) Task)
+    (cost : Good → ℕ) (person : Person) (good : Good) (quantity : ℕ)
+    [Decidable (L.certificates.stock = L.production.publicStock)] :
+    WorkLedger (Person := Person) (Good := Good) Task :=
+  if L.certificates.stock = L.production.publicStock then
+    let certificates' := L.certificates.redeem cost person good quantity
+    { production := { L.production with publicStock := certificates'.stock }
+      certificates := certificates' }
+  else L
+
+theorem WorkLedger.executeAndIssue_stock_sync {Task : Type} [DecidableEq Task]
+    [Fintype Good] (L : WorkLedger (Person := Person) (Good := Good) Task)
+    (person : Person) (task : Task) (runs deduction : ℕ)
+    [Decidable (L.production.CanExecute person task runs)]
+    [Decidable (L.certificates.stock = L.production.publicStock)]
+    (hsync : L.certificates.stock = L.production.publicStock) :
+    (L.executeAndIssue person task runs deduction).certificates.stock =
+      (L.executeAndIssue person task runs deduction).production.publicStock := by
+  by_cases hwork : L.production.CanExecute person task runs
+  · simp [WorkLedger.executeAndIssue, hsync, hwork]
+  · simp [WorkLedger.executeAndIssue, hsync, hwork]
+
+theorem WorkLedger.redeem_stock_sync {Task : Type}
+    (L : WorkLedger (Person := Person) (Good := Good) Task)
+    (cost : Good → ℕ) (person : Person) (good : Good) (quantity : ℕ)
+    [Decidable (L.certificates.stock = L.production.publicStock)]
+    (hsync : L.certificates.stock = L.production.publicStock) :
+    (L.redeem cost person good quantity).certificates.stock =
+      (L.redeem cost person good quantity).production.publicStock := by
+  simp [WorkLedger.redeem, hsync]
+
+theorem WorkLedger.redeem_conserves_good {Task : Type}
+    (L : WorkLedger (Person := Person) (Good := Good) Task)
+    (cost : Good → ℕ) (person : Person) (good : Good) (quantity : ℕ)
+    [Decidable (L.certificates.stock = L.production.publicStock)]
+    (hsync : L.certificates.stock = L.production.publicStock)
+    (h : quantity ≤ L.certificates.stock good ∧
+      cost good * quantity ≤ L.certificates.balance person) :
+    (L.redeem cost person good quantity).certificates.stock good +
+      (L.redeem cost person good quantity).certificates.consumed person good =
+      L.certificates.stock good + L.certificates.consumed person good := by
+  simp only [WorkLedger.redeem, hsync, ↓reduceIte]
+  rw [← hsync]
+  exact L.certificates.redeem_conserves_good cost person good quantity h
+
 end CertificateState
 
 /-- The planning board owns the stock and changes an accounting price from
@@ -448,9 +542,8 @@ theorem balanced_price_stays (S : AdministeredPriceState Good)
     (h : S.clear demand) :
     (S.adjust ceiling demand).price = S.price := by
   funext good
-  simp [adjust, clear] at *
-  rw [h good]
-  simp
+  have hgood : demand good = S.stock good := h good
+  simp [adjust, hgood]
 
 /-- Price stability at a cap can coexist with excess demand. The stopping
 test must use clearing, not merely an unchanged quoted price. -/
@@ -506,10 +599,8 @@ theorem successful_trade_conserves_goods (S : SpotState)
     (S.settle quantity payment sellerOffers buyerAccepts).sellerStock +
       (S.settle quantity payment sellerOffers buyerAccepts).buyerStock =
       S.sellerStock + S.buyerStock := by
-  have h' := h
-  revert h'
-  cases sellerOffers <;> cases buyerAccepts <;> simp
-  intro hq _
+  have hq : quantity ≤ S.sellerStock :=
+    of_decide_eq_true (Bool.and_eq_true_iff.mp (Bool.and_eq_true_iff.mp h).1).2
   unfold settle
   rw [h]
   dsimp
@@ -522,10 +613,8 @@ theorem successful_trade_conserves_cash (S : SpotState)
     (S.settle quantity payment sellerOffers buyerAccepts).buyerCash +
       (S.settle quantity payment sellerOffers buyerAccepts).sellerCash =
       S.buyerCash + S.sellerCash := by
-  have h' := h
-  revert h'
-  cases sellerOffers <;> cases buyerAccepts <;> simp
-  intro _ hc
+  have hc : payment ≤ S.buyerCash :=
+    of_decide_eq_true (Bool.and_eq_true_iff.mp h).2
   unfold settle
   rw [h]
   dsimp
